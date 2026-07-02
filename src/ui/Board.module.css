@@ -58,9 +58,15 @@
   pointer-events: none;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .board {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .board {
+    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
   }
 
@@ -70,8 +76,8 @@
   }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 400px) {
   .board {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
