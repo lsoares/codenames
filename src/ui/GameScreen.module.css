@@ -65,9 +65,7 @@
   .screen {
     width: 96vw;
     margin: 8px auto;
-    gap: 8px;
-    min-height: calc(100dvh - 16px);
-    grid-template-rows: auto auto 1fr;
+    gap: 10px;
   }
 
   .title {

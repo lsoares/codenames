@@ -60,14 +60,18 @@
 
 @media (max-width: 640px) {
   .board {
+    grid-template-columns: repeat(4, 1fr);
     gap: 6px;
-    height: 100%;
-    grid-template-rows: repeat(4, 1fr);
   }
 
   .card {
     padding: 3px;
     border-radius: 10px;
-    aspect-ratio: auto;
+  }
+}
+
+@media (max-width: 380px) {
+  .board {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
