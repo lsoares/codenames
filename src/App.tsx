@@ -96,7 +96,6 @@ export default function App() {
   return (
     <GameScreen
       state={game}
-      roomCode={roomCode}
       spymaster={spymaster}
       onToggleSpymaster={setSpymaster}
       onAction={(action: Action) => sessionRef.current?.dispatch(action)}

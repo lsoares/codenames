@@ -24,17 +24,6 @@
   align-items: center;
 }
 
-.room {
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.room strong {
-  color: var(--ink);
-  font-family: 'Fredoka', system-ui, sans-serif;
-  letter-spacing: 1px;
-}
-
 .spymaster {
   display: flex;
   gap: 8px;
