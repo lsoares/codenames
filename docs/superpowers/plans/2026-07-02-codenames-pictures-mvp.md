@@ -15,6 +15,7 @@
 - Board is always **20 cards** in a **5×4 grid**. Key distribution: **8** starting team, **7** other team, **4** neutral, **1** assassin.
 - Unsplash access key is read from `import.meta.env.VITE_UNSPLASH_ACCESS_KEY` (build-time public env var).
 - Prefer role-based locators (`getByRole`, `findByRole`, `getByLabelText`) in UI tests. No mocks in game-logic tests.
+- **No technical-hotspot modules.** Do not create `types`, `utils`, `helpers`, `constants`, or `hooks` files (an ESLint `no-restricted-imports` rule bans importing them). Types, constants, and helpers live with the code that owns them. In this project: game-state types (`GameState`, `Card`, `Clue`, `Team`, `CardColor`, `GamePhase`) live in `createGame.ts`; `Action` lives in `applyAction.ts`.
 
 ---
 
