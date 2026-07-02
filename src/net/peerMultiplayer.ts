@@ -13,18 +13,42 @@ function randomCode(): string {
   return Math.random().toString(36).slice(2, 8)
 }
 
+// Public PeerJS broker by default; a local broker when VITE_PEER_HOST is set
+// (used by the Playwright suite so signaling has no external dependency).
+function newPeer(id?: string): Peer {
+  const brokerHost = import.meta.env.VITE_PEER_HOST
+  if (!brokerHost) return id ? new Peer(id) : new Peer()
+  const options = {
+    host: brokerHost,
+    port: Number(import.meta.env.VITE_PEER_PORT),
+    path: import.meta.env.VITE_PEER_PATH ?? '/',
+    key: import.meta.env.VITE_PEER_KEY ?? 'peerjs',
+  }
+  return id ? new Peer(id, options) : new Peer(options)
+}
+
 // Host owns the authoritative game state: it applies every action (its own and
 // guests') and broadcasts the new state to all connected peers.
 export function host(images: string[], startingTeam: Team): Promise<Session> {
-  return attemptHost(images, startingTeam, 3)
+  return startHost(randomCode(), createGame(images, startingTeam), 'new', 4)
 }
 
-function attemptHost(images: string[], startingTeam: Team, retries: number): Promise<Session> {
+// Re-host an existing game under the same room code after the host tab reloads.
+export function resumeHost(roomCode: string, state: GameState): Promise<Session> {
+  return startHost(roomCode, state, 'resume', 8)
+}
+
+function startHost(
+  code: string,
+  initialState: GameState,
+  mode: 'new' | 'resume',
+  retries: number,
+): Promise<Session> {
   return new Promise((resolve, reject) => {
-    const peer = new Peer(randomCode())
+    const peer = newPeer(code)
     const connections: DataConnection[] = []
     const listeners: Array<(state: GameState) => void> = []
-    let state: GameState
+    let state = initialState
 
     const broadcast = () => {
       listeners.forEach((listener) => listener(state))
@@ -32,7 +56,6 @@ function attemptHost(images: string[], startingTeam: Team, retries: number): Pro
     }
 
     peer.on('open', (id) => {
-      state = createGame(images, startingTeam)
       resolve({
         roomCode: id,
         dispatch: (action) => {
@@ -64,7 +87,11 @@ function attemptHost(images: string[], startingTeam: Team, retries: number): Pro
     peer.on('error', (error: { type?: string }) => {
       if (error.type === 'unavailable-id' && retries > 0) {
         peer.destroy()
-        attemptHost(images, startingTeam, retries - 1).then(resolve, reject)
+        const nextCode = mode === 'new' ? randomCode() : code
+        setTimeout(
+          () => startHost(nextCode, initialState, mode, retries - 1).then(resolve, reject),
+          mode === 'resume' ? 600 : 0,
+        )
       } else {
         reject(error)
       }
@@ -75,7 +102,7 @@ function attemptHost(images: string[], startingTeam: Team, retries: number): Pro
 // Guest connects to the host by room code, sends actions, and receives state.
 export function join(roomCode: string): Promise<Session> {
   return new Promise((resolve, reject) => {
-    const peer = new Peer()
+    const peer = newPeer()
 
     peer.on('open', () => {
       const connection = peer.connect(roomCode, { reliable: true })
