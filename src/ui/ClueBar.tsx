@@ -11,6 +11,9 @@ export default function ClueBar(props: {
   const [word, setWord] = useState('')
   const [count, setCount] = useState(1)
   const turn = props.state.turn
+  const teamCardsLeft = props.state.cards.filter(
+    (card) => card.color === turn && !card.revealed,
+  ).length
 
   return (
     <div className={styles.bar}>
@@ -40,6 +43,7 @@ export default function ClueBar(props: {
                 id="clue-count"
                 type="number"
                 min={0}
+                max={teamCardsLeft}
                 placeholder="Number"
                 value={count}
                 onChange={(event) => setCount(event.target.valueAsNumber)}

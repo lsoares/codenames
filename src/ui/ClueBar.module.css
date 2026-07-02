@@ -7,18 +7,6 @@
   min-height: 56px;
 }
 
-.turn {
-  font-size: 1.4rem;
-}
-
-.turn[data-team='red'] {
-  color: var(--red);
-}
-
-.turn[data-team='blue'] {
-  color: var(--blue);
-}
-
 .clueForm,
 .guessing {
   display: flex;
