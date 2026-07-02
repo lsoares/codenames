@@ -6,7 +6,8 @@ export default defineConfig({
   timeout: 60000,
   expect: { timeout: 15000 },
   use: {
-    baseURL: 'http://localhost:5173',
+    // Own port so the suite never collides with a running dev server on 5173.
+    baseURL: 'http://localhost:5174',
     trace: 'on-first-retry',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
@@ -17,8 +18,8 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: 'npm run dev -- --port 5173 --strictPort',
-      port: 5173,
+      command: 'npm run dev -- --port 5174 --strictPort',
+      port: 5174,
       reuseExistingServer: !process.env.CI,
       env: {
         VITE_PEER_HOST: 'localhost',
