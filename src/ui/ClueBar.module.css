@@ -3,7 +3,8 @@
   flex-wrap: wrap;
   gap: 14px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  min-height: 56px;
 }
 
 .turn {
