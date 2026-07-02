@@ -14,6 +14,8 @@ export interface Session {
   dispatch: (action: Action) => void
   setSpymaster: (value: boolean) => void
   subscribe: (listener: (view: RoomView) => void) => void
+  // Guests: fires when the connection to the host drops (host gone).
+  onDisconnect: (listener: () => void) => void
 }
 
 type Presence = { __presence: true; spymaster: boolean }
@@ -87,6 +89,7 @@ function startHost(
           listeners.push(listener)
           listener(view())
         },
+        onDisconnect: () => {},
       })
     })
 
@@ -135,6 +138,7 @@ export function join(roomCode: string): Promise<Session> {
       const connection = peer.connect(roomCode, { reliable: true })
       const listeners: Array<(view: RoomView) => void> = []
       let latest: RoomView | null = null
+      let disconnectHandler: () => void = () => {}
 
       connection.on('open', () => {
         resolve({
@@ -146,12 +150,16 @@ export function join(roomCode: string): Promise<Session> {
             listeners.push(listener)
             if (latest) listener(latest)
           },
+          onDisconnect: (listener) => {
+            disconnectHandler = listener
+          },
         })
       })
       connection.on('data', (data) => {
         latest = data as RoomView
         listeners.forEach((listener) => listener(latest as RoomView))
       })
+      connection.on('close', () => disconnectHandler())
     })
 
     peer.on('error', reject)

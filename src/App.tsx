@@ -4,7 +4,7 @@ import { type Action } from './game/applyAction'
 import { fetchPhotos } from './images/unsplash'
 import { placeholderImages } from './images/placeholder'
 import { host, resumeHost, join, type Session } from './net/peerMultiplayer'
-import Lobby from './ui/Lobby'
+import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
 
 const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
@@ -19,6 +19,7 @@ export default function App() {
   const [roomCode, setRoomCode] = useState('')
   const [spymaster, setSpymaster] = useState(false)
   const [spymasterCount, setSpymasterCount] = useState(0)
+  const [hostLost, setHostLost] = useState(false)
   const [status, setStatus] = useState('')
   const sessionRef = useRef<Session | null>(null)
   const isHostRef = useRef(false)
@@ -27,12 +28,27 @@ export default function App() {
   const wire = (session: Session, asHost: boolean) => {
     sessionRef.current = session
     isHostRef.current = asHost
+    setHostLost(false)
     setRoomCode(session.roomCode)
     window.location.hash = session.roomCode
     session.subscribe((view) => {
       setGame(view.state)
       setSpymasterCount(view.spymasters)
     })
+    if (!asHost) session.onDisconnect(() => setHostLost(true))
+  }
+
+  // Manual takeover: a guest re-hosts the room (same code) from the state it
+  // already holds when the host disappears.
+  const takeOver = async () => {
+    if (!game) return
+    setStatus('Taking over the room…')
+    try {
+      wire(await resumeHost(roomCode, game), true)
+      setStatus('')
+    } catch {
+      setStatus('Could not take over — someone else may have. Refresh to rejoin.')
+    }
   }
 
   const toggleSpymaster = (value: boolean) => {
@@ -69,6 +85,18 @@ export default function App() {
     }
   }
 
+  // Play a cue whenever the shared state crosses a milestone: clue given,
+  // a team's turn ends, or the game is won. Runs on every peer.
+  const prevGameRef = useRef<GameState | null>(null)
+  useEffect(() => {
+    const prev = prevGameRef.current
+    prevGameRef.current = game
+    if (!game || !prev) return
+    if (!prev.winner && game.winner) playSound('gameOver')
+    else if (prev.phase === 'clue' && game.phase === 'guess') playSound('clue')
+    else if (prev.turn !== game.turn) playSound('endTurn')
+  }, [game])
+
   // As host, mirror the game into sessionStorage so a refresh can restore it.
   useEffect(() => {
     if (isHostRef.current && roomCode && game) {
@@ -76,12 +104,15 @@ export default function App() {
     }
   }, [game, roomCode])
 
-  // On load, restore a room from the URL hash: re-host if we saved it, else join.
+  // On load: join/restore the room in the URL hash, or start a fresh game.
   useEffect(() => {
     if (startedRef.current) return
-    const code = normalizeCode(window.location.hash)
-    if (!code) return
     startedRef.current = true
+    const code = normalizeCode(window.location.hash)
+    if (!code) {
+      void createRoom()
+      return
+    }
 
     const saved = sessionStorage.getItem(hostStateKey(code))
     if (saved) {
@@ -99,21 +130,25 @@ export default function App() {
   }, [])
 
   if (!game) {
-    return <Lobby status={status} onCreate={createRoom} onJoin={joinRoom} />
+    return (
+      <main className="card">
+        <h1>Codenames Pictures</h1>
+        <p>{status || 'Setting up your game…'}</p>
+      </main>
+    )
   }
 
   return (
     <GameScreen
       state={game}
+      status={status}
       spymaster={spymaster}
       spymasterCount={spymasterCount}
+      canTakeOver={hostLost}
+      onTakeOver={takeOver}
       onToggleSpymaster={toggleSpymaster}
       onAction={(action: Action) => sessionRef.current?.dispatch(action)}
-      onNewGame={() => {
-        sessionStorage.removeItem(hostStateKey(roomCode))
-        window.location.hash = ''
-        window.location.reload()
-      }}
+      onNewGame={() => sessionRef.current?.dispatch({ type: 'newGame' })}
     />
   )
 }

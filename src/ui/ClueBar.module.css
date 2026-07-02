@@ -27,12 +27,39 @@
   flex-wrap: wrap;
 }
 
+.clueForm[data-team='red'] {
+  --turn: var(--red);
+}
+
+.clueForm[data-team='blue'] {
+  --turn: var(--blue);
+}
+
+.fields {
+  display: flex;
+  gap: 4px;
+}
+
 .clueForm input {
   width: auto;
+  border: 2px solid var(--turn);
 }
 
 .clueForm input[type='number'] {
   width: 72px;
+}
+
+.cluePill {
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.cluePill[data-team='red'] {
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+}
+
+.cluePill[data-team='blue'] {
+  background: color-mix(in srgb, var(--blue) 12%, transparent);
 }
 
 .waiting {

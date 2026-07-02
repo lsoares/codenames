@@ -29,6 +29,12 @@
   white-space: nowrap;
 }
 
+.status {
+  color: var(--muted);
+  font-style: italic;
+  white-space: nowrap;
+}
+
 .menu {
   position: relative;
 }
@@ -58,6 +64,12 @@
 
 .menuItems button {
   width: 100%;
+}
+
+.remaining {
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .spymaster {

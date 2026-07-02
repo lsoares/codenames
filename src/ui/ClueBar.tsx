@@ -14,14 +14,11 @@ export default function ClueBar(props: {
 
   return (
     <div className={styles.bar}>
-      <h2 className={styles.turn} data-team={turn}>
-        {turn === 'red' ? "Red's turn" : "Blue's turn"}
-      </h2>
-
       {props.state.phase === 'clue' ? (
         props.spymaster ? (
           <form
             className={styles.clueForm}
+            data-team={turn}
             onSubmit={(event) => {
               event.preventDefault()
               if (word.trim()) {
@@ -30,24 +27,30 @@ export default function ClueBar(props: {
               }
             }}
           >
-            <label htmlFor="clue-word">Clue</label>
-            <input id="clue-word" value={word} onChange={(event) => setWord(event.target.value)} />
-            <label htmlFor="clue-count">Number</label>
-            <input
-              id="clue-count"
-              type="number"
-              min={0}
-              value={count}
-              onChange={(event) => setCount(Number(event.target.value))}
-            />
-            <button type="submit">Give clue</button>
+            <div className={styles.fields}>
+              <input
+                value={word}
+                required
+                placeholder={turn === 'red' ? "Red's clue" : "Blue's clue"}
+                onChange={(event) => setWord(event.target.value)}
+              />
+              <input
+                id="clue-count"
+                type="number"
+                min={0}
+                placeholder="Number"
+                value={count}
+                onChange={(event) => setCount(event.target.valueAsNumber)}
+              />
+            </div>
+            <button type="submit">💡</button>
           </form>
         ) : (
           <span className={styles.waiting}>Waiting for the spymaster's clue…</span>
         )
       ) : (
         <div className={styles.guessing}>
-          <span>
+          <span className={styles.cluePill} data-team={turn}>
             Clue: <strong>{props.state.clue?.word}</strong> ·{' '}
             {props.state.guessesRemaining} guesses left
           </span>

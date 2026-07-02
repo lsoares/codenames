@@ -8,13 +8,19 @@ import styles from './GameScreen.module.css'
 
 export default function GameScreen(props: {
   state: GameState
+  status: string
   spymaster: boolean
   spymasterCount: number
+  canTakeOver: boolean
+  onTakeOver: () => void
   onToggleSpymaster: (value: boolean) => void
   onAction: (action: Action) => void
   onNewGame: () => void
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const remaining = (color: string): number =>
+    props.state.cards.filter((card) => card.color === color && !card.revealed).length
 
   // Close the menu when clicking anywhere outside it.
   useEffect(() => {
@@ -30,9 +36,13 @@ export default function GameScreen(props: {
         <h1 className={styles.title}>Codenames Pictures</h1>
 
         <div className={styles.headerRight}>
-          <span className={styles.spymasterCount} title="Spymasters viewing the key">
-            🕵️ {props.spymasterCount}
+          <span title={`${props.state.turn}'s turn`}>
+            {props.state.turn === 'red' ? '🔴' : '🔵'}
           </span>
+          <span className={styles.spymasterCount} title="Spymasters viewing the key">
+            {'🕵️'.repeat(props.spymasterCount)}
+          </span>
+          {props.status && <span className={styles.status}>{props.status}</span>}
 
           <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
           <button
@@ -46,22 +56,26 @@ export default function GameScreen(props: {
           </button>
           {menuOpen && (
             <div className={styles.menuItems} role="menu">
-              <button
-                className="secondary"
-                onClick={() => {
-                  void navigator.clipboard?.writeText(window.location.href)
-                  setMenuOpen(false)
-                }}
-              >
-                Invite
-              </button>
+              <div className={styles.remaining}>
+                🔴 {remaining('red')} · 🔵 {remaining('blue')} · ⚪ {remaining('neutral')}
+              </div>
+              {props.canTakeOver && (
+                <button
+                  onClick={() => {
+                    props.onTakeOver()
+                    setMenuOpen(false)
+                  }}
+                >
+                  Take over as host
+                </button>
+              )}
               <label className={styles.spymaster}>
                 <input
                   type="checkbox"
                   checked={props.spymaster}
                   onChange={(event) => props.onToggleSpymaster(event.target.checked)}
                 />
-                Spymaster view
+                I am a spymaster
               </label>
               <button className="secondary" onClick={props.onNewGame}>
                 New game
@@ -76,6 +90,7 @@ export default function GameScreen(props: {
         <GameOver
           winner={props.state.winner}
           byAssassin={props.state.log[props.state.log.length - 1]?.endsWith('assassin') ?? false}
+          onNewGame={props.onNewGame}
         />
       ) : (
         <ClueBar

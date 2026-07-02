@@ -1,9 +1,10 @@
-import type { GameState, Team } from './createGame'
+import { createGame, type GameState, type Team } from './createGame'
 
 export type Action =
   | { type: 'clue'; word: string; count: number }
   | { type: 'guess'; cardIndex: number }
   | { type: 'endTurn' }
+  | { type: 'newGame' }
 
 const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
 
@@ -11,6 +12,14 @@ const unrevealedCount = (state: GameState, team: Team): number =>
   state.cards.filter((card) => card.color === team && !card.revealed).length
 
 export function applyAction(state: GameState, action: Action): GameState {
+  // A fresh game reshuffles the same pictures with a new key; allowed even after a win.
+  if (action.type === 'newGame') {
+    return createGame(
+      state.cards.map((card) => card.imageUrl),
+      Math.random() < 0.5 ? 'red' : 'blue',
+    )
+  }
+
   if (state.winner) return state
 
   if (action.type === 'clue') {

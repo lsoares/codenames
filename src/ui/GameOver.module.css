@@ -1,5 +1,9 @@
 .banner {
-  text-align: center;
+  text-align: left;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   font-family: 'Fredoka', system-ui, sans-serif;
   font-size: 1.6rem;
   font-weight: 700;

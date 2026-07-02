@@ -28,11 +28,13 @@ export class GamePage {
     await this.page.goto(`/#${code}`)
   }
 
+  // The app auto-hosts a room on load; just wait until the board is ready.
   async createRoom(): Promise<void> {
-    await this.page.getByRole('button', { name: /create room/i }).click()
+    await this.cards().first().waitFor()
   }
 
   async roomCode(): Promise<string> {
+    await this.page.waitForFunction(() => window.location.hash.length > 1)
     const hash = await this.page.evaluate(() => window.location.hash)
     return hash.replace(/^#/, '')
   }
@@ -54,9 +56,9 @@ export class GamePage {
   }
 
   async giveClue(word: string, count: number): Promise<void> {
-    await this.page.getByLabel('Clue').fill(word)
-    await this.page.getByLabel('Number').fill(String(count))
-    await this.page.getByRole('button', { name: /give clue/i }).click()
+    await this.page.getByRole('textbox', { name: /clue/i }).fill(word)
+    await this.page.getByRole('spinbutton').fill(String(count))
+    await this.page.getByRole('button', { name: '💡' }).click()
   }
 
   cards() {
@@ -75,8 +77,8 @@ export class GamePage {
   }
 
   async currentTurn(): Promise<Color> {
-    const text = await this.page.getByRole('heading', { name: /turn$/i }).innerText()
-    return text.toLowerCase().startsWith('red') ? 'red' : 'blue'
+    const title = await this.page.getByTitle(/'s turn$/).getAttribute('title')
+    return title?.toLowerCase().startsWith('red') ? 'red' : 'blue'
   }
 
   winnerBanner() {
