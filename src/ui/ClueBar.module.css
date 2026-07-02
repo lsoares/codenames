@@ -1,0 +1,35 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+}
+
+.turn {
+  font-size: 1.4rem;
+}
+
+.turn[data-team='red'] {
+  color: var(--red);
+}
+
+.turn[data-team='blue'] {
+  color: var(--blue);
+}
+
+.clueForm,
+.guessing {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.clueForm input {
+  width: auto;
+}
+
+.clueForm input[type='number'] {
+  width: 72px;
+}

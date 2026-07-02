@@ -1,0 +1,49 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.card {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  padding: 5px;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.card:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+.card[data-color='red'] {
+  background: var(--red);
+}
+
+.card[data-color='blue'] {
+  background: var(--blue);
+}
+
+.card[data-color='neutral'] {
+  background: #cbb891;
+}
+
+.card[data-color='assassin'] {
+  background: #2b2d42;
+}
+
+.card[data-revealed] .image {
+  opacity: 0.3;
+}

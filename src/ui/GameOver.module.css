@@ -1,0 +1,14 @@
+.banner {
+  text-align: center;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.banner[data-team='red'] {
+  color: var(--red);
+}
+
+.banner[data-team='blue'] {
+  color: var(--blue);
+}
