@@ -7,6 +7,7 @@ import styles from './GameScreen.module.css'
 
 export default function GameScreen(props: {
   state: GameState
+  roomCode: string
   spymaster: boolean
   onToggleSpymaster: (value: boolean) => void
   onAction: (action: Action) => void
@@ -17,6 +18,15 @@ export default function GameScreen(props: {
       <header className={styles.header}>
         <h1 className={styles.title}>Codenames Pictures</h1>
         <div className={styles.controls}>
+          <span className={styles.room}>
+            Room <strong>{props.roomCode}</strong>
+          </span>
+          <button
+            className="secondary"
+            onClick={() => void navigator.clipboard?.writeText(window.location.href)}
+          >
+            Copy invite link
+          </button>
           <label className={styles.spymaster}>
             <input
               type="checkbox"

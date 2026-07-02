@@ -1,5 +1,5 @@
 .screen {
-  width: min(94vw, 920px);
+  width: min(97vw, 1240px);
   margin: 4vh auto;
   display: grid;
   gap: 16px;
@@ -19,8 +19,20 @@
 
 .controls {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: center;
+}
+
+.room {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.room strong {
+  color: var(--ink);
+  font-family: 'Fredoka', system-ui, sans-serif;
+  letter-spacing: 1px;
 }
 
 .spymaster {
