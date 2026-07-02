@@ -33,3 +33,8 @@
 .clueForm input[type='number'] {
   width: 72px;
 }
+
+.waiting {
+  color: var(--muted);
+  font-style: italic;
+}

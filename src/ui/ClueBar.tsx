@@ -4,6 +4,7 @@ import styles from './ClueBar.module.css'
 
 export default function ClueBar(props: {
   state: GameState
+  spymaster: boolean
   onClue: (word: string, count: number) => void
   onEndTurn: () => void
 }) {
@@ -18,37 +19,43 @@ export default function ClueBar(props: {
       </h2>
 
       {props.state.phase === 'clue' ? (
-        <form
-          className={styles.clueForm}
-          onSubmit={(event) => {
-            event.preventDefault()
-            if (word.trim()) {
-              props.onClue(word.trim(), count)
-              setWord('')
-            }
-          }}
-        >
-          <label htmlFor="clue-word">Clue</label>
-          <input id="clue-word" value={word} onChange={(event) => setWord(event.target.value)} />
-          <label htmlFor="clue-count">Number</label>
-          <input
-            id="clue-count"
-            type="number"
-            min={0}
-            value={count}
-            onChange={(event) => setCount(Number(event.target.value))}
-          />
-          <button type="submit">Give clue</button>
-        </form>
+        props.spymaster ? (
+          <form
+            className={styles.clueForm}
+            onSubmit={(event) => {
+              event.preventDefault()
+              if (word.trim()) {
+                props.onClue(word.trim(), count)
+                setWord('')
+              }
+            }}
+          >
+            <label htmlFor="clue-word">Clue</label>
+            <input id="clue-word" value={word} onChange={(event) => setWord(event.target.value)} />
+            <label htmlFor="clue-count">Number</label>
+            <input
+              id="clue-count"
+              type="number"
+              min={0}
+              value={count}
+              onChange={(event) => setCount(Number(event.target.value))}
+            />
+            <button type="submit">Give clue</button>
+          </form>
+        ) : (
+          <span className={styles.waiting}>Waiting for the spymaster's clue…</span>
+        )
       ) : (
         <div className={styles.guessing}>
           <span>
             Clue: <strong>{props.state.clue?.word}</strong> ·{' '}
             {props.state.guessesRemaining} guesses left
           </span>
-          <button className="secondary" onClick={props.onEndTurn}>
-            End turn
-          </button>
+          {!props.spymaster && (
+            <button className="secondary" onClick={props.onEndTurn}>
+              End turn
+            </button>
+          )}
         </div>
       )}
     </div>

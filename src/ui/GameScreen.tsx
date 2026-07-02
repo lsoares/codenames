@@ -45,6 +45,7 @@ export default function GameScreen(props: {
       ) : (
         <ClueBar
           state={props.state}
+          spymaster={props.spymaster}
           onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
           onEndTurn={() => props.onAction({ type: 'endTurn' })}
         />
