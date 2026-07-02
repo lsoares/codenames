@@ -22,6 +22,11 @@ export default function Board(props: {
             onClick={() => props.onCardClick(index)}
           >
             <img className={styles.image} src={card.imageUrl} alt="" />
+            {showColor && card.color === 'assassin' && (
+              <span className={styles.assassin} aria-hidden="true">
+                ☠️
+              </span>
+            )}
           </button>
         )
       })}

@@ -42,7 +42,10 @@ export default function GameScreen(props: {
       </header>
 
       {props.state.winner ? (
-        <GameOver winner={props.state.winner} />
+        <GameOver
+          winner={props.state.winner}
+          byAssassin={props.state.log[props.state.log.length - 1]?.endsWith('assassin') ?? false}
+        />
       ) : (
         <ClueBar
           state={props.state}
