@@ -41,7 +41,15 @@ export class GamePage {
     await this.page.reload()
   }
 
+  async openMenu(): Promise<void> {
+    const toggle = this.page.getByRole('button', { name: /options/i })
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') {
+      await toggle.click()
+    }
+  }
+
   async enableSpymaster(): Promise<void> {
+    await this.openMenu()
     await this.page.getByRole('checkbox', { name: /spymaster/i }).check()
   }
 

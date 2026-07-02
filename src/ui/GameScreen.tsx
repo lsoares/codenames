@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { GameState } from '../game/createGame'
 import type { Action } from '../game/applyAction'
 import Board from './Board'
@@ -12,28 +13,55 @@ export default function GameScreen(props: {
   onAction: (action: Action) => void
   onNewGame: () => void
 }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  // Close the menu when clicking anywhere outside it.
+  useEffect(() => {
+    if (!menuOpen) return
+    const close = () => setMenuOpen(false)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [menuOpen])
+
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
         <h1 className={styles.title}>Codenames Pictures</h1>
-        <div className={styles.controls}>
+
+        <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
           <button
-            className="secondary"
-            onClick={() => void navigator.clipboard?.writeText(window.location.href)}
+            className={styles.menuToggle}
+            aria-label="Options"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
           >
-            Invite
+            ⋮
           </button>
-          <label className={styles.spymaster}>
-            <input
-              type="checkbox"
-              checked={props.spymaster}
-              onChange={(event) => props.onToggleSpymaster(event.target.checked)}
-            />
-            Spymaster view
-          </label>
-          <button className="secondary" onClick={props.onNewGame}>
-            New game
-          </button>
+          {menuOpen && (
+            <div className={styles.menuItems} role="menu">
+              <button
+                className="secondary"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(window.location.href)
+                  setMenuOpen(false)
+                }}
+              >
+                Invite
+              </button>
+              <label className={styles.spymaster}>
+                <input
+                  type="checkbox"
+                  checked={props.spymaster}
+                  onChange={(event) => props.onToggleSpymaster(event.target.checked)}
+                />
+                Spymaster view
+              </label>
+              <button className="secondary" onClick={props.onNewGame}>
+                New game
+              </button>
+            </div>
+          )}
         </div>
       </header>
 

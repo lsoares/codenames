@@ -17,11 +17,35 @@
   font-size: 1.8rem;
 }
 
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
+.menu {
+  position: relative;
+}
+
+.menuToggle {
+  padding: 6px 14px;
+  font-size: 1.6rem;
+  line-height: 1;
+  background: var(--primary-soft);
+  color: var(--primary);
+  box-shadow: none;
+}
+
+.menuItems {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 10;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  min-width: 200px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.menuItems button {
+  width: 100%;
 }
 
 .spymaster {
@@ -35,4 +59,18 @@
 
 .spymaster input {
   width: auto;
+}
+
+@media (max-width: 640px) {
+  .screen {
+    width: 96vw;
+    margin: 8px auto;
+    gap: 8px;
+    min-height: calc(100dvh - 16px);
+    grid-template-rows: auto auto 1fr;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
 }
