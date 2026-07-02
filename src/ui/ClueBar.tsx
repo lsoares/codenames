@@ -31,6 +31,8 @@ export default function ClueBar(props: {
               <input
                 value={word}
                 required
+                pattern="\S+"
+                title="One word, no spaces"
                 placeholder={turn === 'red' ? "Red's clue" : "Blue's clue"}
                 onChange={(event) => setWord(event.target.value)}
               />

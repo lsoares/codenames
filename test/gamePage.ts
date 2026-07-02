@@ -56,7 +56,7 @@ export class GamePage {
   }
 
   async giveClue(word: string, count: number): Promise<void> {
-    await this.page.getByRole('textbox', { name: /clue/i }).fill(word)
+    await this.page.getByRole('textbox').fill(word)
     await this.page.getByRole('spinbutton').fill(String(count))
     await this.page.getByRole('button', { name: '💡' }).click()
   }
