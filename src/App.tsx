@@ -18,6 +18,7 @@ export default function App() {
   const [game, setGame] = useState<GameState | null>(null)
   const [roomCode, setRoomCode] = useState('')
   const [spymaster, setSpymaster] = useState(false)
+  const [spymasterCount, setSpymasterCount] = useState(0)
   const [status, setStatus] = useState('')
   const sessionRef = useRef<Session | null>(null)
   const isHostRef = useRef(false)
@@ -28,7 +29,15 @@ export default function App() {
     isHostRef.current = asHost
     setRoomCode(session.roomCode)
     window.location.hash = session.roomCode
-    session.subscribe(setGame)
+    session.subscribe((view) => {
+      setGame(view.state)
+      setSpymasterCount(view.spymasters)
+    })
+  }
+
+  const toggleSpymaster = (value: boolean) => {
+    setSpymaster(value)
+    sessionRef.current?.setSpymaster(value)
   }
 
   const createRoom = async () => {
@@ -97,7 +106,8 @@ export default function App() {
     <GameScreen
       state={game}
       spymaster={spymaster}
-      onToggleSpymaster={setSpymaster}
+      spymasterCount={spymasterCount}
+      onToggleSpymaster={toggleSpymaster}
       onAction={(action: Action) => sessionRef.current?.dispatch(action)}
       onNewGame={() => {
         sessionStorage.removeItem(hostStateKey(roomCode))

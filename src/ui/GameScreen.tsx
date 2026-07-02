@@ -9,6 +9,7 @@ import styles from './GameScreen.module.css'
 export default function GameScreen(props: {
   state: GameState
   spymaster: boolean
+  spymasterCount: number
   onToggleSpymaster: (value: boolean) => void
   onAction: (action: Action) => void
   onNewGame: () => void
@@ -28,7 +29,12 @@ export default function GameScreen(props: {
       <header className={styles.header}>
         <h1 className={styles.title}>Codenames Pictures</h1>
 
-        <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
+        <div className={styles.headerRight}>
+          <span className={styles.spymasterCount} title="Spymasters viewing the key">
+            🕵️ {props.spymasterCount}
+          </span>
+
+          <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
           <button
             className={styles.menuToggle}
             aria-label="Options"
@@ -62,6 +68,7 @@ export default function GameScreen(props: {
               </button>
             </div>
           )}
+          </div>
         </div>
       </header>
 

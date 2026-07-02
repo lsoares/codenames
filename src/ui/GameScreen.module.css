@@ -17,6 +17,18 @@
   font-size: 1.8rem;
 }
 
+.headerRight {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.spymasterCount {
+  font-weight: 800;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 .menu {
   position: relative;
 }

@@ -2,11 +2,21 @@ import Peer, { type DataConnection } from 'peerjs'
 import { createGame, type GameState, type Team } from '../game/createGame'
 import { applyAction, type Action } from '../game/applyAction'
 
+// What every peer renders: the game plus live presence (how many spymasters
+// are currently viewing the key — a tell for extra peekers).
+export interface RoomView {
+  state: GameState
+  spymasters: number
+}
+
 export interface Session {
   roomCode: string
   dispatch: (action: Action) => void
-  subscribe: (listener: (state: GameState) => void) => void
+  setSpymaster: (value: boolean) => void
+  subscribe: (listener: (view: RoomView) => void) => void
 }
+
+type Presence = { __presence: true; spymaster: boolean }
 
 // Short, URL-friendly room code used as the host's PeerJS id.
 function randomCode(): string {
@@ -27,8 +37,6 @@ function newPeer(id?: string): Peer {
   return id ? new Peer(id, options) : new Peer(options)
 }
 
-// Host owns the authoritative game state: it applies every action (its own and
-// guests') and broadcasts the new state to all connected peers.
 export function host(images: string[], startingTeam: Team): Promise<Session> {
   return startHost(randomCode(), createGame(images, startingTeam), 'new', 4)
 }
@@ -47,12 +55,21 @@ function startHost(
   return new Promise((resolve, reject) => {
     const peer = newPeer(code)
     const connections: DataConnection[] = []
-    const listeners: Array<(state: GameState) => void> = []
+    const spymasterByConn = new Map<DataConnection, boolean>()
+    const listeners: Array<(view: RoomView) => void> = []
     let state = initialState
+    let hostSpymaster = false
 
+    const spymasterCount = () => {
+      let count = hostSpymaster ? 1 : 0
+      for (const flag of spymasterByConn.values()) if (flag) count++
+      return count
+    }
+    const view = (): RoomView => ({ state, spymasters: spymasterCount() })
     const broadcast = () => {
-      listeners.forEach((listener) => listener(state))
-      connections.forEach((connection) => connection.open && connection.send(state))
+      const current = view()
+      listeners.forEach((listener) => listener(current))
+      connections.forEach((connection) => connection.open && connection.send(current))
     }
 
     peer.on('open', (id) => {
@@ -62,9 +79,13 @@ function startHost(
           state = applyAction(state, action)
           broadcast()
         },
+        setSpymaster: (value) => {
+          hostSpymaster = value
+          broadcast()
+        },
         subscribe: (listener) => {
           listeners.push(listener)
-          listener(state)
+          listener(view())
         },
       })
     })
@@ -72,15 +93,21 @@ function startHost(
     peer.on('connection', (connection) => {
       connection.on('open', () => {
         connections.push(connection)
-        connection.send(state)
+        connection.send(view())
       })
       connection.on('data', (data) => {
-        state = applyAction(state, data as Action)
+        if ((data as Presence).__presence) {
+          spymasterByConn.set(connection, (data as Presence).spymaster)
+        } else {
+          state = applyAction(state, data as Action)
+        }
         broadcast()
       })
       connection.on('close', () => {
         const index = connections.indexOf(connection)
         if (index >= 0) connections.splice(index, 1)
+        spymasterByConn.delete(connection)
+        broadcast()
       })
     })
 
@@ -99,20 +126,22 @@ function startHost(
   })
 }
 
-// Guest connects to the host by room code, sends actions, and receives state.
+// Guest connects to the host by room code, sends actions/presence, receives views.
 export function join(roomCode: string): Promise<Session> {
   return new Promise((resolve, reject) => {
     const peer = newPeer()
 
     peer.on('open', () => {
       const connection = peer.connect(roomCode, { reliable: true })
-      const listeners: Array<(state: GameState) => void> = []
-      let latest: GameState | null = null
+      const listeners: Array<(view: RoomView) => void> = []
+      let latest: RoomView | null = null
 
       connection.on('open', () => {
         resolve({
           roomCode,
           dispatch: (action) => connection.send(action),
+          setSpymaster: (value) =>
+            connection.send({ __presence: true, spymaster: value } satisfies Presence),
           subscribe: (listener) => {
             listeners.push(listener)
             if (latest) listener(latest)
@@ -120,8 +149,8 @@ export function join(roomCode: string): Promise<Session> {
         })
       })
       connection.on('data', (data) => {
-        latest = data as GameState
-        listeners.forEach((listener) => listener(latest as GameState))
+        latest = data as RoomView
+        listeners.forEach((listener) => listener(latest as RoomView))
       })
     })
 
