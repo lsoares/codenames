@@ -25,7 +25,7 @@ export default function GameScreen(props: {
             className="secondary"
             onClick={() => void navigator.clipboard?.writeText(window.location.href)}
           >
-            Copy invite link
+            Invite
           </button>
           <label className={styles.spymaster}>
             <input
