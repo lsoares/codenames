@@ -14,6 +14,8 @@
   position: relative;
   aspect-ratio: 4 / 3;
   padding: 5px;
+  /* Drag-to-select sweeps across cards; don't let it select word-tile text. */
+  user-select: none;
   /* Rounder corners open the gaps into rounded pockets at each crossing,
      which breaks the Hermann-grid illusion (ghost blobs at intersections). */
   border-radius: 20px;
@@ -103,7 +105,7 @@
 /* Hover clears any fade so you can check which card it is. The focus variant
    out-specifies the focus fade below. */
 .card:hover .face,
-.board[data-focus] .card:not([data-enlarged]):not([data-color='assassin']):hover .face {
+.board[data-focus] .card:not([data-selected]):not([data-color='assassin']):hover .face {
   opacity: 1;
 }
 
@@ -112,14 +114,14 @@
   opacity: 1;
 }
 
-/* Singling out a card (a spymaster's enlarge, or an operative's mark) thickens
+/* Singling out a card (a spymaster's pick, or an operative's mark) thickens
    its coloured border and fades every other card to an intermediate level via
    [data-focus] below. The assassin never fades. */
-.card[data-enlarged] {
+.card[data-selected] {
   padding: 11px;
 }
 
-.board[data-focus] .card:not([data-enlarged]):not([data-color='assassin']) .face {
+.board[data-focus] .card:not([data-selected]):not([data-color='assassin']) .face {
   opacity: 0.6;
 }
 

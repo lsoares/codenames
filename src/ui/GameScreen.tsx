@@ -72,6 +72,7 @@ export default function GameScreen(props: {
   const renderTeam = (team: Team) => {
     const hasSpymaster = team === 'red' ? !!props.seats.red : !!props.seats.blue
     const ops = opsFor(team)
+    const headcount = (hasSpymaster ? 1 : 0) + ops
     const active = team === props.state.turn
     return (
       <span
@@ -82,10 +83,15 @@ export default function GameScreen(props: {
         <span className={styles.count} data-team={team} title={`${team} cards left`}>
           {remaining(team)}
         </span>
-        <span className={styles.players}>
+        <span
+          className={styles.players}
+          title={`${headcount} ${team} player${headcount === 1 ? '' : 's'}`}
+        >
           {hasSpymaster && (
             <span
               className={styles.spymasterIcon}
+              role="img"
+              aria-label={`${team} spymaster`}
               data-team={team}
               data-active={(active && phase === 'clue') || undefined}
             >
@@ -97,7 +103,11 @@ export default function GameScreen(props: {
             data-team={team}
             data-active={(active && phase === 'guess') || undefined}
           >
-            {(winner && winner !== team ? '😢' : '🙂').repeat(ops)}
+            {Array.from({ length: ops }, (_, i) => (
+              <span key={i} role="img" aria-label={`${team} operative`}>
+                {winner && winner !== team ? '😢' : '🙂'}
+              </span>
+            ))}
           </span>
         </span>
       </span>
@@ -225,10 +235,14 @@ export default function GameScreen(props: {
     }
   }, [centerText, props.myTeam, props.mySeat, winner])
 
-  // When it's my turn but the tab is in the background, pulse the title so the
+  // It's my move to make when my team is on turn and the acting role is mine:
+  // the spymaster gives the clue, the operatives do the guessing.
+  const myMove = !winner && mineTurn && (phase === 'clue' ? activeSpymaster : !activeSpymaster)
+
+  // When it's my move but the tab is in the background, pulse the title so the
   // tab flashes for attention; the moment the tab is focused again, restore it.
   useEffect(() => {
-    if (winner || !mineTurn) return
+    if (!myMove) return
     const interval = setInterval(() => {
       if (document.hidden) {
         document.title = document.title.startsWith('🔔') ? centerText : '🔔 Your turn'
@@ -242,7 +256,7 @@ export default function GameScreen(props: {
       clearInterval(interval)
       document.removeEventListener('visibilitychange', restore)
     }
-  }, [winner, mineTurn, centerText])
+  }, [myMove, centerText])
 
   // The team-on-turn's spymaster clues from the header centre.
   const clueForm = !winner && phase === 'clue' && activeSpymaster && (
@@ -329,8 +343,8 @@ export default function GameScreen(props: {
           spymasterTeam={props.mySeat}
           myTeam={props.myTeam}
           turn={props.state.turn}
-          enlarged={selected}
-          onToggleEnlarge={toggleSelected}
+          selected={selected}
+          onToggleSelect={toggleSelected}
           onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
           onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index })}
         />

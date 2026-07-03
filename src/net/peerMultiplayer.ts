@@ -102,6 +102,12 @@ function startHost(
       const blue = Object.values(teams).filter((t) => t === 'blue').length
       teams[peerId] = red <= blue ? 'red' : 'blue'
     }
+    // A joiner takes their team's spymaster seat if it's still open, so nobody has
+    // to claim it by hand; a seat that's already held is left untouched.
+    const autoSeat = (peerId: string) => {
+      const team = teams[peerId]
+      if (team && !seats[team]) seats[team] = peerId
+    }
     const view = (): RoomView => ({
       state,
       seats: { red: seats.red, blue: seats.blue },
@@ -127,12 +133,19 @@ function startHost(
 
     // Heartbeat both ways: guests detect host loss from these pings, and the host
     // prunes guests it hasn't heard from (an abrupt tab close never fires 'close').
+    // Iterate a snapshot because dropConnection() splices `connections` — mutating
+    // it mid-forEach would skip the neighbour of each pruned ghost, so a burst of
+    // stale peers would clear only a few per pass and linger in the count.
     setInterval(() => {
       const now = Date.now()
-      connections.forEach((connection) => {
-        if (connection.open) connection.send({ __ping: true } satisfies Ping)
-        if (now - (lastSeen.get(connection) ?? now) > 6000) dropConnection(connection)
-      })
+      for (const connection of [...connections]) {
+        if (!connection.open) {
+          dropConnection(connection) // transport already gone
+        } else {
+          connection.send({ __ping: true } satisfies Ping)
+          if (now - (lastSeen.get(connection) ?? now) > 6000) dropConnection(connection)
+        }
+      }
     }, 2000)
 
     peer.on('open', (id) => {
@@ -161,6 +174,7 @@ function startHost(
         connections.push(connection)
         lastSeen.set(connection, Date.now())
         assignTeam(connection.peer)
+        autoSeat(connection.peer)
         broadcast()
       })
       connection.on('data', (data) => {
