@@ -32,6 +32,22 @@ export async function stubPexels(page: Page): Promise<void> {
   )
 }
 
+// Datamuse returns exactly 20 canned nouns (with the tags the filter needs), so
+// the word board is deterministic and every stubbed word ends up on the board.
+export const STUB_WORDS = [
+  'APPLE', 'TIGER', 'RIVER', 'ENGINE', 'CASTLE', 'GUITAR', 'PLANET', 'ANCHOR',
+  'JUNGLE', 'ROCKET', 'PIRATE', 'VIOLIN', 'DRAGON', 'HELMET', 'LANTERN', 'COMPASS',
+  'ROBOT', 'SPIDER', 'VOLCANO', 'WINDMILL',
+]
+
+export async function stubDatamuse(page: Page): Promise<void> {
+  await page.route('**/api.datamuse.com/**', (route) =>
+    route.fulfill({
+      json: STUB_WORDS.map((word) => ({ word: word.toLowerCase(), tags: ['n', 'f:40'] })),
+    }),
+  )
+}
+
 // SUT client: drives the app through roles/labels only, hiding locators.
 export class GamePage {
   constructor(private readonly page: Page) {}
@@ -75,7 +91,7 @@ export class GamePage {
 
   async selectImageProvider(label: string): Promise<void> {
     await this.openMenu()
-    await this.page.getByRole('combobox', { name: /images/i }).selectOption({ label })
+    await this.page.getByRole('combobox', { name: /cards/i }).selectOption({ label })
   }
 
   async startNewGame(): Promise<void> {

@@ -1,11 +1,11 @@
-import { createGame, type Card, type GameState, type Team } from './createGame'
+import { createGame, type BoardMode, type Card, type GameState, type Team } from './createGame'
 
 export type Action =
   | { type: 'clue'; word: string; count: number }
   | { type: 'guess'; cardIndex: number }
   | { type: 'toggleMark'; cardIndex: number }
   | { type: 'endTurn' }
-  | { type: 'newGame'; images?: string[] }
+  | { type: 'newGame'; faces?: string[]; mode?: BoardMode }
 
 const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
 
@@ -18,12 +18,13 @@ const unrevealedCount = (state: GameState, team: Team): number =>
   state.cards.filter((card) => card.color === team && !card.revealed).length
 
 export function applyAction(state: GameState, action: Action): GameState {
-  // A fresh game: new pictures when the caller fetched some, else reshuffle the
-  // current ones. Allowed even after a win.
+  // A fresh game: new faces when the caller fetched some, else reshuffle the
+  // current ones (keeping the board's mode). Allowed even after a win.
   if (action.type === 'newGame') {
     return createGame(
-      action.images ?? state.cards.map((card) => card.imageUrl),
+      action.faces ?? state.cards.map((card) => card.face),
       Math.random() < 0.5 ? 'red' : 'blue',
+      action.mode ?? state.mode,
     )
   }
 
@@ -46,8 +47,10 @@ export function applyAction(state: GameState, action: Action): GameState {
     return {
       ...state,
       phase: 'guess',
+      // A normal clue grants count + 1 guesses; a 0 clue is "unlimited" — a big
+      // finite number (not Infinity, which JSON.stringify would turn to null).
+      guessesRemaining: action.count === 0 ? 99 : action.count + 1,
       clue: { team: state.turn, word: action.word, count: action.count },
-      guessesRemaining: action.count + 1,
       log: [...state.log, `${state.turn} clue: ${action.word} ${action.count}`],
     }
   }

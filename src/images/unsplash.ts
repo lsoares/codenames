@@ -1,4 +1,4 @@
-import type { ImageProvider } from './types'
+import type { CardProvider } from './types'
 
 interface UnsplashPhoto {
   urls: { small: string; regular: string }
@@ -21,4 +21,9 @@ async function fetch(): Promise<string[]> {
   return photos.map((photo) => photo.urls.small)
 }
 
-export const unsplash: ImageProvider = { id: 'unsplash', label: 'Unsplash', fetch }
+export const unsplash: CardProvider = {
+  id: 'unsplash',
+  label: 'Unsplash',
+  kind: 'image',
+  fetch,
+}

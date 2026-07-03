@@ -142,7 +142,7 @@ export default function GameScreen(props: {
             </div>
           </div>
           <label className={styles.providerPicker}>
-            Images:
+            Cards:
             <select
               value={props.providerId}
               onChange={(event) => props.onProviderChange(event.target.value)}
@@ -199,6 +199,7 @@ export default function GameScreen(props: {
       <div className={styles.boardArea}>
         <Board
           cards={props.state.cards}
+          mode={props.state.mode}
           spymasterTeam={props.mySeat}
           onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
           onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index })}

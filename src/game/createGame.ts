@@ -1,9 +1,10 @@
 export type Team = 'red' | 'blue'
 export type CardColor = 'red' | 'blue' | 'neutral' | 'assassin'
 export type GamePhase = 'clue' | 'guess'
+export type BoardMode = 'image' | 'word'
 
 export interface Card {
-  imageUrl: string
+  face: string // image URL or word, per the board's mode
   color: CardColor
   revealed: boolean
   marked: boolean
@@ -17,6 +18,7 @@ export interface Clue {
 
 export interface GameState {
   cards: Card[]
+  mode: BoardMode
   turn: Team
   phase: GamePhase
   clue: Clue | null
@@ -34,7 +36,7 @@ function shuffle<T>(items: T[]): T[] {
   return result
 }
 
-export function createGame(images: string[], startingTeam: Team): GameState {
+export function createGame(faces: string[], startingTeam: Team, mode: BoardMode): GameState {
   const otherTeam: Team = startingTeam === 'red' ? 'blue' : 'red'
   const colors = shuffle<CardColor>([
     ...Array<CardColor>(8).fill(startingTeam),
@@ -43,12 +45,13 @@ export function createGame(images: string[], startingTeam: Team): GameState {
     'assassin',
   ])
   return {
-    cards: images.slice(0, 20).map((imageUrl, index) => ({
-      imageUrl,
+    cards: faces.slice(0, 20).map((face, index) => ({
+      face,
       color: colors[index],
       revealed: false,
       marked: false,
     })),
+    mode,
     turn: startingTeam,
     phase: 'clue',
     clue: null,

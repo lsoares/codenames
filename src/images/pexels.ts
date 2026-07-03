@@ -1,4 +1,4 @@
-import type { ImageProvider } from './types'
+import type { CardProvider } from './types'
 
 interface PexelsPhoto {
   src: { medium: string; small: string }
@@ -24,4 +24,4 @@ async function fetch(): Promise<string[]> {
   return photos.map((photo) => photo.src.medium)
 }
 
-export const pexels: ImageProvider = { id: 'pexels', label: 'Pexels', fetch }
+export const pexels: CardProvider = { id: 'pexels', label: 'Pexels', kind: 'image', fetch }

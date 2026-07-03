@@ -1,5 +1,5 @@
 import Peer, { type DataConnection, type PeerOptions } from 'peerjs'
-import { createGame, type GameState, type Team } from '../game/createGame'
+import { createGame, type BoardMode, type GameState, type Team } from '../game/createGame'
 import { applyAction, type Action } from '../game/applyAction'
 
 // What every peer renders, plus presence used for FIFO host takeover.
@@ -61,8 +61,8 @@ function newPeer(id?: string): Peer {
   return id ? new Peer(id, options) : new Peer(options)
 }
 
-export function host(images: string[], startingTeam: Team): Promise<Session> {
-  return startHost(randomCode(), createGame(images, startingTeam), 'new', 4)
+export function host(faces: string[], startingTeam: Team, mode: BoardMode): Promise<Session> {
+  return startHost(randomCode(), createGame(faces, startingTeam, mode), 'new', 4)
 }
 
 // Re-host an existing game under the same room code (host reload or FIFO takeover).

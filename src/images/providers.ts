@@ -1,21 +1,23 @@
-import type { ImageProvider } from './types'
+import type { CardProvider } from './types'
 import { unsplash } from './unsplash'
 import { pexels } from './pexels'
-import { offline } from './placeholder'
+import { words } from './words'
 
-export type { ImageProvider }
+export type { CardProvider }
 
-// The image sources offered in the menu. `offline` is last so it also serves as
-// the universal fallback.
-export const providers: ImageProvider[] = [unsplash, pexels, offline]
+// The card sources offered in the menu.
+export const providers: CardProvider[] = [unsplash, pexels, words]
 
-// Fetches 20 image URLs from the chosen provider, falling back to offline tiles
-// when it throws (missing key, network error) so a game can always start.
-export async function getImages(providerId: string): Promise<string[]> {
-  const provider = providers.find((p) => p.id === providerId) ?? offline
+// Fetches 20 card faces (image URLs or words) plus the chosen provider's mode.
+// When an image provider throws (missing key, network error), fall back to the
+// word board — it needs no key and never fails — so a game can always start.
+export async function getFaces(
+  providerId: string,
+): Promise<{ faces: string[]; mode: CardProvider['kind'] }> {
+  const provider = providers.find((p) => p.id === providerId) ?? unsplash
   try {
-    return await provider.fetch()
+    return { faces: await provider.fetch(), mode: provider.kind }
   } catch {
-    return offline.fetch()
+    return { faces: await words.fetch(), mode: 'word' }
   }
 }

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import type { Card, Team } from '../game/createGame'
+import type { BoardMode, Card, Team } from '../game/createGame'
 import styles from './Board.module.css'
 
 export default function Board(props: {
   cards: Card[]
+  mode: BoardMode
   spymasterTeam: Team | null
   onCardClick: (index: number) => void
   onCardMark: (index: number) => void
@@ -31,7 +32,9 @@ export default function Board(props: {
     <div className={styles.board} data-focus={focusing || undefined}>
       {props.cards.map((card, index) => {
         const showColor = card.revealed || isSpymaster
-        const label = showColor ? `Card ${index + 1}, ${card.color}` : `Card ${index + 1}`
+        // Word cards are named by their word; picture cards by position.
+        const name = props.mode === 'word' ? card.face : `Card ${index + 1}`
+        const label = showColor ? `${name}, ${card.color}` : name
         // Only live cards act on click: an operative guesses any unrevealed card;
         // a spymaster only marks their own. Faded/revealed cards are inert.
         const actionable =
@@ -56,7 +59,11 @@ export default function Board(props: {
               if (!isSpymaster && !card.revealed) props.onCardMark(index)
             }}
           >
-            <img className={styles.image} src={card.imageUrl} alt="" />
+            {props.mode === 'word' ? (
+              <span className={`${styles.face} ${styles.word}`}>{card.face}</span>
+            ) : (
+              <img className={`${styles.face} ${styles.image}`} src={card.face} alt="" />
+            )}
             {showColor && card.color === 'assassin' && (
               <span className={styles.assassin} aria-hidden="true">
                 ☠️

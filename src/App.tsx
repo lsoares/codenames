@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { type GameState, type Team } from './game/createGame'
 import { type Action } from './game/applyAction'
-import { getImages, providers } from './images/providers'
+import { getFaces, providers } from './images/providers'
 import { host, resumeHost, join, type Session } from './net/peerMultiplayer'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
 import Toaster from './ui/Toaster'
 
 const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
+
+const teamName = (team: Team): string => (team === 'red' ? 'Red' : 'Blue')
 
 const normalizeCode = (raw: string): string =>
   (raw.includes('#') ? raw.slice(raw.lastIndexOf('#') + 1) : raw).trim()
@@ -96,8 +98,8 @@ export default function App() {
     seats.red === selfIdRef.current ? 'red' : seats.blue === selfIdRef.current ? 'blue' : null
 
   const newGame = async () => {
-    const images = await getImages(providerId)
-    sessionRef.current?.dispatch({ type: 'newGame', images })
+    const { faces, mode } = await getFaces(providerId)
+    sessionRef.current?.dispatch({ type: 'newGame', faces, mode })
   }
 
   const claimSeat = (team: Team | null) => {
@@ -109,11 +111,11 @@ export default function App() {
   }
 
   const createRoom = async () => {
-    setStatus('Loading photos…')
-    const images = await getImages(providerId)
+    setStatus('Loading cards…')
+    const { faces, mode } = await getFaces(providerId)
     setStatus('Creating room…')
     try {
-      wire(await host(images, randomTeam()), true)
+      wire(await host(faces, randomTeam(), mode), true)
       setStatus('')
     } catch (error) {
       console.error('createRoom failed:', error)
@@ -135,25 +137,70 @@ export default function App() {
     }
   }
 
-  // Play a cue whenever the shared state crosses a milestone: clue given,
-  // a team's turn ends, or the game is won. Runs on every peer.
+  // Play a cue whenever the shared state crosses a milestone: new game, clue
+  // given, a wrong guess, a turn ending, or a win. Runs on every peer.
   const prevGameRef = useRef<GameState | null>(null)
   useEffect(() => {
     const prev = prevGameRef.current
     prevGameRef.current = game
     if (!game || !prev) return
+    // The log only ever grows within a game; a shorter log means a fresh deal.
+    if (game.log.length < prev.log.length) {
+      playSound('newGame')
+      notify(`New game — ${teamName(game.turn)} starts 🔀`)
+      return
+    }
+    // The one card revealed since the last state — the guess that just landed.
+    const guessed = game.cards.find((card, index) => card.revealed && !prev.cards[index].revealed)
     if (!prev.winner && game.winner) {
       playSound('gameOver')
-      notify(`${game.winner === 'red' ? 'Red' : 'Blue'} team wins!`)
+      notify(
+        guessed?.color === 'assassin'
+          ? `💀 Assassin! ${teamName(game.winner)} wins`
+          : `${teamName(game.winner)} team wins!`,
+      )
     } else if (prev.phase === 'clue' && game.phase === 'guess') {
       playSound('clue')
       notify(`Clue: ${game.clue?.word} · ${game.clue?.count}`)
     } else if (prev.turn !== game.turn) {
       playSound('endTurn')
-      notify(`${game.turn === 'red' ? 'Red' : 'Blue'}'s turn`)
+      // A wrong guess (revealing a neutral or the rivals' card) flips the turn;
+      // say why, so the pass doesn't look like it came out of nowhere.
+      if (guessed && guessed.color !== prev.turn) {
+        const hit = guessed.color === 'neutral' ? 'a neutral' : `${teamName(prev.turn)}'s card`
+        notify(`${teamName(prev.turn)} hit ${hit} — ${teamName(game.turn)}'s turn`)
+      } else {
+        notify(`${teamName(game.turn)}'s turn`)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game])
+
+  // Announce peers arriving and leaving so the room's size never changes
+  // silently. No sound — connections churn during host recovery.
+  const prevCountRef = useRef<number | null>(null)
+  useEffect(() => {
+    const prev = prevCountRef.current
+    prevCountRef.current = playerCount
+    if (prev === null || playerCount === prev) return
+    notify(playerCount > prev ? 'A player joined 👋' : 'A player left')
+  }, [playerCount])
+
+  // Announce to everyone else when a team gets a new spymaster. The claimer
+  // already got their own toast in claimSeat, so skip the seat we now hold.
+  const prevSeatsRef = useRef<typeof seats | null>(null)
+  useEffect(() => {
+    const prev = prevSeatsRef.current
+    prevSeatsRef.current = seats
+    if (!prev) return
+    for (const team of ['red', 'blue'] as const) {
+      if (seats[team] && seats[team] !== prev[team] && seats[team] !== selfIdRef.current) {
+        playSound('spymaster')
+        notify(`New ${team} spymaster 🕵️`)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seats])
 
   // As host, mirror the game into sessionStorage so a refresh can restore it.
   useEffect(() => {
