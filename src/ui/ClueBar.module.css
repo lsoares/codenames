@@ -7,8 +7,7 @@
   min-height: 44px;
 }
 
-.clueForm,
-.guessing {
+.clueForm {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -88,17 +87,8 @@
   background: color-mix(in srgb, var(--blue) 26%, transparent);
 }
 
-.waiting {
-  padding: 6px 18px;
-  border-radius: 999px;
-  color: var(--muted);
-  font-style: italic;
-}
-
-.waiting[data-team='red'] {
-  background: color-mix(in srgb, var(--red) 26%, transparent);
-}
-
-.waiting[data-team='blue'] {
-  background: color-mix(in srgb, var(--blue) 26%, transparent);
+.statusText {
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
 }

@@ -23,6 +23,7 @@ export default function App() {
     red: null,
     blue: null,
   })
+  const [teams, setTeams] = useState<Record<string, Team>>({})
   const [playerCount, setPlayerCount] = useState(1)
   const [isHost, setIsHost] = useState(false)
   const [status, setStatus] = useState('')
@@ -62,6 +63,7 @@ export default function App() {
       peersRef.current = view.peers
       setGame(view.state)
       setSeats(view.seats)
+      setTeams(view.teams ?? {})
       setPlayerCount(view.peers.length)
     })
     if (!asHost) session.onDisconnect(() => migrate())
@@ -96,9 +98,12 @@ export default function App() {
 
   const mySeat: Team | null =
     seats.red === selfIdRef.current ? 'red' : seats.blue === selfIdRef.current ? 'blue' : null
+  // My team drives the background and who may play: a spymaster follows their
+  // seat, everyone else the auto-assigned team.
+  const myTeam: Team = mySeat ?? teams?.[selfIdRef.current] ?? 'red'
 
-  const newGame = async () => {
-    const { faces, mode } = await getFaces(providerId)
+  const newGame = async (id: string = providerId) => {
+    const { faces, mode } = await getFaces(id)
     sessionRef.current?.dispatch({ type: 'newGame', faces, mode })
   }
 
@@ -114,8 +119,10 @@ export default function App() {
     setStatus('Loading cards…')
     const { faces, mode } = await getFaces(providerId)
     setStatus('Creating room…')
+    // Tests can pin the starting team for determinism; players get a random one.
+    const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
-      wire(await host(faces, randomTeam(), mode), true)
+      wire(await host(faces, start, mode), true)
       setStatus('')
     } catch (error) {
       console.error('createRoom failed:', error)
@@ -125,17 +132,6 @@ export default function App() {
     }
   }
 
-  const joinRoom = async (raw: string) => {
-    const code = normalizeCode(raw)
-    if (!code) return
-    setStatus('Connecting…')
-    try {
-      wire(await join(code), false)
-      setStatus('')
-    } catch {
-      setStatus('Could not connect. Check the room code or link.')
-    }
-  }
 
   // Play a cue whenever the shared state crosses a milestone: new game, clue
   // given, a wrong guess, a turn ending, or a win. Runs on every peer.
@@ -209,7 +205,10 @@ export default function App() {
     }
   }, [game, roomCode])
 
-  // On load: join/restore the room in the URL hash, or start a fresh game.
+  // On load: join the live room in the URL hash if one exists — this also keeps
+  // a duplicated tab (which inherits the host's saved state) from re-hosting.
+  // Only re-host from saved state when nobody answers, so a host's own refresh
+  // still recovers. No hash ⇒ start a fresh game.
   useEffect(() => {
     if (startedRef.current) return
     startedRef.current = true
@@ -219,29 +218,29 @@ export default function App() {
       return
     }
 
-    const saved = sessionStorage.getItem(hostStateKey(code))
-    if (saved) {
-      setStatus('Restoring your room…')
-      resumeHost(code, JSON.parse(saved) as GameState)
-        .then((session) => {
-          sessionStorage.removeItem('codenames:restore-retry')
-          wire(session, true)
-          setStatus('')
-        })
-        .catch(() => {
-          // The broker can hold the old id briefly after a reload; retry once
-          // via a fresh reload before giving up.
-          if (sessionStorage.getItem('codenames:restore-retry')) {
-            sessionStorage.removeItem('codenames:restore-retry')
-            setStatus('Could not restore the room.')
-          } else {
-            sessionStorage.setItem('codenames:restore-retry', '1')
-            window.setTimeout(() => window.location.reload(), 1500)
-          }
-        })
-    } else {
-      void joinRoom(code)
-    }
+    setStatus('Connecting…')
+    const timeout = new Promise<never>((_, reject) =>
+      window.setTimeout(() => reject(new Error('join-timeout')), 3000),
+    )
+    Promise.race([join(code), timeout])
+      .then((session) => {
+        wire(session, false)
+        setStatus('')
+      })
+      .catch(() => {
+        const saved = sessionStorage.getItem(hostStateKey(code))
+        if (!saved) {
+          setStatus('Could not connect. Check the room code or link.')
+          return
+        }
+        setStatus('Restoring your room…')
+        resumeHost(code, JSON.parse(saved) as GameState)
+          .then((session) => {
+            wire(session, true)
+            setStatus('')
+          })
+          .catch(() => setStatus('Could not restore the room.'))
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -253,6 +252,7 @@ export default function App() {
           status={status}
           isHost={isHost}
           mySeat={mySeat}
+          myTeam={myTeam}
           seats={seats}
           playerCount={playerCount}
           onClaimSeat={claimSeat}

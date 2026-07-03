@@ -6,6 +6,8 @@ export default function Board(props: {
   cards: Card[]
   mode: BoardMode
   spymasterTeam: Team | null
+  myTeam: Team
+  turn: Team
   onCardClick: (index: number) => void
   onCardMark: (index: number) => void
 }) {
@@ -13,8 +15,12 @@ export default function Board(props: {
 
   // A spymaster can't guess, so their left-click instead enlarges a card — a
   // private, local-only way to single out candidates while thinking. Cleared
-  // when a new game starts.
+  // when the turn passes (like the operatives' marks) and when a new game starts,
+  // so each clue is planned on a clean board.
   const [enlarged, setEnlarged] = useState<Set<number>>(new Set())
+  useEffect(() => {
+    setEnlarged(new Set())
+  }, [props.turn])
   const freshBoard = props.cards.every((card) => !card.revealed)
   useEffect(() => {
     if (freshBoard) setEnlarged(new Set())
@@ -27,7 +33,12 @@ export default function Board(props: {
       return next
     })
 
-  const focusing = isSpymaster && enlarged.size > 0
+  // Both roles single out cards the same way — a thicker border with the rest of
+  // the board dimmed. A spymaster's picks are private (local `enlarged`); the
+  // operatives' are a shared team note (`card.marked`, toggled by right-click).
+  const highlighted = (card: Card, index: number): boolean =>
+    !card.revealed && (isSpymaster ? enlarged.has(index) : card.marked)
+  const focusing = props.cards.some((card, index) => highlighted(card, index))
   return (
     <div className={styles.board} data-focus={focusing || undefined}>
       {props.cards.map((card, index) => {
@@ -35,10 +46,12 @@ export default function Board(props: {
         // Word cards are named by their word; picture cards by position.
         const name = props.mode === 'word' ? card.face : `Card ${index + 1}`
         const label = showColor ? `${name}, ${card.color}` : name
-        // Only live cards act on click: an operative guesses any unrevealed card;
-        // a spymaster only marks their own. Faded/revealed cards are inert.
+        // Only the team on turn acts, and only on live cards: an operative
+        // guesses any unrevealed card; a spymaster only marks their own.
         const actionable =
-          !card.revealed && (isSpymaster ? card.color === props.spymasterTeam : true)
+          !card.revealed &&
+          props.turn === props.myTeam &&
+          (isSpymaster ? card.color === props.spymasterTeam : true)
         return (
           <button
             key={index}
@@ -46,7 +59,7 @@ export default function Board(props: {
             aria-label={label}
             data-color={showColor ? card.color : undefined}
             data-revealed={card.revealed || undefined}
-            data-enlarged={(isSpymaster && enlarged.has(index)) || undefined}
+            data-enlarged={highlighted(card, index) || undefined}
             data-inert={!actionable || undefined}
             disabled={card.revealed}
             onClick={() => {
@@ -56,7 +69,7 @@ export default function Board(props: {
             }}
             onContextMenu={(event) => {
               event.preventDefault()
-              if (!isSpymaster && !card.revealed) props.onCardMark(index)
+              if (!isSpymaster && actionable) props.onCardMark(index)
             }}
           >
             {props.mode === 'word' ? (
@@ -67,11 +80,6 @@ export default function Board(props: {
             {showColor && card.color === 'assassin' && (
               <span className={styles.assassin} aria-hidden="true">
                 ☠️
-              </span>
-            )}
-            {card.marked && !card.revealed && (
-              <span className={styles.mark} aria-hidden="true">
-                📌
               </span>
             )}
           </button>

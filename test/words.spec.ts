@@ -8,8 +8,7 @@ test('choosing Words builds a board of word cards', async ({ page }) => {
   await game.open()
   await game.createRoom()
 
-  await game.selectImageProvider('Words')
-  await game.startNewGame()
+  await game.newGameWithSource('Words')
 
   // Word cards are named by their word (uppercase), not "Card N".
   for (const word of STUB_WORDS) {

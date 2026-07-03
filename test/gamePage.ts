@@ -52,7 +52,15 @@ export async function stubDatamuse(page: Page): Promise<void> {
 export class GamePage {
   constructor(private readonly page: Page) {}
 
-  async open(): Promise<void> {
+  // Auto-teams are gated by turn, so pin the host's starting team for a
+  // deterministic single-player flow (the host is always auto-assigned red).
+  async open(startTeam?: 'red' | 'blue'): Promise<void> {
+    if (startTeam) {
+      await this.page.addInitScript(
+        (team) => localStorage.setItem('codenames:start-team', team),
+        startTeam,
+      )
+    }
     await this.page.goto('/')
   }
 
@@ -89,14 +97,11 @@ export class GamePage {
     }
   }
 
-  async selectImageProvider(label: string): Promise<void> {
+  // Start a new game from a specific card source via the New game ▾ dropdown.
+  async newGameWithSource(label: string): Promise<void> {
     await this.openMenu()
-    await this.page.getByRole('combobox', { name: /cards/i }).selectOption({ label })
-  }
-
-  async startNewGame(): Promise<void> {
-    await this.openMenu()
-    await this.page.getByRole('button', { name: /new game/i }).click()
+    await this.page.getByRole('button', { name: /choose card source/i }).click()
+    await this.page.getByRole('button', { name: label, exact: true }).click()
   }
 
   private async toggleSeat(team: 'red' | 'blue'): Promise<void> {

@@ -10,8 +10,7 @@ test('choosing Pexels sources the next game from Pexels', async ({ page }) => {
   await game.createRoom()
 
   const pexelsRequest = page.waitForRequest('**/api.pexels.com/**')
-  await game.selectImageProvider('Pexels')
-  await game.startNewGame()
+  await game.newGameWithSource('Pexels')
   await pexelsRequest
 
   await expect(game.cards()).toHaveCount(20)

@@ -4,7 +4,7 @@ import { GamePage, stubUnsplash } from './gamePage'
 test('revealing the assassin ends the game for the other team', async ({ page }) => {
   await stubUnsplash(page)
   const game = new GamePage(page)
-  await game.open()
+  await game.open('red')
   await game.createRoom()
   await game.enableSpymaster()
   const guesser = await game.currentTurn()
@@ -21,7 +21,7 @@ test('revealing the assassin ends the game for the other team', async ({ page })
 test('a neutral guess passes the turn to the other team', async ({ page }) => {
   await stubUnsplash(page)
   const game = new GamePage(page)
-  await game.open()
+  await game.open('red')
   await game.createRoom()
   await game.enableSpymaster()
   const before = await game.currentTurn()

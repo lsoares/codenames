@@ -4,7 +4,7 @@ import { GamePage, stubUnsplash } from './gamePage'
 test('host refresh restores the room and its revealed cards', async ({ page }) => {
   await stubUnsplash(page)
   const game = new GamePage(page)
-  await game.open()
+  await game.open('red')
   await game.createRoom()
   const code = await game.roomCode()
 

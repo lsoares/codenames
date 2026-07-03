@@ -16,7 +16,7 @@ function blip(freq: number, at: number, duration: number): void {
   osc.stop(ctx.currentTime + at + duration)
 }
 
-export type Sound = 'clue' | 'endTurn' | 'gameOver' | 'takeover' | 'spymaster'
+export type Sound = 'clue' | 'endTurn' | 'gameOver' | 'takeover' | 'spymaster' | 'newGame'
 
 export function playSound(sound: Sound): void {
   ctx ??= new (window.AudioContext ?? (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
@@ -25,5 +25,6 @@ export function playSound(sound: Sound): void {
   else if (sound === 'endTurn') blip(330, 0, 0.22)
   else if (sound === 'takeover') [440, 587, 880].forEach((freq, i) => blip(freq, i * 0.1, 0.14))
   else if (sound === 'spymaster') [988, 1319].forEach((freq, i) => blip(freq, i * 0.07, 0.12))
+  else if (sound === 'newGame') [784, 1047, 1319].forEach((freq, i) => blip(freq, i * 0.08, 0.14))
   else [523, 659, 784].forEach((freq, i) => blip(freq, i * 0.16, i === 2 ? 0.3 : 0.16))
 }

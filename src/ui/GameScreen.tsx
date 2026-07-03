@@ -11,16 +11,18 @@ export default function GameScreen(props: {
   status: string
   isHost: boolean
   mySeat: Team | null
+  myTeam: Team
   seats: { red: string | null; blue: string | null }
   playerCount: number
   onClaimSeat: (team: Team | null) => void
   onAction: (action: Action) => void
-  onNewGame: () => void
+  onNewGame: (providerId?: string) => void
   providers: { id: string; label: string }[]
   providerId: string
   onProviderChange: (id: string) => void
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [sourceOpen, setSourceOpen] = useState(false)
 
   const remaining = (color: string): number =>
     props.state.cards.filter((card) => card.color === color && !card.revealed).length
@@ -66,6 +68,14 @@ export default function GameScreen(props: {
     }
   }, [winner, phase, turn, clue])
 
+  // Tint the page background to my team so I always know which side I'm on.
+  useEffect(() => {
+    document.body.dataset.team = props.myTeam
+    return () => {
+      delete document.body.dataset.team
+    }
+  }, [props.myTeam])
+
   const renderTeam = (team: Team) => {
     const hasSpymaster = team === 'red' ? !!props.seats.red : !!props.seats.blue
     const ops = opsFor(team)
@@ -92,6 +102,9 @@ export default function GameScreen(props: {
         >
           {(winner && winner !== team ? '😢' : '🙂').repeat(ops)}
         </span>
+        <span className={styles.count} data-team={team} title={`${team} cards left`}>
+          {remaining(team)}
+        </span>
       </span>
     )
   }
@@ -101,7 +114,7 @@ export default function GameScreen(props: {
       <button
         className={styles.menuToggle}
         data-host={props.isHost || undefined}
-        title={props.isHost ? 'You are hosting this room' : undefined}
+        title={props.isHost ? 'You are hosting this room' : 'Options'}
         aria-label="Options"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
@@ -111,20 +124,14 @@ export default function GameScreen(props: {
       </button>
       {menuOpen && (
         <div className={styles.menuItems} role="menu">
-          <div className={styles.remaining}>
-            {(['red', 'blue', 'neutral'] as const).map((color) => (
-              <span key={color} className={styles.remainingItem} title={`${color} cards left`}>
-                {remaining(color)}
-                <span className={styles.swatch} data-color={color} />
-              </span>
-            ))}
-          </div>
           <div className={styles.seatPicker}>
             <span className={styles.seatLabel}>I'm spymaster:</span>
             <div className={styles.seatButtons}>
               {(['red', 'blue'] as const).map((team) => {
                 const mine = props.mySeat === team
                 const taken = team === 'red' ? !!props.seats.red : !!props.seats.blue
+                // A taken seat can still be stolen while the game is fresh.
+                const fresh = props.state.log.length === 0
                 return (
                   <button
                     key={team}
@@ -132,7 +139,7 @@ export default function GameScreen(props: {
                     className={styles.seatButton}
                     data-team={team}
                     data-mine={mine || undefined}
-                    disabled={taken && !mine}
+                    disabled={taken && !mine && !fresh}
                     onClick={() => props.onClaimSeat(mine ? null : team)}
                   >
                     {team === 'red' ? 'Red' : 'Blue'}
@@ -141,31 +148,51 @@ export default function GameScreen(props: {
               })}
             </div>
           </div>
-          <label className={styles.providerPicker}>
-            Cards:
-            <select
-              value={props.providerId}
-              onChange={(event) => props.onProviderChange(event.target.value)}
+          <div className={styles.newGame}>
+            <button className={`secondary ${styles.newGameMain}`} onClick={() => props.onNewGame()}>
+              New game
+            </button>
+            <button
+              type="button"
+              className={`secondary ${styles.newGameMore}`}
+              aria-label="Choose card source"
+              aria-haspopup="menu"
+              aria-expanded={sourceOpen}
+              onClick={() => setSourceOpen((open) => !open)}
             >
-              {props.providers.map((provider) => (
-                <option key={provider.id} value={provider.id}>
-                  {provider.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button className="secondary" onClick={props.onNewGame}>
-            New game
-          </button>
+              ▾
+            </button>
+            {sourceOpen && (
+              <div className={styles.sourceList} role="menu">
+                {props.providers.map((provider) => (
+                  <button
+                    key={provider.id}
+                    type="button"
+                    data-current={provider.id === props.providerId || undefined}
+                    onClick={() => {
+                      setSourceOpen(false)
+                      props.onProviderChange(provider.id)
+                      props.onNewGame(provider.id)
+                    }}
+                  >
+                    {provider.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
   )
 
+  const renderSide = (team: Team) => renderTeam(team)
+
   const clueBar = !winner && (
     <ClueBar
       state={props.state}
       mySeat={props.mySeat}
+      myTeam={props.myTeam}
       onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
       onEndTurn={() => props.onAction({ type: 'endTurn' })}
     />
@@ -175,15 +202,15 @@ export default function GameScreen(props: {
     <main className={styles.screen}>
       <header className={styles.header}>
         <div className={styles.headerSide} data-side="left">
-          {renderTeam('red')}
-          {turn === 'red' && clueBar}
+          {renderSide('red')}
+          {props.myTeam === 'red' && clueBar}
         </div>
 
         {renderMenu()}
 
         <div className={styles.headerSide} data-side="right">
-          {turn === 'blue' && clueBar}
-          {renderTeam('blue')}
+          {props.myTeam === 'blue' && clueBar}
+          {renderSide('blue')}
           {props.status && <span className={styles.status}>{props.status}</span>}
         </div>
       </header>
@@ -201,6 +228,8 @@ export default function GameScreen(props: {
           cards={props.state.cards}
           mode={props.state.mode}
           spymasterTeam={props.mySeat}
+          myTeam={props.myTeam}
+          turn={props.state.turn}
           onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
           onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index })}
         />

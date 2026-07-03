@@ -6,6 +6,7 @@ import { applyAction, type Action } from '../game/applyAction'
 export interface RoomView {
   state: GameState
   seats: { red: string | null; blue: string | null } // one spymaster seat per team, by holder id
+  teams: Record<string, Team> // auto-assigned team per peer, balanced on arrival
   peers: string[] // arrival order, host first
 }
 
@@ -81,19 +82,30 @@ function startHost(
     const peer = newPeer(code)
     const connections: DataConnection[] = []
     const seats: { red: string | null; blue: string | null } = { red: null, blue: null }
+    const teams: Record<string, Team> = {}
     const listeners: Array<(view: RoomView) => void> = []
     let state = initialState
 
-    // At most one holder per team; a peer holds at most one seat. Claiming a
-    // taken team is a no-op (the request just loses), which enforces the cap.
+    // One holder per team, one seat per peer. A free seat can always be taken;
+    // a held one can be stolen only while the game is fresh (before the first
+    // clue), so the spymaster role can still rotate at the start.
     const claimSeat = (peerId: string, team: Team | null) => {
       if (seats.red === peerId) seats.red = null
       if (seats.blue === peerId) seats.blue = null
-      if (team && !seats[team]) seats[team] = peerId
+      const fresh = state.log.length === 0
+      if (team && (!seats[team] || fresh)) seats[team] = peerId
+    }
+    // Auto-assign each peer to the smaller team on arrival, then leave it fixed.
+    const assignTeam = (peerId: string) => {
+      if (teams[peerId]) return
+      const red = Object.values(teams).filter((t) => t === 'red').length
+      const blue = Object.values(teams).filter((t) => t === 'blue').length
+      teams[peerId] = red <= blue ? 'red' : 'blue'
     }
     const view = (): RoomView => ({
       state,
       seats: { red: seats.red, blue: seats.blue },
+      teams: { ...teams },
       peers: [peer.id, ...connections.map((connection) => connection.peer)],
     })
     const broadcast = () => {
@@ -108,6 +120,7 @@ function startHost(
     }, 2000)
 
     peer.on('open', (id) => {
+      assignTeam(id)
       resolve({
         roomCode: id,
         selfId: id,
@@ -130,6 +143,7 @@ function startHost(
     peer.on('connection', (connection) => {
       connection.on('open', () => {
         connections.push(connection)
+        assignTeam(connection.peer)
         broadcast()
       })
       connection.on('data', (data) => {
@@ -144,6 +158,7 @@ function startHost(
         const index = connections.indexOf(connection)
         if (index >= 0) connections.splice(index, 1)
         claimSeat(connection.peer, null)
+        delete teams[connection.peer]
         broadcast()
       })
     })

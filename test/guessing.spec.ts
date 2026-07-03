@@ -4,7 +4,7 @@ import { GamePage, stubUnsplash } from './gamePage'
 test('a correct guess reveals the card and keeps the turn', async ({ page }) => {
   await stubUnsplash(page)
   const game = new GamePage(page)
-  await game.open()
+  await game.open('red')
   await game.createRoom()
   await game.enableSpymaster()
   const team = await game.currentTurn()
@@ -21,7 +21,7 @@ test('a correct guess reveals the card and keeps the turn', async ({ page }) => 
 test('a clue of 0 allows more than one guess (unlimited)', async ({ page }) => {
   await stubUnsplash(page)
   const game = new GamePage(page)
-  await game.open()
+  await game.open('red')
   await game.createRoom()
 
   const team = await game.currentTurn()

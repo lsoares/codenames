@@ -12,22 +12,23 @@ test('two players see the same board and reveals sync', async ({ browser }) => {
   const hostGame = new GamePage(hostPage)
   const guestGame = new GamePage(guestPage)
 
-  await hostGame.open()
+  await hostGame.open('red')
   await hostGame.createRoom()
   const code = await hostGame.roomCode()
 
   await guestGame.openRoom(code)
   await expect(guestGame.cards()).toHaveCount(20)
 
-  await hostGame.enableSpymaster()
-  const team = await hostGame.currentTurn()
-  const target = await hostGame.cardNumber(team)
-  await hostGame.giveClue('link', 1)
+  // Guest takes the red spymaster seat and clues; the host is the red operative
+  // (auto-assigned) who guesses on red's turn. The reveal must sync to both.
+  await guestGame.enableSpymaster('red')
+  const target = await guestGame.cardNumber('red')
+  await guestGame.giveClue('link', 1)
 
-  // The guest is an operative and guesses the card the host identified.
-  await guestGame.guessNumber(target)
+  await hostGame.guessNumber(target)
 
-  await expect(guestGame.card(team, { revealed: true }).first()).toBeVisible()
+  await expect(hostGame.card('red', { revealed: true }).first()).toBeVisible()
+  await expect(guestGame.card('red', { revealed: true }).first()).toBeVisible()
 
   await hostContext.close()
   await guestContext.close()

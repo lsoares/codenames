@@ -2,7 +2,7 @@
 #   cd broker && fly launch --copy-config --now   (first time; pick a unique app name)
 #   fly deploy                                     (subsequent deploys)
 # Then point the client at it (see broker/README.md).
-app = "codenames-broker"
+app = "codenames-broker-lsoares"
 primary_region = "mad"
 
 [build]
