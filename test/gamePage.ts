@@ -171,4 +171,10 @@ export class GamePage {
   getWinnerBanner() {
     return this.page.getByRole('status')
   }
+
+  // Each player is a labelled face (e.g. "blue operative", "red spymaster"), so
+  // counting them reads how many players the room believes are present.
+  async countPlayers(): Promise<number> {
+    return this.page.getByRole('img', { name: /operative|spymaster/ }).count()
+  }
 }
