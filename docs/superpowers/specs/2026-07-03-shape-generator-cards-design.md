@@ -90,13 +90,19 @@ jitter) as inline literals at the top of the file.
 
 ## Testing
 
-Playwright, matching the role-based style of `test/provider.spec.ts`:
+The project has one test runner: Playwright e2e. We keep it single-runner and
+test the styles **vertically through the board**, matching the role-based style
+of `test/provider.spec.ts` and the user's testing philosophy (test real
+interfaces, no mocks):
 
-- Each provider `fetch()` returns exactly 20 strings, all valid
-  `data:image/svg+xml,` URLs whose decoded content parses as `<svg>`.
-- Determinism: same seed → identical output (guards the PRNG).
-- Board smoke test: select a style (e.g. "Creatures"), assert 20 card `<img>`
-  faces render, reusing `test/gamePage.ts` and role-based locators.
+- For each of the four styles, select it via the New game ▾ source menu and
+  assert the board renders 20 card `<img>` faces whose `src` is a
+  `data:image/svg+xml` URL — reusing `test/gamePage.ts` and role-based locators.
+
+A broken generator (invalid SVG, wrong count, non-URL output) surfaces as a
+failing board render, so this single vertical test guards correctness without a
+second test runner. The seeded PRNG is kept for clean, reproducible draw code,
+not for a dedicated unit test.
 
 ## File plan
 
