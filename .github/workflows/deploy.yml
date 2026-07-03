@@ -30,6 +30,7 @@ jobs:
           # Optional: add this repo secret for real photos; otherwise the app
           # falls back to placeholder tiles.
           VITE_UNSPLASH_ACCESS_KEY: ${{ secrets.VITE_UNSPLASH_ACCESS_KEY }}
+          VITE_PEXELS_API_KEY: ${{ secrets.VITE_PEXELS_API_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

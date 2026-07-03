@@ -149,6 +149,25 @@
   background: #cbb891;
 }
 
+.providerPicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.providerPicker select {
+  flex: 1;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 6px;
+}
+
 .seatPicker {
   display: grid;
   gap: 6px;

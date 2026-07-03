@@ -16,6 +16,22 @@ export async function stubUnsplash(page: Page): Promise<void> {
   )
 }
 
+// Return 20 canned photos so a Pexels-sourced board is deterministic and offline.
+export async function stubPexels(page: Page): Promise<void> {
+  await page.route('**/api.pexels.com/**', (route) =>
+    route.fulfill({
+      json: {
+        photos: Array.from({ length: 20 }, (_, index) => ({
+          src: {
+            medium: `https://example.com/pexels/${index}.jpg`,
+            small: `https://example.com/pexels/${index}.jpg`,
+          },
+        })),
+      },
+    }),
+  )
+}
+
 // SUT client: drives the app through roles/labels only, hiding locators.
 export class GamePage {
   constructor(private readonly page: Page) {}
@@ -55,6 +71,16 @@ export class GamePage {
     if ((await toggle.getAttribute('aria-expanded')) === 'true') {
       await toggle.click()
     }
+  }
+
+  async selectImageProvider(label: string): Promise<void> {
+    await this.openMenu()
+    await this.page.getByRole('combobox', { name: /images/i }).selectOption({ label })
+  }
+
+  async startNewGame(): Promise<void> {
+    await this.openMenu()
+    await this.page.getByRole('button', { name: /new game/i }).click()
   }
 
   private async toggleSeat(team: 'red' | 'blue'): Promise<void> {

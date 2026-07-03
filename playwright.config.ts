@@ -27,6 +27,7 @@ export default defineConfig({
         VITE_PEER_PATH: '/',
         VITE_PEER_KEY: 'peerjs',
         VITE_UNSPLASH_ACCESS_KEY: 'test',
+        VITE_PEXELS_API_KEY: 'test',
       },
     },
   ],

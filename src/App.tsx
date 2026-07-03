@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { type GameState, type Team } from './game/createGame'
 import { type Action } from './game/applyAction'
-import { fetchPhotos } from './images/unsplash'
-import { placeholderImages } from './images/placeholder'
+import { getImages, providers } from './images/providers'
 import { host, resumeHost, join, type Session } from './net/peerMultiplayer'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
@@ -25,6 +24,13 @@ export default function App() {
   const [playerCount, setPlayerCount] = useState(1)
   const [isHost, setIsHost] = useState(false)
   const [status, setStatus] = useState('')
+  const [providerId, setProviderId] = useState(
+    () => localStorage.getItem('codenames:image-provider') ?? providers[0].id,
+  )
+  const chooseProvider = (id: string) => {
+    localStorage.setItem('codenames:image-provider', id)
+    setProviderId(id)
+  }
   const sessionRef = useRef<Session | null>(null)
   const isHostRef = useRef(false)
   const startedRef = useRef(false)
@@ -90,12 +96,7 @@ export default function App() {
     seats.red === selfIdRef.current ? 'red' : seats.blue === selfIdRef.current ? 'blue' : null
 
   const newGame = async () => {
-    let images: string[]
-    try {
-      images = await fetchPhotos()
-    } catch {
-      images = placeholderImages()
-    }
+    const images = await getImages(providerId)
     sessionRef.current?.dispatch({ type: 'newGame', images })
   }
 
@@ -109,12 +110,7 @@ export default function App() {
 
   const createRoom = async () => {
     setStatus('Loading photos…')
-    let images: string[]
-    try {
-      images = await fetchPhotos()
-    } catch {
-      images = placeholderImages()
-    }
+    const images = await getImages(providerId)
     setStatus('Creating room…')
     try {
       wire(await host(images, randomTeam()), true)
@@ -215,6 +211,9 @@ export default function App() {
           onClaimSeat={claimSeat}
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
           onNewGame={newGame}
+          providers={providers}
+          providerId={providerId}
+          onProviderChange={chooseProvider}
         />
       ) : (
         <main className="card">

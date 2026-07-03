@@ -16,6 +16,9 @@ export default function GameScreen(props: {
   onClaimSeat: (team: Team | null) => void
   onAction: (action: Action) => void
   onNewGame: () => void
+  providers: { id: string; label: string }[]
+  providerId: string
+  onProviderChange: (id: string) => void
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -138,6 +141,19 @@ export default function GameScreen(props: {
               })}
             </div>
           </div>
+          <label className={styles.providerPicker}>
+            Images:
+            <select
+              value={props.providerId}
+              onChange={(event) => props.onProviderChange(event.target.value)}
+            >
+              {props.providers.map((provider) => (
+                <option key={provider.id} value={provider.id}>
+                  {provider.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <button className="secondary" onClick={props.onNewGame}>
             New game
           </button>
