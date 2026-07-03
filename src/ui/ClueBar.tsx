@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import type { GameState } from '../game/createGame'
+import type { GameState, Team } from '../game/createGame'
 import styles from './ClueBar.module.css'
 
 export default function ClueBar(props: {
   state: GameState
-  spymaster: boolean
+  mySeat: Team | null
   onClue: (word: string, count: number) => void
   onEndTurn: () => void
 }) {
   const [word, setWord] = useState('')
   const [count, setCount] = useState(1)
   const turn = props.state.turn
+  // Only the team-on-turn's spymaster clues; the other spymaster just waits.
+  const activeSpymaster = props.mySeat === turn
   const teamCardsLeft = props.state.cards.filter(
     (card) => card.color === turn && !card.revealed,
   ).length
@@ -18,7 +20,7 @@ export default function ClueBar(props: {
   return (
     <div className={styles.bar}>
       {props.state.phase === 'clue' ? (
-        props.spymaster ? (
+        activeSpymaster ? (
           <form
             className={styles.clueForm}
             data-team={turn}
@@ -71,7 +73,7 @@ export default function ClueBar(props: {
             <span className={styles.clueDot}>•</span>
             <span className={styles.clueValue}>{props.state.clue?.count}</span>
           </span>
-          {!props.spymaster && (
+          {props.mySeat === null && (
             <button
               className={`secondary ${styles.pass}`}
               onClick={props.onEndTurn}

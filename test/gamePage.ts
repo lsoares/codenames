@@ -89,14 +89,15 @@ export class GamePage {
     await this.closeMenu()
   }
 
-  // Take a team's spymaster seat (reveals colours, may give clues, cannot guess).
-  async enableSpymaster(team: 'red' | 'blue' = 'red'): Promise<void> {
-    await this.toggleSeat(team)
+  // Take a spymaster seat (defaults to the team on turn, since only that team's
+  // spymaster may clue). Reveals colours, may clue, cannot guess.
+  async enableSpymaster(team?: 'red' | 'blue'): Promise<void> {
+    await this.toggleSeat(team ?? (await this.currentTurn()))
   }
 
-  // Release the seat to play as an operative again (can guess, colours hidden).
-  async releaseSpymaster(team: 'red' | 'blue' = 'red'): Promise<void> {
-    await this.toggleSeat(team)
+  // Release the seat to play as an operative again (defaults to the turn's team).
+  async releaseSpymaster(team?: 'red' | 'blue'): Promise<void> {
+    await this.toggleSeat(team ?? (await this.currentTurn()))
   }
 
   async giveClue(word: string, count: number): Promise<void> {
@@ -128,7 +129,7 @@ export class GamePage {
     })
   }
 
-  async currentTurn(): Promise<Color> {
+  async currentTurn(): Promise<'red' | 'blue'> {
     const title = await this.page.getByTitle(/'s turn$/).getAttribute('title')
     return title?.toLowerCase().startsWith('red') ? 'red' : 'blue'
   }

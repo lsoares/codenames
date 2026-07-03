@@ -1,4 +1,4 @@
-import { createGame, type GameState, type Team } from './createGame'
+import { createGame, type Card, type GameState, type Team } from './createGame'
 
 export type Action =
   | { type: 'clue'; word: string; count: number }
@@ -8,6 +8,11 @@ export type Action =
   | { type: 'newGame'; images?: string[] }
 
 const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
+
+// The operatives' candidate marks belong to the turn that placed them; wipe
+// them whenever the turn passes so the next team starts with a clean board.
+const clearMarks = (cards: Card[]): Card[] =>
+  cards.map((card) => (card.marked ? { ...card, marked: false } : card))
 
 const unrevealedCount = (state: GameState, team: Team): number =>
   state.cards.filter((card) => card.color === team && !card.revealed).length
@@ -53,6 +58,7 @@ export function applyAction(state: GameState, action: Action): GameState {
       phase: 'clue',
       clue: null,
       turn: opponent(state.turn),
+      cards: clearMarks(state.cards),
       log: [...state.log, `${state.turn} ended their turn`],
     }
   }
@@ -82,10 +88,23 @@ export function applyAction(state: GameState, action: Action): GameState {
   if (card.color === state.turn) {
     const guessesRemaining = state.guessesRemaining - 1
     if (guessesRemaining <= 0) {
-      return { ...next, guessesRemaining: 0, phase: 'clue', clue: null, turn: opponent(state.turn) }
+      return {
+        ...next,
+        guessesRemaining: 0,
+        phase: 'clue',
+        clue: null,
+        turn: opponent(state.turn),
+        cards: clearMarks(next.cards),
+      }
     }
     return { ...next, guessesRemaining }
   }
 
-  return { ...next, phase: 'clue', clue: null, turn: opponent(state.turn) }
+  return {
+    ...next,
+    phase: 'clue',
+    clue: null,
+    turn: opponent(state.turn),
+    cards: clearMarks(next.cards),
+  }
 }

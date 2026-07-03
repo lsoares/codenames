@@ -165,7 +165,7 @@ export default function GameScreen(props: {
   const clueBar = !winner && (
     <ClueBar
       state={props.state}
-      spymaster={props.mySeat !== null}
+      mySeat={props.mySeat}
       onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
       onEndTurn={() => props.onAction({ type: 'endTurn' })}
     />
