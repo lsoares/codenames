@@ -53,9 +53,10 @@ export default function ClueBar(props: {
               type="submit"
               className={styles.submit}
               aria-label="Give clue"
+              title="Give clue"
               disabled={!word.trim() || Number.isNaN(count)}
             >
-              🔮
+              ✓
             </button>
           </form>
         ) : (
@@ -71,7 +72,12 @@ export default function ClueBar(props: {
             <span className={styles.clueValue}>{props.state.clue?.count}</span>
           </span>
           {!props.spymaster && (
-            <button className="secondary" onClick={props.onEndTurn} aria-label="Pass" title="Pass">
+            <button
+              className={`secondary ${styles.pass}`}
+              onClick={props.onEndTurn}
+              aria-label="Pass"
+              title="Pass"
+            >
               ✕
             </button>
           )}

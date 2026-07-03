@@ -46,6 +46,13 @@
   box-shadow: none;
 }
 
+/* Compact pass button so it doesn't inflate the header row. */
+.pass {
+  padding: 8px 12px;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
 .clueForm input[type='number'] {
   width: 72px;
 }

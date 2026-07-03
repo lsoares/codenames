@@ -22,31 +22,31 @@
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
-  justify-content: space-between;
 }
 
 .title {
   font-size: 1.8rem;
 }
 
+/* The clue bar sits between the two teams and leans toward whoever is playing:
+   the auto margin opens the gap on the opposite side. */
 .headerCenter {
-  flex: 1;
-  min-width: 0;
   display: flex;
-  justify-content: center;
+  align-items: center;
+}
+
+.headerCenter[data-turn='red'] {
+  margin-right: auto;
+}
+
+.headerCenter[data-turn='blue'] {
+  margin-left: auto;
 }
 
 .headerRight {
   display: flex;
   gap: 12px;
   align-items: center;
-}
-
-/* Each team clusters its spymaster next to its own operatives. */
-.teams {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
 }
 
 .team {

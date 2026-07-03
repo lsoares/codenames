@@ -35,53 +35,85 @@ export default function GameScreen(props: {
     return () => document.removeEventListener('click', close)
   }, [menuOpen])
 
+  // Reflect play in the tab: the favicon carries the team colour, the title/icon
+  // emoji tells spymaster (🕵️) from team (🙂), so a glance at the tab says who's up.
+  const { winner, phase, turn, clue } = props.state
+  useEffect(() => {
+    // The favicon carries colour + role, so the title itself stays plain text.
+    const role = winner ? '🏆' : phase === 'clue' ? '🕵️' : ''
+    document.title = winner
+      ? `${winner === 'red' ? 'Red' : 'Blue'} wins`
+      : phase === 'guess'
+        ? `${clue?.word} · ${clue?.count}`
+        : 'clue…'
+
+    const colorVar = (winner ?? turn) === 'red' ? '--red' : '--blue'
+    const color = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim() || '#888'
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="${color}"/><text x="16" y="25" font-size="22" text-anchor="middle">${role}</text></svg>`
+    let icon = document.querySelector('link[rel="icon"]')
+    if (!icon) {
+      icon = document.createElement('link')
+      icon.setAttribute('rel', 'icon')
+      document.head.appendChild(icon)
+    }
+    icon.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(svg)}`)
+
+    return () => {
+      document.title = 'Codenames Pictures'
+    }
+  }, [winner, phase, turn, clue])
+
+  const renderTeam = (team: Team) => {
+    const hasSpymaster = team === 'red' ? !!props.seats.red : !!props.seats.blue
+    const ops = opsFor(team)
+    const active = team === props.state.turn
+    return (
+      <span
+        className={styles.team}
+        data-team={team}
+        title={active ? `${team}'s turn` : undefined}
+      >
+        {hasSpymaster && (
+          <span
+            className={styles.spymasterIcon}
+            data-team={team}
+            data-active={(active && phase === 'clue') || undefined}
+          >
+            🕵️
+          </span>
+        )}
+        <span
+          className={styles.ops}
+          data-team={team}
+          data-active={(active && phase === 'guess') || undefined}
+        >
+          {(winner && winner !== team ? '😢' : '🙂').repeat(ops)}
+        </span>
+      </span>
+    )
+  }
+
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
         <h1 className={styles.title}>Codenames Pictures</h1>
 
-        {!props.state.winner && (
-          <div className={styles.headerCenter}>
+        {renderTeam('red')}
+
+        <div className={styles.headerCenter} data-turn={turn}>
+          {!winner && (
             <ClueBar
               state={props.state}
               spymaster={props.mySeat !== null}
               onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
               onEndTurn={() => props.onAction({ type: 'endTurn' })}
             />
-          </div>
-        )}
+          )}
+        </div>
+
+        {renderTeam('blue')}
 
         <div className={styles.headerRight}>
-          <div className={styles.teams}>
-            {(['red', 'blue'] as const).map((team) => {
-              const hasSpymaster = team === 'red' ? !!props.seats.red : !!props.seats.blue
-              const ops = opsFor(team)
-              const turn = team === props.state.turn
-              const clueActive = turn && props.state.phase === 'clue'
-              const guessActive = turn && props.state.phase === 'guess'
-              return (
-                <span
-                  className={styles.team}
-                  key={team}
-                  data-team={team}
-                  title={turn ? `${team}'s turn` : undefined}
-                >
-                  {hasSpymaster && (
-                    <span
-                      className={styles.spymasterIcon}
-                      data-team={team}
-                      data-active={clueActive || undefined}
-                    >
-                      🕵️
-                    </span>
-                  )}
-                  <span className={styles.ops} data-team={team} data-active={guessActive || undefined}>
-                    {(props.state.winner && props.state.winner !== team ? '😢' : '🙂').repeat(ops)}
-                  </span>
-                </span>
-              )
-            })}
-          </div>
           {props.status && <span className={styles.status}>{props.status}</span>}
 
           <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
