@@ -9,11 +9,12 @@ export default function ClueBar(props: {
   onClue: (word: string, count: number) => void
 }) {
   const [word, setWord] = useState('')
-  // The number follows the spymaster's card selection, but stays editable so they
-  // can still override it (e.g. clue fewer than they picked, or 0 for unlimited).
-  const [count, setCount] = useState(props.selectedCount)
+  // Default to a clue for one card. Once the spymaster starts picking cards the
+  // number follows the selection, and the spinner stays freely editable either
+  // way (e.g. clue fewer than picked, or 0 for unlimited).
+  const [count, setCount] = useState(1)
   useEffect(() => {
-    setCount(props.selectedCount)
+    if (props.selectedCount > 0) setCount(props.selectedCount)
   }, [props.selectedCount])
   const turn = props.state.turn
   const teamCardsLeft = props.state.cards.filter(
