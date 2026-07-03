@@ -112,10 +112,10 @@ export class GamePage {
     }
   }
 
-  // Start a new game from a specific card source via the New game ▾ dropdown.
+  // Start a new game from a specific card source: New game reveals the sources.
   async newGameWithSource(label: string): Promise<void> {
     await this.openMenu()
-    await this.page.getByRole('button', { name: /choose card source/i }).click()
+    await this.page.getByRole('button', { name: /new game/i }).click()
     await this.page.getByRole('button', { name: label, exact: true }).click()
   }
 

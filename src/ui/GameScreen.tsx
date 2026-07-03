@@ -130,7 +130,10 @@ export default function GameScreen(props: {
                     data-team={team}
                     data-mine={mine || undefined}
                     disabled={taken && !mine && !fresh}
-                    onClick={() => props.onClaimSeat(mine ? null : team)}
+                    onClick={() => {
+                      props.onClaimSeat(mine ? null : team)
+                      setMenuOpen(false)
+                    }}
                   >
                     {team === 'red' ? 'Red' : 'Blue'}
                   </button>
@@ -139,30 +142,25 @@ export default function GameScreen(props: {
             </div>
           </div>
           <div className={styles.newGame}>
-            <button className={`secondary ${styles.newGameMain}`} onClick={() => props.onNewGame()}>
-              New game
-            </button>
             <button
-              type="button"
-              className={`secondary ${styles.newGameMore}`}
-              aria-label="Choose card source"
-              aria-haspopup="menu"
+              className={`secondary ${styles.newGameMain}`}
               aria-expanded={sourceOpen}
               onClick={() => setSourceOpen((open) => !open)}
             >
-              ▾
+              New game
             </button>
             {sourceOpen && (
-              <div className={styles.sourceList} role="menu">
+              <div className={styles.sourceList}>
                 {props.providers.map((provider) => (
                   <button
                     key={provider.id}
                     type="button"
                     data-current={provider.id === props.providerId || undefined}
                     onClick={() => {
-                      setSourceOpen(false)
                       props.onProviderChange(provider.id)
                       props.onNewGame(provider.id)
+                      setSourceOpen(false)
+                      setMenuOpen(false)
                     }}
                   >
                     {provider.label}
@@ -196,7 +194,8 @@ export default function GameScreen(props: {
           : `Your turn (${turn})`
         : `The other team (${turn}) is playing`
 
-  // Header-centre pill: the live status/clue, and clicking it opens the menu.
+  // Header centre: the live clue in its own pill, beside the status pill which
+  // is also the menu button.
   const menuPill = (
     <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
       <button
@@ -205,12 +204,16 @@ export default function GameScreen(props: {
         aria-haspopup="menu"
         aria-expanded={menuOpen}
         title="Menu"
-        onClick={() => setMenuOpen((open) => !open)}
+        onClick={() => {
+          setMenuOpen((open) => !open)
+          setSourceOpen(false)
+        }}
       >
         {props.flash ? (
           <span className={styles.statusText}>{props.flash}</span>
         ) : (
           <>
+            <span className={styles.statusText}>{statusText}</span>
             {!winner && phase === 'guess' && clue && (
               <>
                 <strong className={styles.clueWord}>{clue.word}</strong>
@@ -218,7 +221,6 @@ export default function GameScreen(props: {
                 <span className={styles.clueValue}>{clue.count}</span>
               </>
             )}
-            <span className={styles.statusText}>{statusText}</span>
           </>
         )}
       </button>
