@@ -9,6 +9,7 @@ import styles from './GameScreen.module.css'
 export default function GameScreen(props: {
   state: GameState
   status: string
+  isHost: boolean
   spymaster: boolean
   spymasterCount: number
   onToggleSpymaster: (value: boolean) => void
@@ -34,6 +35,11 @@ export default function GameScreen(props: {
         <h1 className={styles.title}>Codenames Pictures</h1>
 
         <div className={styles.headerRight}>
+          {props.isHost && (
+            <span className={styles.hostHint} title="You are hosting this room">
+              host
+            </span>
+          )}
           <span title={`${props.state.turn}'s turn`}>
             {props.state.turn === 'red' ? '🔴' : '🔵'}
           </span>

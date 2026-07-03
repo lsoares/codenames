@@ -19,6 +19,7 @@ export default function App() {
   const [roomCode, setRoomCode] = useState('')
   const [spymaster, setSpymaster] = useState(false)
   const [spymasterCount, setSpymasterCount] = useState(0)
+  const [isHost, setIsHost] = useState(false)
   const [status, setStatus] = useState('')
   const sessionRef = useRef<Session | null>(null)
   const isHostRef = useRef(false)
@@ -31,6 +32,7 @@ export default function App() {
   const wire = (session: Session, asHost: boolean) => {
     sessionRef.current = session
     isHostRef.current = asHost
+    setIsHost(asHost)
     selfIdRef.current = session.selfId
     roomCodeRef.current = session.roomCode
     setRoomCode(session.roomCode)
@@ -160,6 +162,7 @@ export default function App() {
     <GameScreen
       state={game}
       status={status}
+      isHost={isHost}
       spymaster={spymaster}
       spymasterCount={spymasterCount}
       onToggleSpymaster={toggleSpymaster}

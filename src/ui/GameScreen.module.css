@@ -29,6 +29,14 @@
   white-space: nowrap;
 }
 
+.hostHint {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  opacity: 0.35;
+  text-transform: lowercase;
+}
+
 .status {
   color: var(--muted);
   font-style: italic;
