@@ -1,4 +1,4 @@
-import Peer, { type DataConnection } from 'peerjs'
+import Peer, { type DataConnection, type PeerOptions } from 'peerjs'
 import { createGame, type GameState, type Team } from '../game/createGame'
 import { applyAction, type Action } from '../game/applyAction'
 
@@ -25,16 +25,38 @@ function randomCode(): string {
   return Math.random().toString(36).slice(2, 8)
 }
 
-// Public PeerJS broker by default; a local broker when VITE_PEER_HOST is set
-// (used by the Playwright suite so signaling has no external dependency).
+// STUN + free TURN so peers behind restrictive NATs still connect. Defaults to
+// Metered's OpenRelay static credentials; override with VITE_TURN_* for your own.
+const iceServers: RTCIceServer[] = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  import.meta.env.VITE_TURN_URL
+    ? {
+        urls: import.meta.env.VITE_TURN_URL,
+        username: import.meta.env.VITE_TURN_USERNAME,
+        credential: import.meta.env.VITE_TURN_CREDENTIAL,
+      }
+    : {
+        urls: [
+          'turn:openrelay.metered.ca:80',
+          'turn:openrelay.metered.ca:443',
+          'turn:openrelay.metered.ca:443?transport=tcp',
+        ],
+        username: 'openrelayproject',
+        credential: 'openrelayproject',
+      },
+]
+
+// Our own PeerServer when VITE_PEER_HOST is set (dev and prod point at it), else
+// the public PeerJS broker. Either way peers get the TURN config above.
 function newPeer(id?: string): Peer {
   const brokerHost = import.meta.env.VITE_PEER_HOST
-  if (!brokerHost) return id ? new Peer(id) : new Peer()
-  const options = {
-    host: brokerHost,
-    port: Number(import.meta.env.VITE_PEER_PORT),
-    path: import.meta.env.VITE_PEER_PATH ?? '/',
-    key: import.meta.env.VITE_PEER_KEY ?? 'peerjs',
+  const options: PeerOptions = { config: { iceServers } }
+  if (brokerHost) {
+    options.host = brokerHost
+    options.port = Number(import.meta.env.VITE_PEER_PORT)
+    options.path = import.meta.env.VITE_PEER_PATH ?? '/'
+    options.key = import.meta.env.VITE_PEER_KEY ?? 'peerjs'
+    options.secure = import.meta.env.VITE_PEER_SECURE === 'true' || undefined
   }
   return id ? new Peer(id, options) : new Peer(options)
 }

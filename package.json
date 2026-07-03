@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "broker": "peerjs --port 9000 --key peerjs --path /",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test:e2e": "playwright test"
