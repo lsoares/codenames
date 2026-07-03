@@ -146,6 +146,20 @@ function startHost(
           if (now - (lastSeen.get(connection) ?? now) > 6000) dropConnection(connection)
         }
       }
+      // Free any spymaster seat whose holder is no longer present. A seat can
+      // outlive its holder when this host never tracked their departure — e.g.
+      // after a FIFO takeover the new host inherits the game but not the old
+      // connections, so a seat left by the previous spymaster would otherwise
+      // stay "taken" forever, leaving the team unable to re-seat mid-game.
+      const present = new Set([peer.id, ...connections.map((connection) => connection.peer)])
+      let freed = false
+      for (const team of ['red', 'blue'] as const) {
+        if (seats[team] && !present.has(seats[team] as string)) {
+          seats[team] = null
+          freed = true
+        }
+      }
+      if (freed) broadcast()
     }, 2000)
 
     peer.on('open', (id) => {
