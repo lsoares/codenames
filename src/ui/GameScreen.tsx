@@ -25,6 +25,24 @@ export default function GameScreen(props: {
   const [menuOpen, setMenuOpen] = useState(false)
   const [sourceOpen, setSourceOpen] = useState(false)
 
+  // The spymaster's private card picks, owned here so the clue's proposed number
+  // can follow them. Cleared when the turn passes or a new game starts, so each
+  // clue is planned on a clean board.
+  const [selected, setSelected] = useState<Set<number>>(new Set())
+  const toggleSelected = (index: number) =>
+    setSelected((prev) => {
+      const next = new Set(prev)
+      next.has(index) ? next.delete(index) : next.add(index)
+      return next
+    })
+  useEffect(() => {
+    setSelected(new Set())
+  }, [props.state.turn])
+  const freshBoard = props.state.cards.every((card) => !card.revealed)
+  useEffect(() => {
+    if (freshBoard) setSelected(new Set())
+  }, [freshBoard])
+
   const remaining = (color: string): number =>
     props.state.cards.filter((card) => card.color === color && !card.revealed).length
 
@@ -41,33 +59,7 @@ export default function GameScreen(props: {
     return () => document.removeEventListener('click', close)
   }, [menuOpen])
 
-  // Reflect play in the tab: the favicon carries the team colour, the title/icon
-  // emoji tells spymaster (🕵️) from team (🙂), so a glance at the tab says who's up.
   const { winner, phase, turn, clue } = props.state
-  useEffect(() => {
-    // The favicon carries colour + role, so the title itself stays plain text.
-    const role = winner ? '🏆' : phase === 'clue' ? '🕵️' : ''
-    document.title = winner
-      ? `${winner === 'red' ? 'Red' : 'Blue'} wins`
-      : phase === 'guess'
-        ? `${clue?.word} · ${clue?.count}`
-        : 'clue…'
-
-    const colorVar = (winner ?? turn) === 'red' ? '--red' : '--blue'
-    const color = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim() || '#888'
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="${color}"/><text x="16" y="25" font-size="22" text-anchor="middle">${role}</text></svg>`
-    let icon = document.querySelector('link[rel="icon"]')
-    if (!icon) {
-      icon = document.createElement('link')
-      icon.setAttribute('rel', 'icon')
-      document.head.appendChild(icon)
-    }
-    icon.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(svg)}`)
-
-    return () => {
-      document.title = 'Codenames Pictures'
-    }
-  }, [winner, phase, turn, clue])
 
   // Tint the page background to my team so I always know which side I'm on.
   useEffect(() => {
@@ -110,6 +102,13 @@ export default function GameScreen(props: {
         </span>
       </span>
     )
+  }
+
+  // A game in progress shouldn't be wiped by accident; confirm before starting a
+  // new one. A finished or still-untouched game starts immediately.
+  const confirmNewGame = (): boolean => {
+    const inProgress = !winner && (clue !== null || props.state.cards.some((card) => card.revealed))
+    return !inProgress || window.confirm('Start a new game? The current game will be lost.')
   }
 
   const renderMenuItems = () => (
@@ -157,6 +156,7 @@ export default function GameScreen(props: {
                     type="button"
                     data-current={provider.id === props.providerId || undefined}
                     onClick={() => {
+                      if (!confirmNewGame()) return
                       props.onProviderChange(provider.id)
                       props.onNewGame(provider.id)
                       setSourceOpen(false)
@@ -194,13 +194,76 @@ export default function GameScreen(props: {
           : `Your turn (${turn})`
         : `The other team (${turn}) is playing`
 
-  // Header centre: the live clue in its own pill, beside the status pill which
-  // is also the menu button.
-  const menuPill = (
+  // The tab title mirrors the header-centre pill text exactly, so a glance at the
+  // tab reads the same as the app.
+  const centerText = props.flash
+    ? props.flash
+    : !winner && phase === 'guess' && clue
+      ? `${statusText} — ${clue.word} · ${clue.count}`
+      : statusText
+
+  // Keep the browser tab in sync: the title mirrors the header-centre text, and
+  // the favicon carries my team's colour — plus the 🕵️ glyph only when I'm the
+  // spymaster — so the tab says what's happening even when the app isn't focused.
+  useEffect(() => {
+    document.title = centerText
+
+    const role = winner ? '🏆' : props.mySeat ? '🕵️' : ''
+    const colorVar = props.myTeam === 'red' ? '--red' : '--blue'
+    const color = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim() || '#888'
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="${color}"/><text x="16" y="25" font-size="22" text-anchor="middle">${role}</text></svg>`
+    let icon = document.querySelector('link[rel="icon"]')
+    if (!icon) {
+      icon = document.createElement('link')
+      icon.setAttribute('rel', 'icon')
+      document.head.appendChild(icon)
+    }
+    icon.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(svg)}`)
+
+    return () => {
+      document.title = 'Codenames Pictures'
+    }
+  }, [centerText, props.myTeam, props.mySeat, winner])
+
+  // When it's my turn but the tab is in the background, pulse the title so the
+  // tab flashes for attention; the moment the tab is focused again, restore it.
+  useEffect(() => {
+    if (winner || !mineTurn) return
+    const interval = setInterval(() => {
+      if (document.hidden) {
+        document.title = document.title.startsWith('🔔') ? centerText : '🔔 Your turn'
+      }
+    }, 1000)
+    const restore = () => {
+      if (!document.hidden) document.title = centerText
+    }
+    document.addEventListener('visibilitychange', restore)
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', restore)
+    }
+  }, [winner, mineTurn, centerText])
+
+  // The team-on-turn's spymaster clues from the header centre.
+  const clueForm = !winner && phase === 'clue' && activeSpymaster && (
+    <ClueBar
+      state={props.state}
+      selectedCount={selected.size}
+      onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
+    />
+  )
+
+  // Header centre: the status/clue pill that also opens the menu. On the active
+  // spymaster's clue turn the clue input takes centre stage and the menu shrinks
+  // to a compact button beside it, so the menu stays reachable throughout.
+  const center = (
     <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
+      {clueForm}
       <button
         className={styles.menuToggle}
         data-team={winner ?? turn}
+        data-compact={clueForm ? true : undefined}
+        data-host={props.isHost || undefined}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
         title="Menu"
@@ -209,7 +272,9 @@ export default function GameScreen(props: {
           setSourceOpen(false)
         }}
       >
-        {props.flash ? (
+        {clueForm ? (
+          '☰'
+        ) : props.flash ? (
           <span className={styles.statusText}>{props.flash}</span>
         ) : (
           <>
@@ -238,19 +303,11 @@ export default function GameScreen(props: {
     </div>
   )
 
-  // Only the team-on-turn's spymaster gets the clue input, at the bottom centre.
-  const clueForm = !winner && phase === 'clue' && activeSpymaster && (
-    <ClueBar
-      state={props.state}
-      onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
-    />
-  )
-
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
         <div className={styles.headerSide} data-side="left">{renderSide('red')}</div>
-        {menuPill}
+        {center}
         <div className={styles.headerSide} data-side="right">
           {renderSide('blue')}
           {props.status && <span className={styles.status}>{props.status}</span>}
@@ -272,12 +329,12 @@ export default function GameScreen(props: {
           spymasterTeam={props.mySeat}
           myTeam={props.myTeam}
           turn={props.state.turn}
+          enlarged={selected}
+          onToggleEnlarge={toggleSelected}
           onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
           onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index })}
         />
       </div>
-
-      {clueForm && <div className={styles.clueDock}>{clueForm}</div>}
     </main>
   )
 }

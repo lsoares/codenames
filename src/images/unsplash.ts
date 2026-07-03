@@ -1,4 +1,4 @@
-import type { CardProvider } from './types'
+import type { CardProvider } from './providers'
 
 interface UnsplashPhoto {
   urls: { small: string; regular: string }

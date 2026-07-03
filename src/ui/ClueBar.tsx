@@ -1,14 +1,20 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { GameState } from '../game/createGame'
 import styles from './ClueBar.module.css'
 
 // The spymaster's clue input, docked at the bottom centre while it's their turn.
 export default function ClueBar(props: {
   state: GameState
+  selectedCount: number
   onClue: (word: string, count: number) => void
 }) {
   const [word, setWord] = useState('')
-  const [count, setCount] = useState(1)
+  // The number follows the spymaster's card selection, but stays editable so they
+  // can still override it (e.g. clue fewer than they picked, or 0 for unlimited).
+  const [count, setCount] = useState(props.selectedCount)
+  useEffect(() => {
+    setCount(props.selectedCount)
+  }, [props.selectedCount])
   const turn = props.state.turn
   const teamCardsLeft = props.state.cards.filter(
     (card) => card.color === turn && !card.revealed,

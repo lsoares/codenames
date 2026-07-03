@@ -26,8 +26,10 @@ export default function App() {
   const [playerCount, setPlayerCount] = useState(1)
   const [isHost, setIsHost] = useState(false)
   const [status, setStatus] = useState('')
+  // Words leads the menu, but the board that auto-loads is Unsplash (it falls
+  // back to Words when there's no key), so first-time players open onto photos.
   const [providerId, setProviderId] = useState(
-    () => localStorage.getItem('codenames:image-provider') ?? providers[0].id,
+    () => localStorage.getItem('codenames:image-provider') ?? 'unsplash',
   )
   const chooseProvider = (id: string) => {
     localStorage.setItem('codenames:image-provider', id)

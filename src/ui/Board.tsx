@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import type { BoardMode, Card, Team } from '../game/createGame'
 import styles from './Board.module.css'
 
@@ -8,36 +7,19 @@ export default function Board(props: {
   spymasterTeam: Team | null
   myTeam: Team
   turn: Team
+  enlarged: Set<number>
+  onToggleEnlarge: (index: number) => void
   onCardClick: (index: number) => void
   onCardMark: (index: number) => void
 }) {
   const isSpymaster = props.spymasterTeam !== null
 
-  // A spymaster can't guess, so their left-click instead enlarges a card — a
-  // private, local-only way to single out candidates while thinking. Cleared
-  // when the turn passes (like the operatives' marks) and when a new game starts,
-  // so each clue is planned on a clean board.
-  const [enlarged, setEnlarged] = useState<Set<number>>(new Set())
-  useEffect(() => {
-    setEnlarged(new Set())
-  }, [props.turn])
-  const freshBoard = props.cards.every((card) => !card.revealed)
-  useEffect(() => {
-    if (freshBoard) setEnlarged(new Set())
-  }, [freshBoard])
-
-  const toggleEnlarge = (index: number) =>
-    setEnlarged((prev) => {
-      const next = new Set(prev)
-      next.has(index) ? next.delete(index) : next.add(index)
-      return next
-    })
-
   // Both roles single out cards the same way — a thicker border with the rest of
-  // the board dimmed. A spymaster's picks are private (local `enlarged`); the
-  // operatives' are a shared team note (`card.marked`, toggled by right-click).
+  // the board dimmed. A spymaster's picks are private (the enlarged set, owned by
+  // GameScreen so the clue's proposed number can follow it); the operatives' are
+  // a shared team note (`card.marked`, toggled by right-click).
   const highlighted = (card: Card, index: number): boolean =>
-    !card.revealed && (isSpymaster ? enlarged.has(index) : card.marked)
+    !card.revealed && (isSpymaster ? props.enlarged.has(index) : card.marked)
   const focusing = props.cards.some((card, index) => highlighted(card, index))
   return (
     <div className={styles.board} data-focus={focusing || undefined}>
@@ -64,7 +46,7 @@ export default function Board(props: {
             disabled={card.revealed}
             onClick={() => {
               if (!actionable) return
-              if (isSpymaster) toggleEnlarge(index)
+              if (isSpymaster) props.onToggleEnlarge(index)
               else props.onCardClick(index)
             }}
             onContextMenu={(event) => {

@@ -1,4 +1,4 @@
-import type { CardProvider } from './types'
+import type { CardProvider } from './providers'
 
 // Concrete, picturable categories. Datamuse's "triggered by" (rel_trg) returns
 // words statistically associated with these, which yields Codenames-ish nouns

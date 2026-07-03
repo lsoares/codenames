@@ -1,4 +1,4 @@
-import type { CardProvider } from './types'
+import type { CardProvider } from './providers'
 
 interface PexelsPhoto {
   src: { medium: string; small: string }
