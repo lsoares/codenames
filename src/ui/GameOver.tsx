@@ -3,11 +3,26 @@ import styles from './GameOver.module.css'
 
 export default function GameOver(props: { winner: Team; byAssassin: boolean; onNewGame: () => void }) {
   return (
-    <div className={styles.banner} role="status" data-team={props.winner}>
+    <div
+      className={styles.banner}
+      role="status"
+      data-team={props.winner}
+      data-assassin={props.byAssassin || undefined}
+    >
+      {props.byAssassin && (
+        <span className={styles.skull} aria-hidden="true">
+          ☠️
+        </span>
+      )}
       <span>
-        {props.byAssassin && '☠️ '}
-        {props.winner === 'red' ? 'Red' : 'Blue'} team wins!
-        {props.byAssassin ? ' (assassin revealed)' : ' 🎉'}
+        {props.byAssassin ? (
+          <>
+            <strong className={styles.assassin}>Assassin!</strong>{' '}
+            {props.winner === 'red' ? 'Red' : 'Blue'} team wins
+          </>
+        ) : (
+          <>{props.winner === 'red' ? 'Red' : 'Blue'} team wins! 🎉</>
+        )}
       </span>
       <button className="secondary" onClick={props.onNewGame}>
         New game

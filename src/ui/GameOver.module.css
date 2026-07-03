@@ -16,3 +16,31 @@
 .banner[data-team='blue'] {
   color: var(--blue);
 }
+
+/* An assassin ending is sudden death — make it unmissable: dark banner, a big
+   pulsing skull, and the word ASSASSIN shouting before the winner. */
+.banner[data-assassin] {
+  color: #fff;
+  background: #2b2d42;
+  border-radius: 14px;
+  padding: 6px 18px;
+  box-shadow: 0 0 0 3px #2b2d42, 0 6px 20px rgba(43, 45, 66, 0.5);
+}
+
+.skull {
+  font-size: 2.4rem;
+  line-height: 1;
+  animation: skullPulse 0.8s ease-in-out infinite;
+}
+
+.assassin {
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+}
+
+@keyframes skullPulse {
+  50% {
+    transform: scale(1.25);
+  }
+}
