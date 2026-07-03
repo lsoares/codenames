@@ -129,9 +129,6 @@ export default function GameScreen(props: {
             <div className={styles.seatButtons}>
               {(['red', 'blue'] as const).map((team) => {
                 const mine = props.mySeat === team
-                const taken = team === 'red' ? !!props.seats.red : !!props.seats.blue
-                // A taken seat can still be stolen while the game is fresh.
-                const fresh = props.state.log.length === 0
                 return (
                   <button
                     key={team}
@@ -139,7 +136,6 @@ export default function GameScreen(props: {
                     className={styles.seatButton}
                     data-team={team}
                     data-mine={mine || undefined}
-                    disabled={taken && !mine && !fresh}
                     onClick={() => {
                       props.onClaimSeat(mine ? null : team)
                       setMenuOpen(false)

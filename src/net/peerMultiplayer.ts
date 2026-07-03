@@ -86,14 +86,13 @@ function startHost(
     const listeners: Array<(view: RoomView) => void> = []
     let state = initialState
 
-    // One holder per team, one seat per peer. A free seat can always be taken;
-    // a held one can be stolen only while the game is fresh (before the first
-    // clue), so the spymaster role can still rotate at the start.
+    // One holder per team, one seat per peer. Anyone can take a seat at any time,
+    // stealing it from whoever holds it — the role isn't locked once the game
+    // starts, so players can freely swap into the spymaster chair.
     const claimSeat = (peerId: string, team: Team | null) => {
       if (seats.red === peerId) seats.red = null
       if (seats.blue === peerId) seats.blue = null
-      const fresh = state.log.length === 0
-      if (team && (!seats[team] || fresh)) seats[team] = peerId
+      if (team) seats[team] = peerId
     }
     // Auto-assign each peer to the smaller team on arrival, then leave it fixed.
     const assignTeam = (peerId: string) => {
