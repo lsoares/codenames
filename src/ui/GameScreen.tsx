@@ -22,6 +22,10 @@ export default function GameScreen(props: {
   const remaining = (color: string): number =>
     props.state.cards.filter((card) => card.color === color && !card.revealed).length
 
+  const operatives = Math.max(0, props.playerCount - props.spymasterCount)
+  const redOps = Math.ceil(operatives / 2)
+  const blueOps = operatives - redOps
+
   // Close the menu when clicking anywhere outside it.
   useEffect(() => {
     if (!menuOpen) return
@@ -36,14 +40,20 @@ export default function GameScreen(props: {
         <h1 className={styles.title}>Codenames Pictures</h1>
 
         <div className={styles.headerRight}>
-          <span title={`${props.state.turn}'s turn`}>
-            {props.state.turn === 'red' ? '🔴' : '🔵'}
+          <span
+            className={styles.turnShade}
+            data-team={props.state.turn}
+            title={`${props.state.turn}'s turn`}
+          >
+            <span className={styles.spymasterCount}>{'🕵️'.repeat(props.spymasterCount)}</span>
           </span>
-          <span className={styles.spymasterCount} title="Spymasters viewing the key">
-            {'🕵️'.repeat(props.spymasterCount)}
-          </span>
-          <span className={styles.operatives} title="Operatives (players not spymastering)">
-            {'•'.repeat(Math.max(0, props.playerCount - props.spymasterCount))}
+          <span className={styles.operatives}>
+            <span className={styles.opRed} title={`${redOps} playing on red`}>
+              {'•'.repeat(redOps)}
+            </span>
+            <span className={styles.opBlue} title={`${blueOps} playing on blue`}>
+              {'•'.repeat(blueOps)}
+            </span>
           </span>
           {props.status && <span className={styles.status}>{props.status}</span>}
 

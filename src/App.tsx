@@ -6,6 +6,7 @@ import { placeholderImages } from './images/placeholder'
 import { host, resumeHost, join, type Session } from './net/peerMultiplayer'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
+import Toaster from './ui/Toaster'
 
 const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
 
@@ -29,6 +30,14 @@ export default function App() {
   const peersRef = useRef<string[]>([])
   const selfIdRef = useRef('')
   const roomCodeRef = useRef('')
+  const [toasts, setToasts] = useState<Array<{ id: number; text: string }>>([])
+  const toastIdRef = useRef(0)
+
+  const notify = (text: string) => {
+    const id = (toastIdRef.current += 1)
+    setToasts((current) => [...current, { id, text }])
+    window.setTimeout(() => setToasts((current) => current.filter((toast) => toast.id !== id)), 3000)
+  }
 
   const wire = (session: Session, asHost: boolean) => {
     sessionRef.current = session
@@ -62,10 +71,12 @@ export default function App() {
       try {
         wire(await resumeHost(roomCodeRef.current, state), true)
         playSound('takeover')
+        notify('You took over as host')
       } catch {
         try {
           wire(await join(roomCodeRef.current), false)
           playSound('takeover')
+          notify('Host recovered — reconnected')
         } catch {
           setStatus('Lost connection to the room.')
         }
@@ -76,6 +87,10 @@ export default function App() {
   const toggleSpymaster = (value: boolean) => {
     setSpymaster(value)
     sessionRef.current?.setSpymaster(value)
+    if (value) {
+      playSound('spymaster')
+      notify('You are now a spymaster 🕵️')
+    }
   }
 
   const createRoom = async () => {
@@ -114,9 +129,17 @@ export default function App() {
     const prev = prevGameRef.current
     prevGameRef.current = game
     if (!game || !prev) return
-    if (!prev.winner && game.winner) playSound('gameOver')
-    else if (prev.phase === 'clue' && game.phase === 'guess') playSound('clue')
-    else if (prev.turn !== game.turn) playSound('endTurn')
+    if (!prev.winner && game.winner) {
+      playSound('gameOver')
+      notify(`${game.winner === 'red' ? 'Red' : 'Blue'} team wins!`)
+    } else if (prev.phase === 'clue' && game.phase === 'guess') {
+      playSound('clue')
+      notify(`Clue: ${game.clue?.word} · ${game.clue?.count}`)
+    } else if (prev.turn !== game.turn) {
+      playSound('endTurn')
+      notify(`${game.turn === 'red' ? 'Red' : 'Blue'}'s turn`)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game])
 
   // As host, mirror the game into sessionStorage so a refresh can restore it.
@@ -162,26 +185,27 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (!game) {
-    return (
-      <main className="card">
-        <h1>Codenames Pictures</h1>
-        <p>{status || 'Setting up your game…'}</p>
-      </main>
-    )
-  }
-
   return (
-    <GameScreen
-      state={game}
-      status={status}
-      isHost={isHost}
-      spymaster={spymaster}
-      spymasterCount={spymasterCount}
-      playerCount={playerCount}
-      onToggleSpymaster={toggleSpymaster}
-      onAction={(action: Action) => sessionRef.current?.dispatch(action)}
-      onNewGame={() => sessionRef.current?.dispatch({ type: 'newGame' })}
-    />
+    <>
+      {game ? (
+        <GameScreen
+          state={game}
+          status={status}
+          isHost={isHost}
+          spymaster={spymaster}
+          spymasterCount={spymasterCount}
+          playerCount={playerCount}
+          onToggleSpymaster={toggleSpymaster}
+          onAction={(action: Action) => sessionRef.current?.dispatch(action)}
+          onNewGame={() => sessionRef.current?.dispatch({ type: 'newGame' })}
+        />
+      ) : (
+        <main className="card">
+          <h1>Codenames Pictures</h1>
+          <p>{status || 'Setting up your game…'}</p>
+        </main>
+      )}
+      <Toaster toasts={toasts} />
+    </>
   )
 }

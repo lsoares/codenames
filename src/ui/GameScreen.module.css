@@ -41,11 +41,37 @@
   white-space: nowrap;
 }
 
+.turnShade {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  min-height: 28px;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.turnShade[data-team='red'] {
+  background: color-mix(in srgb, var(--red) 28%, transparent);
+}
+
+.turnShade[data-team='blue'] {
+  background: color-mix(in srgb, var(--blue) 28%, transparent);
+}
+
 .operatives {
-  color: var(--muted);
   letter-spacing: 2px;
   font-size: 1.3rem;
   line-height: 1;
+}
+
+.opRed {
+  color: var(--red);
+}
+
+.opBlue {
+  color: var(--blue);
+  margin-left: 8px;
 }
 
 .status {

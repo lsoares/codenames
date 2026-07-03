@@ -1,16 +1,16 @@
 .board {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(4, 1fr);
   gap: 10px;
-  /* 5×4 of 4:3 cards → 5:3 board; capped to fit the viewport (no scroll). */
-  aspect-ratio: 5 / 3;
-  max-width: 100%;
-  max-height: 100%;
+  /* Cap width by available height so 4 rows of 4:3 cards fit with no scroll,
+     keeping cards 4:3 and the row/column gaps identical. */
+  width: min(100%, calc((100dvh - 175px) * 5 / 3));
+  margin: 0 auto;
 }
 
 .card {
   position: relative;
+  aspect-ratio: 4 / 3;
   padding: 5px;
   /* Rounder corners open the gaps into rounded pockets at each crossing,
      which breaks the Hermann-grid illusion (ghost blobs at intersections). */
