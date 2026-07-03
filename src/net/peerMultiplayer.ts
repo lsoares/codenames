@@ -2,25 +2,25 @@ import Peer, { type DataConnection } from 'peerjs'
 import { createGame, type GameState, type Team } from '../game/createGame'
 import { applyAction, type Action } from '../game/applyAction'
 
-// What every peer renders: the game plus live presence (how many spymasters
-// are currently viewing the key — a tell for extra peekers).
+// What every peer renders, plus presence used for FIFO host takeover.
 export interface RoomView {
   state: GameState
   spymasters: number
+  peers: string[] // arrival order, host first
 }
 
 export interface Session {
   roomCode: string
+  selfId: string
   dispatch: (action: Action) => void
   setSpymaster: (value: boolean) => void
   subscribe: (listener: (view: RoomView) => void) => void
-  // Guests: fires when the connection to the host drops (host gone).
   onDisconnect: (listener: () => void) => void
 }
 
 type Presence = { __presence: true; spymaster: boolean }
+type Ping = { __ping: true }
 
-// Short, URL-friendly room code used as the host's PeerJS id.
 function randomCode(): string {
   return Math.random().toString(36).slice(2, 8)
 }
@@ -43,7 +43,7 @@ export function host(images: string[], startingTeam: Team): Promise<Session> {
   return startHost(randomCode(), createGame(images, startingTeam), 'new', 4)
 }
 
-// Re-host an existing game under the same room code after the host tab reloads.
+// Re-host an existing game under the same room code (host reload or FIFO takeover).
 export function resumeHost(roomCode: string, state: GameState): Promise<Session> {
   return startHost(roomCode, state, 'resume', 8)
 }
@@ -67,16 +67,26 @@ function startHost(
       for (const flag of spymasterByConn.values()) if (flag) count++
       return count
     }
-    const view = (): RoomView => ({ state, spymasters: spymasterCount() })
+    const view = (): RoomView => ({
+      state,
+      spymasters: spymasterCount(),
+      peers: [peer.id, ...connections.map((connection) => connection.peer)],
+    })
     const broadcast = () => {
       const current = view()
       listeners.forEach((listener) => listener(current))
       connections.forEach((connection) => connection.open && connection.send(current))
     }
 
+    // Heartbeat so guests can detect an abrupt host disappearance.
+    setInterval(() => {
+      connections.forEach((connection) => connection.open && connection.send({ __ping: true } satisfies Ping))
+    }, 2000)
+
     peer.on('open', (id) => {
       resolve({
         roomCode: id,
+        selfId: id,
         dispatch: (action) => {
           state = applyAction(state, action)
           broadcast()
@@ -96,7 +106,7 @@ function startHost(
     peer.on('connection', (connection) => {
       connection.on('open', () => {
         connections.push(connection)
-        connection.send(view())
+        broadcast()
       })
       connection.on('data', (data) => {
         if ((data as Presence).__presence) {
@@ -129,20 +139,35 @@ function startHost(
   })
 }
 
-// Guest connects to the host by room code, sends actions/presence, receives views.
+// Guest connects to the host by room code; detects host loss via heartbeat.
 export function join(roomCode: string): Promise<Session> {
   return new Promise((resolve, reject) => {
     const peer = newPeer()
 
-    peer.on('open', () => {
+    peer.on('open', (selfId) => {
       const connection = peer.connect(roomCode, { reliable: true })
       const listeners: Array<(view: RoomView) => void> = []
       let latest: RoomView | null = null
       let disconnectHandler: () => void = () => {}
+      let lastSeen = Date.now()
+      let watchdog: ReturnType<typeof setInterval> | undefined
+      let lost = false
+
+      const markLost = () => {
+        if (lost) return
+        lost = true
+        if (watchdog) clearInterval(watchdog)
+        disconnectHandler()
+      }
 
       connection.on('open', () => {
+        lastSeen = Date.now()
+        watchdog = setInterval(() => {
+          if (Date.now() - lastSeen > 6000) markLost()
+        }, 2000)
         resolve({
           roomCode,
+          selfId,
           dispatch: (action) => connection.send(action),
           setSpymaster: (value) =>
             connection.send({ __presence: true, spymaster: value } satisfies Presence),
@@ -156,10 +181,13 @@ export function join(roomCode: string): Promise<Session> {
         })
       })
       connection.on('data', (data) => {
+        lastSeen = Date.now()
+        if ((data as Ping).__ping) return
         latest = data as RoomView
         listeners.forEach((listener) => listener(latest as RoomView))
       })
-      connection.on('close', () => disconnectHandler())
+      connection.on('close', markLost)
+      connection.on('error', markLost)
     })
 
     peer.on('error', reject)

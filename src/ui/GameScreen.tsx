@@ -11,8 +11,6 @@ export default function GameScreen(props: {
   status: string
   spymaster: boolean
   spymasterCount: number
-  canTakeOver: boolean
-  onTakeOver: () => void
   onToggleSpymaster: (value: boolean) => void
   onAction: (action: Action) => void
   onNewGame: () => void
@@ -59,16 +57,6 @@ export default function GameScreen(props: {
               <div className={styles.remaining}>
                 🔴 {remaining('red')} · 🔵 {remaining('blue')} · ⚪ {remaining('neutral')}
               </div>
-              {props.canTakeOver && (
-                <button
-                  onClick={() => {
-                    props.onTakeOver()
-                    setMenuOpen(false)
-                  }}
-                >
-                  Take over as host
-                </button>
-              )}
               <label className={styles.spymaster}>
                 <input
                   type="checkbox"

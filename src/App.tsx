@@ -19,36 +19,52 @@ export default function App() {
   const [roomCode, setRoomCode] = useState('')
   const [spymaster, setSpymaster] = useState(false)
   const [spymasterCount, setSpymasterCount] = useState(0)
-  const [hostLost, setHostLost] = useState(false)
   const [status, setStatus] = useState('')
   const sessionRef = useRef<Session | null>(null)
   const isHostRef = useRef(false)
   const startedRef = useRef(false)
+  const gameRef = useRef<GameState | null>(null)
+  const peersRef = useRef<string[]>([])
+  const selfIdRef = useRef('')
+  const roomCodeRef = useRef('')
 
   const wire = (session: Session, asHost: boolean) => {
     sessionRef.current = session
     isHostRef.current = asHost
-    setHostLost(false)
+    selfIdRef.current = session.selfId
+    roomCodeRef.current = session.roomCode
     setRoomCode(session.roomCode)
     window.location.hash = session.roomCode
     session.subscribe((view) => {
+      gameRef.current = view.state
+      peersRef.current = view.peers
       setGame(view.state)
       setSpymasterCount(view.spymasters)
     })
-    if (!asHost) session.onDisconnect(() => setHostLost(true))
+    if (!asHost) session.onDisconnect(() => migrate())
   }
 
-  // Manual takeover: a guest re-hosts the room (same code) from the state it
-  // already holds when the host disappears.
-  const takeOver = async () => {
-    if (!game) return
-    setStatus('Taking over the room…')
-    try {
-      wire(await resumeHost(roomCode, game), true)
-      setStatus('')
-    } catch {
-      setStatus('Could not take over — someone else may have. Refresh to rejoin.')
-    }
+  // Host gone: the surviving peer with the smallest id re-hosts the same room
+  // from the state everyone already holds; the others reconnect to it. No UI.
+  const migrate = () => {
+    if (isHostRef.current) return
+    const deadHost = peersRef.current[0]
+    const survivors = peersRef.current.filter((id) => id !== deadHost).sort()
+    const rank = survivors.indexOf(selfIdRef.current)
+    const delay = (rank < 0 ? survivors.length : rank) * 1500
+    window.setTimeout(async () => {
+      const state = gameRef.current
+      if (!state || isHostRef.current) return
+      try {
+        wire(await resumeHost(roomCodeRef.current, state), true)
+      } catch {
+        try {
+          wire(await join(roomCodeRef.current), false)
+        } catch {
+          setStatus('Lost connection to the room.')
+        }
+      }
+    }, delay)
   }
 
   const toggleSpymaster = (value: boolean) => {
@@ -144,8 +160,6 @@ export default function App() {
       status={status}
       spymaster={spymaster}
       spymasterCount={spymasterCount}
-      canTakeOver={hostLost}
-      onTakeOver={takeOver}
       onToggleSpymaster={toggleSpymaster}
       onAction={(action: Action) => sessionRef.current?.dispatch(action)}
       onNewGame={() => sessionRef.current?.dispatch({ type: 'newGame' })}
