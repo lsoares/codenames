@@ -1,12 +1,21 @@
-import type { CardProvider } from './types'
 import { unsplash } from './unsplash'
 import { pexels } from './pexels'
 import { words } from './words'
 import { tmdb } from './tmdb'
-export type { CardProvider }
+import { cats } from './cats'
+
+// A source of card faces. `fetch` resolves to 20 faces — image URLs for
+// `kind: 'image'` providers, or words for `kind: 'word'` — or throws when it
+// can't (missing key, network error) so callers can fall back.
+export interface CardProvider {
+  id: string
+  label: string
+  kind: 'image' | 'word'
+  fetch: () => Promise<string[]>
+}
 
 // The card sources offered in the menu.
-export const providers: CardProvider[] = [unsplash, pexels, words, tmdb]
+export const providers: CardProvider[] = [words, unsplash, pexels, tmdb, cats]
 
 // Fetches 20 card faces (image URLs or words) plus the chosen provider's mode.
 // When an image provider throws (missing key, network error), fall back to the
