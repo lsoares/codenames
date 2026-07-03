@@ -35,11 +35,6 @@ export default function GameScreen(props: {
         <h1 className={styles.title}>Codenames Pictures</h1>
 
         <div className={styles.headerRight}>
-          {props.isHost && (
-            <span className={styles.hostHint} title="You are hosting this room">
-              host
-            </span>
-          )}
           <span title={`${props.state.turn}'s turn`}>
             {props.state.turn === 'red' ? '🔴' : '🔵'}
           </span>
@@ -51,6 +46,8 @@ export default function GameScreen(props: {
           <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
           <button
             className={styles.menuToggle}
+            data-host={props.isHost || undefined}
+            title={props.isHost ? 'You are hosting this room' : undefined}
             aria-label="Options"
             aria-haspopup="menu"
             aria-expanded={menuOpen}

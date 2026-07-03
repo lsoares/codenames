@@ -9,7 +9,9 @@
   position: relative;
   aspect-ratio: 4 / 3;
   padding: 5px;
-  border-radius: 14px;
+  /* Rounder corners open the gaps into rounded pockets at each crossing,
+     which breaks the Hermann-grid illusion (ghost blobs at intersections). */
+  border-radius: 20px;
   background: var(--surface);
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -24,8 +26,16 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 16px;
   display: block;
+  /* Quick zoom-out when leaving. */
+  transition: transform 0.5s ease;
+}
+
+/* Zoom in only after hovering a moment; not on revealed (disabled) cards. */
+.card:not(:disabled):hover .image {
+  transform: scale(1.18);
+  transition: transform 0.5s ease 0.25s;
 }
 
 .card[data-color='red'] {
@@ -72,7 +82,7 @@
 
   .card {
     padding: 3px;
-    border-radius: 10px;
+    border-radius: 16px;
   }
 }
 
