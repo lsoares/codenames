@@ -25,6 +25,9 @@ export default function App() {
   const [teams, setTeams] = useState<Record<string, Team>>({})
   const [playerCount, setPlayerCount] = useState(1)
   const [isHost, setIsHost] = useState(false)
+  // While the next board's faces are being fetched, blank the current cards so
+  // their now-stale images don't linger — the new ones can take a moment.
+  const [loadingFaces, setLoadingFaces] = useState(false)
   const [status, setStatus] = useState('')
   // Words leads the menu, but the board that auto-loads is Unsplash (it falls
   // back to Words when there's no key), so first-time players open onto photos.
@@ -106,8 +109,13 @@ export default function App() {
   const myTeam: Team = mySeat ?? teams?.[selfIdRef.current] ?? 'red'
 
   const newGame = async (id: string = providerId) => {
-    const { faces, mode } = await getFaces(id)
-    sessionRef.current?.dispatch({ type: 'newGame', faces, mode })
+    setLoadingFaces(true)
+    try {
+      const { faces, mode } = await getFaces(id)
+      sessionRef.current?.dispatch({ type: 'newGame', faces, mode })
+    } finally {
+      setLoadingFaces(false)
+    }
   }
 
   const claimSeat = (team: Team | null) => {
@@ -262,6 +270,7 @@ export default function App() {
           onClaimSeat={claimSeat}
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
           onNewGame={newGame}
+          loadingFaces={loadingFaces}
           providers={providers}
           providerId={providerId}
           onProviderChange={chooseProvider}

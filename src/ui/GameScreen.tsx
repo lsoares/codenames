@@ -18,6 +18,7 @@ export default function GameScreen(props: {
   onClaimSeat: (team: Team | null) => void
   onAction: (action: Action) => void
   onNewGame: (providerId?: string) => void
+  loadingFaces: boolean
   providers: { id: string; label: string }[]
   providerId: string
   onProviderChange: (id: string) => void
@@ -340,6 +341,7 @@ export default function GameScreen(props: {
         <Board
           cards={props.state.cards}
           mode={props.state.mode}
+          loading={props.loadingFaces}
           spymasterTeam={props.mySeat}
           myTeam={props.myTeam}
           turn={props.state.turn}

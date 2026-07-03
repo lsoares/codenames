@@ -4,6 +4,7 @@ import styles from './Board.module.css'
 export default function Board(props: {
   cards: Card[]
   mode: BoardMode
+  loading: boolean
   spymasterTeam: Team | null
   myTeam: Team
   turn: Team
@@ -54,7 +55,9 @@ export default function Board(props: {
               if (!isSpymaster && actionable) props.onCardMark(index)
             }}
           >
-            {props.mode === 'word' ? (
+            {props.loading ? (
+              <span className={`${styles.face} ${styles.loading}`} />
+            ) : props.mode === 'word' ? (
               <span className={`${styles.face} ${styles.word}`}>{card.face}</span>
             ) : (
               <img

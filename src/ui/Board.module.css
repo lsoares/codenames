@@ -46,6 +46,19 @@
   object-fit: cover;
 }
 
+/* Empty face shown while the next board's faces load: a plain tile that gently
+   pulses, so the old images clear immediately instead of lingering. */
+.loading {
+  background: var(--surface);
+  animation: facePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes facePulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
 /* Word cards: the word on a light tile so the colour border stays readable. */
 .word {
   display: grid;
