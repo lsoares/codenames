@@ -4,6 +4,7 @@ import { words } from './words'
 import { tmdb } from './tmdb'
 import { cats } from './cats'
 import { foodish } from './foodish'
+import { pokemon } from './pokemon'
 
 // A source of card faces. `fetch` resolves to 20 faces — image URLs for
 // `kind: 'image'` providers, or words for `kind: 'word'` — or throws when it
@@ -16,7 +17,7 @@ export interface CardProvider {
 }
 
 // The card sources offered in the menu.
-export const providers: CardProvider[] = [words, unsplash, pexels, tmdb, cats, foodish]
+export const providers: CardProvider[] = [words, unsplash, pexels, tmdb, cats, foodish, pokemon]
 
 // Fetches 20 card faces (image URLs or words) plus the chosen provider's mode.
 // When an image provider throws (missing key, network error), fall back to the
