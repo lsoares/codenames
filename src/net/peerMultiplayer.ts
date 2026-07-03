@@ -114,9 +114,25 @@ function startHost(
       connections.forEach((connection) => connection.open && connection.send(current))
     }
 
-    // Heartbeat so guests can detect an abrupt host disappearance.
+    const lastSeen = new Map<DataConnection, number>()
+    const dropConnection = (connection: DataConnection) => {
+      const index = connections.indexOf(connection)
+      if (index < 0) return
+      connections.splice(index, 1)
+      claimSeat(connection.peer, null)
+      delete teams[connection.peer]
+      lastSeen.delete(connection)
+      broadcast()
+    }
+
+    // Heartbeat both ways: guests detect host loss from these pings, and the host
+    // prunes guests it hasn't heard from (an abrupt tab close never fires 'close').
     setInterval(() => {
-      connections.forEach((connection) => connection.open && connection.send({ __ping: true } satisfies Ping))
+      const now = Date.now()
+      connections.forEach((connection) => {
+        if (connection.open) connection.send({ __ping: true } satisfies Ping)
+        if (now - (lastSeen.get(connection) ?? now) > 6000) dropConnection(connection)
+      })
     }, 2000)
 
     peer.on('open', (id) => {
@@ -143,10 +159,13 @@ function startHost(
     peer.on('connection', (connection) => {
       connection.on('open', () => {
         connections.push(connection)
+        lastSeen.set(connection, Date.now())
         assignTeam(connection.peer)
         broadcast()
       })
       connection.on('data', (data) => {
+        lastSeen.set(connection, Date.now())
+        if ((data as Ping).__ping) return // guest keepalive
         if ((data as Presence).__presence) {
           claimSeat(connection.peer, (data as Presence).spymasterTeam)
         } else {
@@ -154,13 +173,7 @@ function startHost(
         }
         broadcast()
       })
-      connection.on('close', () => {
-        const index = connections.indexOf(connection)
-        if (index >= 0) connections.splice(index, 1)
-        claimSeat(connection.peer, null)
-        delete teams[connection.peer]
-        broadcast()
-      })
+      connection.on('close', () => dropConnection(connection))
     })
 
     peer.on('error', (error: { type?: string }) => {
@@ -202,6 +215,8 @@ export function join(roomCode: string): Promise<Session> {
       connection.on('open', () => {
         lastSeen = Date.now()
         watchdog = setInterval(() => {
+          // Keepalive so the host knows we're still here, and detect host loss.
+          if (connection.open) connection.send({ __ping: true } satisfies Ping)
           if (Date.now() - lastSeen > 6000) markLost()
         }, 2000)
         resolve({

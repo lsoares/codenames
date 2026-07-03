@@ -9,16 +9,15 @@
   gap: 12px;
 }
 
-/* Board fills the space left below the header/clue bar (desktop: no scroll). */
+/* Board hugs the top (under the header); the clue bar takes the bottom. */
 .boardArea {
   flex: 1;
   min-height: 0;
   display: grid;
-  place-items: center;
+  place-items: start center;
 }
 
-/* The ⋯ menu is the centred divider; each team owns a side, and the playing
-   team's clue bar sits next to the divider on that side. */
+/* Each team owns a side; the status/menu pill is the centre divider. */
 .header {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -74,10 +73,24 @@
   font-weight: 700;
 }
 
+/* Count card, then a gap, then the players (spymaster + operatives) grouped. */
 .team {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 14px;
+}
+
+.players {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Right side mirrors so each team's count sits at the outer edge, and the
+   spymaster ends up on the inner right, next to the operatives. */
+.headerSide[data-side='right'] .team,
+.headerSide[data-side='right'] .players {
+  flex-direction: row-reverse;
 }
 
 .spymasterIcon,
@@ -86,24 +99,23 @@
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  padding: 2px 8px;
+  padding: 2px 3px;
   border-radius: 999px;
 }
 
 .ops {
-  min-width: 16px;
   letter-spacing: 1px;
   font-size: 1rem;
   line-height: 1;
 }
 
-/* Cards-left count shown as a little team-coloured card, so it reads as "cards". */
+/* Cards-left count shown as a little horizontal team-coloured card. */
 .count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  padding: 3px 6px;
+  width: 34px;
+  height: 24px;
   border-radius: 5px;
   color: #fff;
   font-weight: 800;
@@ -117,6 +129,13 @@
 
 .team[data-team='blue'] .count {
   background: var(--blue);
+}
+
+/* The clue/status bar sits centred at the bottom, below the board. */
+.clueDock {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
 }
 
 /* The shade marks whose action is pending: the spymaster while the clue is
@@ -137,15 +156,57 @@
 
 .menu {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: center;
 }
 
+/* The status/clue pill that also opens the menu, team-tinted by whose turn. */
 .menuToggle {
-  padding: 6px 14px;
-  font-size: 1.6rem;
-  line-height: 1;
-  color: var(--primary);
-  background: var(--primary-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  color: var(--ink);
   box-shadow: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.menuToggle[data-team='red'] {
+  background: color-mix(in srgb, var(--red) 26%, transparent);
+}
+
+.menuToggle[data-team='blue'] {
+  background: color-mix(in srgb, var(--blue) 26%, transparent);
+}
+
+.clueWord {
+  font-size: 1.7rem;
+  line-height: 1.1;
+}
+
+.clueDot {
+  font-size: 0.5rem;
+  color: var(--muted);
+}
+
+.clueValue {
+  font-size: 1.2rem;
+  color: var(--muted);
+}
+
+.statusText {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.pass {
+  padding: 6px 10px;
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .menuItems {

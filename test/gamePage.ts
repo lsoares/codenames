@@ -32,6 +32,20 @@ export async function stubPexels(page: Page): Promise<void> {
   )
 }
 
+// Return two pages of 20 canned movies (each with a backdrop) so a TMDB-sourced
+// board is deterministic and offline.
+export async function stubTmdb(page: Page): Promise<void> {
+  await page.route('**/api.themoviedb.org/**', (route) =>
+    route.fulfill({
+      json: {
+        results: Array.from({ length: 20 }, (_, index) => ({
+          backdrop_path: `/backdrop${index}.jpg`,
+        })),
+      },
+    }),
+  )
+}
+
 // Datamuse returns exactly 20 canned nouns (with the tags the filter needs), so
 // the word board is deterministic and every stubbed word ends up on the board.
 export const STUB_WORDS = [
@@ -83,15 +97,16 @@ export class GamePage {
     await this.page.reload()
   }
 
+  // The status pill in the header centre is the menu button.
   async openMenu(): Promise<void> {
-    const toggle = this.page.getByRole('button', { name: /options/i })
+    const toggle = this.page.getByTitle('Menu', { exact: true })
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') {
       await toggle.click()
     }
   }
 
   async closeMenu(): Promise<void> {
-    const toggle = this.page.getByRole('button', { name: /options/i })
+    const toggle = this.page.getByTitle('Menu', { exact: true })
     if ((await toggle.getAttribute('aria-expanded')) === 'true') {
       await toggle.click()
     }

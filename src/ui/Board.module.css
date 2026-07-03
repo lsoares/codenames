@@ -131,21 +131,6 @@
   transform: none;
 }
 
-.assassin {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  font-size: clamp(1.1rem, 3.5vw, 1.8rem);
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-}
-
-/* Fade the skull out on hover so the photo underneath shows. */
-.card:hover .assassin {
-  opacity: 0;
-}
-
 @media (max-width: 900px) {
   .board {
     grid-template-columns: repeat(4, 1fr);

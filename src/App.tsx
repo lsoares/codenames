@@ -5,7 +5,6 @@ import { getFaces, providers } from './images/providers'
 import { host, resumeHost, join, type Session } from './net/peerMultiplayer'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
-import Toaster from './ui/Toaster'
 
 const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
 
@@ -41,13 +40,15 @@ export default function App() {
   const peersRef = useRef<string[]>([])
   const selfIdRef = useRef('')
   const roomCodeRef = useRef('')
-  const [toasts, setToasts] = useState<Array<{ id: number; text: string }>>([])
-  const toastIdRef = useRef(0)
+  // A transient message shown in the header status pill, then it reverts to the
+  // live status. Replaces separate toast popups — one message zone for both.
+  const [flash, setFlash] = useState<string | null>(null)
+  const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   const notify = (text: string) => {
-    const id = (toastIdRef.current += 1)
-    setToasts((current) => [...current, { id, text }])
-    window.setTimeout(() => setToasts((current) => current.filter((toast) => toast.id !== id)), 3000)
+    setFlash(text)
+    clearTimeout(flashTimer.current)
+    flashTimer.current = setTimeout(() => setFlash(null), 3000)
   }
 
   const wire = (session: Session, asHost: boolean) => {
@@ -250,6 +251,7 @@ export default function App() {
         <GameScreen
           state={game}
           status={status}
+          flash={flash}
           isHost={isHost}
           mySeat={mySeat}
           myTeam={myTeam}
@@ -278,7 +280,6 @@ export default function App() {
           )}
         </main>
       )}
-      <Toaster toasts={toasts} />
     </>
   )
 }

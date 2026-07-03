@@ -56,26 +56,30 @@
   width: 72px;
 }
 
+/* The pill is also the menu button — click it to open the options dropdown. */
 .cluePill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 18px;
+  gap: 10px;
+  padding: 10px 26px;
   border-radius: 999px;
+  color: var(--ink);
+  box-shadow: none;
+  cursor: pointer;
 }
 
 .clueWord {
-  font-size: 1.7rem;
+  font-size: 2rem;
   line-height: 1.1;
 }
 
 .clueDot {
-  font-size: 0.5rem;
+  font-size: 0.55rem;
   color: var(--muted);
 }
 
 .clueValue {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   color: var(--muted);
 }
 
@@ -89,6 +93,7 @@
 
 .statusText {
   font-weight: 700;
+  font-size: 1.25rem;
   color: var(--ink);
   white-space: nowrap;
 }

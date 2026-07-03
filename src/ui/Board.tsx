@@ -77,11 +77,6 @@ export default function Board(props: {
             ) : (
               <img className={`${styles.face} ${styles.image}`} src={card.face} alt="" />
             )}
-            {showColor && card.color === 'assassin' && (
-              <span className={styles.assassin} aria-hidden="true">
-                ☠️
-              </span>
-            )}
           </button>
         )
       })}
