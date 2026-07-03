@@ -129,6 +129,14 @@ export class GamePage {
     return Number(label?.match(/^Card (\d+)/)?.[1])
   }
 
+  // Every unrevealed card number of a colour (spymaster view).
+  async cardNumbers(color: Color): Promise<number[]> {
+    const labels = await this.card(color).evaluateAll((els) =>
+      els.map((el) => el.getAttribute('aria-label') ?? ''),
+    )
+    return labels.map((l) => Number(l.match(/^Card (\d+)/)?.[1]))
+  }
+
   // Operative guess by card number (works without seeing the colour).
   async guessNumber(n: number): Promise<void> {
     await this.page.getByRole('button', { name: new RegExp(`^Card ${n}(,|$)`) }).click()
