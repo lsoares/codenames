@@ -18,6 +18,9 @@
   background: var(--surface);
   box-shadow: var(--shadow);
   overflow: hidden;
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
 }
 
 .card:disabled {
@@ -31,14 +34,17 @@
   object-fit: cover;
   border-radius: 16px;
   display: block;
-  /* Quick zoom-out when leaving. */
-  transition: transform 0.5s ease;
 }
 
-/* Zoom in only after hovering a moment; not on revealed (disabled) cards. */
-.card:not(:disabled):hover .image {
-  transform: scale(1.18);
-  transition: transform 0.5s ease 0.6s;
+/* Grow the whole card outward into the surrounding gaps (over its neighbours),
+   only after hovering a moment; snaps back immediately on leave. */
+.card:not(:disabled):hover {
+  transform: scale(1.15);
+  z-index: 5;
+  box-shadow: 0 14px 34px rgba(43, 45, 66, 0.28);
+  transition:
+    transform 0.5s ease 0.6s,
+    box-shadow 0.5s ease 0.6s;
 }
 
 .card[data-color='red'] {
