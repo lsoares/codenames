@@ -141,10 +141,21 @@ export default function App() {
       setStatus('Restoring your room…')
       resumeHost(code, JSON.parse(saved) as GameState)
         .then((session) => {
+          sessionStorage.removeItem('codenames:restore-retry')
           wire(session, true)
           setStatus('')
         })
-        .catch(() => setStatus('Could not restore the room.'))
+        .catch(() => {
+          // The broker can hold the old id briefly after a reload; retry once
+          // via a fresh reload before giving up.
+          if (sessionStorage.getItem('codenames:restore-retry')) {
+            sessionStorage.removeItem('codenames:restore-retry')
+            setStatus('Could not restore the room.')
+          } else {
+            sessionStorage.setItem('codenames:restore-retry', '1')
+            window.setTimeout(() => window.location.reload(), 1500)
+          }
+        })
     } else {
       void joinRoom(code)
     }

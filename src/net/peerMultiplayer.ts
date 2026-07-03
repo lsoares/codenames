@@ -44,8 +44,9 @@ export function host(images: string[], startingTeam: Team): Promise<Session> {
 }
 
 // Re-host an existing game under the same room code (host reload or FIFO takeover).
+// Generous retries: after a reload the broker holds the old id for a few seconds.
 export function resumeHost(roomCode: string, state: GameState): Promise<Session> {
-  return startHost(roomCode, state, 'resume', 8)
+  return startHost(roomCode, state, 'resume', 15)
 }
 
 function startHost(
@@ -130,7 +131,7 @@ function startHost(
         const nextCode = mode === 'new' ? randomCode() : code
         setTimeout(
           () => startHost(nextCode, initialState, mode, retries - 1).then(resolve, reject),
-          mode === 'resume' ? 600 : 0,
+          mode === 'resume' ? 800 : 0,
         )
       } else {
         reject(error)

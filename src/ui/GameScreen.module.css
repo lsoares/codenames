@@ -41,6 +41,13 @@
   white-space: nowrap;
 }
 
+.operatives {
+  color: var(--muted);
+  letter-spacing: 2px;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
 .status {
   color: var(--muted);
   font-style: italic;
