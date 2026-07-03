@@ -12,6 +12,7 @@ export default function GameScreen(props: {
   isHost: boolean
   spymaster: boolean
   spymasterCount: number
+  playerCount: number
   onToggleSpymaster: (value: boolean) => void
   onAction: (action: Action) => void
   onNewGame: () => void
@@ -40,6 +41,9 @@ export default function GameScreen(props: {
           </span>
           <span className={styles.spymasterCount} title="Spymasters viewing the key">
             {'🕵️'.repeat(props.spymasterCount)}
+          </span>
+          <span className={styles.spymasterCount} title="Operatives (players not spymastering)">
+            {'🎮'.repeat(Math.max(0, props.playerCount - props.spymasterCount))}
           </span>
           {props.status && <span className={styles.status}>{props.status}</span>}
 
@@ -92,11 +96,14 @@ export default function GameScreen(props: {
         />
       )}
 
-      <Board
-        cards={props.state.cards}
-        spymaster={props.spymaster}
-        onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
-      />
+      <div className={styles.boardArea}>
+        <Board
+          cards={props.state.cards}
+          spymaster={props.spymaster}
+          onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
+          onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index })}
+        />
+      </div>
     </main>
   )
 }

@@ -5,6 +5,7 @@ export default function Board(props: {
   cards: Card[]
   spymaster: boolean
   onCardClick: (index: number) => void
+  onCardMark: (index: number) => void
 }) {
   return (
     <div className={styles.board}>
@@ -20,11 +21,20 @@ export default function Board(props: {
             data-revealed={card.revealed || undefined}
             disabled={card.revealed}
             onClick={() => props.onCardClick(index)}
+            onContextMenu={(event) => {
+              event.preventDefault()
+              props.onCardMark(index)
+            }}
           >
             <img className={styles.image} src={card.imageUrl} alt="" />
             {showColor && card.color === 'assassin' && (
               <span className={styles.assassin} aria-hidden="true">
                 ☠️
+              </span>
+            )}
+            {card.marked && !card.revealed && (
+              <span className={styles.mark} aria-hidden="true">
+                📌
               </span>
             )}
           </button>

@@ -3,6 +3,7 @@ import { createGame, type GameState, type Team } from './createGame'
 export type Action =
   | { type: 'clue'; word: string; count: number }
   | { type: 'guess'; cardIndex: number }
+  | { type: 'toggleMark'; cardIndex: number }
   | { type: 'endTurn' }
   | { type: 'newGame' }
 
@@ -21,6 +22,18 @@ export function applyAction(state: GameState, action: Action): GameState {
   }
 
   if (state.winner) return state
+
+  // Shared candidate marks — a note for the team, toggled by right-click.
+  if (action.type === 'toggleMark') {
+    const target = state.cards[action.cardIndex]
+    if (!target || target.revealed) return state
+    return {
+      ...state,
+      cards: state.cards.map((card, index) =>
+        index === action.cardIndex ? { ...card, marked: !card.marked } : card,
+      ),
+    }
+  }
 
   if (action.type === 'clue') {
     if (state.phase !== 'clue') return state

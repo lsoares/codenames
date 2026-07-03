@@ -6,6 +6,7 @@ export interface Card {
   imageUrl: string
   color: CardColor
   revealed: boolean
+  marked: boolean
 }
 
 export interface Clue {
@@ -46,6 +47,7 @@ export function createGame(images: string[], startingTeam: Team): GameState {
       imageUrl,
       color: colors[index],
       revealed: false,
+      marked: false,
     })),
     turn: startingTeam,
     phase: 'clue',

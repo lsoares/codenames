@@ -19,6 +19,7 @@ export default function App() {
   const [roomCode, setRoomCode] = useState('')
   const [spymaster, setSpymaster] = useState(false)
   const [spymasterCount, setSpymasterCount] = useState(0)
+  const [playerCount, setPlayerCount] = useState(1)
   const [isHost, setIsHost] = useState(false)
   const [status, setStatus] = useState('')
   const sessionRef = useRef<Session | null>(null)
@@ -42,6 +43,7 @@ export default function App() {
       peersRef.current = view.peers
       setGame(view.state)
       setSpymasterCount(view.spymasters)
+      setPlayerCount(view.peers.length)
     })
     if (!asHost) session.onDisconnect(() => migrate())
   }
@@ -165,6 +167,7 @@ export default function App() {
       isHost={isHost}
       spymaster={spymaster}
       spymasterCount={spymasterCount}
+      playerCount={playerCount}
       onToggleSpymaster={toggleSpymaster}
       onAction={(action: Action) => sessionRef.current?.dispatch(action)}
       onNewGame={() => sessionRef.current?.dispatch({ type: 'newGame' })}

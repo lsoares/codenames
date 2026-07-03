@@ -1,8 +1,20 @@
 .screen {
   width: min(97vw, 1500px);
-  margin: 3vh auto;
+  height: 100dvh;
+  margin: 0 auto;
+  padding: 14px 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Board fills the space left below the header/clue bar (desktop: no scroll). */
+.boardArea {
+  flex: 1;
+  min-height: 0;
   display: grid;
-  gap: 16px;
+  place-items: center;
 }
 
 .header {
@@ -48,10 +60,9 @@
   box-shadow: none;
 }
 
-/* The host's menu button is a slightly different shade. */
+/* Only the host's ellipsis is tinted a different colour. */
 .menuToggle[data-host='true'] {
-  background: color-mix(in srgb, var(--primary) 28%, var(--primary-soft));
-  color: #fff;
+  color: #0ca678;
 }
 
 .menuItems {
@@ -91,10 +102,24 @@
   width: auto;
 }
 
+/* Below the 5-column layout, use natural flow (scroll) instead of fit-to-height. */
+@media (max-width: 900px) {
+  .screen {
+    height: auto;
+    min-height: 100dvh;
+    display: grid;
+    padding: 12px 0;
+    gap: 14px;
+  }
+
+  .boardArea {
+    display: block;
+  }
+}
+
 @media (max-width: 640px) {
   .screen {
     width: 96vw;
-    margin: 8px auto;
     gap: 10px;
   }
 
