@@ -57,9 +57,11 @@ export default function App() {
       if (!state || isHostRef.current) return
       try {
         wire(await resumeHost(roomCodeRef.current, state), true)
+        playSound('takeover')
       } catch {
         try {
           wire(await join(roomCodeRef.current), false)
+          playSound('takeover')
         } catch {
           setStatus('Lost connection to the room.')
         }
