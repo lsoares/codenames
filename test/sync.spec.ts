@@ -21,8 +21,11 @@ test('two players see the same board and reveals sync', async ({ browser }) => {
 
   await hostGame.enableSpymaster()
   const team = await hostGame.currentTurn()
+  const target = await hostGame.cardNumber(team)
   await hostGame.giveClue('link', 1)
-  await hostGame.guess(team)
+
+  // The guest is an operative and guesses the card the host identified.
+  await guestGame.guessNumber(target)
 
   await expect(guestGame.card(team, { revealed: true }).first()).toBeVisible()
 

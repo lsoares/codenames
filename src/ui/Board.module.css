@@ -20,7 +20,8 @@
   overflow: hidden;
   transition:
     transform 0.4s ease,
-    box-shadow 0.4s ease;
+    box-shadow 0.4s ease,
+    padding 0.2s ease;
 }
 
 .card:disabled {
@@ -34,17 +35,7 @@
   object-fit: cover;
   border-radius: 16px;
   display: block;
-}
-
-/* Grow the whole card outward into the surrounding gaps (over its neighbours),
-   only after hovering a moment; snaps back immediately on leave. */
-.card:not(:disabled):hover {
-  transform: scale(1.15);
-  z-index: 5;
-  box-shadow: 0 14px 34px rgba(43, 45, 66, 0.28);
-  transition:
-    transform 0.5s ease 0.6s,
-    box-shadow 0.5s ease 0.6s;
+  transition: opacity 0.2s ease;
 }
 
 .card[data-color='red'] {
@@ -63,8 +54,42 @@
   background: #2b2d42;
 }
 
-.card[data-revealed] .image {
-  opacity: 0.3;
+/* Revealed cards are out of play: fade them almost completely. */
+.card[data-revealed] {
+  opacity: 0.15;
+  transition: opacity 0.2s ease;
+}
+
+/* Hover clears any fade so you can check which card it is. The focus variant
+   out-specifies the focus fade below. */
+.card:hover .image,
+.board[data-focus] .card:not([data-enlarged]):not([data-color='assassin']):hover .image {
+  opacity: 1;
+}
+
+/* Hovering a dead card brings it back into view so you can see what it was. */
+.card[data-revealed]:hover {
+  opacity: 1;
+}
+
+/* Marking a card (left-click) just thickens its coloured border and fades every
+   other card to an intermediate level. The assassin never fades. */
+.card[data-enlarged] {
+  padding: 11px;
+}
+
+.board[data-focus] .card:not([data-enlarged]):not([data-color='assassin']) .image {
+  opacity: 0.6;
+}
+
+/* Inert cards (revealed/faded/not yours) take no click: no cursor, no press. */
+.card[data-inert] {
+  cursor: default;
+}
+
+.card[data-inert]:active,
+.card[data-revealed]:active {
+  transform: none;
 }
 
 .assassin {
@@ -75,6 +100,12 @@
   font-size: clamp(2rem, 7vw, 3.5rem);
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
   pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+/* Fade the skull out on hover so the photo underneath shows. */
+.card:hover .assassin {
+  opacity: 0;
 }
 
 .mark {

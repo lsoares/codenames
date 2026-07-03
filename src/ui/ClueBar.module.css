@@ -3,8 +3,8 @@
   flex-wrap: wrap;
   gap: 14px;
   align-items: center;
-  justify-content: flex-start;
-  min-height: 56px;
+  justify-content: center;
+  min-height: 44px;
 }
 
 .clueForm,
@@ -38,24 +38,60 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--turn) 30%, transparent);
 }
 
+/* Quiet, team-tinted submit instead of a loud solid button. */
+.submit {
+  padding: 8px 14px;
+  background: color-mix(in srgb, var(--turn) 12%, transparent);
+  color: var(--turn);
+  box-shadow: none;
+}
+
 .clueForm input[type='number'] {
   width: 72px;
 }
 
 .cluePill {
-  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
   border-radius: 999px;
 }
 
+.clueWord {
+  font-size: 1.7rem;
+  line-height: 1.1;
+}
+
+.clueDot {
+  font-size: 0.5rem;
+  color: var(--muted);
+}
+
+.clueValue {
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
 .cluePill[data-team='red'] {
-  background: color-mix(in srgb, var(--red) 12%, transparent);
+  background: color-mix(in srgb, var(--red) 26%, transparent);
 }
 
 .cluePill[data-team='blue'] {
-  background: color-mix(in srgb, var(--blue) 12%, transparent);
+  background: color-mix(in srgb, var(--blue) 26%, transparent);
 }
 
 .waiting {
+  padding: 6px 18px;
+  border-radius: 999px;
   color: var(--muted);
   font-style: italic;
+}
+
+.waiting[data-team='red'] {
+  background: color-mix(in srgb, var(--red) 26%, transparent);
+}
+
+.waiting[data-team='blue'] {
+  background: color-mix(in srgb, var(--blue) 26%, transparent);
 }

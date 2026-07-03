@@ -10,8 +10,10 @@ test('host refresh restores the room and its revealed cards', async ({ page }) =
 
   await game.enableSpymaster()
   const team = await game.currentTurn()
+  const target = await game.cardNumber(team)
   await game.giveClue('anchor', 1)
-  await game.guess(team)
+  await game.releaseSpymaster()
+  await game.guessNumber(target)
   await expect(game.card(team, { revealed: true }).first()).toBeVisible()
 
   await game.reload()

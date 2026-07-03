@@ -5,7 +5,7 @@ import { applyAction, type Action } from '../game/applyAction'
 // What every peer renders, plus presence used for FIFO host takeover.
 export interface RoomView {
   state: GameState
-  spymasters: number
+  seats: { red: string | null; blue: string | null } // one spymaster seat per team, by holder id
   peers: string[] // arrival order, host first
 }
 
@@ -13,12 +13,12 @@ export interface Session {
   roomCode: string
   selfId: string
   dispatch: (action: Action) => void
-  setSpymaster: (value: boolean) => void
+  setSpymaster: (team: Team | null) => void
   subscribe: (listener: (view: RoomView) => void) => void
   onDisconnect: (listener: () => void) => void
 }
 
-type Presence = { __presence: true; spymaster: boolean }
+type Presence = { __presence: true; spymasterTeam: Team | null }
 type Ping = { __ping: true }
 
 function randomCode(): string {
@@ -58,19 +58,20 @@ function startHost(
   return new Promise((resolve, reject) => {
     const peer = newPeer(code)
     const connections: DataConnection[] = []
-    const spymasterByConn = new Map<DataConnection, boolean>()
+    const seats: { red: string | null; blue: string | null } = { red: null, blue: null }
     const listeners: Array<(view: RoomView) => void> = []
     let state = initialState
-    let hostSpymaster = false
 
-    const spymasterCount = () => {
-      let count = hostSpymaster ? 1 : 0
-      for (const flag of spymasterByConn.values()) if (flag) count++
-      return count
+    // At most one holder per team; a peer holds at most one seat. Claiming a
+    // taken team is a no-op (the request just loses), which enforces the cap.
+    const claimSeat = (peerId: string, team: Team | null) => {
+      if (seats.red === peerId) seats.red = null
+      if (seats.blue === peerId) seats.blue = null
+      if (team && !seats[team]) seats[team] = peerId
     }
     const view = (): RoomView => ({
       state,
-      spymasters: spymasterCount(),
+      seats: { red: seats.red, blue: seats.blue },
       peers: [peer.id, ...connections.map((connection) => connection.peer)],
     })
     const broadcast = () => {
@@ -92,8 +93,8 @@ function startHost(
           state = applyAction(state, action)
           broadcast()
         },
-        setSpymaster: (value) => {
-          hostSpymaster = value
+        setSpymaster: (team) => {
+          claimSeat(peer.id, team)
           broadcast()
         },
         subscribe: (listener) => {
@@ -111,7 +112,7 @@ function startHost(
       })
       connection.on('data', (data) => {
         if ((data as Presence).__presence) {
-          spymasterByConn.set(connection, (data as Presence).spymaster)
+          claimSeat(connection.peer, (data as Presence).spymasterTeam)
         } else {
           state = applyAction(state, data as Action)
         }
@@ -120,7 +121,7 @@ function startHost(
       connection.on('close', () => {
         const index = connections.indexOf(connection)
         if (index >= 0) connections.splice(index, 1)
-        spymasterByConn.delete(connection)
+        claimSeat(connection.peer, null)
         broadcast()
       })
     })
@@ -170,8 +171,8 @@ export function join(roomCode: string): Promise<Session> {
           roomCode,
           selfId,
           dispatch: (action) => connection.send(action),
-          setSpymaster: (value) =>
-            connection.send({ __presence: true, spymaster: value } satisfies Presence),
+          setSpymaster: (team) =>
+            connection.send({ __presence: true, spymasterTeam: team } satisfies Presence),
           subscribe: (listener) => {
             listeners.push(listener)
             if (latest) listener(latest)

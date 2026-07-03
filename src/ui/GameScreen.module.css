@@ -29,49 +29,57 @@
   font-size: 1.8rem;
 }
 
+.headerCenter {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+
 .headerRight {
   display: flex;
   gap: 12px;
   align-items: center;
 }
 
-.spymasterCount {
-  font-weight: 800;
-  color: var(--muted);
-  white-space: nowrap;
+/* Each team clusters its spymaster next to its own operatives. */
+.teams {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
 }
 
-.turnShade {
+.team {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spymasterIcon,
+.ops {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 30px;
   min-height: 28px;
   padding: 2px 8px;
   border-radius: 999px;
 }
 
-.turnShade[data-team='red'] {
-  background: color-mix(in srgb, var(--red) 28%, transparent);
-}
-
-.turnShade[data-team='blue'] {
-  background: color-mix(in srgb, var(--blue) 28%, transparent);
-}
-
-.operatives {
-  letter-spacing: 2px;
-  font-size: 1.3rem;
+.ops {
+  min-width: 16px;
+  letter-spacing: 1px;
+  font-size: 1rem;
   line-height: 1;
 }
 
-.opRed {
-  color: var(--red);
+/* The shade marks whose action is pending: the spymaster while the clue is
+   still coming, then the operatives once they're guessing. */
+.team[data-team='red'] [data-active] {
+  background: color-mix(in srgb, var(--red) 28%, transparent);
 }
 
-.opBlue {
-  color: var(--blue);
-  margin-left: 8px;
+.team[data-team='blue'] [data-active] {
+  background: color-mix(in srgb, var(--blue) 28%, transparent);
 }
 
 .status {
@@ -117,22 +125,83 @@
 }
 
 .remaining {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
   font-weight: 700;
-  text-align: center;
   white-space: nowrap;
 }
 
-.spymaster {
-  display: flex;
-  gap: 8px;
+.remainingItem {
+  display: inline-flex;
   align-items: center;
-  color: var(--ink);
-  font-weight: 700;
-  cursor: pointer;
+  gap: 5px;
 }
 
-.spymaster input {
-  width: auto;
+/* Card-shaped swatches (4:3), not dots — they stand for the cards on the board. */
+.swatch {
+  width: 18px;
+  height: 13px;
+  border-radius: 3px;
+}
+
+.swatch[data-color='red'] {
+  background: var(--red);
+}
+
+.swatch[data-color='blue'] {
+  background: var(--blue);
+}
+
+.swatch[data-color='neutral'] {
+  background: #cbb891;
+}
+
+.seatPicker {
+  display: grid;
+  gap: 6px;
+}
+
+.seatLabel {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.seatButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.seatButton {
+  flex: 1;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  box-shadow: none;
+}
+
+.seatButton[data-team='red'] {
+  color: var(--red);
+}
+
+.seatButton[data-team='blue'] {
+  color: var(--blue);
+}
+
+.seatButton[data-mine][data-team='red'] {
+  background: color-mix(in srgb, var(--red) 18%, transparent);
+  border-color: var(--red);
+}
+
+.seatButton[data-mine][data-team='blue'] {
+  background: color-mix(in srgb, var(--blue) 18%, transparent);
+  border-color: var(--blue);
+}
+
+.seatButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* Below the 5-column layout, use natural flow (scroll) instead of fit-to-height. */

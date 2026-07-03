@@ -50,15 +50,45 @@ export class GamePage {
     }
   }
 
-  async enableSpymaster(): Promise<void> {
+  async closeMenu(): Promise<void> {
+    const toggle = this.page.getByRole('button', { name: /options/i })
+    if ((await toggle.getAttribute('aria-expanded')) === 'true') {
+      await toggle.click()
+    }
+  }
+
+  private async toggleSeat(team: 'red' | 'blue'): Promise<void> {
     await this.openMenu()
-    await this.page.getByRole('checkbox', { name: /spymaster/i }).check()
+    await this.page.getByRole('button', { name: new RegExp(`^${team}$`, 'i') }).click()
+    await this.closeMenu()
+  }
+
+  // Take a team's spymaster seat (reveals colours, may give clues, cannot guess).
+  async enableSpymaster(team: 'red' | 'blue' = 'red'): Promise<void> {
+    await this.toggleSeat(team)
+  }
+
+  // Release the seat to play as an operative again (can guess, colours hidden).
+  async releaseSpymaster(team: 'red' | 'blue' = 'red'): Promise<void> {
+    await this.toggleSeat(team)
   }
 
   async giveClue(word: string, count: number): Promise<void> {
     await this.page.getByRole('textbox').fill(word)
     await this.page.getByRole('spinbutton').fill(String(count))
-    await this.page.getByRole('button', { name: '💡' }).click()
+    await this.page.getByRole('button', { name: /give clue/i }).click()
+  }
+
+  // Spymaster-only: the number of the first unrevealed card of a colour, so an
+  // operative (who can't see colours) can be told which card to click.
+  async cardNumber(color: Color): Promise<number> {
+    const label = await this.card(color).first().getAttribute('aria-label')
+    return Number(label?.match(/^Card (\d+)/)?.[1])
+  }
+
+  // Operative guess by card number (works without seeing the colour).
+  async guessNumber(n: number): Promise<void> {
+    await this.page.getByRole('button', { name: new RegExp(`^Card ${n}(,|$)`) }).click()
   }
 
   cards() {
@@ -70,10 +100,6 @@ export class GamePage {
       name: new RegExp(`^Card \\d+, ${color}$`),
       disabled: options.revealed ?? false,
     })
-  }
-
-  async guess(color: Color): Promise<void> {
-    await this.card(color).first().click()
   }
 
   async currentTurn(): Promise<Color> {

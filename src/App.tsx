@@ -18,8 +18,10 @@ const hostStateKey = (code: string): string => `codenames:host:${code}`
 export default function App() {
   const [game, setGame] = useState<GameState | null>(null)
   const [roomCode, setRoomCode] = useState('')
-  const [spymaster, setSpymaster] = useState(false)
-  const [spymasterCount, setSpymasterCount] = useState(0)
+  const [seats, setSeats] = useState<{ red: string | null; blue: string | null }>({
+    red: null,
+    blue: null,
+  })
   const [playerCount, setPlayerCount] = useState(1)
   const [isHost, setIsHost] = useState(false)
   const [status, setStatus] = useState('')
@@ -51,7 +53,7 @@ export default function App() {
       gameRef.current = view.state
       peersRef.current = view.peers
       setGame(view.state)
-      setSpymasterCount(view.spymasters)
+      setSeats(view.seats)
       setPlayerCount(view.peers.length)
     })
     if (!asHost) session.onDisconnect(() => migrate())
@@ -84,12 +86,24 @@ export default function App() {
     }, delay)
   }
 
-  const toggleSpymaster = (value: boolean) => {
-    setSpymaster(value)
-    sessionRef.current?.setSpymaster(value)
-    if (value) {
+  const mySeat: Team | null =
+    seats.red === selfIdRef.current ? 'red' : seats.blue === selfIdRef.current ? 'blue' : null
+
+  const newGame = async () => {
+    let images: string[]
+    try {
+      images = await fetchPhotos()
+    } catch {
+      images = placeholderImages()
+    }
+    sessionRef.current?.dispatch({ type: 'newGame', images })
+  }
+
+  const claimSeat = (team: Team | null) => {
+    sessionRef.current?.setSpymaster(team)
+    if (team) {
       playSound('spymaster')
-      notify('You are now a spymaster 🕵️')
+      notify(`You are the ${team} spymaster 🕵️`)
     }
   }
 
@@ -105,8 +119,11 @@ export default function App() {
     try {
       wire(await host(images, randomTeam()), true)
       setStatus('')
-    } catch {
-      setStatus('Could not create room. Try again.')
+    } catch (error) {
+      console.error('createRoom failed:', error)
+      setStatus(
+        `Could not create room (${(error as { type?: string })?.type ?? (error as Error)?.message ?? 'unknown'}). Try again.`,
+      )
     }
   }
 
@@ -192,17 +209,27 @@ export default function App() {
           state={game}
           status={status}
           isHost={isHost}
-          spymaster={spymaster}
-          spymasterCount={spymasterCount}
+          mySeat={mySeat}
+          seats={seats}
           playerCount={playerCount}
-          onToggleSpymaster={toggleSpymaster}
+          onClaimSeat={claimSeat}
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
-          onNewGame={() => sessionRef.current?.dispatch({ type: 'newGame' })}
+          onNewGame={newGame}
         />
       ) : (
         <main className="card">
           <h1>Codenames Pictures</h1>
           <p>{status || 'Setting up your game…'}</p>
+          {/^(Could not|Lost)/.test(status) && (
+            <button
+              onClick={() => {
+                window.location.hash = ''
+                void createRoom()
+              }}
+            >
+              New game
+            </button>
+          )}
         </main>
       )}
       <Toaster toasts={toasts} />

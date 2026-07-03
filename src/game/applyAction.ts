@@ -5,7 +5,7 @@ export type Action =
   | { type: 'guess'; cardIndex: number }
   | { type: 'toggleMark'; cardIndex: number }
   | { type: 'endTurn' }
-  | { type: 'newGame' }
+  | { type: 'newGame'; images?: string[] }
 
 const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
 
@@ -13,10 +13,11 @@ const unrevealedCount = (state: GameState, team: Team): number =>
   state.cards.filter((card) => card.color === team && !card.revealed).length
 
 export function applyAction(state: GameState, action: Action): GameState {
-  // A fresh game reshuffles the same pictures with a new key; allowed even after a win.
+  // A fresh game: new pictures when the caller fetched some, else reshuffle the
+  // current ones. Allowed even after a win.
   if (action.type === 'newGame') {
     return createGame(
-      state.cards.map((card) => card.imageUrl),
+      action.images ?? state.cards.map((card) => card.imageUrl),
       Math.random() < 0.5 ? 'red' : 'blue',
     )
   }

@@ -49,20 +49,30 @@ export default function ClueBar(props: {
                 onChange={(event) => setCount(event.target.valueAsNumber)}
               />
             </div>
-            <button type="submit">💡</button>
+            <button
+              type="submit"
+              className={styles.submit}
+              aria-label="Give clue"
+              disabled={!word.trim() || Number.isNaN(count)}
+            >
+              🔮
+            </button>
           </form>
         ) : (
-          <span className={styles.waiting}>Waiting for the spymaster's clue…</span>
+          <span className={styles.waiting} data-team={turn}>
+            Waiting for the spymaster's clue…
+          </span>
         )
       ) : (
         <div className={styles.guessing}>
           <span className={styles.cluePill} data-team={turn}>
-            Clue: <strong>{props.state.clue?.word}</strong> ·{' '}
-            {props.state.guessesRemaining} guesses left
+            <strong className={styles.clueWord}>{props.state.clue?.word}</strong>
+            <span className={styles.clueDot}>•</span>
+            <span className={styles.clueValue}>{props.state.clue?.count}</span>
           </span>
           {!props.spymaster && (
-            <button className="secondary" onClick={props.onEndTurn}>
-              End turn
+            <button className="secondary" onClick={props.onEndTurn} aria-label="Pass" title="Pass">
+              ✕
             </button>
           )}
         </div>

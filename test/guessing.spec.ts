@@ -7,10 +7,12 @@ test('a correct guess reveals the card and keeps the turn', async ({ page }) => 
   await game.open()
   await game.createRoom()
   await game.enableSpymaster()
-
   const team = await game.currentTurn()
+  const target = await game.cardNumber(team)
   await game.giveClue('signal', 2)
-  await game.guess(team)
+
+  await game.releaseSpymaster()
+  await game.guessNumber(target)
 
   await expect(game.card(team, { revealed: true }).first()).toBeVisible()
   expect(await game.currentTurn()).toBe(team)
