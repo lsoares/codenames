@@ -93,79 +93,82 @@ export default function GameScreen(props: {
     )
   }
 
+  const renderMenu = () => (
+    <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
+      <button
+        className={styles.menuToggle}
+        data-host={props.isHost || undefined}
+        title={props.isHost ? 'You are hosting this room' : undefined}
+        aria-label="Options"
+        aria-haspopup="menu"
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen((open) => !open)}
+      >
+        ⋯
+      </button>
+      {menuOpen && (
+        <div className={styles.menuItems} role="menu">
+          <div className={styles.remaining}>
+            {(['red', 'blue', 'neutral'] as const).map((color) => (
+              <span key={color} className={styles.remainingItem} title={`${color} cards left`}>
+                {remaining(color)}
+                <span className={styles.swatch} data-color={color} />
+              </span>
+            ))}
+          </div>
+          <div className={styles.seatPicker}>
+            <span className={styles.seatLabel}>I'm spymaster:</span>
+            <div className={styles.seatButtons}>
+              {(['red', 'blue'] as const).map((team) => {
+                const mine = props.mySeat === team
+                const taken = team === 'red' ? !!props.seats.red : !!props.seats.blue
+                return (
+                  <button
+                    key={team}
+                    type="button"
+                    className={styles.seatButton}
+                    data-team={team}
+                    data-mine={mine || undefined}
+                    disabled={taken && !mine}
+                    onClick={() => props.onClaimSeat(mine ? null : team)}
+                  >
+                    {team === 'red' ? 'Red' : 'Blue'}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+          <button className="secondary" onClick={props.onNewGame}>
+            New game
+          </button>
+        </div>
+      )}
+    </div>
+  )
+
+  const clueBar = !winner && (
+    <ClueBar
+      state={props.state}
+      spymaster={props.mySeat !== null}
+      onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
+      onEndTurn={() => props.onAction({ type: 'endTurn' })}
+    />
+  )
+
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Codenames Pictures</h1>
-
-        {renderTeam('red')}
-
-        <div className={styles.headerCenter} data-turn={turn}>
-          {!winner && (
-            <ClueBar
-              state={props.state}
-              spymaster={props.mySeat !== null}
-              onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
-              onEndTurn={() => props.onAction({ type: 'endTurn' })}
-            />
-          )}
+        <div className={styles.headerSide} data-side="left">
+          {renderTeam('red')}
+          {turn === 'red' && clueBar}
         </div>
 
-        {renderTeam('blue')}
+        {renderMenu()}
 
-        <div className={styles.headerRight}>
+        <div className={styles.headerSide} data-side="right">
+          {turn === 'blue' && clueBar}
+          {renderTeam('blue')}
           {props.status && <span className={styles.status}>{props.status}</span>}
-
-          <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
-          <button
-            className={styles.menuToggle}
-            data-host={props.isHost || undefined}
-            title={props.isHost ? 'You are hosting this room' : undefined}
-            aria-label="Options"
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            ⋮
-          </button>
-          {menuOpen && (
-            <div className={styles.menuItems} role="menu">
-              <div className={styles.remaining}>
-                {(['red', 'blue', 'neutral'] as const).map((color) => (
-                  <span key={color} className={styles.remainingItem} title={`${color} cards left`}>
-                    {remaining(color)}
-                    <span className={styles.swatch} data-color={color} />
-                  </span>
-                ))}
-              </div>
-              <div className={styles.seatPicker}>
-                <span className={styles.seatLabel}>I'm spymaster:</span>
-                <div className={styles.seatButtons}>
-                  {(['red', 'blue'] as const).map((team) => {
-                    const mine = props.mySeat === team
-                    const taken = team === 'red' ? !!props.seats.red : !!props.seats.blue
-                    return (
-                      <button
-                        key={team}
-                        type="button"
-                        className={styles.seatButton}
-                        data-team={team}
-                        data-mine={mine || undefined}
-                        disabled={taken && !mine}
-                        onClick={() => props.onClaimSeat(mine ? null : team)}
-                      >
-                        {team === 'red' ? 'Red' : 'Blue'}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-              <button className="secondary" onClick={props.onNewGame}>
-                New game
-              </button>
-            </div>
-          )}
-          </div>
         </div>
       </header>
 
