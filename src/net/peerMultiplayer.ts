@@ -150,6 +150,10 @@ function startHost(
 
     peer.on('open', (id) => {
       assignTeam(id)
+      // Seat the host as their team's spymaster too, just like a joiner — but only
+      // for a brand-new room, so a reload or FIFO takeover doesn't hand the seat
+      // (and the colour key) to whoever happens to re-host mid-game.
+      if (mode === 'new') autoSeat(id)
       resolve({
         roomCode: id,
         selfId: id,
