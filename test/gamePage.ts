@@ -84,36 +84,27 @@ export class GamePage {
 
   // The app auto-hosts a room on load; just wait until the board is ready.
   async createRoom(): Promise<void> {
-    await this.cards().first().waitFor()
+    await this.getCards().first().waitFor()
   }
 
-  async roomCode(): Promise<string> {
-    await this.page.waitForFunction(() => window.location.hash.length > 1)
-    const hash = await this.page.evaluate(() => window.location.hash)
-    return hash.replace(/^#/, '')
+  // The room code is the URL hash the app puts in the address bar for sharing.
+  async getRoomCode(): Promise<string> {
+    await this.page.waitForURL(/#.+/)
+    return new URL(this.page.url()).hash.replace(/^#/, '')
   }
 
   async reload(): Promise<void> {
     await this.page.reload()
   }
 
-  // The status pill in the header centre is the menu button.
+  // The menu button lives in the header centre. Flows open it, and picking a menu
+  // item (a seat or a source) closes it again, so opening is a single click.
   async openMenu(): Promise<void> {
-    const toggle = this.page.getByTitle('Menu', { exact: true })
-    if ((await toggle.getAttribute('aria-expanded')) !== 'true') {
-      await toggle.click()
-    }
-  }
-
-  async closeMenu(): Promise<void> {
-    const toggle = this.page.getByTitle('Menu', { exact: true })
-    if ((await toggle.getAttribute('aria-expanded')) === 'true') {
-      await toggle.click()
-    }
+    await this.page.getByTitle('Menu', { exact: true }).click()
   }
 
   // Start a new game from a specific card source: New game reveals the sources.
-  async newGameWithSource(label: string): Promise<void> {
+  async startGameWithSource(label: string): Promise<void> {
     await this.openMenu()
     await this.page.getByRole('button', { name: /new game/i }).click()
     await this.page.getByRole('button', { name: label, exact: true }).click()
@@ -122,18 +113,17 @@ export class GamePage {
   private async toggleSeat(team: 'red' | 'blue'): Promise<void> {
     await this.openMenu()
     await this.page.getByRole('button', { name: new RegExp(`^${team}$`, 'i') }).click()
-    await this.closeMenu()
   }
 
   // Take a spymaster seat (defaults to the team on turn, since only that team's
   // spymaster may clue). Reveals colours, may clue, cannot guess.
   async enableSpymaster(team?: 'red' | 'blue'): Promise<void> {
-    await this.toggleSeat(team ?? (await this.currentTurn()))
+    await this.toggleSeat(team ?? (await this.getCurrentTurn()))
   }
 
   // Release the seat to play as an operative again (defaults to the turn's team).
   async releaseSpymaster(team?: 'red' | 'blue'): Promise<void> {
-    await this.toggleSeat(team ?? (await this.currentTurn()))
+    await this.toggleSeat(team ?? (await this.getCurrentTurn()))
   }
 
   async giveClue(word: string, count: number): Promise<void> {
@@ -144,14 +134,14 @@ export class GamePage {
 
   // Spymaster-only: the number of the first unrevealed card of a colour, so an
   // operative (who can't see colours) can be told which card to click.
-  async cardNumber(color: Color): Promise<number> {
-    const label = await this.card(color).first().getAttribute('aria-label')
+  async getCardNumber(color: Color): Promise<number> {
+    const label = await this.getCard(color).first().getAttribute('aria-label')
     return Number(label?.match(/^Card (\d+)/)?.[1])
   }
 
   // Every unrevealed card number of a colour (spymaster view).
-  async cardNumbers(color: Color): Promise<number[]> {
-    const labels = await this.card(color).evaluateAll((els) =>
+  async getCardNumbers(color: Color): Promise<number[]> {
+    const labels = await this.getCard(color).evaluateAll((els) =>
       els.map((el) => el.getAttribute('aria-label') ?? ''),
     )
     return labels.map((l) => Number(l.match(/^Card (\d+)/)?.[1]))
@@ -162,23 +152,23 @@ export class GamePage {
     await this.page.getByRole('button', { name: new RegExp(`^Card ${n}(,|$)`) }).click()
   }
 
-  cards() {
+  getCards() {
     return this.page.getByRole('button', { name: /^Card \d+/ })
   }
 
-  card(color: Color, options: { revealed?: boolean } = {}) {
+  getCard(color: Color, options: { revealed?: boolean } = {}) {
     return this.page.getByRole('button', {
       name: new RegExp(`^Card \\d+, ${color}$`),
       disabled: options.revealed ?? false,
     })
   }
 
-  async currentTurn(): Promise<'red' | 'blue'> {
+  async getCurrentTurn(): Promise<'red' | 'blue'> {
     const title = await this.page.getByTitle(/'s turn$/).getAttribute('title')
     return title?.toLowerCase().startsWith('red') ? 'red' : 'blue'
   }
 
-  winnerBanner() {
+  getWinnerBanner() {
     return this.page.getByRole('status')
   }
 }

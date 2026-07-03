@@ -8,5 +8,5 @@ test('creating a room shows a 20-card board', async ({ page }) => {
   await game.open()
   await game.createRoom()
 
-  await expect(game.cards()).toHaveCount(20)
+  await expect(game.getCards()).toHaveCount(20)
 })

@@ -7,15 +7,15 @@ test('a correct guess reveals the card and keeps the turn', async ({ page }) => 
   await game.open('red')
   await game.createRoom()
   await game.enableSpymaster()
-  const team = await game.currentTurn()
-  const target = await game.cardNumber(team)
+  const team = await game.getCurrentTurn()
+  const target = await game.getCardNumber(team)
   await game.giveClue('signal', 2)
 
   await game.releaseSpymaster()
   await game.guessNumber(target)
 
-  await expect(game.card(team, { revealed: true }).first()).toBeVisible()
-  expect(await game.currentTurn()).toBe(team)
+  await expect(game.getCard(team, { revealed: true }).first()).toBeVisible()
+  expect(await game.getCurrentTurn()).toBe(team)
 })
 
 test('a clue of 0 allows more than one guess (unlimited)', async ({ page }) => {
@@ -24,9 +24,9 @@ test('a clue of 0 allows more than one guess (unlimited)', async ({ page }) => {
   await game.open('red')
   await game.createRoom()
 
-  const team = await game.currentTurn()
+  const team = await game.getCurrentTurn()
   await game.enableSpymaster(team)
-  const [first, second] = await game.cardNumbers(team)
+  const [first, second] = await game.getCardNumbers(team)
   await game.giveClue('zero', 0)
 
   await game.releaseSpymaster(team)
@@ -34,6 +34,6 @@ test('a clue of 0 allows more than one guess (unlimited)', async ({ page }) => {
   await game.guessNumber(second)
 
   // A capped (count + 1 = 1) clue would end the turn after the first guess.
-  await expect(game.card(team, { revealed: true })).toHaveCount(2)
-  expect(await game.currentTurn()).toBe(team)
+  await expect(game.getCard(team, { revealed: true })).toHaveCount(2)
+  expect(await game.getCurrentTurn()).toBe(team)
 })

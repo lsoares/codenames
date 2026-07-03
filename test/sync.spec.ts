@@ -14,21 +14,21 @@ test('two players see the same board and reveals sync', async ({ browser }) => {
 
   await hostGame.open('red')
   await hostGame.createRoom()
-  const code = await hostGame.roomCode()
+  const code = await hostGame.getRoomCode()
 
   await guestGame.openRoom(code)
-  await expect(guestGame.cards()).toHaveCount(20)
+  await expect(guestGame.getCards()).toHaveCount(20)
 
   // Guest takes the red spymaster seat and clues; the host is the red operative
   // (auto-assigned) who guesses on red's turn. The reveal must sync to both.
   await guestGame.enableSpymaster('red')
-  const target = await guestGame.cardNumber('red')
+  const target = await guestGame.getCardNumber('red')
   await guestGame.giveClue('link', 1)
 
   await hostGame.guessNumber(target)
 
-  await expect(hostGame.card('red', { revealed: true }).first()).toBeVisible()
-  await expect(guestGame.card('red', { revealed: true }).first()).toBeVisible()
+  await expect(hostGame.getCard('red', { revealed: true }).first()).toBeVisible()
+  await expect(guestGame.getCard('red', { revealed: true }).first()).toBeVisible()
 
   await hostContext.close()
   await guestContext.close()

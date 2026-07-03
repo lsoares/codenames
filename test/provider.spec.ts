@@ -10,10 +10,10 @@ test('choosing Pexels sources the next game from Pexels', async ({ page }) => {
   await game.createRoom()
 
   const pexelsRequest = page.waitForRequest('**/api.pexels.com/**')
-  await game.newGameWithSource('Pexels')
+  await game.startGameWithSource('Pexels')
   await pexelsRequest
 
-  await expect(game.cards()).toHaveCount(20)
+  await expect(game.getCards()).toHaveCount(20)
 })
 
 test('choosing Movies sources the next game from TMDB', async ({ page }) => {
@@ -25,8 +25,8 @@ test('choosing Movies sources the next game from TMDB', async ({ page }) => {
   await game.createRoom()
 
   const tmdbRequest = page.waitForRequest('**/api.themoviedb.org/**')
-  await game.newGameWithSource('Movies')
+  await game.startGameWithSource('Movies')
   await tmdbRequest
 
-  await expect(game.cards()).toHaveCount(20)
+  await expect(game.getCards()).toHaveCount(20)
 })
