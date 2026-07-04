@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { GameState, Team } from '../game/createGame'
 import type { Action } from '../game/applyAction'
+import { gameView } from '../game/gameView'
 import Board, { type GuessOutcome } from './Board'
 import ClueBar from './ClueBar'
 import styles from './GameScreen.module.css'
@@ -24,6 +25,8 @@ export default function GameScreen(props: {
   const [menuOpen, setMenuOpen] = useState(false)
   const [sourceOpen, setSourceOpen] = useState(false)
 
+  const game = gameView(props.state)
+
   // The spymaster's private card picks, owned here so the clue's proposed number
   // can follow them. Cleared when the turn passes or a new game starts, so each
   // clue is planned on a clean board.
@@ -37,10 +40,9 @@ export default function GameScreen(props: {
   useEffect(() => {
     setSelected(new Set())
   }, [props.state.turn])
-  const freshBoard = props.state.cards.every((card) => !card.revealed)
   useEffect(() => {
-    if (freshBoard) setSelected(new Set())
-  }, [freshBoard])
+    if (game.isFresh) setSelected(new Set())
+  }, [game.isFresh])
 
   // Flash the guess outcome over each card the instant it's revealed, so every
   // viewer gets a beat of feedback (a bullseye / cross / shrug / skull) before
@@ -78,9 +80,6 @@ export default function GameScreen(props: {
   }, [props.state])
   useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
 
-  const remaining = (color: string): number =>
-    props.state.cards.filter((card) => card.color === color && !card.revealed).length
-
   const filledSeats = (props.seats.red ? 1 : 0) + (props.seats.blue ? 1 : 0)
   const operatives = Math.max(0, props.playerCount - filledSeats)
   const opsFor = (team: Team): number =>
@@ -116,7 +115,7 @@ export default function GameScreen(props: {
         title={active ? `${team}'s turn` : undefined}
       >
         <span className={styles.count} data-team={team} title={`${team} cards left`}>
-          {remaining(team)}
+          {game.remaining(team)}
         </span>
         <span
           className={styles.players}
@@ -151,10 +150,8 @@ export default function GameScreen(props: {
 
   // A game in progress shouldn't be wiped by accident; confirm before starting a
   // new one. A finished or still-untouched game starts immediately.
-  const confirmNewGame = (): boolean => {
-    const inProgress = !winner && (clue !== null || props.state.cards.some((card) => card.revealed))
-    return !inProgress || window.confirm('Start a new game? The current game will be lost.')
-  }
+  const confirmNewGame = (): boolean =>
+    game.idle || window.confirm('Start a new game? The current game will be lost.')
 
   const renderMenuItems = () => (
     <div className={styles.menuItems} role="menu">
