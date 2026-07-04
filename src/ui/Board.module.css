@@ -143,6 +143,10 @@
   opacity: 1;
 }
 
+.board[data-over] .card {
+  opacity: 0.55;
+}
+
 /* The guess outcome flashed over the card the instant it's revealed. */
 .feedback {
   position: absolute;

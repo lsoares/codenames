@@ -21,6 +21,7 @@ export default function Board(props: {
 }) {
   const isSpymaster = props.spymasterTeam !== null
   const cards = props.game.state.cards
+  const gameOver = props.game.state.winner !== null
 
   // Both roles single out cards the same way — a thicker border with the rest of
   // the board dimmed. A spymaster's picks are private (the selected set, owned by
@@ -31,9 +32,9 @@ export default function Board(props: {
     (isSpymaster ? props.selected.has(index) : card.markedBy.includes(props.myTeam))
   const focusing = cards.some((card, index) => highlighted(card, index))
   return (
-    <div className={styles.board} data-focus={focusing || undefined}>
+    <div className={styles.board} data-focus={focusing || undefined} data-over={gameOver || undefined}>
       {cards.map((card, index) => {
-        const showColor = props.game.showsColor(index, isSpymaster)
+        const showColor = gameOver || props.game.showsColor(index, isSpymaster)
         // Word cards are named by their word; picture cards by position.
         const name = props.game.state.mode === 'word' ? card.face : `Card ${index + 1}`
         // Announce an operative's own-team mark so it's perceivable without sight.
