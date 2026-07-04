@@ -84,7 +84,9 @@ export default function Board(props: {
               />
             ) : isImageFace(card.face) ? (
               <img
-                className={`${styles.face} ${styles.image}`}
+                className={`${styles.face} ${styles.image} ${
+                  props.game.state.fit === 'contain' ? styles.contain : ''
+                }`}
                 src={card.face}
                 alt=""
                 draggable={false}

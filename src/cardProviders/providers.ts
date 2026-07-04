@@ -13,7 +13,7 @@ import { abstract } from './abstract'
 import { icons } from './icons'
 import { official } from './official'
 import { officialWords } from './officialWords'
-import type { Credit } from '../Game'
+import type { CardFit, Credit } from '../Game'
 
 // A source of card faces. `fetch` resolves to 20 faces — image URLs or words — or
 // throws when it can't (missing key, network error) so callers can fall back.
@@ -23,6 +23,7 @@ export interface CardProvider {
   icon: string // emoji shown on the deck-picker tile
   description: string // shown as the tile's hover tooltip
   credit?: Credit // deck-source attribution shown on the board; omitted for local decks
+  fit?: CardFit // how its image faces fill a card; defaults to 'cover'
   fetch: () => Promise<string[]>
 }
 
@@ -35,11 +36,11 @@ export const providers: CardProvider[] = [officialWords, official, unsplash, pex
 // game can always start.
 export async function getFaces(
   providerId: string,
-): Promise<{ faces: string[]; credit: Credit | null }> {
+): Promise<{ faces: string[]; credit: Credit | null; fit: CardFit }> {
   const provider = providers.find((p) => p.id === providerId) ?? unsplash
   try {
-    return { faces: await provider.fetch(), credit: provider.credit ?? null }
+    return { faces: await provider.fetch(), credit: provider.credit ?? null, fit: provider.fit ?? 'cover' }
   } catch {
-    return { faces: await officialWords.fetch(), credit: officialWords.credit ?? null }
+    return { faces: await officialWords.fetch(), credit: officialWords.credit ?? null, fit: 'cover' }
   }
 }

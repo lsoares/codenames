@@ -7,6 +7,10 @@ export interface Credit {
   readonly url: string
 }
 
+// How an image face fills its card: crop to fill, or fit whole (square official
+// cards want the latter so nothing is lost).
+export type CardFit = 'cover' | 'contain'
+
 // GameState (and everything it holds) is deeply readonly: a Game never mutates
 // its state in place — every operation returns a new Game — and `game.state` is
 // shared with the wire/persistence, so callers must treat it as immutable.
@@ -27,6 +31,7 @@ export interface Clue {
 export interface GameState {
   readonly cards: readonly Card[]
   readonly credit: Credit | null // attribution for the deck's source, null when local
+  readonly fit: CardFit // how image faces fill their card
   readonly turn: Team
   readonly phase: GamePhase
   readonly clue: Clue | null
@@ -50,7 +55,12 @@ export interface Transition {
   win: { team: Team; byAssassin: boolean } | null
 }
 
-export function createGame(faces: string[], startingTeam: Team, credit: Credit | null = null): GameState {
+export function createGame(
+  faces: string[],
+  startingTeam: Team,
+  credit: Credit | null = null,
+  fit: CardFit = 'cover',
+): GameState {
   const otherTeam: Team = startingTeam === 'red' ? 'blue' : 'red'
   const colors = shuffle<CardColor>([
     ...Array<CardColor>(8).fill(startingTeam),
@@ -67,6 +77,7 @@ export function createGame(faces: string[], startingTeam: Team, credit: Credit |
       outcome: null,
     })),
     credit,
+    fit,
     turn: startingTeam,
     phase: 'clue',
     clue: null,
@@ -132,12 +143,13 @@ export class Game {
 
   // A fresh game: new faces when the caller fetched some, else reshuffle the
   // current ones (keeping the deck's credit). Allowed even after a win.
-  newGame(faces?: string[], credit?: Credit | null): Game {
+  newGame(faces?: string[], credit?: Credit | null, fit?: CardFit): Game {
     return new Game(
       createGame(
         faces ?? this.s.cards.map((card) => card.face),
         Math.random() < 0.5 ? 'red' : 'blue',
         credit === undefined ? this.s.credit : credit,
+        fit ?? this.s.fit,
       ),
     )
   }
