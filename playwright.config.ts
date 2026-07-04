@@ -18,7 +18,9 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: 'npm run dev -- --port 5174 --strictPort',
+      // Vite only — this config starts its own broker above, so it must not use
+      // `npm run dev` (which now launches a second broker and would clash on 9000).
+      command: 'npx vite --port 5174 --strictPort',
       port: 5174,
       reuseExistingServer: !process.env.CI,
       env: {

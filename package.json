@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k -n vite,broker -c cyan,magenta \"vite\" \"npm:broker\"",
     "broker": "peerjs --port 9000 --key peerjs --path /",
     "build": "tsc && vite build",
     "preview": "vite preview",
@@ -20,6 +20,7 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.2",
+    "concurrently": "^10.0.3",
     "peer": "^1.0.2",
     "typescript": "^5.6.2",
     "vite": "^5.4.8"
