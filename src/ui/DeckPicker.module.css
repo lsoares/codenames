@@ -1,3 +1,11 @@
+.decks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(720px, 100%);
+}
+
 .grid {
   list-style: none;
   margin: 0;
@@ -5,7 +13,13 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
-  width: min(720px, 100%);
+  width: 100%;
+}
+
+.gridSmall {
+  composes: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
 }
 
 .tile {
@@ -26,25 +40,17 @@
   filter: brightness(1.05);
 }
 
-.more {
+.small {
   composes: tile;
-  background: transparent;
-  box-shadow: none;
+  gap: 6px;
 }
 
-.plus {
-  font-size: 5rem;
-  font-weight: 300;
-  line-height: 1;
-  color: var(--muted);
+.small .icon {
+  font-size: 1.8rem;
 }
 
-.more:hover {
-  filter: none;
-}
-
-.more:hover .plus {
-  color: var(--ink);
+.small .label {
+  font-size: 0.85rem;
 }
 
 .icon {

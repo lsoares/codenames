@@ -6,7 +6,7 @@
   justify-content: flex-start;
   gap: 12px;
   padding: 32px;
-  padding-top: 12vh;
+  padding-top: 6vh;
 }
 
 .title {
@@ -15,6 +15,6 @@
 }
 
 .subtitle {
-  margin: 0 0 12px;
+  margin: 0;
   color: var(--muted);
 }
