@@ -1,5 +1,5 @@
-import type { BoardMode, GameState, Team } from './domain/Game'
-import type { Seats } from './domain/Room'
+import type { BoardMode, GameState, Team } from '../Game'
+import type { Seats } from './Room'
 
 // A wire message: what a player wants to do, sent guest → host as a plain
 // serializable object, then routed onto the Game by the host.

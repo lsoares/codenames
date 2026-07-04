@@ -1,4 +1,4 @@
-import type { Team } from './Game'
+import type { Team } from '../Game'
 
 // One spymaster seat per team, by holder id. Null when the chair is open.
 export interface Seats {

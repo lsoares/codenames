@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Team } from '../domain/Game'
+import type { Team } from '../Game'
 import styles from './ClueBar.module.css'
 
 // The spymaster's clue input, docked at the bottom centre while it's their turn.

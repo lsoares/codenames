@@ -1,4 +1,4 @@
-import { Game, type Card, type GuessOutcome, type Team } from '../domain/Game'
+import { Game, type Card, type GuessOutcome, type Team } from '../Game'
 import styles from './Board.module.css'
 
 const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {

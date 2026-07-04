@@ -1,4 +1,4 @@
-import type { CardProvider } from '../images/providers'
+import type { CardProvider } from '../cardProviders/providers'
 import styles from './DeckPicker.module.css'
 
 // The grid of deck tiles, each a static icon + name (no fetching — previews would

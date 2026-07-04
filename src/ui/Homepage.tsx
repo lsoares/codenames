@@ -1,4 +1,4 @@
-import type { CardProvider } from '../images/providers'
+import type { CardProvider } from '../cardProviders/providers'
 import DeckPicker from './DeckPicker'
 import styles from './Homepage.module.css'
 
