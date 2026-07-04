@@ -83,15 +83,17 @@ export class GamePage {
   }
 
   // The homepage lists decks; picking one hosts a room. Unsplash is the default
-  // deck the suite plays on, so start there and wait until the board is ready.
+  // (image) deck the suite plays on, so start there and wait for the board.
   async createRoom(): Promise<void> {
-    await this.startWithDeck('Unsplash')
+    await this.page.getByRole('button', { name: 'Unsplash', exact: true }).click()
+    await this.getCards().first().waitFor()
   }
 
-  // Start a game from a named deck on the homepage, then wait for the board.
+  // Start a game from a named homepage deck, waiting until the room is up (its
+  // code lands in the URL). Deck-agnostic — word boards have no "Card N" labels.
   async startWithDeck(label: string): Promise<void> {
     await this.page.getByRole('button', { name: label, exact: true }).click()
-    await this.getCards().first().waitFor()
+    await this.page.waitForURL(/#.+/)
   }
 
   // The room code is the URL hash the app puts in the address bar for sharing.
@@ -104,17 +106,11 @@ export class GamePage {
     await this.page.reload()
   }
 
-  // Open the in-game "New game" deck picker (an overlay) and start a fresh game
-  // from the named deck. A re-deal over a game in progress prompts; accept it.
-  async startGameWithSource(label: string): Promise<void> {
+  // The "New game" button appears beside the win message; it opens the deck
+  // picker overlay to re-deal the room. Start a fresh game from the named deck.
+  async startNewGameFromEnd(label: string): Promise<void> {
     await this.page.getByRole('button', { name: 'New game' }).click()
-    this.page.once('dialog', (dialog) => dialog.accept())
-    await this.page.getByRole('button', { name: label, exact: true }).click()
-  }
-
-  // Leave the room, returning to the homepage.
-  async leaveRoom(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Leave room' }).click()
+    await this.page.getByRole('dialog', { name: 'New game' }).getByRole('button', { name: label, exact: true }).click()
   }
 
   // Take a spymaster seat (defaults to the team on turn). Arm a dialog acceptor

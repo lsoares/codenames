@@ -19,7 +19,6 @@ export default function GameScreen(props: {
   onJoinTeam: (team: Team) => void
   onAction: (action: Action) => void
   onNewGame: (providerId: string) => void
-  onLeaveRoom: () => void
   loadingFaces: boolean
   providers: CardProvider[]
 }) {
@@ -299,30 +298,16 @@ export default function GameScreen(props: {
           ✕
         </button>
       )}
+      {winner && (
+        <button className={styles.newGame} onClick={() => setPickerOpen(true)}>
+          New game
+        </button>
+      )}
     </div>
   )
 
   return (
     <main className={styles.screen}>
-      <div className={styles.topbar}>
-        <button
-          className={styles.leave}
-          onClick={props.onLeaveRoom}
-          aria-label="Leave room"
-          title="Leave room"
-        >
-          <span aria-hidden="true">🚪</span>
-        </button>
-        <button
-          className={styles.newGame}
-          onClick={() => setPickerOpen(true)}
-          aria-label="New game"
-          title="New game"
-        >
-          <span aria-hidden="true">🔄</span>
-        </button>
-      </div>
-
       <header className={styles.header}>
         <div className={styles.headerSide} data-side="left">{renderSide('red')}</div>
         {center}

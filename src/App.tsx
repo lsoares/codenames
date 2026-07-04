@@ -118,34 +118,6 @@ export default function App() {
     }
   }
 
-  // Leave for good: tear down the session and return to the homepage. Confirm
-  // first only when going now would disrupt others (the same rule as the tab
-  // guard below).
-  const leaveRoom = () => {
-    if (leavingDisruptsOthers() && !window.confirm('Leave this room? The game will go on without you.'))
-      return
-    sessionRef.current?.close()
-    sessionRef.current = null
-    isHostRef.current = false
-    selfIdRef.current = ''
-    roomCodeRef.current = ''
-    gameRef.current = null
-    peersRef.current = []
-    prevGameRef.current = null
-    prevCountRef.current = null
-    prevSeatsRef.current = null
-    clearTimeout(flashTimer.current)
-    setFlash(null)
-    setIsHost(false)
-    setGame(null)
-    setRoomCode('')
-    setSeats({ red: null, blue: null })
-    setTeams({})
-    setPlayerCount(1)
-    setStatus('')
-    window.location.hash = ''
-  }
-
   const claimSeat = (team: Team | null) => {
     sessionRef.current?.setSpymaster(team)
     if (team) {
@@ -319,7 +291,6 @@ export default function App() {
           onJoinTeam={joinTeam}
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
           onNewGame={newGame}
-          onLeaveRoom={leaveRoom}
           loadingFaces={loadingFaces}
           providers={providers}
         />

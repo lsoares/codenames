@@ -87,13 +87,6 @@ export class Host implements Session {
   // The host never loses its own connection, so there's nothing to notify.
   onDisconnect(): void {}
 
-  // Leaving for good: stop the heartbeat and drop the peer. Destroying the peer
-  // closes every guest connection, so guests fall into their usual FIFO takeover.
-  close(): void {
-    if (this.heartbeat) clearInterval(this.heartbeat)
-    this.peer.destroy()
-  }
-
   private run(
     retries: number,
     resolve: (host: Host) => void,

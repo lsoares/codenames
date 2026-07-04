@@ -240,25 +240,14 @@
   line-height: 1;
 }
 
-/* Room controls above the header: leave on the left, new game on the right. */
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.leave,
+/* Offered beside the win message so a finished game can start again in place. */
 .newGame {
-  padding: 6px 12px;
-  font-size: 1.2rem;
-  line-height: 1;
-  background: var(--surface);
-  border-radius: 999px;
-  box-shadow: var(--shadow);
+  padding: 8px 16px;
+  font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.leave:hover,
 .newGame:hover {
   filter: brightness(1.05);
 }
