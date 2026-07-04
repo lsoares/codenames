@@ -91,6 +91,9 @@ team switching.
     `sourceOpen` state. The menu is now just this flat list of sources.
   - Wire a new `onJoinTeam(team)` prop (backed by `session.setTeam`) alongside
     the existing `onClaimSeat`.
+  - Replace the compact menu-toggle glyph `☰` (shown beside the clue input on
+    the spymaster's turn) with a subtle `+` — quieter weight/opacity, reading as
+    "new game" now that the menu is mostly sources.
 - `src/App.tsx`
   - Pass an `onJoinTeam` handler that calls `sessionRef.current?.setTeam(team)`
     and plays/notifies as appropriate.
