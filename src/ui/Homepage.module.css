@@ -29,14 +29,11 @@
 }
 
 .tile {
+  position: relative;
   width: 100%;
   aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--ink);
+  padding: 0;
+  overflow: hidden;
   background: var(--surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -45,4 +42,51 @@
 
 .tile:hover {
   filter: brightness(1.05);
+}
+
+/* The 2×2 preview fills the tile; the label sits over it. */
+.mosaic {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.cell {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Word decks preview as little word chips instead of photos. */
+.word {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+/* Deck name over the mosaic, on a scrim so it reads on any photo. */
+.label {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 10px 12px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+}
+
+.skeleton {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
 }
