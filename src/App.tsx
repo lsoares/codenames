@@ -175,7 +175,6 @@ export default function App() {
       )
     } else if (change.clueGiven) {
       playSound('clue')
-      notify(`Clue: ${change.clueGiven.word} · ${change.clueGiven.count}`)
     } else if (change.turnPassed) {
       playSound('endTurn')
       // A wrong guess (a neutral or the rivals' card) flips the turn; say why, so
