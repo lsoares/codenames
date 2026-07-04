@@ -50,10 +50,13 @@ export default function App() {
   const [flash, setFlash] = useState<string | null>(null)
   const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
-  const notify = (text: string) => {
+  // A sticky message holds until the next one replaces it — for a terminal state
+  // like a win, whose announcement now lives in this one message zone (no longer
+  // a separate banner) and so must stay put rather than fade after a few seconds.
+  const notify = (text: string, sticky = false) => {
     setFlash(text)
     clearTimeout(flashTimer.current)
-    flashTimer.current = setTimeout(() => setFlash(null), 3000)
+    if (!sticky) flashTimer.current = setTimeout(() => setFlash(null), 3000)
   }
 
   const wire = (session: Session, asHost: boolean) => {
@@ -96,7 +99,9 @@ export default function App() {
           playSound('takeover')
           notify('Host recovered — reconnected')
         } catch {
-          setStatus('Lost connection to the room.')
+          // Losing the room mid-game is terminal for this tab; hold it in the one
+          // message zone (sticky) rather than a separate in-header line.
+          notify('Lost connection to the room.', true)
         }
       }
     }, delay)
@@ -163,8 +168,9 @@ export default function App() {
       playSound('gameOver')
       notify(
         guessed?.color === 'assassin'
-          ? `💀 Assassin! ${teamName(game.winner)} wins`
-          : `${teamName(game.winner)} team wins!`,
+          ? `💀 Assassin! ${teamName(game.winner)} team wins`
+          : `🏆 ${teamName(game.winner)} team wins!`,
+        true,
       )
     } else if (prev.phase === 'clue' && game.phase === 'guess') {
       playSound('clue')
@@ -260,7 +266,6 @@ export default function App() {
       {game ? (
         <GameScreen
           state={game}
-          status={status}
           flash={flash}
           isHost={isHost}
           mySeat={mySeat}

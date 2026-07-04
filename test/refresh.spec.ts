@@ -8,7 +8,6 @@ test('host refresh restores the room and its revealed cards', async ({ page }) =
   await game.createRoom()
   const code = await game.getRoomCode()
 
-  await game.enableSpymaster()
   const team = await game.getCurrentTurn()
   const target = await game.getCardNumber(team)
   await game.giveClue('anchor', 1)

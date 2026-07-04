@@ -154,12 +154,6 @@
   background: color-mix(in srgb, var(--blue) 28%, transparent);
 }
 
-.status {
-  color: var(--muted);
-  font-style: italic;
-  white-space: nowrap;
-}
-
 .menu {
   position: relative;
   display: inline-flex;

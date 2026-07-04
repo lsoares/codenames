@@ -6,7 +6,6 @@ test('a correct guess reveals the card and keeps the turn', async ({ page }) => 
   const game = new GamePage(page)
   await game.open('red')
   await game.createRoom()
-  await game.enableSpymaster()
   const team = await game.getCurrentTurn()
   const target = await game.getCardNumber(team)
   await game.giveClue('signal', 2)
@@ -25,7 +24,6 @@ test('a clue of 0 allows more than one guess (unlimited)', async ({ page }) => {
   await game.createRoom()
 
   const team = await game.getCurrentTurn()
-  await game.enableSpymaster(team)
   const [first, second] = await game.getCardNumbers(team)
   await game.giveClue('zero', 0)
 

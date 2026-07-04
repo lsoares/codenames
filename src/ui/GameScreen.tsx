@@ -3,12 +3,10 @@ import type { GameState, Team } from '../game/createGame'
 import type { Action } from '../game/applyAction'
 import Board, { type GuessOutcome } from './Board'
 import ClueBar from './ClueBar'
-import GameOver from './GameOver'
 import styles from './GameScreen.module.css'
 
 export default function GameScreen(props: {
   state: GameState
-  status: string
   flash: string | null
   isHost: boolean
   mySeat: Team | null
@@ -321,7 +319,9 @@ export default function GameScreen(props: {
         {clueForm ? (
           '☰'
         ) : props.flash ? (
-          <span className={styles.statusText}>{props.flash}</span>
+          <span className={styles.statusText} role="status">
+            {props.flash}
+          </span>
         ) : (
           <>
             <span className={styles.statusText}>{statusText}</span>
@@ -357,16 +357,8 @@ export default function GameScreen(props: {
         {center}
         <div className={styles.headerSide} data-side="right">
           {renderSide('blue')}
-          {props.status && <span className={styles.status}>{props.status}</span>}
         </div>
       </header>
-
-      {props.state.winner && (
-        <GameOver
-          winner={props.state.winner}
-          byAssassin={props.state.log[props.state.log.length - 1]?.endsWith('assassin') ?? false}
-        />
-      )}
 
       <div className={styles.boardArea}>
         <Board
