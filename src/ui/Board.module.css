@@ -107,6 +107,11 @@
 
 .card[data-color='assassin'] {
   background: #2b2d42;
+  /* A constant dark halo so the death card is unmistakable — it never fades
+     with the board, so the spymaster can always place the assassin at a glance. */
+  box-shadow:
+    0 0 16px 5px rgba(20, 21, 33, 0.9),
+    var(--shadow);
 }
 
 /* As spymaster, ring your own team's live cards with a soft halo of the team
