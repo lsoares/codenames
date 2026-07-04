@@ -82,8 +82,15 @@ export class GamePage {
     await this.page.goto(`/#${code}`)
   }
 
-  // The app auto-hosts a room on load; just wait until the board is ready.
+  // The homepage lists decks; picking one hosts a room. Unsplash is the default
+  // deck the suite plays on, so start there and wait until the board is ready.
   async createRoom(): Promise<void> {
+    await this.startWithDeck('Unsplash')
+  }
+
+  // Start a game from a named deck on the homepage, then wait for the board.
+  async startWithDeck(label: string): Promise<void> {
+    await this.page.getByRole('button', { name: label, exact: true }).click()
     await this.getCards().first().waitFor()
   }
 

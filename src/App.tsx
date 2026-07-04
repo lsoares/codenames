@@ -6,6 +6,7 @@ import { Guest } from './Guest'
 import type { Session, Action } from './Session'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
+import Homepage from './ui/Homepage'
 
 const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
 
@@ -138,9 +139,9 @@ export default function App() {
     notify(`You joined ${team} ${team === 'red' ? '🔴' : '🔵'}`)
   }
 
-  const createRoom = async () => {
+  const createRoom = async (id: string) => {
     setStatus('Loading cards…')
-    const { faces, mode } = await getFaces(providerId)
+    const { faces, mode } = await getFaces(id)
     setStatus('Creating room…')
     // Tests can pin the starting team for determinism; players get a random one.
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
@@ -246,7 +247,7 @@ export default function App() {
     startedRef.current = true
     const code = normalizeCode(window.location.hash)
     if (!code) {
-      void createRoom()
+      // No room in the URL: land on the homepage and let the player pick a deck.
       return
     }
 
@@ -296,21 +297,29 @@ export default function App() {
           providerId={providerId}
           onProviderChange={chooseProvider}
         />
-      ) : (
+      ) : status ? (
         <main className="card">
           <h1>Codenames Pictures</h1>
-          <p>{status || 'Setting up your game…'}</p>
+          <p>{status}</p>
           {/^(Could not|Lost)/.test(status) && (
             <button
               onClick={() => {
                 window.location.hash = ''
-                void createRoom()
+                setStatus('')
               }}
             >
-              New game
+              Back to home
             </button>
           )}
         </main>
+      ) : (
+        <Homepage
+          providers={providers}
+          onPick={(id) => {
+            chooseProvider(id)
+            void createRoom(id)
+          }}
+        />
       )}
     </>
   )
