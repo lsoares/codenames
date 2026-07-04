@@ -57,6 +57,36 @@ Each header team panel gains two independent click targets.
   a per-team headcount, so switching does not change those numbers. Making them
   reflect true membership is out of scope here.
 
+## Game query DSL
+
+Today the "is it fresh / in progress" and "cards left per team" checks are
+recomputed inline in several places (`GameScreen.tsx:40`, `:81`, `:155`), each
+poking at `cards.some/every/filter`. Replace those with a small domain
+vocabulary so read-sites read declaratively.
+
+- **Logic as pure domain functions**, co-located in the game module (e.g.
+  `src/game/queries.ts`), operating on a plain `GameState`:
+  - `inProgress(game)` → `!winner && (clue !== null || cards.some(revealed))`
+  - `isFresh(game)` → `cards.every((c) => !c.revealed)`
+  - `remaining(game, team)` → count of that team's unrevealed cards
+  - (extend as read-sites reveal more shared derivations)
+  These stay pure and wire-safe, and are what the tests exercise directly.
+
+- **A thin view factory `gameView(state)`** returning an object whose getters /
+  methods delegate to those functions while still exposing the underlying
+  fields, so callers write `game.inProgress`, `game.isFresh`,
+  `game.remaining('red')`, and still `game.cards` / `game.turn`.
+
+- **Serialization boundary:** the raw `GameState` record remains the wire and
+  persistence format. `peerMultiplayer` sends/receives the plain record; the
+  host mirrors the raw state (never the view) into `sessionStorage`. The view is
+  created only at the React read boundary (App / GameScreen wrap the received
+  state); the view is never serialized and never re-hydrated in the net layer.
+
+- The in-progress confirm guard for team-join / claim-spymaster and the existing
+  `confirmNewGame` both go through `game.inProgress`; the header card count uses
+  `game.remaining(team)`; the fresh-board effects use `game.isFresh`.
+
 ## State & networking (P2P)
 
 The host holds `teams: Record<peerId, Team>` (auto-assigned) and
@@ -81,8 +111,10 @@ team switching.
     `"Join blue team"`, `"Become blue spymaster"`, `"Step down as blue
     spymaster"`.
   - New handlers wrap `onClaimSeat` and the new team-join call with the
-    in-progress confirm guard and the `notify` toast. Centralise the
-    "in-progress" check (shared with `confirmNewGame`).
+    in-progress confirm guard (`game.inProgress`, shared with `confirmNewGame`)
+    and the `notify` toast.
+  - Replace the inline `freshBoard` / `remaining(color)` derivations with the
+    game DSL (`game.isFresh`, `game.remaining(team)`).
   - **Remove** the "I'm spymaster: Red/Blue" seat picker from the menu.
   - **Explode the "New game" options:** drop the nested "New game" toggle
     button and its expandable source list; render the provider buttons directly
