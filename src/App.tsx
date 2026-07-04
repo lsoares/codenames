@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Game, type GameState, type Team } from './Game'
 import { getFaces, providers } from './images/providers'
 import { Host } from './Host'
-import { join } from './peerMultiplayer'
+import { Guest } from './Guest'
 import type { Session, Action } from './Session'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
@@ -97,7 +97,7 @@ export default function App() {
         notify('You took over as host')
       } catch {
         try {
-          wire(await join(roomCodeRef.current), false)
+          wire(await Guest.join(roomCodeRef.current), false)
           playSound('takeover')
           notify('Host recovered — reconnected')
         } catch {
@@ -244,7 +244,7 @@ export default function App() {
     const timeout = new Promise<never>((_, reject) =>
       window.setTimeout(() => reject(new Error('join-timeout')), 3000),
     )
-    Promise.race([join(code), timeout])
+    Promise.race([Guest.join(code), timeout])
       .then((session) => {
         wire(session, false)
         setStatus('')
