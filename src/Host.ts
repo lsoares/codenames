@@ -33,6 +33,7 @@ export class Host implements Session {
   private readonly connections: DataConnection[] = []
   private readonly listeners: Array<(view: RoomView) => void> = []
   private readonly lastSeen = new Map<DataConnection, number>()
+  private heartbeat?: ReturnType<typeof setInterval>
 
   private constructor(
     private readonly code: string,
@@ -129,6 +130,7 @@ export class Host implements Session {
     this.peer.on('error', (error: { type?: string }) => {
       if (error.type === 'unavailable-id' && retries > 0) {
         this.peer.destroy()
+        if (this.heartbeat) clearInterval(this.heartbeat) // this attempt is dead; a fresh Host starts its own
         const nextCode = this.mode === 'new' ? randomCode() : this.code
         setTimeout(
           () => Host.launch(nextCode, this.game.state, this.mode, retries - 1).then(resolve, reject),
@@ -170,7 +172,7 @@ export class Host implements Session {
   // it mid-forEach would skip the neighbour of each pruned ghost, so a burst of
   // stale peers would clear only a few per pass and linger in the count.
   private startHeartbeat(): void {
-    setInterval(() => {
+    this.heartbeat = setInterval(() => {
       const now = Date.now()
       for (const connection of [...this.connections]) {
         if (!connection.open) {
