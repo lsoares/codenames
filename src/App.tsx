@@ -115,8 +115,8 @@ export default function App() {
   const newGame = async (id: string) => {
     setLoadingFaces(true)
     try {
-      const { faces, mode } = await getFaces(id)
-      sessionRef.current?.dispatch({ type: 'newGame', faces, mode })
+      const { faces, credit } = await getFaces(id)
+      sessionRef.current?.dispatch({ type: 'newGame', faces, credit })
     } finally {
       setLoadingFaces(false)
     }
@@ -172,11 +172,11 @@ export default function App() {
     // No loading screen: hosting is quick, so stay on the homepage until the
     // board is ready rather than flashing an intermediate card. Only a failure
     // surfaces a status (below).
-    const { faces, mode } = await getFaces(id)
+    const { faces, credit } = await getFaces(id)
     // Tests can pin the starting team for determinism; players get a random one.
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
-      wire(await Host.start(faces, start, mode), true)
+      wire(await Host.start(faces, start, credit), true)
     } catch (error) {
       console.error('createRoom failed:', error)
       setStatus(

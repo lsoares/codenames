@@ -1,13 +1,17 @@
 export type Team = 'red' | 'blue'
 export type CardColor = 'red' | 'blue' | 'neutral' | 'assassin'
 export type GamePhase = 'clue' | 'guess'
-export type BoardMode = 'image' | 'word'
+
+export interface Credit {
+  readonly label: string
+  readonly url: string
+}
 
 // GameState (and everything it holds) is deeply readonly: a Game never mutates
 // its state in place — every operation returns a new Game — and `game.state` is
 // shared with the wire/persistence, so callers must treat it as immutable.
 export interface Card {
-  readonly face: string // image URL or word, per the board's mode
+  readonly face: string // an image URL or a word — the board renders whichever it is
   readonly color: CardColor
   readonly revealed: boolean
   readonly markedBy: readonly Team[] // operative candidate notes, private to each team
@@ -22,7 +26,7 @@ export interface Clue {
 
 export interface GameState {
   readonly cards: readonly Card[]
-  readonly mode: BoardMode
+  readonly credit: Credit | null // attribution for the deck's source, null when local
   readonly turn: Team
   readonly phase: GamePhase
   readonly clue: Clue | null
@@ -46,7 +50,7 @@ export interface Transition {
   win: { team: Team; byAssassin: boolean } | null
 }
 
-export function createGame(faces: string[], startingTeam: Team, mode: BoardMode): GameState {
+export function createGame(faces: string[], startingTeam: Team, credit: Credit | null = null): GameState {
   const otherTeam: Team = startingTeam === 'red' ? 'blue' : 'red'
   const colors = shuffle<CardColor>([
     ...Array<CardColor>(8).fill(startingTeam),
@@ -62,7 +66,7 @@ export function createGame(faces: string[], startingTeam: Team, mode: BoardMode)
       markedBy: [],
       outcome: null,
     })),
-    mode,
+    credit,
     turn: startingTeam,
     phase: 'clue',
     clue: null,
@@ -127,13 +131,13 @@ export class Game {
   }
 
   // A fresh game: new faces when the caller fetched some, else reshuffle the
-  // current ones (keeping the board's mode). Allowed even after a win.
-  newGame(faces?: string[], mode?: BoardMode): Game {
+  // current ones (keeping the deck's credit). Allowed even after a win.
+  newGame(faces?: string[], credit?: Credit | null): Game {
     return new Game(
       createGame(
         faces ?? this.s.cards.map((card) => card.face),
         Math.random() < 0.5 ? 'red' : 'blue',
-        mode ?? this.s.mode,
+        credit === undefined ? this.s.credit : credit,
       ),
     )
   }
