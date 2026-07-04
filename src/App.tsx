@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Game, type GameState, type Team } from './Game'
 import { getFaces, providers } from './images/providers'
-import { host, resumeHost, join } from './peerMultiplayer'
+import { Host } from './Host'
+import { join } from './peerMultiplayer'
 import type { Session, Action } from './Session'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
@@ -91,7 +92,7 @@ export default function App() {
       const game = gameRef.current
       if (!game || isHostRef.current) return
       try {
-        wire(await resumeHost(roomCodeRef.current, game.state), true)
+        wire(await Host.resume(roomCodeRef.current, game.state), true)
         playSound('takeover')
         notify('You took over as host')
       } catch {
@@ -144,7 +145,7 @@ export default function App() {
     // Tests can pin the starting team for determinism; players get a random one.
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
-      wire(await host(faces, start, mode), true)
+      wire(await Host.start(faces, start, mode), true)
       setStatus('')
     } catch (error) {
       console.error('createRoom failed:', error)
@@ -255,7 +256,7 @@ export default function App() {
           return
         }
         setStatus('Restoring your room…')
-        resumeHost(code, JSON.parse(saved) as GameState)
+        Host.resume(code, JSON.parse(saved) as GameState)
           .then((session) => {
             wire(session, true)
             setStatus('')

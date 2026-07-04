@@ -10,6 +10,13 @@ export type Action =
   | { type: 'endTurn' }
   | { type: 'newGame'; faces?: string[]; mode?: BoardMode }
 
+// Control frames on the same wire as Action/RoomView. A guest announces its
+// spymaster seat (Presence) or team (TeamClaim); both sides send a Ping so each
+// end detects the other going silent.
+export type Presence = { __presence: true; spymasterTeam: Team | null }
+export type TeamClaim = { __team: true; team: Team }
+export type Ping = { __ping: true }
+
 // What every peer renders, plus presence used for FIFO host takeover.
 export interface RoomView {
   state: GameState
