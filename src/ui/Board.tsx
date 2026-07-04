@@ -84,6 +84,7 @@ export default function Board(props: {
             {badge && (
               <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>
                 {feedbackBadge[badge].emoji}
+                {badge === 'wrong' && '🎁'}
               </span>
             )}
           </button>
