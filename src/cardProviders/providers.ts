@@ -12,6 +12,7 @@ import { emojis } from './emojis'
 import { abstract } from './abstract'
 import { icons } from './icons'
 import { official } from './official'
+import { officialWords } from './officialWords'
 import type { Credit } from '../Game'
 
 // A source of card faces. `fetch` resolves to 20 faces — image URLs or words — or
@@ -27,7 +28,7 @@ export interface CardProvider {
 
 // The first four are the picker's headline decks; the rest sit behind its "more"
 // reveal, so order matters.
-export const providers: CardProvider[] = [words, unsplash, pexels, abstract, official, things, icons, tmdb, geeks, games, emojis, cats, foodish, pokemon]
+export const providers: CardProvider[] = [officialWords, official, unsplash, pexels, words, geeks, abstract, things, icons, tmdb, games, emojis, cats, foodish, pokemon]
 
 // Fetches 20 card faces plus the deck's credit. When a provider throws (missing
 // key, network error), fall back to the word board — no key, never fails — so a
@@ -39,6 +40,6 @@ export async function getFaces(
   try {
     return { faces: await provider.fetch(), credit: provider.credit ?? null }
   } catch {
-    return { faces: await words.fetch(), credit: words.credit ?? null }
+    return { faces: await officialWords.fetch(), credit: officialWords.credit ?? null }
   }
 }

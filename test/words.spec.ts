@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test'
 import { GamePage, stubDatamuse, STUB_WORDS } from './gamePage'
 
-test('starting from Words builds a board of word cards', async ({ page }) => {
+test('starting from Words+ builds a board of word cards', async ({ page }) => {
   await stubDatamuse(page)
   const game = new GamePage(page)
   await game.open()
 
-  await game.startWithDeck('Words')
+  await game.startWithDeck('Words+')
 
   // View as an operative so cards read as the bare word: the host auto-seats as
   // the red spymaster, whose cards carry a ", colour" suffix. Release red itself
