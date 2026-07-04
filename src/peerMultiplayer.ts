@@ -1,5 +1,6 @@
 import Peer, { type DataConnection, type PeerOptions } from 'peerjs'
 import { Game, createGame, type BoardMode, type GameState, type Team } from './Game'
+import { Room, type Seats } from './Room'
 
 // A wire message: what a player wants to do, sent guest → host as a plain
 // serializable object, then routed onto the Game by the host.
@@ -28,7 +29,7 @@ const apply = (game: Game, action: Action): Game => {
 // What every peer renders, plus presence used for FIFO host takeover.
 export interface RoomView {
   state: GameState
-  seats: { red: string | null; blue: string | null } // one spymaster seat per team, by holder id
+  seats: Seats // one spymaster seat per team, by holder id
   teams: Record<string, Team> // auto-assigned team per peer, balanced on arrival
   peers: string[] // arrival order, host first
 }
@@ -106,42 +107,14 @@ function startHost(
   return new Promise((resolve, reject) => {
     const peer = newPeer(code)
     const connections: DataConnection[] = []
-    const seats: { red: string | null; blue: string | null } = { red: null, blue: null }
-    const teams: Record<string, Team> = {}
     const listeners: Array<(view: RoomView) => void> = []
     let game = new Game(initialState)
+    let room = new Room()
 
-    // One holder per team, one seat per peer. Anyone can take a seat at any time,
-    // stealing it from whoever holds it — the role isn't locked once the game
-    // starts, so players can freely swap into the spymaster chair.
-    const claimSeat = (peerId: string, team: Team | null) => {
-      if (seats.red === peerId) seats.red = null
-      if (seats.blue === peerId) seats.blue = null
-      if (team) seats[team] = peerId
-    }
-    // Auto-assign each peer to the smaller team on arrival, then leave it fixed.
-    const assignTeam = (peerId: string) => {
-      if (teams[peerId]) return
-      const red = Object.values(teams).filter((t) => t === 'red').length
-      const blue = Object.values(teams).filter((t) => t === 'blue').length
-      teams[peerId] = red <= blue ? 'red' : 'blue'
-    }
-    // A player overriding their auto-assigned team, as an operative. Dropping to
-    // an operative on the new side means giving up any spymaster seat first.
-    const setTeamFor = (peerId: string, team: Team) => {
-      teams[peerId] = team
-      claimSeat(peerId, null)
-    }
-    // A joiner takes their team's spymaster seat if it's still open, so nobody has
-    // to claim it by hand; a seat that's already held is left untouched.
-    const autoSeat = (peerId: string) => {
-      const team = teams[peerId]
-      if (team && !seats[team]) seats[team] = peerId
-    }
     const view = (): RoomView => ({
       state: game.state,
-      seats: { red: seats.red, blue: seats.blue },
-      teams: { ...teams },
+      seats: room.seats,
+      teams: room.teams,
       peers: [peer.id, ...connections.map((connection) => connection.peer)],
     })
     const broadcast = () => {
@@ -155,8 +128,7 @@ function startHost(
       const index = connections.indexOf(connection)
       if (index < 0) return
       connections.splice(index, 1)
-      claimSeat(connection.peer, null)
-      delete teams[connection.peer]
+      room = room.drop(connection.peer)
       lastSeen.delete(connection)
       broadcast()
     }
@@ -176,28 +148,20 @@ function startHost(
           if (now - (lastSeen.get(connection) ?? now) > 6000) dropConnection(connection)
         }
       }
-      // Free any spymaster seat whose holder is no longer present. A seat can
-      // outlive its holder when this host never tracked their departure — e.g.
-      // after a FIFO takeover the new host inherits the game but not the old
-      // connections, so a seat left by the previous spymaster would otherwise
-      // stay "taken" forever, leaving the team unable to re-seat mid-game.
       const present = new Set([peer.id, ...connections.map((connection) => connection.peer)])
-      let freed = false
-      for (const team of ['red', 'blue'] as const) {
-        if (seats[team] && !present.has(seats[team] as string)) {
-          seats[team] = null
-          freed = true
-        }
+      const pruned = room.freeAbsentSeats(present)
+      if (pruned !== room) {
+        room = pruned
+        broadcast()
       }
-      if (freed) broadcast()
     }, 2000)
 
     peer.on('open', (id) => {
-      assignTeam(id)
+      room = room.assignTeam(id)
       // Seat the host as their team's spymaster too, just like a joiner — but only
       // for a brand-new room, so a reload or FIFO takeover doesn't hand the seat
       // (and the colour key) to whoever happens to re-host mid-game.
-      if (mode === 'new') autoSeat(id)
+      if (mode === 'new') room = room.autoSeat(id)
       resolve({
         roomCode: id,
         selfId: id,
@@ -206,11 +170,11 @@ function startHost(
           broadcast()
         },
         setSpymaster: (team) => {
-          claimSeat(peer.id, team)
+          room = room.claimSeat(peer.id, team)
           broadcast()
         },
         setTeam: (team) => {
-          setTeamFor(peer.id, team)
+          room = room.setTeam(peer.id, team)
           broadcast()
         },
         subscribe: (listener) => {
@@ -225,17 +189,16 @@ function startHost(
       connection.on('open', () => {
         connections.push(connection)
         lastSeen.set(connection, Date.now())
-        assignTeam(connection.peer)
-        autoSeat(connection.peer)
+        room = room.assignTeam(connection.peer).autoSeat(connection.peer)
         broadcast()
       })
       connection.on('data', (data) => {
         lastSeen.set(connection, Date.now())
         if ((data as Ping).__ping) return // guest keepalive
         if ((data as Presence).__presence) {
-          claimSeat(connection.peer, (data as Presence).spymasterTeam)
+          room = room.claimSeat(connection.peer, (data as Presence).spymasterTeam)
         } else if ((data as TeamClaim).__team) {
-          setTeamFor(connection.peer, (data as TeamClaim).team)
+          room = room.setTeam(connection.peer, (data as TeamClaim).team)
         } else {
           game = apply(game, data as Action)
         }
