@@ -195,7 +195,11 @@ export default function GameScreen(props: {
     game.idle || window.confirm('Start a new game? The current game will be lost.')
 
   const renderMenuItems = () => (
-    <div className={styles.menuItems} role="menu">
+    <div
+      className={styles.menuItems}
+      role="menu"
+      onClick={(event) => event.stopPropagation()}
+    >
           <div className={styles.sourceList}>
             {props.providers.map((provider) => (
               <button
@@ -305,7 +309,7 @@ export default function GameScreen(props: {
   // spymaster's clue turn the clue input takes centre stage and the menu shrinks
   // to a compact button beside it, so the menu stays reachable throughout.
   const center = (
-    <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
+    <div className={styles.menu}>
       <button
         className={styles.menuToggle}
         data-team={winner ?? turn}
@@ -314,12 +318,15 @@ export default function GameScreen(props: {
         aria-haspopup="menu"
         aria-expanded={menuOpen}
         title="Menu"
-        onClick={() => {
+        onClick={(event) => {
+          event.stopPropagation()
           setMenuOpen((open) => !open)
         }}
       >
         {clueForm ? (
-          '☰'
+          <span className={styles.plus} aria-hidden="true">
+            +
+          </span>
         ) : props.flash ? (
           <span className={styles.statusText} role="status">
             {props.flash}

@@ -203,6 +203,14 @@
   white-space: nowrap;
 }
 
+/* A quiet "+" that opens the menu (mostly "new game") beside the clue input. */
+.plus {
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--muted);
+}
+
 .menuToggle[data-team='red'] {
   background: color-mix(in srgb, var(--red) 26%, transparent);
 }
