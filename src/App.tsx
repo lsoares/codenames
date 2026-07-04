@@ -220,7 +220,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seats])
 
-  // As host, mirror the game into sessionStorage so a refresh can restore it.
   useEffect(() => {
     if (isHostRef.current && roomCode && game) {
       sessionStorage.setItem(hostStateKey(roomCode), JSON.stringify(game))

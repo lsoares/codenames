@@ -35,8 +35,6 @@ export class Game {
     return this.s
   }
 
-  // --- queries ---
-
   // Committed to a line of play — a clue is out or a card is revealed — and not
   // yet ended.
   inProgress(): boolean {
@@ -49,17 +47,13 @@ export class Game {
     return !this.inProgress()
   }
 
-  // A freshly dealt board: nothing revealed yet.
   isFresh(): boolean {
     return this.s.cards.every((card) => !card.revealed)
   }
 
-  // Cards a team still has to find.
   remaining(team: Team): number {
     return unrevealedCount(this.s, team)
   }
-
-  // --- actions (each returns the next Game; a no-op returns this) ---
 
   // A fresh game: new faces when the caller fetched some, else reshuffle the
   // current ones (keeping the board's mode). Allowed even after a win.
@@ -166,8 +160,6 @@ export class Game {
     })
   }
 
-  // Route a wire action to the matching method — the host's single entry point,
-  // replacing the old applyAction reducer.
   apply(action: Action): Game {
     switch (action.type) {
       case 'clue':

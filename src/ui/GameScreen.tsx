@@ -95,7 +95,6 @@ export default function GameScreen(props: {
       ([id, t]) => t === team && id !== props.seats.red && id !== props.seats.blue,
     ).length
 
-  // Close the menu when clicking anywhere outside it.
   useEffect(() => {
     if (!menuOpen) return
     const close = () => setMenuOpen(false)
@@ -113,7 +112,6 @@ export default function GameScreen(props: {
     }
   }, [props.myTeam])
 
-  // Claim or release the spymaster seat for a team.
   const requestSpymasterSeat = (team: Team) => {
     const isMine = props.mySeat === team
     if (isMine) {
@@ -295,7 +293,6 @@ export default function GameScreen(props: {
     }
   }, [myMove, centerText])
 
-  // The team-on-turn's spymaster clues from the header centre.
   const clueForm = !winner && phase === 'clue' && activeSpymaster && (
     <ClueBar
       state={props.state}
