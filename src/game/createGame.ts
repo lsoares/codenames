@@ -7,7 +7,7 @@ export interface Card {
   face: string // image URL or word, per the board's mode
   color: CardColor
   revealed: boolean
-  marked: boolean
+  markedBy: Team[] // operative candidate notes, private to each team
 }
 
 export interface Clue {
@@ -49,7 +49,7 @@ export function createGame(faces: string[], startingTeam: Team, mode: BoardMode)
       face,
       color: colors[index],
       revealed: false,
-      marked: false,
+      markedBy: [],
     })),
     mode,
     turn: startingTeam,

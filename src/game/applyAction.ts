@@ -3,16 +3,21 @@ import { createGame, type BoardMode, type Card, type GameState, type Team } from
 export type Action =
   | { type: 'clue'; word: string; count: number }
   | { type: 'guess'; cardIndex: number }
-  | { type: 'toggleMark'; cardIndex: number }
+  | { type: 'toggleMark'; cardIndex: number; team: Team }
   | { type: 'endTurn' }
   | { type: 'newGame'; faces?: string[]; mode?: BoardMode }
 
 const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
 
-// The operatives' candidate marks belong to the turn that placed them; wipe
-// them whenever the turn passes so the next team starts with a clean board.
-const clearMarks = (cards: Card[]): Card[] =>
-  cards.map((card) => (card.marked ? { ...card, marked: false } : card))
+// A team's candidate marks are its own planning note; wipe them when that
+// team's turn ends (they've had their go), leaving the other team's forward
+// marks intact so they survive across the opponent's turn.
+const clearMarks = (cards: Card[], team: Team): Card[] =>
+  cards.map((card) =>
+    card.markedBy.includes(team)
+      ? { ...card, markedBy: card.markedBy.filter((t) => t !== team) }
+      : card,
+  )
 
 const unrevealedCount = (state: GameState, team: Team): number =>
   state.cards.filter((card) => card.color === team && !card.revealed).length
@@ -30,14 +35,22 @@ export function applyAction(state: GameState, action: Action): GameState {
 
   if (state.winner) return state
 
-  // Shared candidate marks — a note for the team, toggled by right-click.
+  // A team's candidate marks — a private note toggled by right-click, allowed
+  // on any turn so operatives can plan ahead while the opponent plays.
   if (action.type === 'toggleMark') {
     const target = state.cards[action.cardIndex]
     if (!target || target.revealed) return state
     return {
       ...state,
       cards: state.cards.map((card, index) =>
-        index === action.cardIndex ? { ...card, marked: !card.marked } : card,
+        index === action.cardIndex
+          ? {
+              ...card,
+              markedBy: card.markedBy.includes(action.team)
+                ? card.markedBy.filter((t) => t !== action.team)
+                : [...card.markedBy, action.team],
+            }
+          : card,
       ),
     }
   }
@@ -61,7 +74,7 @@ export function applyAction(state: GameState, action: Action): GameState {
       phase: 'clue',
       clue: null,
       turn: opponent(state.turn),
-      cards: clearMarks(state.cards),
+      cards: clearMarks(state.cards, state.turn),
       log: [...state.log, `${state.turn} ended their turn`],
     }
   }
@@ -97,7 +110,7 @@ export function applyAction(state: GameState, action: Action): GameState {
         phase: 'clue',
         clue: null,
         turn: opponent(state.turn),
-        cards: clearMarks(next.cards),
+        cards: clearMarks(next.cards, state.turn),
       }
     }
     return { ...next, guessesRemaining }
@@ -108,6 +121,6 @@ export function applyAction(state: GameState, action: Action): GameState {
     phase: 'clue',
     clue: null,
     turn: opponent(state.turn),
-    cards: clearMarks(next.cards),
+    cards: clearMarks(next.cards, state.turn),
   }
 }

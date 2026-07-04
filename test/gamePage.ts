@@ -152,6 +152,18 @@ export class GamePage {
     await this.page.getByRole('button', { name: new RegExp(`^Card ${n}(,|$)`) }).click()
   }
 
+  // Operative marks a card by number (right-click), allowed on any turn.
+  async markCard(n: number): Promise<void> {
+    await this.page
+      .getByRole('button', { name: new RegExp(`^Card ${n}(,|$)`) })
+      .click({ button: 'right' })
+  }
+
+  // A card the viewer sees as marked by their own team.
+  findMarkedCard(n: number) {
+    return this.page.getByRole('button', { name: `Card ${n}, marked`, exact: true })
+  }
+
   getCards() {
     return this.page.getByRole('button', { name: /^Card \d+/ })
   }
@@ -170,6 +182,18 @@ export class GamePage {
 
   getWinnerBanner() {
     return this.page.getByRole('status')
+  }
+
+  // The outcome emoji flashed over a card the instant it's revealed. Labelled by
+  // outcome so a guess reads as a hit, miss, neutral, or the assassin.
+  findFeedback(outcome: 'correct' | 'wrong' | 'neutral' | 'assassin') {
+    const label = {
+      correct: 'correct guess',
+      wrong: 'wrong guess',
+      neutral: 'neutral card',
+      assassin: 'assassin',
+    }[outcome]
+    return this.page.getByRole('img', { name: label })
   }
 
   // Each player is a labelled face (e.g. "blue operative", "red spymaster"), so

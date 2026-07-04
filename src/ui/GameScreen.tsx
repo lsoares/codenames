@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { GameState, Team } from '../game/createGame'
 import type { Action } from '../game/applyAction'
-import Board from './Board'
+import Board, { type GuessOutcome } from './Board'
 import ClueBar from './ClueBar'
 import GameOver from './GameOver'
 import styles from './GameScreen.module.css'
@@ -43,6 +43,42 @@ export default function GameScreen(props: {
   useEffect(() => {
     if (freshBoard) setSelected(new Set())
   }, [freshBoard])
+
+  // Flash the guess outcome over each card the instant it's revealed, so every
+  // viewer gets a beat of feedback (a bullseye / cross / shrug / skull) before
+  // the card recedes. Compared against the previous state so we react to the
+  // reveals in the incoming sync, whoever clicked; the guessing team is whoever
+  // was on turn before the reveal, which tells a hit from a miss.
+  const [feedback, setFeedback] = useState<Record<number, GuessOutcome>>({})
+  const prevStateRef = useRef(props.state)
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+  useEffect(() => {
+    const prev = prevStateRef.current
+    prevStateRef.current = props.state
+    const guessingTeam = prev.turn
+    props.state.cards.forEach((card, index) => {
+      if (!card.revealed || prev.cards[index]?.revealed) return
+      const outcome: GuessOutcome =
+        card.color === 'assassin'
+          ? 'assassin'
+          : card.color === 'neutral'
+            ? 'neutral'
+            : card.color === guessingTeam
+              ? 'correct'
+              : 'wrong'
+      setFeedback((current) => ({ ...current, [index]: outcome }))
+      timersRef.current.push(
+        setTimeout(() => {
+          setFeedback((current) => {
+            const next = { ...current }
+            delete next[index]
+            return next
+          })
+        }, 1300),
+      )
+    })
+  }, [props.state])
+  useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
 
   const remaining = (color: string): number =>
     props.state.cards.filter((card) => card.color === color && !card.revealed).length
@@ -269,7 +305,6 @@ export default function GameScreen(props: {
   // to a compact button beside it, so the menu stays reachable throughout.
   const center = (
     <div className={styles.menu} onClick={(event) => event.stopPropagation()}>
-      {clueForm}
       <button
         className={styles.menuToggle}
         data-team={winner ?? turn}
@@ -300,6 +335,7 @@ export default function GameScreen(props: {
           </>
         )}
       </button>
+      {clueForm}
       {!winner && phase === 'guess' && mineTurn && props.mySeat === null && (
         <button
           className={`secondary ${styles.pass}`}
@@ -329,7 +365,6 @@ export default function GameScreen(props: {
         <GameOver
           winner={props.state.winner}
           byAssassin={props.state.log[props.state.log.length - 1]?.endsWith('assassin') ?? false}
-          onNewGame={props.onNewGame}
         />
       )}
 
@@ -342,9 +377,10 @@ export default function GameScreen(props: {
           myTeam={props.myTeam}
           turn={props.state.turn}
           selected={selected}
+          feedback={feedback}
           onToggleSelect={toggleSelected}
           onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
-          onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index })}
+          onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index, team: props.myTeam })}
         />
       </div>
     </main>

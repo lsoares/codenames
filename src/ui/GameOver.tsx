@@ -1,7 +1,7 @@
 import type { Team } from '../game/createGame'
 import styles from './GameOver.module.css'
 
-export default function GameOver(props: { winner: Team; byAssassin: boolean; onNewGame: () => void }) {
+export default function GameOver(props: { winner: Team; byAssassin: boolean }) {
   return (
     <div
       className={styles.banner}
@@ -24,9 +24,6 @@ export default function GameOver(props: { winner: Team; byAssassin: boolean; onN
           <>{props.winner === 'red' ? 'Red' : 'Blue'} team wins! 🎉</>
         )}
       </span>
-      <button className="secondary" onClick={props.onNewGame}>
-        New game
-      </button>
     </div>
   )
 }

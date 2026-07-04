@@ -109,10 +109,61 @@
   background: #2b2d42;
 }
 
+/* As spymaster, ring your own team's live cards with a soft halo of the team
+   colour so they pop out of the grid at a glance. */
+.card[data-mine] {
+  box-shadow:
+    0 0 10px 3px var(--mine-glow),
+    var(--shadow);
+}
+
+.card[data-mine][data-color='red'] {
+  --mine-glow: color-mix(in srgb, var(--red) 65%, transparent);
+}
+
+.card[data-mine][data-color='blue'] {
+  --mine-glow: color-mix(in srgb, var(--blue) 65%, transparent);
+}
+
 /* Revealed cards are out of play: fade them almost completely. */
 .card[data-revealed] {
   opacity: 0.15;
   transition: opacity 0.2s ease;
+}
+
+/* While its guess feedback flashes, a just-revealed card stays lit at full
+   colour so the emoji reads clearly; it fades to the dim revealed state once
+   the feedback clears (GameScreen drops [data-feedback] after ~1.3s). */
+.card[data-revealed][data-feedback] {
+  opacity: 1;
+}
+
+/* The guess outcome flashed over the card the instant it's revealed. */
+.feedback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(1.75rem, 8cqw, 4.5rem);
+  pointer-events: none;
+  z-index: 2;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+  animation: feedbackPop 0.3s ease-out;
+}
+
+@keyframes feedbackPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Hover clears any fade so you can check which card it is. The focus variant
