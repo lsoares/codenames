@@ -27,6 +27,19 @@ export interface GameState {
   log: string[]
 }
 
+export type GuessOutcome = 'correct' | 'wrong' | 'neutral' | 'assassin'
+
+// What changed between two consecutive games, so consumers react to events (a
+// clue, a guess and its outcome, a turn passing, a win, a fresh deal) instead of
+// diffing raw state themselves.
+export interface Transition {
+  newGame: boolean
+  clueGiven: Clue | null
+  guessed: { index: number; card: Card; outcome: GuessOutcome } | null
+  turnPassed: { from: Team; to: Team } | null
+  win: { team: Team; byAssassin: boolean } | null
+}
+
 export function createGame(faces: string[], startingTeam: Team, mode: BoardMode): GameState {
   const otherTeam: Team = startingTeam === 'red' ? 'blue' : 'red'
   const colors = shuffle<CardColor>([
@@ -186,6 +199,26 @@ export class Game {
       cards: clearMarks(next.cards, this.s.turn),
     })
   }
+
+  // What happened between the previous game and this one.
+  changesFrom(prev: Game): Transition {
+    const before = prev.s
+    const after = this.s
+    // The log only ever grows within a game; a shorter one means a fresh deal.
+    if (after.log.length < before.log.length) {
+      return { newGame: true, clueGiven: null, guessed: null, turnPassed: null, win: null }
+    }
+    const index = after.cards.findIndex((card, i) => card.revealed && !before.cards[i].revealed)
+    const card = index >= 0 ? after.cards[index] : null
+    const winner = before.winner ? null : after.winner
+    return {
+      newGame: false,
+      clueGiven: before.phase === 'clue' && after.phase === 'guess' ? after.clue : null,
+      guessed: card ? { index, card, outcome: outcomeOf(card, before.turn) } : null,
+      turnPassed: before.turn === after.turn ? null : { from: before.turn, to: after.turn },
+      win: winner ? { team: winner, byAssassin: card?.color === 'assassin' } : null,
+    }
+  }
 }
 
 const shuffle = <T>(items: T[]): T[] => {
@@ -210,3 +243,12 @@ const clearMarks = (cards: Card[], team: Team): Card[] =>
 
 const unrevealedCount = (state: GameState, team: Team): number =>
   state.cards.filter((card) => card.color === team && !card.revealed).length
+
+const outcomeOf = (card: Card, guessingTeam: Team): GuessOutcome =>
+  card.color === 'assassin'
+    ? 'assassin'
+    : card.color === 'neutral'
+      ? 'neutral'
+      : card.color === guessingTeam
+        ? 'correct'
+        : 'wrong'

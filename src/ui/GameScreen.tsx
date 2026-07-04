@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { Game, type GameState, type Team } from '../Game'
+import { Game, type GuessOutcome, type Team } from '../Game'
 import type { Action } from '../peerMultiplayer'
-import Board, { type GuessOutcome } from './Board'
+import Board from './Board'
 import ClueBar from './ClueBar'
 import styles from './GameScreen.module.css'
 
 export default function GameScreen(props: {
-  state: GameState
+  game: Game
   flash: string | null
   isHost: boolean
   mySeat: Team | null
@@ -24,14 +24,12 @@ export default function GameScreen(props: {
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const game = new Game(props.state)
-
   // Clicking a team's card joins it as an operative. Already a plain operative
   // there? Nothing to do. Moving to the other side mid-game confirms first;
   // dropping from your own spymaster seat to operative on the same side doesn't.
   const requestJoinTeam = (team: Team) => {
     if (team === props.myTeam && props.mySeat === null) return
-    if (team !== props.myTeam && game.inProgress() && !window.confirm(`Switch to the ${team} team?`)) return
+    if (team !== props.myTeam && props.game.inProgress() && !window.confirm(`Switch to the ${team} team?`)) return
     props.onJoinTeam(team)
   }
 
@@ -47,10 +45,10 @@ export default function GameScreen(props: {
     })
   useEffect(() => {
     setSelected(new Set())
-  }, [props.state.turn])
+  }, [props.game.state.turn])
   useEffect(() => {
-    if (game.isFresh()) setSelected(new Set())
-  }, [game.isFresh()])
+    if (props.game.isFresh()) setSelected(new Set())
+  }, [props.game.isFresh()])
 
   // Flash the guess outcome over each card the instant it's revealed, so every
   // viewer gets a beat of feedback (a bullseye / cross / shrug / skull) before
@@ -58,34 +56,24 @@ export default function GameScreen(props: {
   // reveals in the incoming sync, whoever clicked; the guessing team is whoever
   // was on turn before the reveal, which tells a hit from a miss.
   const [feedback, setFeedback] = useState<Record<number, GuessOutcome>>({})
-  const prevStateRef = useRef(props.state)
+  const prevGameRef = useRef(props.game)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
   useEffect(() => {
-    const prev = prevStateRef.current
-    prevStateRef.current = props.state
-    const guessingTeam = prev.turn
-    props.state.cards.forEach((card, index) => {
-      if (!card.revealed || prev.cards[index]?.revealed) return
-      const outcome: GuessOutcome =
-        card.color === 'assassin'
-          ? 'assassin'
-          : card.color === 'neutral'
-            ? 'neutral'
-            : card.color === guessingTeam
-              ? 'correct'
-              : 'wrong'
-      setFeedback((current) => ({ ...current, [index]: outcome }))
-      timersRef.current.push(
-        setTimeout(() => {
-          setFeedback((current) => {
-            const next = { ...current }
-            delete next[index]
-            return next
-          })
-        }, 1300),
-      )
-    })
-  }, [props.state])
+    const prev = prevGameRef.current
+    prevGameRef.current = props.game
+    const { guessed } = props.game.changesFrom(prev)
+    if (!guessed) return
+    setFeedback((current) => ({ ...current, [guessed.index]: guessed.outcome }))
+    timersRef.current.push(
+      setTimeout(() => {
+        setFeedback((current) => {
+          const next = { ...current }
+          delete next[guessed.index]
+          return next
+        })
+      }, 1300),
+    )
+  }, [props.game])
   useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
 
   // Operatives on a team: its members who aren't holding a spymaster seat, so
@@ -102,7 +90,7 @@ export default function GameScreen(props: {
     return () => document.removeEventListener('click', close)
   }, [menuOpen])
 
-  const { winner, phase, turn, clue } = props.state
+  const { winner, phase, turn, clue } = props.game.state
 
   // Tint the page background to my team so I always know which side I'm on.
   useEffect(() => {
@@ -119,7 +107,7 @@ export default function GameScreen(props: {
       props.onClaimSeat(null)
     } else {
       // Claiming: prompt mid-game only.
-      if (game.inProgress() && !window.confirm(`Become ${team} spymaster?`)) return
+      if (props.game.inProgress() && !window.confirm(`Become ${team} spymaster?`)) return
       props.onClaimSeat(team)
     }
   }
@@ -130,7 +118,7 @@ export default function GameScreen(props: {
     const isMySeat = props.mySeat === team
     const ops = opsFor(team)
     const headcount = (hasSpymaster ? 1 : 0) + ops
-    const active = team === props.state.turn
+    const active = team === props.game.state.turn
     const spymasterLabel = isMySeat
       ? `Step down as ${team} spymaster`
       : `Become ${team} spymaster`
@@ -148,7 +136,7 @@ export default function GameScreen(props: {
           title={`${team} cards left`}
           onClick={() => requestJoinTeam(team)}
         >
-          {game.remaining(team)}
+          {props.game.remaining(team)}
         </button>
         <span
           className={styles.players}
@@ -189,7 +177,7 @@ export default function GameScreen(props: {
   // A game in progress shouldn't be wiped by accident; confirm before starting a
   // new one. A finished or still-untouched game starts immediately.
   const confirmNewGame = (): boolean =>
-    game.idle() || window.confirm('Start a new game? The current game will be lost.')
+    props.game.idle() || window.confirm('Start a new game? The current game will be lost.')
 
   const renderMenuItems = () => (
     <div
@@ -295,7 +283,8 @@ export default function GameScreen(props: {
 
   const clueForm = !winner && phase === 'clue' && activeSpymaster && (
     <ClueBar
-      state={props.state}
+      turn={turn}
+      teamCardsLeft={props.game.remaining(turn)}
       selectedCount={selected.size}
       onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
     />
@@ -367,12 +356,12 @@ export default function GameScreen(props: {
 
       <div className={styles.boardArea}>
         <Board
-          cards={props.state.cards}
-          mode={props.state.mode}
+          cards={props.game.state.cards}
+          mode={props.game.state.mode}
           loading={props.loadingFaces}
           spymasterTeam={props.mySeat}
           myTeam={props.myTeam}
-          turn={props.state.turn}
+          turn={props.game.state.turn}
           selected={selected}
           feedback={feedback}
           onToggleSelect={toggleSelected}

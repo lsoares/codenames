@@ -109,7 +109,7 @@ function startHost(
     const seats: { red: string | null; blue: string | null } = { red: null, blue: null }
     const teams: Record<string, Team> = {}
     const listeners: Array<(view: RoomView) => void> = []
-    let state = initialState
+    let game = new Game(initialState)
 
     // One holder per team, one seat per peer. Anyone can take a seat at any time,
     // stealing it from whoever holds it — the role isn't locked once the game
@@ -139,7 +139,7 @@ function startHost(
       if (team && !seats[team]) seats[team] = peerId
     }
     const view = (): RoomView => ({
-      state,
+      state: game.state,
       seats: { red: seats.red, blue: seats.blue },
       teams: { ...teams },
       peers: [peer.id, ...connections.map((connection) => connection.peer)],
@@ -202,7 +202,7 @@ function startHost(
         roomCode: id,
         selfId: id,
         dispatch: (action) => {
-          state = apply(new Game(state), action).state
+          game = apply(game, action)
           broadcast()
         },
         setSpymaster: (team) => {
@@ -237,7 +237,7 @@ function startHost(
         } else if ((data as TeamClaim).__team) {
           setTeamFor(connection.peer, (data as TeamClaim).team)
         } else {
-          state = apply(new Game(state), data as Action).state
+          game = apply(game, data as Action)
         }
         broadcast()
       })

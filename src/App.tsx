@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { type GameState, type Team } from './Game'
+import { Game, type GameState, type Team } from './Game'
 import { getFaces, providers } from './images/providers'
 import { host, resumeHost, join, type Session, type Action } from './peerMultiplayer'
 import { playSound } from './sound'
@@ -15,7 +15,7 @@ const normalizeCode = (raw: string): string =>
 const hostStateKey = (code: string): string => `codenames:host:${code}`
 
 export default function App() {
-  const [game, setGame] = useState<GameState | null>(null)
+  const [game, setGame] = useState<Game | null>(null)
   const [roomCode, setRoomCode] = useState('')
   const [seats, setSeats] = useState<{ red: string | null; blue: string | null }>({
     red: null,
@@ -40,7 +40,7 @@ export default function App() {
   const sessionRef = useRef<Session | null>(null)
   const isHostRef = useRef(false)
   const startedRef = useRef(false)
-  const gameRef = useRef<GameState | null>(null)
+  const gameRef = useRef<Game | null>(null)
   const peersRef = useRef<string[]>([])
   const selfIdRef = useRef('')
   const roomCodeRef = useRef('')
@@ -67,9 +67,10 @@ export default function App() {
     setRoomCode(session.roomCode)
     window.location.hash = session.roomCode
     session.subscribe((view) => {
-      gameRef.current = view.state
+      const next = new Game(view.state)
+      gameRef.current = next
       peersRef.current = view.peers
-      setGame(view.state)
+      setGame(next)
       setSeats(view.seats)
       setTeams(view.teams ?? {})
       setPlayerCount(view.peers.length)
@@ -86,10 +87,10 @@ export default function App() {
     const rank = survivors.indexOf(selfIdRef.current)
     const delay = (rank < 0 ? survivors.length : rank) * 1500
     window.setTimeout(async () => {
-      const state = gameRef.current
-      if (!state || isHostRef.current) return
+      const game = gameRef.current
+      if (!game || isHostRef.current) return
       try {
-        wire(await resumeHost(roomCodeRef.current, state), true)
+        wire(await resumeHost(roomCodeRef.current, game.state), true)
         playSound('takeover')
         notify('You took over as host')
       } catch {
@@ -153,41 +154,40 @@ export default function App() {
   }
 
 
-  // Play a cue whenever the shared state crosses a milestone: new game, clue
+  // Play a cue whenever the shared game crosses a milestone: new game, clue
   // given, a wrong guess, a turn ending, or a win. Runs on every peer.
-  const prevGameRef = useRef<GameState | null>(null)
+  const prevGameRef = useRef<Game | null>(null)
   useEffect(() => {
     const prev = prevGameRef.current
     prevGameRef.current = game
     if (!game || !prev) return
-    // The log only ever grows within a game; a shorter log means a fresh deal.
-    if (game.log.length < prev.log.length) {
+    const change = game.changesFrom(prev)
+    if (change.newGame) {
       playSound('newGame')
-      notify(`New game — ${teamName(game.turn)} starts 🔀`)
+      notify(`New game — ${teamName(game.state.turn)} starts 🔀`)
       return
     }
-    // The one card revealed since the last state — the guess that just landed.
-    const guessed = game.cards.find((card, index) => card.revealed && !prev.cards[index].revealed)
-    if (!prev.winner && game.winner) {
+    if (change.win) {
       playSound('gameOver')
       notify(
-        guessed?.color === 'assassin'
-          ? `💀 Assassin! ${teamName(game.winner)} team wins`
-          : `🏆 ${teamName(game.winner)} team wins!`,
+        change.win.byAssassin
+          ? `💀 Assassin! ${teamName(change.win.team)} team wins`
+          : `🏆 ${teamName(change.win.team)} team wins!`,
         true,
       )
-    } else if (prev.phase === 'clue' && game.phase === 'guess') {
+    } else if (change.clueGiven) {
       playSound('clue')
-      notify(`Clue: ${game.clue?.word} · ${game.clue?.count}`)
-    } else if (prev.turn !== game.turn) {
+      notify(`Clue: ${change.clueGiven.word} · ${change.clueGiven.count}`)
+    } else if (change.turnPassed) {
       playSound('endTurn')
-      // A wrong guess (revealing a neutral or the rivals' card) flips the turn;
-      // say why, so the pass doesn't look like it came out of nowhere.
-      if (guessed && guessed.color !== prev.turn) {
-        const hit = guessed.color === 'neutral' ? 'a neutral' : `${teamName(prev.turn)}'s card`
-        notify(`${teamName(prev.turn)} hit ${hit} — ${teamName(game.turn)}'s turn`)
+      // A wrong guess (a neutral or the rivals' card) flips the turn; say why, so
+      // the pass doesn't look like it came out of nowhere.
+      if (change.guessed && change.guessed.outcome !== 'correct') {
+        const hit =
+          change.guessed.outcome === 'neutral' ? 'a neutral' : `${teamName(change.turnPassed.from)}'s card`
+        notify(`${teamName(change.turnPassed.from)} hit ${hit} — ${teamName(change.turnPassed.to)}'s turn`)
       } else {
-        notify(`${teamName(game.turn)}'s turn`)
+        notify(`${teamName(change.turnPassed.to)}'s turn`)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -221,7 +221,7 @@ export default function App() {
 
   useEffect(() => {
     if (isHostRef.current && roomCode && game) {
-      sessionStorage.setItem(hostStateKey(roomCode), JSON.stringify(game))
+      sessionStorage.setItem(hostStateKey(roomCode), JSON.stringify(game.state))
     }
   }, [game, roomCode])
 
@@ -268,7 +268,7 @@ export default function App() {
     <>
       {game ? (
         <GameScreen
-          state={game}
+          game={game}
           flash={flash}
           isHost={isHost}
           mySeat={mySeat}

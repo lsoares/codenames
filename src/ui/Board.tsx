@@ -1,9 +1,5 @@
-import type { BoardMode, Card, Team } from '../Game'
+import type { BoardMode, Card, GuessOutcome, Team } from '../Game'
 import styles from './Board.module.css'
-
-// The outcome of a guess, from the guessing team's point of view — shown as a
-// brief emoji flashed over the card the moment it's revealed (see GameScreen).
-export type GuessOutcome = 'correct' | 'wrong' | 'neutral' | 'assassin'
 
 const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
   correct: { emoji: '🎯', label: 'correct guess' },

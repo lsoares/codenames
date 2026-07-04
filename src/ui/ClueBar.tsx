@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import type { GameState } from '../Game'
+import type { Team } from '../Game'
 import styles from './ClueBar.module.css'
 
 // The spymaster's clue input, docked at the bottom centre while it's their turn.
 export default function ClueBar(props: {
-  state: GameState
+  turn: Team
+  teamCardsLeft: number
   selectedCount: number
   onClue: (word: string, count: number) => void
 }) {
@@ -16,10 +17,8 @@ export default function ClueBar(props: {
   useEffect(() => {
     if (props.selectedCount > 0) setCount(props.selectedCount)
   }, [props.selectedCount])
-  const turn = props.state.turn
-  const teamCardsLeft = props.state.cards.filter(
-    (card) => card.color === turn && !card.revealed,
-  ).length
+  const turn = props.turn
+  const teamCardsLeft = props.teamCardsLeft
 
   return (
     <form
