@@ -55,6 +55,43 @@ test('a joining guest auto-takes an open spymaster seat', async ({ browser }) =>
   await guestContext.close()
 })
 
+test('a joiner fills an empty spymaster chair before padding a balanced team', async ({ browser }) => {
+  const hostContext = await browser.newContext()
+  const g1Context = await browser.newContext()
+  const g2Context = await browser.newContext()
+  const hostPage = await hostContext.newPage()
+  const g1Page = await g1Context.newPage()
+  const g2Page = await g2Context.newPage()
+  await stubUnsplash(hostPage)
+  await stubUnsplash(g1Page)
+  await stubUnsplash(g2Page)
+
+  const host = new GamePage(hostPage)
+  const g1 = new GamePage(g1Page)
+  const g2 = new GamePage(g2Page)
+
+  await host.open('red')
+  await host.createRoom()
+  const code = await host.getRoomCode()
+
+  // g1 auto-takes blue's spymaster chair, then steps down: blue now has a player
+  // but an empty chair, and the teams are even — one each.
+  await g1.openRoom(code)
+  await expect(g1.getCard('blue').first()).toBeVisible()
+  await g1.releaseSpymaster('blue')
+  await expect(g1.getCard('blue')).toHaveCount(0)
+
+  await g2.openRoom(code)
+
+  // Spymaster chairs come first, so g2 must fill blue's empty one — seeing the
+  // colours — rather than pad red as a colour-blind operative.
+  await expect(g2.getCard('blue').first()).toBeVisible()
+
+  await hostContext.close()
+  await g1Context.close()
+  await g2Context.close()
+})
+
 test('a guest that leaves is pruned from the player count', async ({ browser }) => {
   const hostContext = await browser.newContext()
   const guestContext = await browser.newContext()

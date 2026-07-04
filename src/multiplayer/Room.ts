@@ -23,12 +23,21 @@ export class Room {
     return { red: this.seatOf.red, blue: this.seatOf.blue }
   }
 
-  // Auto-assign each peer to the smaller team on arrival, then leave it fixed.
+  // Auto-assign each peer to a team on arrival, then leave it fixed. Fill the two
+  // spymaster chairs first (red, then blue) so the first two players become the
+  // two spymasters — even after one leaves an empty chair; only once both are
+  // seated do further arrivals balance out as operatives.
   assignTeam(peerId: string): Room {
     if (this.teamOf[peerId]) return this
+    return new Room({ ...this.teamOf, [peerId]: this.teamForArrival() }, this.seatOf)
+  }
+
+  private teamForArrival(): Team {
+    if (!this.seatOf.red) return 'red'
+    if (!this.seatOf.blue) return 'blue'
     const red = Object.values(this.teamOf).filter((t) => t === 'red').length
     const blue = Object.values(this.teamOf).filter((t) => t === 'blue').length
-    return new Room({ ...this.teamOf, [peerId]: red <= blue ? 'red' : 'blue' }, this.seatOf)
+    return red <= blue ? 'red' : 'blue'
   }
 
   // A player overriding their auto-assigned team, as an operative. Dropping to an
