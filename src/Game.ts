@@ -3,28 +3,31 @@ export type CardColor = 'red' | 'blue' | 'neutral' | 'assassin'
 export type GamePhase = 'clue' | 'guess'
 export type BoardMode = 'image' | 'word'
 
+// GameState (and everything it holds) is deeply readonly: a Game never mutates
+// its state in place — every operation returns a new Game — and `game.state` is
+// shared with the wire/persistence, so callers must treat it as immutable.
 export interface Card {
-  face: string // image URL or word, per the board's mode
-  color: CardColor
-  revealed: boolean
-  markedBy: Team[] // operative candidate notes, private to each team
+  readonly face: string // image URL or word, per the board's mode
+  readonly color: CardColor
+  readonly revealed: boolean
+  readonly markedBy: readonly Team[] // operative candidate notes, private to each team
 }
 
 export interface Clue {
-  team: Team
-  word: string
-  count: number
+  readonly team: Team
+  readonly word: string
+  readonly count: number
 }
 
 export interface GameState {
-  cards: Card[]
-  mode: BoardMode
-  turn: Team
-  phase: GamePhase
-  clue: Clue | null
-  guessesRemaining: number
-  winner: Team | null
-  log: string[]
+  readonly cards: readonly Card[]
+  readonly mode: BoardMode
+  readonly turn: Team
+  readonly phase: GamePhase
+  readonly clue: Clue | null
+  readonly guessesRemaining: number
+  readonly winner: Team | null
+  readonly log: readonly string[]
 }
 
 export type GuessOutcome = 'correct' | 'wrong' | 'neutral' | 'assassin'
@@ -112,7 +115,7 @@ export class Game {
   // only on live cards; a spymaster picks only their own colour, an operative any.
   canAct(cardIndex: number, viewer: { team: Team; isSpymaster: boolean }): boolean {
     const card = this.s.cards[cardIndex]
-    if (!card || card.revealed || this.s.turn !== viewer.team) return false
+    if (card.revealed || this.s.turn !== viewer.team) return false
     return viewer.isSpymaster ? card.color === viewer.team : true
   }
 
@@ -260,7 +263,7 @@ const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
 
 // Wipe a team's candidate marks when its turn ends (they've had their go),
 // leaving the other team's forward marks intact so they survive the opponent's turn.
-const clearMarks = (cards: Card[], team: Team): Card[] =>
+const clearMarks = (cards: readonly Card[], team: Team): Card[] =>
   cards.map((card) =>
     card.markedBy.includes(team)
       ? { ...card, markedBy: card.markedBy.filter((t) => t !== team) }
