@@ -26,6 +26,27 @@
   filter: brightness(1.05);
 }
 
+.more {
+  composes: tile;
+  background: transparent;
+  box-shadow: none;
+}
+
+.plus {
+  font-size: 5rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.more:hover {
+  filter: none;
+}
+
+.more:hover .plus {
+  color: var(--ink);
+}
+
 .icon {
   font-size: 3rem;
   line-height: 1;

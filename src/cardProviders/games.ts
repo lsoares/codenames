@@ -28,4 +28,4 @@ async function fetch(): Promise<string[]> {
   return faces.slice(0, 20)
 }
 
-export const games: CardProvider = { id: 'games', label: 'Games', icon: '🎮', kind: 'image', fetch }
+export const games: CardProvider = { id: 'games', label: 'Games', icon: '🎮', kind: 'image', extra: true, fetch }

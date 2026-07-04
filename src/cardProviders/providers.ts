@@ -7,6 +7,8 @@ import { foodish } from './foodish'
 import { pokemon } from './pokemon'
 import { geeks } from './geeks'
 import { games } from './games'
+import { things } from './things'
+import { emojis } from './emojis'
 
 // A source of card faces. `fetch` resolves to 20 faces — image URLs for
 // `kind: 'image'` providers, or words for `kind: 'word'` — or throws when it
@@ -16,11 +18,12 @@ export interface CardProvider {
   label: string
   icon: string // emoji shown on the deck-picker tile
   kind: 'image' | 'word'
+  extra?: boolean // quirkier deck, hidden behind the picker's "more" reveal
   fetch: () => Promise<string[]>
 }
 
 // The card sources offered in the menu.
-export const providers: CardProvider[] = [words, geeks, unsplash, pexels, tmdb, games, cats, foodish, pokemon]
+export const providers: CardProvider[] = [words, things, unsplash, pexels, tmdb, geeks, games, emojis, cats, foodish, pokemon]
 
 // Fetches 20 card faces (image URLs or words) plus the chosen provider's mode.
 // When an image provider throws (missing key, network error), fall back to the

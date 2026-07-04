@@ -35,5 +35,6 @@ export const pokemon: CardProvider = {
   label: 'Pokémon',
   icon: '⚡',
   kind: 'image',
+  extra: true,
   fetch,
 }
