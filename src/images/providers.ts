@@ -13,6 +13,7 @@ import { geeks } from './geeks'
 export interface CardProvider {
   id: string
   label: string
+  icon: string // emoji shown on the deck-picker tile
   kind: 'image' | 'word'
   fetch: () => Promise<string[]>
 }

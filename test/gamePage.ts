@@ -62,43 +62,6 @@ export async function stubDatamuse(page: Page): Promise<void> {
   )
 }
 
-// The homepage previews every deck on mount, so a test that lands there must
-// have all sources canned — otherwise the tiles hit the real APIs. One call
-// stubs the lot deterministically and offline.
-export async function stubAllSources(page: Page): Promise<void> {
-  await stubUnsplash(page)
-  await stubPexels(page)
-  await stubTmdb(page)
-  await stubDatamuse(page)
-  // StackOverflow tags feed the geek word bank.
-  await page.route('**/api.stackexchange.com/**', (route) =>
-    route.fulfill({
-      json: {
-        items: ['DOCKER', 'KERNEL', 'PYTHON', 'SERVER', 'BROWSER', 'COMPILER', 'THREAD', 'SOCKET'].map(
-          (name) => ({ name }),
-        ),
-      },
-    }),
-  )
-  // The Cat API: 20 distinct photos, mapped straight to faces.
-  await page.route('**/api.thecatapi.com/**', (route) =>
-    route.fulfill({ json: Array.from({ length: 20 }, (_, i) => ({ url: `https://example.com/cat/${i}.jpg` })) }),
-  )
-  // Foodish returns one image per call and the provider dedupes, so each call
-  // must differ or it never reaches 20.
-  let food = 0
-  await page.route('**/foodish-api.com/**', (route) =>
-    route.fulfill({ json: { image: `https://example.com/food/${food++}.jpg` } }),
-  )
-  // PokeAPI returns one Pokémon per call; vary the artwork per request.
-  let dex = 0
-  await page.route('**/pokeapi.co/**', (route) =>
-    route.fulfill({
-      json: { sprites: { other: { 'official-artwork': { front_default: `https://example.com/pokemon/${dex++}.png` } } } },
-    }),
-  )
-}
-
 // SUT client: drives the app through roles/labels only, hiding locators.
 export class GamePage {
   constructor(private readonly page: Page) {}
@@ -112,8 +75,6 @@ export class GamePage {
         startTeam,
       )
     }
-    // The homepage previews every deck, so keep those fetches offline.
-    await stubAllSources(this.page)
     await this.page.goto('/')
   }
 

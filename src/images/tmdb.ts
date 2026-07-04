@@ -42,4 +42,4 @@ async function fetch(): Promise<string[]> {
   return faces.slice(0, 20)
 }
 
-export const tmdb: CardProvider = { id: 'tmdb', label: 'Movies', kind: 'image', fetch }
+export const tmdb: CardProvider = { id: 'tmdb', label: 'Movies', icon: '🎬', kind: 'image', fetch }

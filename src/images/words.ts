@@ -67,6 +67,7 @@ export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]>
 export const words: CardProvider = {
   id: 'words',
   label: 'Words',
+  icon: '📝',
   kind: 'word',
   fetch: () => datamuseWords(),
 }

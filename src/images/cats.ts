@@ -22,4 +22,4 @@ async function fetch(): Promise<string[]> {
   return images.map((image) => image.url)
 }
 
-export const cats: CardProvider = { id: 'cats', label: 'Cats', kind: 'image', fetch }
+export const cats: CardProvider = { id: 'cats', label: 'Cats', icon: '🐱', kind: 'image', fetch }

@@ -23,4 +23,4 @@ async function fetch(): Promise<string[]> {
   return faces.slice(0, 20)
 }
 
-export const foodish: CardProvider = { id: 'foodish', label: 'Food', kind: 'image', fetch }
+export const foodish: CardProvider = { id: 'foodish', label: 'Food', icon: '🍔', kind: 'image', fetch }

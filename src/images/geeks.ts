@@ -45,4 +45,4 @@ async function fetch(): Promise<string[]> {
   return [...board]
 }
 
-export const geeks: CardProvider = { id: 'geeks', label: 'Words 🤓', kind: 'word', fetch }
+export const geeks: CardProvider = { id: 'geeks', label: 'Words 🤓', icon: '💻', kind: 'word', fetch }

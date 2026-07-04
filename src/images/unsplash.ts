@@ -24,6 +24,7 @@ async function fetch(): Promise<string[]> {
 export const unsplash: CardProvider = {
   id: 'unsplash',
   label: 'Unsplash',
+  icon: '📷',
   kind: 'image',
   fetch,
 }

@@ -33,6 +33,7 @@ async function fetch(): Promise<string[]> {
 export const pokemon: CardProvider = {
   id: 'pokemon',
   label: 'Pokémon',
+  icon: '⚡',
   kind: 'image',
   fetch,
 }
