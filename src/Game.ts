@@ -11,6 +11,7 @@ export interface Card {
   readonly color: CardColor
   readonly revealed: boolean
   readonly markedBy: readonly Team[] // operative candidate notes, private to each team
+  readonly outcome: GuessOutcome | null // fixed when guessed, from the guesser's view
 }
 
 export interface Clue {
@@ -59,6 +60,7 @@ export function createGame(faces: string[], startingTeam: Team, mode: BoardMode)
       color: colors[index],
       revealed: false,
       markedBy: [],
+      outcome: null,
     })),
     mode,
     turn: startingTeam,
@@ -109,10 +111,6 @@ export class Game {
   // A card's colour is visible once it's revealed, or to a spymaster.
   showsColor(cardIndex: number, isSpymaster: boolean): boolean {
     return this.s.cards[cardIndex].revealed || isSpymaster
-  }
-
-  outcomeFor(cardIndex: number, team: Team): GuessOutcome {
-    return outcomeOf(this.s.cards[cardIndex], team)
   }
 
   // Whether a viewer may act on a card this turn: only the team on turn acts, and
@@ -194,7 +192,9 @@ export class Game {
     const next: GameState = {
       ...this.s,
       cards: this.s.cards.map((current, index) =>
-        index === cardIndex ? { ...current, revealed: true } : current,
+        index === cardIndex
+          ? { ...current, revealed: true, outcome: outcomeOf(current, this.s.turn) }
+          : current,
       ),
       log: [...this.s.log, `${this.s.turn} guessed ${card.color}`],
     }

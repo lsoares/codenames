@@ -143,17 +143,16 @@
   opacity: 1;
 }
 
-.board[data-over] .card {
-  opacity: 0.55;
+.board[data-over] .card[data-revealed] {
+  opacity: 1;
 }
 
 /* The guess outcome flashed over the card the instant it's revealed. */
 .feedback {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: clamp(1.75rem, 8cqw, 4.5rem);
+  top: 10px;
+  right: 10px;
+  font-size: clamp(1.4rem, 6cqw, 3rem);
   pointer-events: none;
   z-index: 2;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));

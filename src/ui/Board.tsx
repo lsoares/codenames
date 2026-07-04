@@ -34,14 +34,14 @@ export default function Board(props: {
   return (
     <div className={styles.board} data-focus={focusing || undefined} data-over={gameOver || undefined}>
       {cards.map((card, index) => {
-        const showColor = gameOver || props.game.showsColor(index, isSpymaster)
+        const showColor = props.game.showsColor(index, isSpymaster)
         // Word cards are named by their word; picture cards by position.
         const name = props.game.state.mode === 'word' ? card.face : `Card ${index + 1}`
         // Announce an operative's own-team mark so it's perceivable without sight.
         const marked = !isSpymaster && highlighted(card, index)
         const label = showColor ? `${name}, ${card.color}` : marked ? `${name}, marked` : name
         const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
-        const badge = gameOver ? props.game.outcomeFor(index, props.myTeam) : props.feedback[index]
+        const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
         return (
           <button
             key={index}
