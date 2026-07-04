@@ -9,6 +9,7 @@
     "broker": "peerjs --port 9000 --key peerjs --path /",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "pretest": "lsof -ti:5174 -ti:9000 | xargs -I{} kill -9 {} 2>/dev/null; true",
     "test": "playwright test"
   },
   "dependencies": {
