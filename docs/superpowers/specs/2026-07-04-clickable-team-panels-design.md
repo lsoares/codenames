@@ -94,6 +94,12 @@ team switching.
   - Replace the compact menu-toggle glyph `☰` (shown beside the clue input on
     the spymaster's turn) with a subtle `+` — quieter weight/opacity, reading as
     "new game" now that the menu is mostly sources.
+  - **Revisit the menu auto-close machinery** now that the menu is a flat list
+    with no nested state: the `sourceOpen` state and every `setSourceOpen(false)`
+    go away; then re-check whether the outside-click `document` listener
+    (`GameScreen.tsx:90-95`) and the menu-items `stopPropagation`
+    (`GameScreen.tsx:163`) are still needed, and drop whatever the simpler menu
+    no longer requires.
 - `src/App.tsx`
   - Pass an `onJoinTeam` handler that calls `sessionRef.current?.setTeam(team)`
     and plays/notifies as appropriate.
