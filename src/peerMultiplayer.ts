@@ -1,15 +1,8 @@
-import Peer, { type DataConnection, type PeerOptions } from 'peerjs'
+import { type DataConnection } from 'peerjs'
 import { Game, createGame, type BoardMode, type GameState, type Team } from './Game'
-import { Room, type Seats } from './Room'
-
-// A wire message: what a player wants to do, sent guest → host as a plain
-// serializable object, then routed onto the Game by the host.
-export type Action =
-  | { type: 'clue'; word: string; count: number }
-  | { type: 'guess'; cardIndex: number }
-  | { type: 'toggleMark'; cardIndex: number; team: Team }
-  | { type: 'endTurn' }
-  | { type: 'newGame'; faces?: string[]; mode?: BoardMode }
+import { Room } from './Room'
+import { newPeer, randomCode } from './peer'
+import type { Action, RoomView, Session } from './Session'
 
 const apply = (game: Game, action: Action): Game => {
   switch (action.type) {
@@ -26,67 +19,9 @@ const apply = (game: Game, action: Action): Game => {
   }
 }
 
-// What every peer renders, plus presence used for FIFO host takeover.
-export interface RoomView {
-  state: GameState
-  seats: Seats // one spymaster seat per team, by holder id
-  teams: Record<string, Team> // auto-assigned team per peer, balanced on arrival
-  peers: string[] // arrival order, host first
-}
-
-export interface Session {
-  roomCode: string
-  selfId: string
-  dispatch: (action: Action) => void
-  setSpymaster: (team: Team | null) => void
-  setTeam: (team: Team) => void
-  subscribe: (listener: (view: RoomView) => void) => void
-  onDisconnect: (listener: () => void) => void
-}
-
 type Presence = { __presence: true; spymasterTeam: Team | null }
 type TeamClaim = { __team: true; team: Team }
 type Ping = { __ping: true }
-
-function randomCode(): string {
-  return Math.random().toString(36).slice(2, 8)
-}
-
-// STUN + free TURN so peers behind restrictive NATs still connect. Defaults to
-// Metered's OpenRelay static credentials; override with VITE_TURN_* for your own.
-const iceServers: RTCIceServer[] = [
-  { urls: 'stun:stun.l.google.com:19302' },
-  import.meta.env.VITE_TURN_URL
-    ? {
-        urls: import.meta.env.VITE_TURN_URL,
-        username: import.meta.env.VITE_TURN_USERNAME,
-        credential: import.meta.env.VITE_TURN_CREDENTIAL,
-      }
-    : {
-        urls: [
-          'turn:openrelay.metered.ca:80',
-          'turn:openrelay.metered.ca:443',
-          'turn:openrelay.metered.ca:443?transport=tcp',
-        ],
-        username: 'openrelayproject',
-        credential: 'openrelayproject',
-      },
-]
-
-// Our own PeerServer when VITE_PEER_HOST is set (dev and prod point at it), else
-// the public PeerJS broker. Either way peers get the TURN config above.
-function newPeer(id?: string): Peer {
-  const brokerHost = import.meta.env.VITE_PEER_HOST
-  const options: PeerOptions = { config: { iceServers } }
-  if (brokerHost) {
-    options.host = brokerHost
-    options.port = Number(import.meta.env.VITE_PEER_PORT)
-    options.path = import.meta.env.VITE_PEER_PATH ?? '/'
-    options.key = import.meta.env.VITE_PEER_KEY ?? 'peerjs'
-    options.secure = import.meta.env.VITE_PEER_SECURE === 'true' || undefined
-  }
-  return id ? new Peer(id, options) : new Peer(options)
-}
 
 export function host(faces: string[], startingTeam: Team, mode: BoardMode): Promise<Session> {
   return startHost(randomCode(), createGame(faces, startingTeam, mode), 'new', 4)
