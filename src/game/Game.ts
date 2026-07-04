@@ -1,13 +1,65 @@
-import { createGame, type BoardMode, type Card, type GameState, type Team } from './createGame'
+export type Team = 'red' | 'blue'
+export type CardColor = 'red' | 'blue' | 'neutral' | 'assassin'
+export type GamePhase = 'clue' | 'guess'
+export type BoardMode = 'image' | 'word'
 
-// A wire message (guest → host, or a local dispatch). Stays a plain serializable
-// object; the host routes it through Game.apply.
-export type Action =
-  | { type: 'clue'; word: string; count: number }
-  | { type: 'guess'; cardIndex: number }
-  | { type: 'toggleMark'; cardIndex: number; team: Team }
-  | { type: 'endTurn' }
-  | { type: 'newGame'; faces?: string[]; mode?: BoardMode }
+export interface Card {
+  face: string // image URL or word, per the board's mode
+  color: CardColor
+  revealed: boolean
+  markedBy: Team[] // operative candidate notes, private to each team
+}
+
+export interface Clue {
+  team: Team
+  word: string
+  count: number
+}
+
+export interface GameState {
+  cards: Card[]
+  mode: BoardMode
+  turn: Team
+  phase: GamePhase
+  clue: Clue | null
+  guessesRemaining: number
+  winner: Team | null
+  log: string[]
+}
+
+const shuffle = <T>(items: T[]): T[] => {
+  const result = [...items]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
+export function createGame(faces: string[], startingTeam: Team, mode: BoardMode): GameState {
+  const otherTeam: Team = startingTeam === 'red' ? 'blue' : 'red'
+  const colors = shuffle<CardColor>([
+    ...Array<CardColor>(8).fill(startingTeam),
+    ...Array<CardColor>(7).fill(otherTeam),
+    ...Array<CardColor>(4).fill('neutral'),
+    'assassin',
+  ])
+  return {
+    cards: faces.slice(0, 20).map((face, index) => ({
+      face,
+      color: colors[index],
+      revealed: false,
+      markedBy: [],
+    })),
+    mode,
+    turn: startingTeam,
+    phase: 'clue',
+    clue: null,
+    guessesRemaining: 0,
+    winner: null,
+    log: [],
+  }
+}
 
 const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
 
@@ -24,10 +76,9 @@ const clearMarks = (cards: Card[], team: Team): Card[] =>
 const unrevealedCount = (state: GameState, team: Team): number =>
   state.cards.filter((card) => card.color === team && !card.revealed).length
 
-// The game as a domain object: ask it questions, or apply a domain action to get
-// the next Game. The plain `GameState` (`.state`) stays the wire and persistence
-// format — a Game is built only at the read/apply boundary and is never
-// serialized or sent over the network.
+// The rules as an object: query it, or run an operation to get the next Game. It
+// wraps an immutable GameState — every operation returns a new Game rather than
+// mutating this one.
 export class Game {
   constructor(private readonly s: GameState) {}
 
@@ -41,8 +92,8 @@ export class Game {
     return !this.s.winner && (this.s.clue !== null || this.s.cards.some((card) => card.revealed))
   }
 
-  // The complement: a fresh deal or a finished game — safe to re-deal or switch
-  // sides without a prompt. A positive name so call sites read `game.idle()`.
+  // The complement: a fresh deal or a finished game. A positive name so call
+  // sites read `game.idle()` rather than negating.
   idle(): boolean {
     return !this.inProgress()
   }
@@ -158,20 +209,5 @@ export class Game {
       turn: opponent(this.s.turn),
       cards: clearMarks(next.cards, this.s.turn),
     })
-  }
-
-  apply(action: Action): Game {
-    switch (action.type) {
-      case 'clue':
-        return this.giveClue(action.word, action.count)
-      case 'guess':
-        return this.guess(action.cardIndex)
-      case 'toggleMark':
-        return this.mark(action.cardIndex, action.team)
-      case 'endTurn':
-        return this.endTurn()
-      case 'newGame':
-        return this.newGame(action.faces, action.mode)
-    }
   }
 }

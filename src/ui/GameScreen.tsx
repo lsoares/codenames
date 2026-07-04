@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import type { GameState, Team } from '../game/createGame'
-import { Game, type Action } from '../game/Game'
+import { Game, type GameState, type Team } from '../game/Game'
+import type { Action } from '../net/peerMultiplayer'
 import Board, { type GuessOutcome } from './Board'
 import ClueBar from './ClueBar'
 import styles from './GameScreen.module.css'

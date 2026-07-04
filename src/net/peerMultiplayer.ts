@@ -1,6 +1,29 @@
 import Peer, { type DataConnection, type PeerOptions } from 'peerjs'
-import { createGame, type BoardMode, type GameState, type Team } from '../game/createGame'
-import { Game, type Action } from '../game/Game'
+import { Game, createGame, type BoardMode, type GameState, type Team } from '../game/Game'
+
+// A wire message: what a player wants to do, sent guest → host as a plain
+// serializable object, then routed onto the Game by the host.
+export type Action =
+  | { type: 'clue'; word: string; count: number }
+  | { type: 'guess'; cardIndex: number }
+  | { type: 'toggleMark'; cardIndex: number; team: Team }
+  | { type: 'endTurn' }
+  | { type: 'newGame'; faces?: string[]; mode?: BoardMode }
+
+const apply = (game: Game, action: Action): Game => {
+  switch (action.type) {
+    case 'clue':
+      return game.giveClue(action.word, action.count)
+    case 'guess':
+      return game.guess(action.cardIndex)
+    case 'toggleMark':
+      return game.mark(action.cardIndex, action.team)
+    case 'endTurn':
+      return game.endTurn()
+    case 'newGame':
+      return game.newGame(action.faces, action.mode)
+  }
+}
 
 // What every peer renders, plus presence used for FIFO host takeover.
 export interface RoomView {
@@ -179,7 +202,7 @@ function startHost(
         roomCode: id,
         selfId: id,
         dispatch: (action) => {
-          state = new Game(state).apply(action).state
+          state = apply(new Game(state), action).state
           broadcast()
         },
         setSpymaster: (team) => {
@@ -214,7 +237,7 @@ function startHost(
         } else if ((data as TeamClaim).__team) {
           setTeamFor(connection.peer, (data as TeamClaim).team)
         } else {
-          state = new Game(state).apply(data as Action).state
+          state = apply(new Game(state), data as Action).state
         }
         broadcast()
       })
