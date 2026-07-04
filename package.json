@@ -9,7 +9,7 @@
     "broker": "peerjs --port 9000 --key peerjs --path /",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test:e2e": "playwright test"
+    "test": "playwright test"
   },
   "dependencies": {
     "peerjs": "^1.5.4",

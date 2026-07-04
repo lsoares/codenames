@@ -130,7 +130,8 @@ export class GamePage {
   }
 
   // Release the seat to play as an operative again (defaults to the turn's team).
-  // No dialog — stepping down never prompts.
+  // No dialog — stepping down never prompts. The caller must already hold that
+  // team's seat, or the "Step down as {t} spymaster" button won't exist.
   async releaseSpymaster(team?: 'red' | 'blue'): Promise<void> {
     const t = team ?? (await this.getCurrentTurn())
     await this.page.getByRole('button', { name: `Step down as ${t} spymaster` }).click()
@@ -200,8 +201,9 @@ export class GamePage {
     return this.page.getByRole('status')
   }
 
+  // The win announcement is folded into that same status pill.
   getWinnerBanner() {
-    return this.page.getByRole('status')
+    return this.getByRoleStatus()
   }
 
   // The outcome emoji flashed over a card the instant it's revealed. Labelled by
