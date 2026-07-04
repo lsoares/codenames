@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { Game, type Card, type GuessOutcome, type Team } from '../Game'
 import styles from './Board.module.css'
 
@@ -7,6 +8,10 @@ const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
   neutral: { emoji: '🤷', label: 'neutral card' },
   assassin: { emoji: '💀', label: 'assassin' },
 }
+
+const isImageFace = (face: string): boolean => /^https?:\/\//.test(face)
+const isSingleGlyph = (face: string): boolean =>
+  Array.from(face).filter((ch) => ch.codePointAt(0) !== 0xfe0f).length === 1
 
 export default function Board(props: {
   game: Game
@@ -31,12 +36,13 @@ export default function Board(props: {
     !card.revealed &&
     (isSpymaster ? props.selected.has(index) : card.markedBy.includes(props.myTeam))
   const focusing = cards.some((card, index) => highlighted(card, index))
+  const credit = props.game.state.credit
   return (
     <div className={styles.board} data-focus={focusing || undefined} data-over={gameOver || undefined}>
       {cards.map((card, index) => {
         const showColor = props.game.showsColor(index, isSpymaster)
-        // Word cards are named by their word; picture cards by position.
-        const name = props.game.state.mode === 'word' ? card.face : `Card ${index + 1}`
+        // Word/emoji cards are named by their face; picture cards by position.
+        const name = isImageFace(card.face) ? `Card ${index + 1}` : card.face
         // Announce an operative's own-team mark so it's perceivable without sight.
         const marked = !isSpymaster && highlighted(card, index)
         const label = showColor ? `${name}, ${card.color}` : marked ? `${name}, marked` : name
@@ -71,15 +77,26 @@ export default function Board(props: {
           >
             {props.loading ? (
               <span className={`${styles.face} ${styles.loading}`} />
-            ) : props.game.state.mode === 'word' ? (
-              <span className={`${styles.face} ${styles.word}`}>{card.face}</span>
-            ) : (
+            ) : card.face.endsWith('.svg') ? (
+              <span
+                className={`${styles.face} ${styles.svgIcon}`}
+                style={{ ['--mask']: `url("${card.face}")` } as CSSProperties}
+              />
+            ) : isImageFace(card.face) ? (
               <img
                 className={`${styles.face} ${styles.image}`}
                 src={card.face}
                 alt=""
                 draggable={false}
               />
+            ) : (
+              <span
+                className={`${styles.face} ${styles.word} ${
+                  isSingleGlyph(card.face) ? styles.big : ''
+                }`}
+              >
+                {card.face}
+              </span>
             )}
             {badge && (
               <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>
@@ -90,6 +107,16 @@ export default function Board(props: {
           </button>
         )
       })}
+      {credit && (
+        <a
+          className={styles.credit}
+          href={credit.url}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {credit.label}
+        </a>
+      )}
     </div>
   )
 }

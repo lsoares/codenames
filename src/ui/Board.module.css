@@ -8,6 +8,25 @@
      (whichever runs out first) — the area is a size container (see boardArea). */
   width: min(100cqw, calc(100cqh * 5 / 3));
   margin: 0 auto;
+  position: relative;
+}
+
+.credit {
+  position: absolute;
+  right: 4px;
+  bottom: -30px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+.credit::before {
+  content: 'source: ';
+  text-decoration: none;
+}
+
+.credit:hover {
+  color: var(--ink);
 }
 
 .card {
@@ -46,6 +65,38 @@
   object-fit: cover;
 }
 
+/* Icon on a light tile (like a word), its glyph masked so it can take the card
+   colour for a spymaster or once revealed. */
+.svgIcon {
+  background: var(--card-face);
+  position: relative;
+}
+
+.svgIcon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--ink);
+  mask: var(--mask) center / 60% no-repeat;
+  -webkit-mask: var(--mask) center / 60% no-repeat;
+}
+
+.card[data-color='red'] .svgIcon::before {
+  background-color: var(--red);
+}
+
+.card[data-color='blue'] .svgIcon::before {
+  background-color: var(--blue);
+}
+
+.card[data-color='neutral'] .svgIcon::before {
+  background-color: #8a6d3b;
+}
+
+.card[data-color='assassin'] .svgIcon::before {
+  background-color: #2b2d42;
+}
+
 /* Empty face shown while the next board's faces load: a plain tile that gently
    pulses, so the old images clear immediately instead of lingering. */
 .loading {
@@ -76,6 +127,10 @@
   word-break: break-word;
 }
 
+.big {
+  font-size: clamp(2.5rem, 12vw, 6rem);
+}
+
 /* The word itself takes the card's colour once it's known (spymaster/revealed). */
 .card[data-color='red'] .word {
   color: var(--red);
@@ -91,6 +146,23 @@
 
 .card[data-color='assassin'] .word {
   color: #2b2d42;
+}
+
+/* Emoji glyphs are multicolour and can't be recoloured, so their face tints. */
+.card[data-color='red'] .big {
+  background: color-mix(in srgb, var(--red) 25%, var(--card-face));
+}
+
+.card[data-color='blue'] .big {
+  background: color-mix(in srgb, var(--blue) 25%, var(--card-face));
+}
+
+.card[data-color='neutral'] .big {
+  background: color-mix(in srgb, #8a6d3b 22%, var(--card-face));
+}
+
+.card[data-color='assassin'] .big {
+  background: color-mix(in srgb, #2b2d42 30%, var(--card-face));
 }
 
 .card[data-color='red'] {
