@@ -1,6 +1,14 @@
 import type { CardProvider } from './providers'
 import { datamuseWords, shuffle } from './words'
 
+// Tech-flavoured category seeds: Datamuse's "triggered by" turns these into geeky
+// nouns (software → BROWSER, SERVER, DESKTOP; hacker → PASSWORD, EXPLOIT), so the
+// word-bank half of the board reads geeky instead of generic.
+const GEEK_SEEDS = [
+  'computer', 'software', 'hardware', 'internet', 'programming', 'network',
+  'hacker', 'keyboard', 'gaming', 'science', 'database', 'security',
+]
+
 // StackOverflow's most-popular tags are the everyday vocabulary of programming.
 // Keep the ones that read as plain board words (letters only, 3–8), so a tag
 // like DOCKER or KERNEL lands but `node.js` or `c++` never becomes a card. On a
@@ -24,7 +32,7 @@ async function stackOverflowTags(): Promise<string[]> {
 // between the two sources so it's a genuine mix rather than whichever list came
 // back longer, and stop at a full board of 20 (or fewer if both run dry).
 async function fetch(): Promise<string[]> {
-  const [tagList, dictionary] = await Promise.all([stackOverflowTags(), datamuseWords(20)])
+  const [tagList, dictionary] = await Promise.all([stackOverflowTags(), datamuseWords(20, GEEK_SEEDS)])
   const tags = shuffle(tagList)
   const board = new Set<string>()
   while (board.size < 20 && (tags.length || dictionary.length)) {

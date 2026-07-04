@@ -39,14 +39,15 @@ function usable(entry: DatamuseWord, seen: Set<string>): string | null {
   return word
 }
 
-// Fetches picturable nouns from Datamuse, seeded by a handful of concrete
-// categories, and returns up to `count` distinct board-ready words. Whatever the
-// live source gives back is what a game gets — no curated padding. Each seed
-// request swallows its own failure, so a flaky network yields fewer words rather
-// than throwing. Exported so the geek board can blend these with its own source.
-export async function datamuseWords(count = 20): Promise<string[]> {
+// Fetches picturable nouns from Datamuse, triggered by a handful of category
+// seeds, and returns up to `count` distinct board-ready words. Whatever the live
+// source gives back is what a game gets — no curated padding. Each seed request
+// swallows its own failure, so a flaky network yields fewer words rather than
+// throwing. Exported (with a swappable seed pool) so the geek board can trigger
+// tech-flavoured words off the same mechanism.
+export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]> {
   const seen = new Set<string>()
-  const seeds = shuffle(SEEDS).slice(0, 6)
+  const seeds = shuffle(pool).slice(0, 6)
   const responses = await Promise.all(
     seeds.map((seed) =>
       window
