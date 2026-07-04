@@ -1,4 +1,4 @@
-import type { BoardMode, Card, Team } from '../game/Game'
+import type { BoardMode, Card, Team } from '../Game'
 import styles from './Board.module.css'
 
 // The outcome of a guess, from the guessing team's point of view — shown as a

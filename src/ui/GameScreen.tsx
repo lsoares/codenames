@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Game, type GameState, type Team } from '../game/Game'
+import { Game, type GameState, type Team } from '../Game'
 import type { Action } from '../net/peerMultiplayer'
 import Board, { type GuessOutcome } from './Board'
 import ClueBar from './ClueBar'

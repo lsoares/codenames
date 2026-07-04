@@ -27,15 +27,6 @@ export interface GameState {
   log: string[]
 }
 
-const shuffle = <T>(items: T[]): T[] => {
-  const result = [...items]
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
-  }
-  return result
-}
-
 export function createGame(faces: string[], startingTeam: Team, mode: BoardMode): GameState {
   const otherTeam: Team = startingTeam === 'red' ? 'blue' : 'red'
   const colors = shuffle<CardColor>([
@@ -60,21 +51,6 @@ export function createGame(faces: string[], startingTeam: Team, mode: BoardMode)
     log: [],
   }
 }
-
-const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
-
-// A team's candidate marks are its own planning note; wipe them when that team's
-// turn ends (they've had their go), leaving the other team's forward marks intact
-// so they survive across the opponent's turn.
-const clearMarks = (cards: Card[], team: Team): Card[] =>
-  cards.map((card) =>
-    card.markedBy.includes(team)
-      ? { ...card, markedBy: card.markedBy.filter((t) => t !== team) }
-      : card,
-  )
-
-const unrevealedCount = (state: GameState, team: Team): number =>
-  state.cards.filter((card) => card.color === team && !card.revealed).length
 
 // The rules as an object: query it, or run an operation to get the next Game. It
 // wraps an immutable GameState — every operation returns a new Game rather than
@@ -211,3 +187,26 @@ export class Game {
     })
   }
 }
+
+const shuffle = <T>(items: T[]): T[] => {
+  const result = [...items]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
+const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
+
+// Wipe a team's candidate marks when its turn ends (they've had their go),
+// leaving the other team's forward marks intact so they survive the opponent's turn.
+const clearMarks = (cards: Card[], team: Team): Card[] =>
+  cards.map((card) =>
+    card.markedBy.includes(team)
+      ? { ...card, markedBy: card.markedBy.filter((t) => t !== team) }
+      : card,
+  )
+
+const unrevealedCount = (state: GameState, team: Team): number =>
+  state.cards.filter((card) => card.color === team && !card.revealed).length
