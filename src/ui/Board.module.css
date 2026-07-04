@@ -19,7 +19,7 @@
   /* Rounder corners open the gaps into rounded pockets at each crossing,
      which breaks the Hermann-grid illusion (ghost blobs at intersections). */
   border-radius: 20px;
-  background: var(--surface);
+  background: var(--card-face);
   box-shadow: var(--shadow);
   overflow: hidden;
   transition:
@@ -49,7 +49,7 @@
 /* Empty face shown while the next board's faces load: a plain tile that gently
    pulses, so the old images clear immediately instead of lingering. */
 .loading {
-  background: var(--surface);
+  background: var(--card-face);
   animation: facePulse 1.2s ease-in-out infinite;
 }
 
@@ -65,7 +65,7 @@
   place-items: center;
   box-sizing: border-box;
   padding: 4px;
-  background: var(--surface);
+  background: var(--card-face);
   color: var(--ink);
   font-weight: 800;
   text-transform: uppercase;

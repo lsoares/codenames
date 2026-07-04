@@ -2,6 +2,9 @@
   --bg: #fdf6ec;
   --bg-glow: #fff3d6;
   --surface: #ffffff;
+  /* Card faces sit a touch below the white app surface: a warm off-white so
+     bright/transparent faces (word tiles, Pokémon artwork) don't glare. */
+  --card-face: #f4eee1;
   --ink: #2b2d42;
   --muted: #7a7f92;
   --line: #ece5d6;
