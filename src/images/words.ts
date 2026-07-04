@@ -11,28 +11,12 @@ const SEEDS = [
   'candy', 'toy', 'zoo', 'camping', 'bakery', 'city', 'fish', 'holiday',
 ]
 
-// Quality floor: a curated, offline word bank used to top up (or fully replace)
-// the API when it's down or its words are too sparse after filtering.
-const FALLBACK = [
-  'APPLE', 'BEACH', 'BRIDGE', 'CASTLE', 'CHAIR', 'CLOCK', 'CLOUD', 'DOG',
-  'DOOR', 'DRAGON', 'ENGINE', 'FOREST', 'GARDEN', 'GHOST', 'GLASS', 'GUITAR',
-  'HAMMER', 'HORSE', 'ISLAND', 'JACKET', 'KING', 'KNIGHT', 'LADDER', 'LEMON',
-  'LION', 'MASK', 'MOON', 'MOUSE', 'OCEAN', 'PALACE', 'PENCIL', 'PIANO',
-  'PIRATE', 'PLANET', 'RIVER', 'ROBOT', 'ROCKET', 'SCHOOL', 'SHIP', 'SNAKE',
-  'SPIDER', 'STAR', 'STORM', 'SWORD', 'TABLE', 'TIGER', 'TOWER', 'TRAIN',
-  'TREE', 'TRUCK', 'VIOLIN', 'WHALE', 'WINDOW', 'WIZARD', 'WOLF', 'ANCHOR',
-  'BALLOON', 'BANANA', 'BOTTLE', 'CAMERA', 'CANDLE', 'COMPASS', 'DESERT',
-  'FEATHER', 'HELMET', 'JUNGLE', 'LANTERN', 'MAGNET', 'NEEDLE', 'PARROT',
-  'PYRAMID', 'RAINBOW', 'SHARK', 'SKELETON', 'TENT', 'THUNDER', 'TURTLE',
-  'VOLCANO', 'WINDMILL', 'ZEBRA', 'BELL', 'BONE',
-]
-
 interface DatamuseWord {
   word: string
   tags?: string[]
 }
 
-const shuffle = <T>(items: T[]): T[] => {
+export const shuffle = <T>(items: T[]): T[] => {
   const out = [...items]
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
@@ -55,33 +39,33 @@ function usable(entry: DatamuseWord, seen: Set<string>): string | null {
   return word
 }
 
-async function fetch(): Promise<string[]> {
+// Fetches picturable nouns from Datamuse, seeded by a handful of concrete
+// categories, and returns up to `count` distinct board-ready words. Whatever the
+// live source gives back is what a game gets — no curated padding. Each seed
+// request swallows its own failure, so a flaky network yields fewer words rather
+// than throwing. Exported so the geek board can blend these with its own source.
+export async function datamuseWords(count = 20): Promise<string[]> {
   const seen = new Set<string>()
-  try {
-    const seeds = shuffle(SEEDS).slice(0, 6)
-    const responses = await Promise.all(
-      seeds.map((seed) =>
-        window
-          .fetch(`https://api.datamuse.com/words?rel_trg=${seed}&md=fp&max=40`)
-          .then((r) => (r.ok ? (r.json() as Promise<DatamuseWord[]>) : []))
-          .catch(() => [] as DatamuseWord[]),
-      ),
-    )
-    for (const entry of shuffle(responses.flat())) {
-      const word = usable(entry, seen)
-      if (word) seen.add(word)
-      if (seen.size >= 20) break
-    }
-  } catch {
-    // fall through to the fallback top-up below
+  const seeds = shuffle(SEEDS).slice(0, 6)
+  const responses = await Promise.all(
+    seeds.map((seed) =>
+      window
+        .fetch(`https://api.datamuse.com/words?rel_trg=${seed}&md=fp&max=40`)
+        .then((r) => (r.ok ? (r.json() as Promise<DatamuseWord[]>) : []))
+        .catch(() => [] as DatamuseWord[]),
+    ),
+  )
+  for (const entry of shuffle(responses.flat())) {
+    const word = usable(entry, seen)
+    if (word) seen.add(word)
+    if (seen.size >= count) break
   }
-
-  const words = [...seen]
-  for (const word of shuffle(FALLBACK)) {
-    if (words.length >= 20) break
-    if (!seen.has(word)) words.push(word)
-  }
-  return words.slice(0, 20)
+  return [...seen]
 }
 
-export const words: CardProvider = { id: 'words', label: 'Words', kind: 'word', fetch }
+export const words: CardProvider = {
+  id: 'words',
+  label: 'Words',
+  kind: 'word',
+  fetch: () => datamuseWords(),
+}
