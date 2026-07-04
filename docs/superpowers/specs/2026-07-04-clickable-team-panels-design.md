@@ -83,8 +83,12 @@ team switching.
   - New handlers wrap `onClaimSeat` and the new team-join call with the
     in-progress confirm guard and the `notify` toast. Centralise the
     "in-progress" check (shared with `confirmNewGame`).
-  - **Remove** the "I'm spymaster: Red/Blue" seat picker from the menu; the menu
-    keeps only "New game".
+  - **Remove** the "I'm spymaster: Red/Blue" seat picker from the menu.
+  - **Explode the "New game" options:** drop the nested "New game" toggle
+    button and its expandable source list; render the provider buttons directly
+    in the menu, each starting a fresh game from that source (keeping the
+    `data-current` marker and the `confirmNewGame` overwrite guard). Remove the
+    `sourceOpen` state. The menu is now just this flat list of sources.
   - Wire a new `onJoinTeam(team)` prop (backed by `session.setTeam`) alongside
     the existing `onClaimSeat`.
 - `src/App.tsx`
@@ -93,6 +97,8 @@ team switching.
 - `src/ui/GameScreen.module.css`
   - Add styles for the clickable slot/panel (hover affordance, dim empty slot).
   - Remove dead `seatPicker`, `seatLabel`, `seatButtons`, `seatButton` styles.
+  - Remove/repurpose `newGame`, `newGameMain`, `sourceList` styles now that the
+    source buttons sit directly in the menu.
 
 ## Testing
 
@@ -107,6 +113,9 @@ state):
   solid, you see colors); clicking your own slot steps you down.
 - Claiming the other team's spymaster moves you to that team.
 - The menu no longer offers "I'm spymaster".
+- The menu lists the card sources directly (no "New game" toggle step);
+  clicking a source starts a fresh game from it, prompting to confirm when a
+  game is in progress.
 
 ## Out of scope
 
