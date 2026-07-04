@@ -120,20 +120,19 @@ export class GamePage {
     await this.page.getByRole('button', { name: label, exact: true }).click()
   }
 
-  private async toggleSeat(team: 'red' | 'blue'): Promise<void> {
-    await this.openMenu()
-    await this.page.getByRole('button', { name: new RegExp(`^${team}$`, 'i') }).click()
-  }
-
-  // Take a spymaster seat (defaults to the team on turn, since only that team's
-  // spymaster may clue). Reveals colours, may clue, cannot guess.
+  // Take a spymaster seat (defaults to the team on turn). Arm a dialog acceptor
+  // before clicking because mid-game the app prompts for confirmation.
   async enableSpymaster(team?: 'red' | 'blue'): Promise<void> {
-    await this.toggleSeat(team ?? (await this.getCurrentTurn()))
+    const t = team ?? (await this.getCurrentTurn())
+    this.page.once('dialog', (dialog) => dialog.accept())
+    await this.page.getByRole('button', { name: `Become ${t} spymaster` }).click()
   }
 
   // Release the seat to play as an operative again (defaults to the turn's team).
+  // No dialog — stepping down never prompts.
   async releaseSpymaster(team?: 'red' | 'blue'): Promise<void> {
-    await this.toggleSeat(team ?? (await this.getCurrentTurn()))
+    const t = team ?? (await this.getCurrentTurn())
+    await this.page.getByRole('button', { name: `Step down as ${t} spymaster` }).click()
   }
 
   async giveClue(word: string, count: number): Promise<void> {

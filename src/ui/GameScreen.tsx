@@ -115,11 +115,29 @@ export default function GameScreen(props: {
     }
   }, [props.myTeam])
 
+  // Claim or release the spymaster seat for a team.
+  const requestSpymasterSeat = (team: Team) => {
+    const isMine = props.mySeat === team
+    if (isMine) {
+      // Stepping down: never prompt.
+      props.onClaimSeat(null)
+    } else {
+      // Claiming: prompt mid-game only.
+      if (game.inProgress && !window.confirm(`Become ${team} spymaster?`)) return
+      props.onClaimSeat(team)
+    }
+  }
+
   const renderTeam = (team: Team) => {
-    const hasSpymaster = team === 'red' ? !!props.seats.red : !!props.seats.blue
+    const seatId = team === 'red' ? props.seats.red : props.seats.blue
+    const hasSpymaster = !!seatId
+    const isMySeat = props.mySeat === team
     const ops = opsFor(team)
     const headcount = (hasSpymaster ? 1 : 0) + ops
     const active = team === props.state.turn
+    const spymasterLabel = isMySeat
+      ? `Step down as ${team} spymaster`
+      : `Become ${team} spymaster`
     return (
       <span
         className={styles.team}
@@ -140,17 +158,22 @@ export default function GameScreen(props: {
           className={styles.players}
           title={`${headcount} ${team} player${headcount === 1 ? '' : 's'}`}
         >
-          {hasSpymaster && (
-            <span
-              className={styles.spymasterIcon}
-              role="img"
-              aria-label={`${team} spymaster`}
-              data-team={team}
-              data-active={(active && phase === 'clue') || undefined}
-            >
-              🕵️
-            </span>
-          )}
+          <button
+            type="button"
+            className={styles.spymasterSlot}
+            data-team={team}
+            data-mine={isMySeat || undefined}
+            data-active={(active && phase === 'clue') || undefined}
+            aria-label={spymasterLabel}
+            title={spymasterLabel}
+            onClick={() => requestSpymasterSeat(team)}
+          >
+            {hasSpymaster ? (
+              <span role="img" aria-label={`${team} spymaster`}>🕵️</span>
+            ) : (
+              <span aria-hidden="true" className={styles.spymasterDim}>🕵️</span>
+            )}
+          </button>
           <span
             className={styles.ops}
             data-team={team}
@@ -174,29 +197,6 @@ export default function GameScreen(props: {
 
   const renderMenuItems = () => (
     <div className={styles.menuItems} role="menu">
-          <div className={styles.seatPicker}>
-            <span className={styles.seatLabel}>I'm spymaster:</span>
-            <div className={styles.seatButtons}>
-              {(['red', 'blue'] as const).map((team) => {
-                const mine = props.mySeat === team
-                return (
-                  <button
-                    key={team}
-                    type="button"
-                    className={styles.seatButton}
-                    data-team={team}
-                    data-mine={mine || undefined}
-                    onClick={() => {
-                      props.onClaimSeat(mine ? null : team)
-                      setMenuOpen(false)
-                    }}
-                  >
-                    {team === 'red' ? 'Red' : 'Blue'}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
           <div className={styles.newGame}>
             <button
               className={`secondary ${styles.newGameMain}`}

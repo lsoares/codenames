@@ -99,7 +99,7 @@
   flex-direction: row-reverse;
 }
 
-.spymasterIcon,
+.spymasterSlot,
 .ops {
   display: inline-flex;
   align-items: center;
@@ -107,6 +107,26 @@
   min-height: 28px;
   padding: 2px 3px;
   border-radius: 999px;
+}
+
+/* The spymaster slot button: no chrome, just the icon. */
+.spymasterSlot {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  appearance: none;
+}
+
+.spymasterSlot:hover {
+  filter: brightness(1.1);
+}
+
+/* Dim placeholder shown when the seat is empty. */
+.spymasterDim {
+  opacity: 0.25;
 }
 
 .ops {
@@ -268,53 +288,6 @@
 .sourceList button[data-current] {
   color: var(--primary);
   font-weight: 800;
-}
-
-.seatPicker {
-  display: grid;
-  gap: 6px;
-}
-
-.seatLabel {
-  color: var(--ink);
-  font-weight: 700;
-}
-
-.seatButtons {
-  display: flex;
-  gap: 8px;
-}
-
-.seatButton {
-  flex: 1;
-  font-weight: 700;
-  color: var(--ink);
-  background: var(--surface);
-  border: 2px solid var(--line);
-  box-shadow: none;
-}
-
-.seatButton[data-team='red'] {
-  color: var(--red);
-}
-
-.seatButton[data-team='blue'] {
-  color: var(--blue);
-}
-
-.seatButton[data-mine][data-team='red'] {
-  background: color-mix(in srgb, var(--red) 18%, transparent);
-  border-color: var(--red);
-}
-
-.seatButton[data-mine][data-team='blue'] {
-  background: color-mix(in srgb, var(--blue) 18%, transparent);
-  border-color: var(--blue);
-}
-
-.seatButton:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
 }
 
 /* Below the 5-column layout, use natural flow (scroll) instead of fit-to-height. */
