@@ -31,15 +31,6 @@ export default function App() {
   // their now-stale images don't linger — the new ones can take a moment.
   const [loadingFaces, setLoadingFaces] = useState(false)
   const [status, setStatus] = useState('')
-  // Words leads the menu, but the board that auto-loads is Unsplash (it falls
-  // back to Words when there's no key), so first-time players open onto photos.
-  const [providerId, setProviderId] = useState(
-    () => localStorage.getItem('codenames:image-provider') ?? 'unsplash',
-  )
-  const chooseProvider = (id: string) => {
-    localStorage.setItem('codenames:image-provider', id)
-    setProviderId(id)
-  }
   const sessionRef = useRef<Session | null>(null)
   const isHostRef = useRef(false)
   const startedRef = useRef(false)
@@ -116,7 +107,8 @@ export default function App() {
   // seat, everyone else the auto-assigned team.
   const myTeam: Team = mySeat ?? teams?.[selfIdRef.current] ?? 'red'
 
-  const newGame = async (id: string = providerId) => {
+  // Re-deal the current room from a chosen deck, keeping everyone in place.
+  const newGame = async (id: string) => {
     setLoadingFaces(true)
     try {
       const { faces, mode } = await getFaces(id)
@@ -124,6 +116,34 @@ export default function App() {
     } finally {
       setLoadingFaces(false)
     }
+  }
+
+  // Leave for good: tear down the session and return to the homepage. Confirm
+  // first only when going now would disrupt others (the same rule as the tab
+  // guard below).
+  const leaveRoom = () => {
+    if (leavingDisruptsOthers() && !window.confirm('Leave this room? The game will go on without you.'))
+      return
+    sessionRef.current?.close()
+    sessionRef.current = null
+    isHostRef.current = false
+    selfIdRef.current = ''
+    roomCodeRef.current = ''
+    gameRef.current = null
+    peersRef.current = []
+    prevGameRef.current = null
+    prevCountRef.current = null
+    prevSeatsRef.current = null
+    clearTimeout(flashTimer.current)
+    setFlash(null)
+    setIsHost(false)
+    setGame(null)
+    setRoomCode('')
+    setSeats({ red: null, blue: null })
+    setTeams({})
+    setPlayerCount(1)
+    setStatus('')
+    window.location.hash = ''
   }
 
   const claimSeat = (team: Team | null) => {
@@ -228,15 +248,22 @@ export default function App() {
     }
   }, [game, roomCode])
 
-  // Guard against leaving mid-game while others are still playing: a live game
-  // (clue out or cards revealed, no winner) with more than just this tab makes
-  // the browser confirm before unload. The message itself is browser-generic.
+  // The one rule shared by both ways of leaving (closing the tab and the Leave
+  // room button): going now disrupts others only when a live game is underway
+  // with more than just this tab. Reads live refs so it's callable any time.
+  const leavingDisruptsOthers = () =>
+    !!gameRef.current?.inProgress() && peersRef.current.length > 1
+
+  // Make the browser confirm before an unload that would disrupt others. The
+  // message itself is browser-generic.
   useEffect(() => {
-    if (!game?.inProgress() || playerCount <= 1) return
-    const warn = (e: BeforeUnloadEvent) => e.preventDefault()
+    const warn = (e: BeforeUnloadEvent) => {
+      if (leavingDisruptsOthers()) e.preventDefault()
+    }
     window.addEventListener('beforeunload', warn)
     return () => window.removeEventListener('beforeunload', warn)
-  }, [game, playerCount])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // On load: join the live room in the URL hash if one exists — this also keeps
   // a duplicated tab (which inherits the host's saved state) from re-hosting.
@@ -292,10 +319,9 @@ export default function App() {
           onJoinTeam={joinTeam}
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
           onNewGame={newGame}
+          onLeaveRoom={leaveRoom}
           loadingFaces={loadingFaces}
           providers={providers}
-          providerId={providerId}
-          onProviderChange={chooseProvider}
         />
       ) : status ? (
         <main className="card">
@@ -313,13 +339,7 @@ export default function App() {
           )}
         </main>
       ) : (
-        <Homepage
-          providers={providers}
-          onPick={(id) => {
-            chooseProvider(id)
-            void createRoom(id)
-          }}
-        />
+        <Homepage providers={providers} onPick={(id) => void createRoom(id)} />
       )}
     </>
   )

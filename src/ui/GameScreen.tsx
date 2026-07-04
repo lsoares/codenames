@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Game, type GuessOutcome, type Team } from '../Game'
 import type { Action } from '../Session'
+import type { CardProvider } from '../images/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
+import DeckPicker from './DeckPicker'
 import styles from './GameScreen.module.css'
 
 export default function GameScreen(props: {
@@ -16,13 +18,12 @@ export default function GameScreen(props: {
   onClaimSeat: (team: Team | null) => void
   onJoinTeam: (team: Team) => void
   onAction: (action: Action) => void
-  onNewGame: (providerId?: string) => void
+  onNewGame: (providerId: string) => void
+  onLeaveRoom: () => void
   loadingFaces: boolean
-  providers: { id: string; label: string }[]
-  providerId: string
-  onProviderChange: (id: string) => void
+  providers: CardProvider[]
 }) {
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   // Clicking a team's card joins it as an operative. Already a plain operative
   // there? Nothing to do. Moving to the other side mid-game confirms first;
@@ -82,13 +83,6 @@ export default function GameScreen(props: {
     Object.entries(props.teams).filter(
       ([id, t]) => t === team && id !== props.seats.red && id !== props.seats.blue,
     ).length
-
-  useEffect(() => {
-    if (!menuOpen) return
-    const close = () => setMenuOpen(false)
-    document.addEventListener('click', close)
-    return () => document.removeEventListener('click', close)
-  }, [menuOpen])
 
   const { winner, phase, turn, clue } = props.game.state
   // Whose action the turn team awaits: the spymaster clues, the operatives guess.
@@ -181,32 +175,6 @@ export default function GameScreen(props: {
   const confirmNewGame = (): boolean =>
     props.game.idle() || window.confirm('Start a new game? The current game will be lost.')
 
-  const renderMenuItems = () => (
-    <div
-      className={styles.menuItems}
-      role="menu"
-      onClick={(event) => event.stopPropagation()}
-    >
-          <div className={styles.sourceList}>
-            {props.providers.map((provider) => (
-              <button
-                key={provider.id}
-                type="button"
-                data-current={provider.id === props.providerId || undefined}
-                onClick={() => {
-                  if (!confirmNewGame()) return
-                  props.onProviderChange(provider.id)
-                  props.onNewGame(provider.id)
-                  setMenuOpen(false)
-                }}
-              >
-                {provider.label}
-              </button>
-            ))}
-          </div>
-        </div>
-  )
-
   const renderSide = (team: Team) => renderTeam(team)
 
   const activeSpymaster = props.mySeat === turn
@@ -292,46 +260,35 @@ export default function GameScreen(props: {
     />
   )
 
-  // Header centre: the status/clue pill that also opens the menu. On the active
-  // spymaster's clue turn the clue input takes centre stage and the menu shrinks
-  // to a compact button beside it, so the menu stays reachable throughout.
+  // Header centre: the status/clue pill. On the active spymaster's clue turn the
+  // clue input takes centre stage; otherwise it shows whose move it is (and the
+  // live clue), or a transient flash message.
   const center = (
     <div className={styles.menu}>
-      <button
-        className={styles.menuToggle}
-        data-team={winner ?? turn}
-        data-compact={clueForm ? true : undefined}
-        data-host={props.isHost || undefined}
-        aria-haspopup="menu"
-        aria-expanded={menuOpen}
-        title="Menu"
-        onClick={(event) => {
-          event.stopPropagation()
-          setMenuOpen((open) => !open)
-        }}
-      >
-        {clueForm ? (
-          <span className={styles.plus} aria-hidden="true">
-            +
-          </span>
-        ) : props.flash ? (
-          <span className={styles.statusText} role="status">
-            {props.flash}
-          </span>
-        ) : (
-          <>
-            <span className={styles.statusText}>{statusText}</span>
-            {!winner && phase === 'guess' && clue && (
-              <>
-                <strong className={styles.clueWord}>{clue.word}</strong>
-                <span className={styles.clueDot}>•</span>
-                <span className={styles.clueValue}>{clue.count}</span>
-              </>
-            )}
-          </>
-        )}
-      </button>
-      {clueForm}
+      {clueForm || (
+        <div
+          className={styles.statusPill}
+          data-team={winner ?? turn}
+          data-host={props.isHost || undefined}
+        >
+          {props.flash ? (
+            <span className={styles.statusText} role="status">
+              {props.flash}
+            </span>
+          ) : (
+            <>
+              <span className={styles.statusText}>{statusText}</span>
+              {!winner && phase === 'guess' && clue && (
+                <>
+                  <strong className={styles.clueWord}>{clue.word}</strong>
+                  <span className={styles.clueDot}>•</span>
+                  <span className={styles.clueValue}>{clue.count}</span>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
       {!winner && acting === 'operatives' && mineTurn && props.mySeat === null && (
         <button
           className={`secondary ${styles.pass}`}
@@ -342,12 +299,30 @@ export default function GameScreen(props: {
           ✕
         </button>
       )}
-      {menuOpen && renderMenuItems()}
     </div>
   )
 
   return (
     <main className={styles.screen}>
+      <div className={styles.topbar}>
+        <button
+          className={styles.leave}
+          onClick={props.onLeaveRoom}
+          aria-label="Leave room"
+          title="Leave room"
+        >
+          <span aria-hidden="true">🚪</span>
+        </button>
+        <button
+          className={styles.newGame}
+          onClick={() => setPickerOpen(true)}
+          aria-label="New game"
+          title="New game"
+        >
+          <span aria-hidden="true">🔄</span>
+        </button>
+      </div>
+
       <header className={styles.header}>
         <div className={styles.headerSide} data-side="left">{renderSide('red')}</div>
         {center}
@@ -369,6 +344,26 @@ export default function GameScreen(props: {
           onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index, team: props.myTeam })}
         />
       </div>
+
+      {pickerOpen && (
+        <div className={styles.overlay} onClick={() => setPickerOpen(false)}>
+          <div
+            className={styles.overlayInner}
+            role="dialog"
+            aria-label="New game"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <DeckPicker
+              providers={props.providers}
+              onPick={(id) => {
+                if (!confirmNewGame()) return
+                props.onNewGame(id)
+                setPickerOpen(false)
+              }}
+            />
+          </div>
+        </div>
+      )}
     </main>
   )
 }

@@ -104,28 +104,17 @@ export class GamePage {
     await this.page.reload()
   }
 
-  // The menu button lives in the header centre. Flows open it, and picking a menu
-  // item (a seat or a source) closes it again, so opening is a single click.
-  async openMenu(): Promise<void> {
-    await this.page.getByTitle('Menu', { exact: true }).click()
-  }
-
-  // The open menu panel, revealed by the menu button.
-  findMenu() {
-    return this.page.getByRole('menu')
-  }
-
-  // Focus the spymaster's clue number spinner, as a user would to edit it.
-  async focusClueNumber(): Promise<void> {
-    await this.page.getByRole('spinbutton').click()
-  }
-
-  // Start a new game from a specific card source: the menu lists the sources
-  // directly. A re-deal over a game in progress prompts; accept it.
+  // Open the in-game "New game" deck picker (an overlay) and start a fresh game
+  // from the named deck. A re-deal over a game in progress prompts; accept it.
   async startGameWithSource(label: string): Promise<void> {
-    await this.openMenu()
+    await this.page.getByRole('button', { name: 'New game' }).click()
     this.page.once('dialog', (dialog) => dialog.accept())
     await this.page.getByRole('button', { name: label, exact: true }).click()
+  }
+
+  // Leave the room, returning to the homepage.
+  async leaveRoom(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Leave room' }).click()
   }
 
   // Take a spymaster seat (defaults to the team on turn). Arm a dialog acceptor

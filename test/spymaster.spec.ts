@@ -64,17 +64,3 @@ test('stepping down mid-game needs no confirmation', async ({ page }) => {
   await game.releaseSpymaster('red')
   await expect(page.getByRole('img', { name: 'red spymaster' })).toHaveCount(0)
 })
-
-// The spymaster picker that used to live in the menu has been removed;
-// the header slot replaces it entirely.
-test('the menu no longer offers a spymaster seat picker', async ({ page }) => {
-  await stubUnsplash(page)
-  const game = new GamePage(page)
-  await game.open('red')
-  await game.createRoom()
-
-  await game.openMenu()
-
-  await expect(game.findMenu()).toBeVisible()
-  await expect(game.findMenu().getByText("I'm spymaster:")).toHaveCount(0)
-})
