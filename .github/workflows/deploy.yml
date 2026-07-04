@@ -32,6 +32,7 @@ jobs:
           VITE_UNSPLASH_ACCESS_KEY: ${{ secrets.VITE_UNSPLASH_ACCESS_KEY }}
           VITE_PEXELS_API_KEY: ${{ secrets.VITE_PEXELS_API_KEY }}
           VITE_THECATAPI_KEY: ${{ secrets.VITE_THECATAPI_KEY }}
+          VITE_RAWG_API_KEY: ${{ secrets.VITE_RAWG_API_KEY }}
           # Optional: set these repo Variables to point the deployed site at a
           # self-hosted PeerJS broker (see broker/README.md). Unset ⇒ public broker.
           VITE_PEER_HOST: ${{ vars.PEER_HOST }}
