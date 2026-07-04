@@ -14,7 +14,7 @@ async function fetch(): Promise<string[]> {
 
 export const official: CardProvider = {
   id: 'official',
-  label: 'Official',
+  label: 'Images',
   icon: '🕵️',
   description: 'The official Codenames Pictures cards',
   credit: { label: 'Codenames Pictures', url: 'https://czechgames.com/en/codenames-pictures/' },
