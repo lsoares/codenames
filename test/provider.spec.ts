@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test'
 import { GamePage, stubPexels, stubTmdb } from './gamePage'
 
-test('starting from Pexels sources the board from Pexels', async ({ page }) => {
+test('starting from Curated sources the board from Pexels', async ({ page }) => {
   await stubPexels(page)
   const game = new GamePage(page)
   await game.open()
 
   const pexelsRequest = page.waitForRequest('**/api.pexels.com/**')
-  await game.startWithDeck('Pexels')
+  await game.startWithDeck('Curated')
   await pexelsRequest
 
   await expect(game.getCards()).toHaveCount(20)

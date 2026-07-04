@@ -9,5 +9,5 @@ test('browser back leaves a game for the homepage', async ({ page }) => {
 
   await page.goBack()
 
-  await expect(page.getByRole('heading', { name: 'Codenames Pictures' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Codenames Anything' })).toBeVisible()
 })

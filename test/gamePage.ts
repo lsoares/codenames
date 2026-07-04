@@ -82,10 +82,10 @@ export class GamePage {
     await this.page.goto(`/#${code}`)
   }
 
-  // The homepage lists decks; picking one hosts a room. Unsplash is the default
+  // The homepage lists decks; picking one hosts a room. Random is the default
   // (image) deck the suite plays on, so start there and wait for the board.
   async createRoom(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Unsplash', exact: true }).click()
+    await this.page.getByRole('button', { name: 'Random', exact: true }).click()
     await this.getCards().first().waitFor()
   }
 

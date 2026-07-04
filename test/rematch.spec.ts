@@ -14,7 +14,7 @@ test('after a win, New game deals a fresh board in the same room', async ({ page
   await game.guessNumber(target)
   await expect(game.getWinnerBanner()).toHaveText(/team wins/i)
 
-  await game.startNewGameFromEnd('Unsplash')
+  await game.startNewGameFromEnd('Random')
 
   await expect(page.getByRole('button', { name: 'New game' })).toBeHidden()
   await expect(game.getCards()).toHaveCount(20)
