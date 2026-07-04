@@ -262,12 +262,6 @@
   width: 100%;
 }
 
-/* New game + the card sources, all flat in the menu (no nested dropdown). */
-.newGame {
-  display: grid;
-  gap: 8px;
-}
-
 .sourceList {
   display: grid;
   gap: 2px;

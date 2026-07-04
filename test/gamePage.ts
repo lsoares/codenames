@@ -113,10 +113,11 @@ export class GamePage {
     await this.page.getByRole('spinbutton').click()
   }
 
-  // Start a new game from a specific card source: New game reveals the sources.
+  // Start a new game from a specific card source: the menu lists the sources
+  // directly. A re-deal over a game in progress prompts; accept it.
   async startGameWithSource(label: string): Promise<void> {
     await this.openMenu()
-    await this.page.getByRole('button', { name: /new game/i }).click()
+    this.page.once('dialog', (dialog) => dialog.accept())
     await this.page.getByRole('button', { name: label, exact: true }).click()
   }
 

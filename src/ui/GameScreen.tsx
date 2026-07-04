@@ -24,7 +24,6 @@ export default function GameScreen(props: {
   onProviderChange: (id: string) => void
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [sourceOpen, setSourceOpen] = useState(false)
 
   const game = gameView(props.state)
 
@@ -197,34 +196,22 @@ export default function GameScreen(props: {
 
   const renderMenuItems = () => (
     <div className={styles.menuItems} role="menu">
-          <div className={styles.newGame}>
-            <button
-              className={`secondary ${styles.newGameMain}`}
-              aria-expanded={sourceOpen}
-              onClick={() => setSourceOpen((open) => !open)}
-            >
-              New game
-            </button>
-            {sourceOpen && (
-              <div className={styles.sourceList}>
-                {props.providers.map((provider) => (
-                  <button
-                    key={provider.id}
-                    type="button"
-                    data-current={provider.id === props.providerId || undefined}
-                    onClick={() => {
-                      if (!confirmNewGame()) return
-                      props.onProviderChange(provider.id)
-                      props.onNewGame(provider.id)
-                      setSourceOpen(false)
-                      setMenuOpen(false)
-                    }}
-                  >
-                    {provider.label}
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className={styles.sourceList}>
+            {props.providers.map((provider) => (
+              <button
+                key={provider.id}
+                type="button"
+                data-current={provider.id === props.providerId || undefined}
+                onClick={() => {
+                  if (!confirmNewGame()) return
+                  props.onProviderChange(provider.id)
+                  props.onNewGame(provider.id)
+                  setMenuOpen(false)
+                }}
+              >
+                {provider.label}
+              </button>
+            ))}
           </div>
         </div>
   )
@@ -329,7 +316,6 @@ export default function GameScreen(props: {
         title="Menu"
         onClick={() => {
           setMenuOpen((open) => !open)
-          setSourceOpen(false)
         }}
       >
         {clueForm ? (
