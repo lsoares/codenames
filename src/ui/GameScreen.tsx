@@ -259,11 +259,10 @@ export default function GameScreen(props: {
     />
   )
 
-  // Header centre: the status/clue pill. On the active spymaster's clue turn the
-  // clue input takes centre stage; otherwise it shows whose move it is (and the
-  // live clue), or a transient flash message.
+  const lean = winner || (!clueForm && props.flash) ? undefined : turn
+
   const center = (
-    <div className={styles.menu}>
+    <div className={styles.menu} data-lean={lean}>
       {clueForm || (
         <div
           className={styles.statusPill}

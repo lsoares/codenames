@@ -24,7 +24,7 @@
    pill for the taller clue-input form, so the board never dances up and down. */
 .header {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: auto 1fr auto;
   gap: 12px;
   align-items: center;
   min-height: 56px;
@@ -188,6 +188,14 @@
   align-items: center;
   gap: 4px;
   justify-self: center;
+}
+
+.menu[data-lean='red'] {
+  justify-self: start;
+}
+
+.menu[data-lean='blue'] {
+  justify-self: end;
 }
 
 /* The status/clue pill, team-tinted by whose turn it is. */
