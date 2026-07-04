@@ -7,6 +7,7 @@ import type { Session, Action } from './multiplayer/Session'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
 import Homepage from './ui/Homepage'
+import styles from './App.module.css'
 
 const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
 
@@ -133,6 +134,39 @@ export default function App() {
     sessionRef.current?.setTeam(team)
     notify(`You joined ${team} ${team === 'red' ? '🔴' : '🔵'}`)
   }
+
+  const goHome = () => {
+    sessionRef.current?.close()
+    sessionRef.current = null
+    isHostRef.current = false
+    selfIdRef.current = ''
+    roomCodeRef.current = ''
+    gameRef.current = null
+    peersRef.current = []
+    prevGameRef.current = null
+    prevCountRef.current = null
+    prevSeatsRef.current = null
+    clearTimeout(flashTimer.current)
+    setFlash(null)
+    setIsHost(false)
+    setGame(null)
+    setRoomCode('')
+    setSeats({ red: null, blue: null })
+    setTeams({})
+    setPlayerCount(1)
+    setStatus('')
+  }
+
+  // The room code lives in the URL hash, so browser Back (hash → empty) returns
+  // to the homepage deck picker.
+  useEffect(() => {
+    const onHashChange = () => {
+      if (!normalizeCode(window.location.hash)) goHome()
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const createRoom = async (id: string) => {
     // No loading screen: hosting is quick, so stay on the homepage until the
@@ -281,20 +315,19 @@ export default function App() {
           providers={providers}
         />
       ) : status ? (
-        <main className="card">
-          <h1>Codenames Pictures</h1>
-          <p>{status}</p>
+        <div className={styles.status} role="status">
+          {status}
           {/^(Could not|Lost)/.test(status) && (
             <button
               onClick={() => {
                 window.location.hash = ''
-                setStatus('')
+                goHome()
               }}
             >
               Back to home
             </button>
           )}
-        </main>
+        </div>
       ) : (
         <Homepage providers={providers} onPick={(id) => void createRoom(id)} />
       )}
