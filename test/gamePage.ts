@@ -188,6 +188,12 @@ export class GamePage {
     await this.page.getByRole('button', { name: `Join ${team} team` }).click()
   }
 
+  // Switch sides mid-game, which prompts a confirmation; accept it.
+  async switchToTeam(team: 'red' | 'blue'): Promise<void> {
+    this.page.once('dialog', (dialog) => dialog.accept())
+    await this.page.getByRole('button', { name: `Join ${team} team` }).click()
+  }
+
   // The transient toast / sticky announcement shown in the header status pill.
   getByRoleStatus() {
     return this.page.getByRole('status')

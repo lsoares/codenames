@@ -17,19 +17,40 @@ test('revealing the assassin ends the game for the other team', async ({ page })
   await expect(game.getWinnerBanner()).toHaveText(new RegExp(`${winner} team wins`, 'i'))
 })
 
-test('revealing your team’s last card wins the game', async ({ page }) => {
+test('a full game — both sides play, miss on neutral and enemy, red then wins', async ({ page }) => {
   await stubUnsplash(page)
   const game = new GamePage(page)
   await game.open('red')
   await game.createRoom()
-  // As the red spymaster, note every red card, then hand an unlimited clue and
-  // drop to operative so a single turn can clear the whole team.
+  // As the red spymaster every colour is visible, so note the cards up front and
+  // drive both teams from this one tab (unlimited clues to keep turns flowing).
   const reds = await game.getCardNumbers('red')
-  await game.giveClue('all', 0)
-  await game.releaseSpymaster()
-  for (const n of reds.slice(0, -1)) await game.guessNumber(n)
+  const blues = await game.getCardNumbers('blue')
+  const neutrals = await game.getCardNumbers('neutral')
 
-  await game.guessNumber(reds[reds.length - 1])
+  // Red: one right, then a neutral — the miss hands the turn to blue.
+  await game.giveClue('reds', 0)
+  await game.releaseSpymaster('red')
+  await game.guessNumber(reds[0])
+  await game.guessNumber(neutrals[0])
+
+  // Blue: switch over, one right, then an enemy (red) card — miss back to red.
+  await game.switchToTeam('blue')
+  await game.enableSpymaster('blue')
+  await game.giveClue('blues', 0)
+  await game.releaseSpymaster('blue')
+  await game.guessNumber(blues[0])
+  await game.guessNumber(reds[1])
+
+  // Red again: switch back and clear the rest; the last red card wins it.
+  await game.switchToTeam('red')
+  await game.enableSpymaster('red')
+  await game.giveClue('rest', 0)
+  await game.releaseSpymaster('red')
+  const rest = reds.slice(2)
+  for (const n of rest.slice(0, -1)) await game.guessNumber(n)
+
+  await game.guessNumber(rest[rest.length - 1])
 
   await expect(game.getWinnerBanner()).toHaveText(/red team wins/i)
 })
