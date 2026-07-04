@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "lsof -ti:5173 -ti:9000 | xargs -I{} kill -9 {} 2>/dev/null; true",
     "dev": "concurrently -k -n vite,broker -c cyan,magenta \"vite\" \"npm:broker\"",
     "broker": "peerjs --port 9000 --key peerjs --path /",
     "build": "tsc && vite build",
