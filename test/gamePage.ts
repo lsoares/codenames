@@ -103,6 +103,16 @@ export class GamePage {
     await this.page.getByTitle('Menu', { exact: true }).click()
   }
 
+  // The open menu panel, revealed by the menu button.
+  findMenu() {
+    return this.page.getByRole('menu')
+  }
+
+  // Focus the spymaster's clue number spinner, as a user would to edit it.
+  async focusClueNumber(): Promise<void> {
+    await this.page.getByRole('spinbutton').click()
+  }
+
   // Start a new game from a specific card source: New game reveals the sources.
   async startGameWithSource(label: string): Promise<void> {
     await this.openMenu()
@@ -180,6 +190,16 @@ export class GamePage {
     return title?.toLowerCase().startsWith('red') ? 'red' : 'blue'
   }
 
+  // The little team-coloured count card doubles as "join this team".
+  async joinTeam(team: 'red' | 'blue'): Promise<void> {
+    await this.page.getByRole('button', { name: `Join ${team} team` }).click()
+  }
+
+  // The transient toast / sticky announcement shown in the header status pill.
+  getByRoleStatus() {
+    return this.page.getByRole('status')
+  }
+
   getWinnerBanner() {
     return this.page.getByRole('status')
   }
@@ -200,5 +220,11 @@ export class GamePage {
   // counting them reads how many players the room believes are present.
   async countPlayers(): Promise<number> {
     return this.page.getByRole('img', { name: /operative|spymaster/ }).count()
+  }
+
+  // The operative faces on one team, so a switch can be read as the count
+  // moving from one side to the other.
+  async countTeamOperatives(team: 'red' | 'blue'): Promise<number> {
+    return this.page.getByRole('img', { name: `${team} operative` }).count()
   }
 }

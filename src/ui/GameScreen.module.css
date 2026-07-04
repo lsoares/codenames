@@ -126,7 +126,15 @@
   color: #fff;
   font-weight: 800;
   font-size: 1rem;
+  padding: 0;
+  border: none;
+  appearance: none;
+  cursor: pointer;
   box-shadow: 0 1px 2px rgba(43, 45, 66, 0.25);
+}
+
+.count:hover {
+  filter: brightness(1.08);
 }
 
 .team[data-team='red'] .count {

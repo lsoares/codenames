@@ -15,11 +15,13 @@ export interface Session {
   selfId: string
   dispatch: (action: Action) => void
   setSpymaster: (team: Team | null) => void
+  setTeam: (team: Team) => void
   subscribe: (listener: (view: RoomView) => void) => void
   onDisconnect: (listener: () => void) => void
 }
 
 type Presence = { __presence: true; spymasterTeam: Team | null }
+type TeamClaim = { __team: true; team: Team }
 type Ping = { __ping: true }
 
 function randomCode(): string {
@@ -101,6 +103,12 @@ function startHost(
       const blue = Object.values(teams).filter((t) => t === 'blue').length
       teams[peerId] = red <= blue ? 'red' : 'blue'
     }
+    // A player overriding their auto-assigned team, as an operative. Dropping to
+    // an operative on the new side means giving up any spymaster seat first.
+    const setTeamFor = (peerId: string, team: Team) => {
+      teams[peerId] = team
+      claimSeat(peerId, null)
+    }
     // A joiner takes their team's spymaster seat if it's still open, so nobody has
     // to claim it by hand; a seat that's already held is left untouched.
     const autoSeat = (peerId: string) => {
@@ -178,6 +186,10 @@ function startHost(
           claimSeat(peer.id, team)
           broadcast()
         },
+        setTeam: (team) => {
+          setTeamFor(peer.id, team)
+          broadcast()
+        },
         subscribe: (listener) => {
           listeners.push(listener)
           listener(view())
@@ -199,6 +211,8 @@ function startHost(
         if ((data as Ping).__ping) return // guest keepalive
         if ((data as Presence).__presence) {
           claimSeat(connection.peer, (data as Presence).spymasterTeam)
+        } else if ((data as TeamClaim).__team) {
+          setTeamFor(connection.peer, (data as TeamClaim).team)
         } else {
           state = applyAction(state, data as Action)
         }
@@ -256,6 +270,8 @@ export function join(roomCode: string): Promise<Session> {
           dispatch: (action) => connection.send(action),
           setSpymaster: (team) =>
             connection.send({ __presence: true, spymasterTeam: team } satisfies Presence),
+          setTeam: (team) =>
+            connection.send({ __team: true, team } satisfies TeamClaim),
           subscribe: (listener) => {
             listeners.push(listener)
             if (latest) listener(latest)

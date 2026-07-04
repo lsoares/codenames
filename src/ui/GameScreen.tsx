@@ -13,8 +13,9 @@ export default function GameScreen(props: {
   mySeat: Team | null
   myTeam: Team
   seats: { red: string | null; blue: string | null }
-  playerCount: number
+  teams: Record<string, Team>
   onClaimSeat: (team: Team | null) => void
+  onJoinTeam: (team: Team) => void
   onAction: (action: Action) => void
   onNewGame: (providerId?: string) => void
   loadingFaces: boolean
@@ -26,6 +27,15 @@ export default function GameScreen(props: {
   const [sourceOpen, setSourceOpen] = useState(false)
 
   const game = gameView(props.state)
+
+  // Clicking a team's card joins it as an operative. Already a plain operative
+  // there? Nothing to do. Moving to the other side mid-game confirms first;
+  // dropping from your own spymaster seat to operative on the same side doesn't.
+  const requestJoinTeam = (team: Team) => {
+    if (team === props.myTeam && props.mySeat === null) return
+    if (team !== props.myTeam && game.inProgress && !window.confirm(`Switch to the ${team} team?`)) return
+    props.onJoinTeam(team)
+  }
 
   // The spymaster's private card picks, owned here so the clue's proposed number
   // can follow them. Cleared when the turn passes or a new game starts, so each
@@ -80,10 +90,12 @@ export default function GameScreen(props: {
   }, [props.state])
   useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
 
-  const filledSeats = (props.seats.red ? 1 : 0) + (props.seats.blue ? 1 : 0)
-  const operatives = Math.max(0, props.playerCount - filledSeats)
+  // Operatives on a team: its members who aren't holding a spymaster seat, so
+  // the count follows real membership and shifts the instant someone switches.
   const opsFor = (team: Team): number =>
-    team === 'red' ? Math.ceil(operatives / 2) : Math.floor(operatives / 2)
+    Object.entries(props.teams).filter(
+      ([id, t]) => t === team && id !== props.seats.red && id !== props.seats.blue,
+    ).length
 
   // Close the menu when clicking anywhere outside it.
   useEffect(() => {
@@ -114,9 +126,16 @@ export default function GameScreen(props: {
         data-team={team}
         title={active ? `${team}'s turn` : undefined}
       >
-        <span className={styles.count} data-team={team} title={`${team} cards left`}>
+        <button
+          type="button"
+          className={styles.count}
+          data-team={team}
+          aria-label={`Join ${team} team`}
+          title={`${team} cards left`}
+          onClick={() => requestJoinTeam(team)}
+        >
           {game.remaining(team)}
-        </span>
+        </button>
         <span
           className={styles.players}
           title={`${headcount} ${team} player${headcount === 1 ? '' : 's'}`}

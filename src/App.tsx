@@ -131,6 +131,11 @@ export default function App() {
     }
   }
 
+  const joinTeam = (team: Team) => {
+    sessionRef.current?.setTeam(team)
+    notify(`You joined ${team} ${team === 'red' ? '🔴' : '🔵'}`)
+  }
+
   const createRoom = async () => {
     setStatus('Loading cards…')
     const { faces, mode } = await getFaces(providerId)
@@ -271,8 +276,9 @@ export default function App() {
           mySeat={mySeat}
           myTeam={myTeam}
           seats={seats}
-          playerCount={playerCount}
+          teams={teams}
           onClaimSeat={claimSeat}
+          onJoinTeam={joinTeam}
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
           onNewGame={newGame}
           loadingFaces={loadingFaces}
