@@ -223,22 +223,6 @@ export default function App() {
     }
   }, [game, roomCode])
 
-  // The one rule shared by both ways of leaving (closing the tab and the Leave
-  // room button): going now disrupts others only when a live game is underway
-  // with more than just this tab. Reads live refs so it's callable any time.
-  const leavingDisruptsOthers = () =>
-    !!gameRef.current?.inProgress() && peersRef.current.length > 1
-
-  // Make the browser confirm before an unload that would disrupt others. The
-  // message itself is browser-generic.
-  useEffect(() => {
-    const warn = (e: BeforeUnloadEvent) => {
-      if (leavingDisruptsOthers()) e.preventDefault()
-    }
-    window.addEventListener('beforeunload', warn)
-    return () => window.removeEventListener('beforeunload', warn)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // On load: join the live room in the URL hash if one exists — this also keeps
   // a duplicated tab (which inherits the host's saved state) from re-hosting.
