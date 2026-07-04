@@ -83,6 +83,9 @@ export default function App() {
     window.setTimeout(async () => {
       const game = gameRef.current
       if (!game || isHostRef.current) return
+      // Drop our old peer before reconnecting, so we don't linger as a second
+      // live peer — and so a guest can reclaim its (now-freed) tab id.
+      sessionRef.current?.close()
       try {
         wire(await Host.resume(roomCodeRef.current, game.state), true)
         playSound('takeover')

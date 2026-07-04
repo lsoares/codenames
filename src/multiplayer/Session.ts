@@ -35,4 +35,7 @@ export interface Session {
   setTeam: (team: Team) => void
   subscribe: (listener: (view: RoomView) => void) => void
   onDisconnect: (listener: () => void) => void
+  // Tear down the peer for good — used before a tab reconnects, so it never
+  // leaves its old peer alive alongside the new one.
+  close: () => void
 }

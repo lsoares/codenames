@@ -4,6 +4,19 @@ export function randomCode(): string {
   return Math.random().toString(36).slice(2, 8)
 }
 
+// A stable id for this browser tab, kept in sessionStorage so a reload or a
+// reconnect comes back as the *same* peer instead of a fresh one — otherwise the
+// host keeps the old id's seat/team around as a ghost. Per-tab (sessionStorage,
+// not localStorage) so two tabs of the same browser never collide on one id.
+// Longer than a room code, so a guest id can never look like a host's.
+export function tabPeerId(): string {
+  const existing = sessionStorage.getItem('codenames:peer-id')
+  if (existing) return existing
+  const id = randomCode() + randomCode()
+  sessionStorage.setItem('codenames:peer-id', id)
+  return id
+}
+
 // STUN + free TURN so peers behind restrictive NATs still connect. Defaults to
 // Metered's OpenRelay static credentials; override with VITE_TURN_* for your own.
 const iceServers: RTCIceServer[] = [
