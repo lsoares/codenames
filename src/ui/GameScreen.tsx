@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { GameState, Team } from '../game/createGame'
-import type { Action } from '../game/applyAction'
-import { gameView } from '../game/gameView'
+import { Game, type Action } from '../game/Game'
 import Board, { type GuessOutcome } from './Board'
 import ClueBar from './ClueBar'
 import styles from './GameScreen.module.css'
@@ -25,14 +24,14 @@ export default function GameScreen(props: {
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const game = gameView(props.state)
+  const game = new Game(props.state)
 
   // Clicking a team's card joins it as an operative. Already a plain operative
   // there? Nothing to do. Moving to the other side mid-game confirms first;
   // dropping from your own spymaster seat to operative on the same side doesn't.
   const requestJoinTeam = (team: Team) => {
     if (team === props.myTeam && props.mySeat === null) return
-    if (team !== props.myTeam && game.inProgress && !window.confirm(`Switch to the ${team} team?`)) return
+    if (team !== props.myTeam && game.inProgress() && !window.confirm(`Switch to the ${team} team?`)) return
     props.onJoinTeam(team)
   }
 
@@ -50,8 +49,8 @@ export default function GameScreen(props: {
     setSelected(new Set())
   }, [props.state.turn])
   useEffect(() => {
-    if (game.isFresh) setSelected(new Set())
-  }, [game.isFresh])
+    if (game.isFresh()) setSelected(new Set())
+  }, [game.isFresh()])
 
   // Flash the guess outcome over each card the instant it's revealed, so every
   // viewer gets a beat of feedback (a bullseye / cross / shrug / skull) before
@@ -122,7 +121,7 @@ export default function GameScreen(props: {
       props.onClaimSeat(null)
     } else {
       // Claiming: prompt mid-game only.
-      if (game.inProgress && !window.confirm(`Become ${team} spymaster?`)) return
+      if (game.inProgress() && !window.confirm(`Become ${team} spymaster?`)) return
       props.onClaimSeat(team)
     }
   }
@@ -192,7 +191,7 @@ export default function GameScreen(props: {
   // A game in progress shouldn't be wiped by accident; confirm before starting a
   // new one. A finished or still-untouched game starts immediately.
   const confirmNewGame = (): boolean =>
-    game.idle || window.confirm('Start a new game? The current game will be lost.')
+    game.idle() || window.confirm('Start a new game? The current game will be lost.')
 
   const renderMenuItems = () => (
     <div

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { type GameState, type Team } from './game/createGame'
-import { type Action } from './game/applyAction'
+import { type Action } from './game/Game'
 import { getFaces, providers } from './images/providers'
 import { host, resumeHost, join, type Session } from './net/peerMultiplayer'
 import { playSound } from './sound'
