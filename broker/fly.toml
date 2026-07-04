@@ -3,7 +3,7 @@
 #   fly deploy                                     (subsequent deploys)
 # Then point the client at it (see broker/README.md).
 app = "codenames-broker-lsoares"
-primary_region = "mad"
+primary_region = "cdg"
 
 [build]
 
