@@ -41,6 +41,7 @@ export default function Board(props: {
         const marked = !isSpymaster && highlighted(card, index)
         const label = showColor ? `${name}, ${card.color}` : marked ? `${name}, marked` : name
         const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
+        const badge = gameOver ? props.game.outcomeFor(index, props.myTeam) : props.feedback[index]
         return (
           <button
             key={index}
@@ -80,13 +81,9 @@ export default function Board(props: {
                 draggable={false}
               />
             )}
-            {props.feedback[index] && (
-              <span
-                className={styles.feedback}
-                role="img"
-                aria-label={feedbackBadge[props.feedback[index]].label}
-              >
-                {feedbackBadge[props.feedback[index]].emoji}
+            {badge && (
+              <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>
+                {feedbackBadge[badge].emoji}
               </span>
             )}
           </button>

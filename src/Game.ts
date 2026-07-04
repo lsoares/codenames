@@ -111,6 +111,10 @@ export class Game {
     return this.s.cards[cardIndex].revealed || isSpymaster
   }
 
+  outcomeFor(cardIndex: number, team: Team): GuessOutcome {
+    return outcomeOf(this.s.cards[cardIndex], team)
+  }
+
   // Whether a viewer may act on a card this turn: only the team on turn acts, and
   // only on live cards; a spymaster picks only their own colour, an operative any.
   canAct(cardIndex: number, viewer: { team: Team; isSpymaster: boolean }): boolean {
