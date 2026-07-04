@@ -29,6 +29,8 @@ export interface GameState {
 
 export type GuessOutcome = 'correct' | 'wrong' | 'neutral' | 'assassin'
 
+export type ActingRole = 'spymaster' | 'operatives'
+
 // What changed between two consecutive games, so consumers react to events (a
 // clue, a guess and its outcome, a turn passing, a win, a fresh deal) instead of
 // diffing raw state themselves.
@@ -93,6 +95,30 @@ export class Game {
 
   remaining(team: Team): number {
     return unrevealedCount(this.s, team)
+  }
+
+  // Whose action the turn team is waiting on: the spymaster clues, then the
+  // operatives guess.
+  awaitingRole(): ActingRole {
+    return this.s.phase === 'clue' ? 'spymaster' : 'operatives'
+  }
+
+  // A card's colour is visible once it's revealed, or to a spymaster.
+  showsColor(cardIndex: number, isSpymaster: boolean): boolean {
+    return this.s.cards[cardIndex].revealed || isSpymaster
+  }
+
+  // Whether a viewer may act on a card this turn: only the team on turn acts, and
+  // only on live cards; a spymaster picks only their own colour, an operative any.
+  canAct(cardIndex: number, viewer: { team: Team; isSpymaster: boolean }): boolean {
+    const card = this.s.cards[cardIndex]
+    if (!card || card.revealed || this.s.turn !== viewer.team) return false
+    return viewer.isSpymaster ? card.color === viewer.team : true
+  }
+
+  // Operatives mark unrevealed cards — a private note, allowed on any turn.
+  canMark(cardIndex: number, isSpymaster: boolean): boolean {
+    return !isSpymaster && !this.s.cards[cardIndex].revealed
   }
 
   // A fresh game: new faces when the caller fetched some, else reshuffle the

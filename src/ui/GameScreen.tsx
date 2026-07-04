@@ -91,6 +91,8 @@ export default function GameScreen(props: {
   }, [menuOpen])
 
   const { winner, phase, turn, clue } = props.game.state
+  // Whose action the turn team awaits: the spymaster clues, the operatives guess.
+  const acting = props.game.awaitingRole()
 
   // Tint the page background to my team so I always know which side I'm on.
   useEffect(() => {
@@ -147,7 +149,7 @@ export default function GameScreen(props: {
             className={styles.spymasterSlot}
             data-team={team}
             data-mine={isMySeat || undefined}
-            data-active={(active && phase === 'clue') || undefined}
+            data-active={(active && acting === 'spymaster') || undefined}
             aria-label={spymasterLabel}
             title={spymasterLabel}
             onClick={() => requestSpymasterSeat(team)}
@@ -161,7 +163,7 @@ export default function GameScreen(props: {
           <span
             className={styles.ops}
             data-team={team}
-            data-active={(active && phase === 'guess') || undefined}
+            data-active={(active && acting === 'operatives') || undefined}
           >
             {Array.from({ length: ops }, (_, i) => (
               <span key={i} role="img" aria-label={`${team} operative`}>
@@ -215,7 +217,7 @@ export default function GameScreen(props: {
     ? winner === props.myTeam
       ? 'You win! 🏆'
       : 'They win 😢'
-    : phase === 'clue'
+    : acting === 'spymaster'
       ? mineTurn
         ? activeSpymaster
           ? `Your turn (${turn})`
@@ -260,7 +262,7 @@ export default function GameScreen(props: {
 
   // It's my move to make when my team is on turn and the acting role is mine:
   // the spymaster gives the clue, the operatives do the guessing.
-  const myMove = !winner && mineTurn && (phase === 'clue' ? activeSpymaster : !activeSpymaster)
+  const myMove = !winner && mineTurn && (acting === 'spymaster' ? activeSpymaster : !activeSpymaster)
 
   // When it's my move but the tab is in the background, pulse the title so the
   // tab flashes for attention; the moment the tab is focused again, restore it.
@@ -281,7 +283,7 @@ export default function GameScreen(props: {
     }
   }, [myMove, centerText])
 
-  const clueForm = !winner && phase === 'clue' && activeSpymaster && (
+  const clueForm = !winner && acting === 'spymaster' && activeSpymaster && (
     <ClueBar
       turn={turn}
       teamCardsLeft={props.game.remaining(turn)}
@@ -330,7 +332,7 @@ export default function GameScreen(props: {
         )}
       </button>
       {clueForm}
-      {!winner && phase === 'guess' && mineTurn && props.mySeat === null && (
+      {!winner && acting === 'operatives' && mineTurn && props.mySeat === null && (
         <button
           className={`secondary ${styles.pass}`}
           onClick={() => props.onAction({ type: 'endTurn' })}
@@ -356,12 +358,10 @@ export default function GameScreen(props: {
 
       <div className={styles.boardArea}>
         <Board
-          cards={props.game.state.cards}
-          mode={props.game.state.mode}
+          game={props.game}
           loading={props.loadingFaces}
           spymasterTeam={props.mySeat}
           myTeam={props.myTeam}
-          turn={props.game.state.turn}
           selected={selected}
           feedback={feedback}
           onToggleSelect={toggleSelected}

@@ -1,4 +1,4 @@
-import type { BoardMode, Card, GuessOutcome, Team } from '../Game'
+import { Game, type Card, type GuessOutcome, type Team } from '../Game'
 import styles from './Board.module.css'
 
 const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
@@ -9,12 +9,10 @@ const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
 }
 
 export default function Board(props: {
-  cards: Card[]
-  mode: BoardMode
+  game: Game
   loading: boolean
   spymasterTeam: Team | null
   myTeam: Team
-  turn: Team
   selected: Set<number>
   feedback: Record<number, GuessOutcome>
   onToggleSelect: (index: number) => void
@@ -22,6 +20,7 @@ export default function Board(props: {
   onCardMark: (index: number) => void
 }) {
   const isSpymaster = props.spymasterTeam !== null
+  const cards = props.game.state.cards
 
   // Both roles single out cards the same way — a thicker border with the rest of
   // the board dimmed. A spymaster's picks are private (the selected set, owned by
@@ -30,22 +29,17 @@ export default function Board(props: {
   const highlighted = (card: Card, index: number): boolean =>
     !card.revealed &&
     (isSpymaster ? props.selected.has(index) : card.markedBy.includes(props.myTeam))
-  const focusing = props.cards.some((card, index) => highlighted(card, index))
+  const focusing = cards.some((card, index) => highlighted(card, index))
   return (
     <div className={styles.board} data-focus={focusing || undefined}>
-      {props.cards.map((card, index) => {
-        const showColor = card.revealed || isSpymaster
+      {cards.map((card, index) => {
+        const showColor = props.game.showsColor(index, isSpymaster)
         // Word cards are named by their word; picture cards by position.
-        const name = props.mode === 'word' ? card.face : `Card ${index + 1}`
+        const name = props.game.state.mode === 'word' ? card.face : `Card ${index + 1}`
         // Announce an operative's own-team mark so it's perceivable without sight.
         const marked = !isSpymaster && highlighted(card, index)
         const label = showColor ? `${name}, ${card.color}` : marked ? `${name}, marked` : name
-        // Only the team on turn acts, and only on live cards: an operative
-        // guesses any unrevealed card; a spymaster only marks their own.
-        const actionable =
-          !card.revealed &&
-          props.turn === props.myTeam &&
-          (isSpymaster ? card.color === props.spymasterTeam : true)
+        const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
         return (
           <button
             key={index}
@@ -70,12 +64,12 @@ export default function Board(props: {
               event.preventDefault()
               // Operatives mark on any turn — a private note to plan ahead while
               // the opponent plays — so this isn't gated by `actionable`.
-              if (!isSpymaster && !card.revealed) props.onCardMark(index)
+              if (props.game.canMark(index, isSpymaster)) props.onCardMark(index)
             }}
           >
             {props.loading ? (
               <span className={`${styles.face} ${styles.loading}`} />
-            ) : props.mode === 'word' ? (
+            ) : props.game.state.mode === 'word' ? (
               <span className={`${styles.face} ${styles.word}`}>{card.face}</span>
             ) : (
               <img

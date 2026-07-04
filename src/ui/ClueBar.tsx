@@ -17,13 +17,11 @@ export default function ClueBar(props: {
   useEffect(() => {
     if (props.selectedCount > 0) setCount(props.selectedCount)
   }, [props.selectedCount])
-  const turn = props.turn
-  const teamCardsLeft = props.teamCardsLeft
 
   return (
     <form
       className={styles.clueForm}
-      data-team={turn}
+      data-team={props.turn}
       onSubmit={(event) => {
         event.preventDefault()
         if (word.trim()) {
@@ -38,14 +36,14 @@ export default function ClueBar(props: {
           required
           pattern="\S+"
           title="One word, no spaces"
-          placeholder={turn === 'red' ? "Red's clue" : "Blue's clue"}
+          placeholder={props.turn === 'red' ? "Red's clue" : "Blue's clue"}
           onChange={(event) => setWord(event.target.value)}
         />
         <input
           id="clue-count"
           type="number"
           min={0}
-          max={teamCardsLeft}
+          max={props.teamCardsLeft}
           placeholder="Number"
           value={count}
           onChange={(event) => setCount(event.target.valueAsNumber)}
