@@ -224,7 +224,7 @@ export default function GameScreen(props: {
   const statusText = winner
     ? winner === props.myTeam
       ? 'You win! 🏆'
-      : 'They win 🏆'
+      : 'They win 😢'
     : phase === 'clue'
       ? mineTurn
         ? activeSpymaster
@@ -251,7 +251,7 @@ export default function GameScreen(props: {
   useEffect(() => {
     document.title = centerText
 
-    const role = winner ? '🏆' : props.mySeat ? '🕵️' : ''
+    const role = winner ? (winner === props.myTeam ? '🏆' : '😢') : props.mySeat ? '🕵️' : ''
     const colorVar = props.myTeam === 'red' ? '--red' : '--blue'
     const color = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim() || '#888'
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="${color}"/><text x="16" y="25" font-size="22" text-anchor="middle">${role}</text></svg>`
