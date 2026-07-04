@@ -1,5 +1,5 @@
 import Peer, { type DataConnection, type PeerOptions } from 'peerjs'
-import { Game, createGame, type BoardMode, type GameState, type Team } from '../Game'
+import { Game, createGame, type BoardMode, type GameState, type Team } from './Game'
 
 // A wire message: what a player wants to do, sent guest → host as a plain
 // serializable object, then routed onto the Game by the host.

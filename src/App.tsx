@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { type GameState, type Team } from './Game'
 import { getFaces, providers } from './images/providers'
-import { host, resumeHost, join, type Session, type Action } from './net/peerMultiplayer'
+import { host, resumeHost, join, type Session, type Action } from './peerMultiplayer'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
 
