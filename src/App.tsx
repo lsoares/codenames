@@ -227,6 +227,16 @@ export default function App() {
     }
   }, [game, roomCode])
 
+  // Guard against leaving mid-game while others are still playing: a live game
+  // (clue out or cards revealed, no winner) with more than just this tab makes
+  // the browser confirm before unload. The message itself is browser-generic.
+  useEffect(() => {
+    if (!game?.inProgress() || playerCount <= 1) return
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault()
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [game, playerCount])
+
   // On load: join the live room in the URL hash if one exists — this also keeps
   // a duplicated tab (which inherits the host's saved state) from re-hosting.
   // Only re-host from saved state when nobody answers, so a host's own refresh

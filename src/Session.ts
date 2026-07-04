@@ -35,4 +35,7 @@ export interface Session {
   setTeam: (team: Team) => void
   subscribe: (listener: (view: RoomView) => void) => void
   onDisconnect: (listener: () => void) => void
+  // Leave the room for good: tear down the peer and stop the heartbeat. The
+  // session is dead after this — used when a player leaves back to the lobby.
+  close: () => void
 }

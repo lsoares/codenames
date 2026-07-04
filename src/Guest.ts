@@ -7,6 +7,7 @@ import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Ses
 // heartbeat so it can report the host going silent. Construct via Guest.join.
 export class Guest implements Session {
   selfId!: string
+  private peer!: ReturnType<typeof newPeer>
   private connection!: DataConnection
   private readonly listeners: Array<(view: RoomView) => void> = []
   private latest: RoomView | null = null
@@ -42,12 +43,20 @@ export class Guest implements Session {
     this.disconnectHandler = listener
   }
 
-  private run(resolve: (guest: Guest) => void, reject: (error: unknown) => void): void {
-    const peer = newPeer()
+  // Leaving for good: suppress the disconnect handler (we're going on purpose, so
+  // don't trigger a host takeover), stop the watchdog, and drop the peer.
+  close(): void {
+    this.lost = true
+    if (this.watchdog) clearInterval(this.watchdog)
+    this.peer.destroy()
+  }
 
-    peer.on('open', (selfId) => {
+  private run(resolve: (guest: Guest) => void, reject: (error: unknown) => void): void {
+    this.peer = newPeer()
+
+    this.peer.on('open', (selfId) => {
       this.selfId = selfId
-      this.connection = peer.connect(this.roomCode, { reliable: true })
+      this.connection = this.peer.connect(this.roomCode, { reliable: true })
 
       this.connection.on('open', () => {
         this.lastSeen = Date.now()
@@ -68,7 +77,7 @@ export class Guest implements Session {
       this.connection.on('error', () => this.markLost())
     })
 
-    peer.on('error', reject)
+    this.peer.on('error', reject)
   }
 
   private markLost(): void {
