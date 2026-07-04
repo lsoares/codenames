@@ -2,9 +2,9 @@
   --bg: #fdf6ec;
   --bg-glow: #fff3d6;
   --surface: #ffffff;
-  /* Card faces sit a touch below the white app surface: a warm off-white so
-     bright/transparent faces (word tiles, Pokémon artwork) don't glare. */
-  --card-face: #f4eee1;
+  /* Card faces sit a touch below the white app surface: a soft cream that also
+     matches the official picture cards, so their letterbox blends in. */
+  --card-face: #fbf9e9;
   --ink: #2b2d42;
   --muted: #7a7f92;
   --line: #ece5d6;
@@ -30,24 +30,6 @@ body {
   font-size: 18px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  transition: background 0.4s ease;
-}
-
-/* The page background carries the player's own team, so they always know it. */
-body[data-team='red'] {
-  background: radial-gradient(
-    1200px 620px at 50% -12%,
-    color-mix(in srgb, var(--red) 16%, var(--bg-glow)),
-    color-mix(in srgb, var(--red) 9%, var(--bg))
-  );
-}
-
-body[data-team='blue'] {
-  background: radial-gradient(
-    1200px 620px at 50% -12%,
-    color-mix(in srgb, var(--blue) 16%, var(--bg-glow)),
-    color-mix(in srgb, var(--blue) 9%, var(--bg))
-  );
 }
 
 h1 {
