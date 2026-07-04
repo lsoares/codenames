@@ -9,7 +9,7 @@ export default function Homepage(props: {
 }) {
   return (
     <main className={styles.home}>
-      <h1 className={styles.title}>Codenames Pictures</h1>
+      <h1 className={styles.title}>Codenames Anything</h1>
       <p className={styles.subtitle}>Pick a deck to start a game</p>
       <DeckPicker providers={props.providers} onPick={props.onPick} />
     </main>

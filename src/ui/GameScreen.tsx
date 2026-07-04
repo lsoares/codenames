@@ -223,7 +223,7 @@ export default function GameScreen(props: {
     icon.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(svg)}`)
 
     return () => {
-      document.title = 'Codenames Pictures'
+      document.title = 'Codenames Anything'
     }
   }, [centerText, props.myTeam, props.mySeat, winner])
 
