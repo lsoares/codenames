@@ -1,6 +1,6 @@
 import { type DataConnection } from 'peerjs'
-import { Game, createGame, type BoardMode, type GameState } from './Game'
-import { Room } from './Room'
+import { Game, createGame, type BoardMode, type GameState } from './domain/Game'
+import { Room } from './domain/Room'
 import { newPeer, randomCode } from './peer'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Game, type GameState, type Team } from './Game'
+import { Game, type GameState, type Team } from './domain/Game'
 import { getFaces, providers } from './images/providers'
 import { Host } from './Host'
 import { Guest } from './Guest'
