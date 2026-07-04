@@ -62,7 +62,7 @@
 }
 
 .image {
-  object-fit: cover;
+  object-fit: contain;
 }
 
 /* Icon on a light tile (like a word), its glyph masked so it can take the card
@@ -166,11 +166,11 @@
 }
 
 .card[data-color='red'] {
-  background: var(--red);
+  background: color-mix(in srgb, var(--red) 62%, white);
 }
 
 .card[data-color='blue'] {
-  background: var(--blue);
+  background: color-mix(in srgb, var(--blue) 62%, white);
 }
 
 .card[data-color='neutral'] {
