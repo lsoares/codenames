@@ -24,4 +24,4 @@ async function fetch(): Promise<string[]> {
   return photos.map((photo) => photo.src.medium)
 }
 
-export const pexels: CardProvider = { id: 'pexels', label: 'Pexels', icon: '🖼️', kind: 'image', fetch }
+export const pexels: CardProvider = { id: 'pexels', label: 'Curated', icon: '🖼️', description: 'Curated editorial photos from Pexels', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }

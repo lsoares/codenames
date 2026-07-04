@@ -34,7 +34,7 @@ export const pokemon: CardProvider = {
   id: 'pokemon',
   label: 'Pokémon',
   icon: '⚡',
-  kind: 'image',
-  extra: true,
+  description: 'Official Pokémon artwork',
+  credit: { label: 'PokéAPI', url: 'https://pokeapi.co' },
   fetch,
 }

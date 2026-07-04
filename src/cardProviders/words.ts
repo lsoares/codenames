@@ -68,6 +68,7 @@ export const words: CardProvider = {
   id: 'words',
   label: 'Words',
   icon: '📝',
-  kind: 'word',
+  description: 'Everyday nouns to connect with a clue',
+  credit: { label: 'Datamuse', url: 'https://www.datamuse.com/api/' },
   fetch: () => datamuseWords(),
 }

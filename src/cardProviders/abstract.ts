@@ -1,10 +1,9 @@
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-const CATEGORIES = [
-  'animal', 'fruit', 'vegetable', 'flower', 'tree', 'vehicle', 'tool', 'instrument',
-  'furniture', 'kitchen', 'clothing', 'building', 'sport', 'toy', 'insect', 'bird',
-  'fish', 'dessert', 'drink', 'weather', 'landscape', 'gadget', 'jewelry', 'shoe',
+const LOOKS = [
+  'abstract', 'texture', 'pattern', 'paint', 'macro', 'smoke',
+  'bokeh', 'ink', 'marble', 'geometric', 'gradient', 'fractal',
 ]
 
 interface PexelsPhoto {
@@ -15,12 +14,12 @@ async function fetch(): Promise<string[]> {
   const key = import.meta.env.VITE_PEXELS_API_KEY
   if (!key) throw new Error('Missing VITE_PEXELS_API_KEY')
 
-  const categories = shuffle(CATEGORIES).slice(0, 7)
+  const looks = shuffle(LOOKS).slice(0, 7)
   const page = Math.floor(Math.random() * 5) + 1
   const bodies = await Promise.all(
-    categories.map((category) =>
+    looks.map((look) =>
       window
-        .fetch(`https://api.pexels.com/v1/search?query=${category}&per_page=4&page=${page}`, {
+        .fetch(`https://api.pexels.com/v1/search?query=${look}&per_page=4&page=${page}`, {
           headers: { Authorization: key },
         })
         .then((response) => {
@@ -35,4 +34,4 @@ async function fetch(): Promise<string[]> {
   return faces.slice(0, 20)
 }
 
-export const things: CardProvider = { id: 'things', label: 'Things', icon: '🧩', description: 'Concrete, easily-named everyday objects', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }
+export const abstract: CardProvider = { id: 'abstract', label: 'Abstract', icon: '🌀', description: 'Abstract imagery open to interpretation', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }

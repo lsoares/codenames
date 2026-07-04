@@ -28,4 +28,4 @@ async function fetch(): Promise<string[]> {
   return faces.slice(0, 20)
 }
 
-export const games: CardProvider = { id: 'games', label: 'Games', icon: '🎮', kind: 'image', extra: true, fetch }
+export const games: CardProvider = { id: 'games', label: 'Games', icon: '🎮', description: 'Artwork from acclaimed video games', credit: { label: 'RAWG', url: 'https://rawg.io' }, fetch }

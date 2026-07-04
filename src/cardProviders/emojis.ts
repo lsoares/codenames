@@ -1,9 +1,6 @@
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-// A word-mode board whose "words" are emojis. Pulls from a spread of instantly
-// recognisable ones so every card names a clear thing to link a clue to. No key
-// or network — draws 20 distinct emojis at random, so it never fails.
 const EMOJIS = [
   '🐶', '🐱', '🦊', '🐼', '🦁', '🐯', '🐸', '🐵', '🐔', '🐧', '🦉', '🦄', '🐝', '🦋',
   '🐢', '🐍', '🐙', '🦀', '🐠', '🐬', '🐳', '🦖', '🌵', '🌲', '🌸', '🍄', '🍁', '⭐',
@@ -20,4 +17,4 @@ async function fetch(): Promise<string[]> {
   return shuffle(EMOJIS).slice(0, 20)
 }
 
-export const emojis: CardProvider = { id: 'emojis', label: 'Emojis', icon: '😀', kind: 'word', extra: true, fetch }
+export const emojis: CardProvider = { id: 'emojis', label: 'Emojis', icon: '😀', description: 'Random emoji', fetch }
