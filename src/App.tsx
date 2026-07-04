@@ -135,14 +135,14 @@ export default function App() {
   }
 
   const createRoom = async (id: string) => {
-    setStatus('Loading cards…')
+    // No loading screen: hosting is quick, so stay on the homepage until the
+    // board is ready rather than flashing an intermediate card. Only a failure
+    // surfaces a status (below).
     const { faces, mode } = await getFaces(id)
-    setStatus('Creating room…')
     // Tests can pin the starting team for determinism; players get a random one.
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
       wire(await Host.start(faces, start, mode), true)
-      setStatus('')
     } catch (error) {
       console.error('createRoom failed:', error)
       setStatus(
