@@ -10,24 +10,6 @@
   position: relative;
 }
 
-.credit {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -30px;
-  font-size: 0.8rem;
-  color: var(--muted);
-  text-decoration: none;
-}
-
-.credit::before {
-  content: 'source: ';
-}
-
-.credit:hover {
-  color: var(--ink);
-}
-
 .card {
   position: relative;
   /* Both min-* zeroed so a 1fr grid track can shrink below the card's content

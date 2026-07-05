@@ -38,11 +38,11 @@ export const providers: CardProvider[] = [officialWords, official, words, geeks,
 // game can always start.
 export async function getFaces(
   providerId: string,
-): Promise<{ faces: string[]; credit: Credit | null; fit: CardFit }> {
+): Promise<{ faces: string[]; credit: Credit | null; fit: CardFit; deck: string }> {
   const provider = providers.find((p) => p.id === providerId) ?? unsplash
   try {
-    return { faces: await provider.fetch(), credit: provider.credit ?? null, fit: provider.fit ?? 'cover' }
+    return { faces: await provider.fetch(), credit: provider.credit ?? null, fit: provider.fit ?? 'cover', deck: provider.label }
   } catch {
-    return { faces: await officialWords.fetch(), credit: officialWords.credit ?? null, fit: 'cover' }
+    return { faces: await officialWords.fetch(), credit: officialWords.credit ?? null, fit: 'cover', deck: officialWords.label }
   }
 }

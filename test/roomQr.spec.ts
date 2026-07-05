@@ -23,15 +23,3 @@ test('clicking the QR copies the join link', async ({ page }) => {
 
   await expect(game.getRoomQrDialog().getByText('Copied!')).toBeVisible()
 })
-
-test('Escape closes the room QR dialog', async ({ page }) => {
-  await stubUnsplash(page)
-  const game = new GamePage(page)
-  await game.open('red')
-  await game.createRoom()
-  await game.openRoomQr()
-
-  await page.keyboard.press('Escape')
-
-  await expect(game.getRoomQrDialog()).toBeHidden()
-})

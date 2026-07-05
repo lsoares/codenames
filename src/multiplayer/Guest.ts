@@ -1,5 +1,5 @@
 import { type DataConnection } from 'peerjs'
-import { iceServersReady, newPeer, tabPeerId } from './peer'
+import { iceServersReady, logConnection, newPeer, tabPeerId } from './peer'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
 
 // What a failed join concluded, so the UI can give the right advice instead of
@@ -22,6 +22,14 @@ export class JoinError extends Error {
 // localStorage to exercise the failure paths quickly.
 const joinWindowMs = (): number =>
   Number(localStorage.getItem('codenames:join-window-ms')) || 15000
+
+// Once the broker says the room isn't registered, keep trying only this long —
+// a host may be mid-setup or mid-takeover — before giving up with room-not-found.
+// Far shorter than the connect window: a missing room is a near-verdict, so we
+// mustn't sit on "Connecting…" for the full window waiting out slow ICE that will
+// never happen (there's no host to reach). Tests shrink it via localStorage.
+const hostMissingMs = (): number =>
+  Number(localStorage.getItem('codenames:host-missing-ms')) || 5000
 
 // A client peer: connects to a Host by room code, forwards the player's actions
 // onto the wire, renders the RoomView the host broadcasts back, and watches the
@@ -84,13 +92,20 @@ export class Guest implements Session {
       // join progresses, so the last thing we were stuck on names the failure.
       let phase: JoinFailureReason = 'broker-unreachable'
       let settled = false
+      // Armed the moment the broker first reports the room missing, so we give up
+      // on a dead room well before the (much longer) connect window would.
+      let missingTimer: ReturnType<typeof setTimeout> | undefined
 
       const timer = setTimeout(() => fail(phase), joinWindowMs())
+      const clearTimers = () => {
+        clearTimeout(timer)
+        if (missingTimer) clearTimeout(missingTimer)
+      }
 
       const fail = (reason: JoinFailureReason) => {
         if (settled) return
         settled = true
-        clearTimeout(timer)
+        clearTimers()
         this.peer.destroy()
         reject(new JoinError(reason))
       }
@@ -98,7 +113,7 @@ export class Guest implements Session {
       const succeed = () => {
         if (settled) return
         settled = true
-        clearTimeout(timer)
+        clearTimers()
         resolve(this)
       }
 
@@ -112,6 +127,7 @@ export class Guest implements Session {
         const connection = peer.connect(this.roomCode, { reliable: true })
         this.connection = connection
         connection.on('open', () => {
+          logConnection(connection)
           this.lastSeen = Date.now()
           this.watchdog = setInterval(() => {
             // Keepalive so the host knows we're still here, and detect host loss.
@@ -161,9 +177,12 @@ export class Guest implements Session {
           if (error.type === 'peer-unavailable') {
             // The room id isn't registered right now. The host may be mid-reload
             // or mid-takeover, so keep dialing on the same peer — unless the
-            // caller wants the verdict immediately (waitForHost=false).
+            // caller wants the verdict immediately (waitForHost=false). Either
+            // way, don't wait the whole connect window: give up shortly if no
+            // host shows up.
             phase = 'room-not-found'
             if (!waitForHost) return fail('room-not-found')
+            if (!missingTimer) missingTimer = setTimeout(() => fail('room-not-found'), hostMissingMs())
             redial(this.connection)
           } else {
             // Anything else — the broker still holding our tab id after a reload

@@ -1,7 +1,7 @@
 import { type DataConnection } from 'peerjs'
 import { Game, createGame, type CardFit, type Credit, type GameState } from '../Game'
 import { Room } from './Room'
-import { iceServersReady, newPeer, randomCode } from './peer'
+import { iceServersReady, logConnection, newPeer, randomCode } from './peer'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
 
 const apply = (game: Game, action: Action): Game => {
@@ -15,7 +15,7 @@ const apply = (game: Game, action: Action): Game => {
     case 'endTurn':
       return game.endTurn()
     case 'newGame':
-      return game.newGame(action.faces, action.credit, action.fit)
+      return game.newGame(action.faces, action.credit, action.fit, action.deck)
   }
 }
 
@@ -39,6 +39,7 @@ export class Host implements Session {
     private readonly code: string,
     initialState: GameState,
     private readonly mode: 'new' | 'resume',
+    private readonly fixedCode: boolean,
   ) {
     this.game = new Game(initialState)
     this.peer = newPeer(code)
@@ -49,15 +50,17 @@ export class Host implements Session {
     startingTeam: 'red' | 'blue',
     credit: Credit | null,
     fit: CardFit,
+    deck: string,
+    code?: string,
   ): Promise<Host> {
-    return Host.launch(randomCode(), createGame(faces, startingTeam, credit, fit), 'new', 4)
+    return Host.launch(code ?? randomCode(), createGame(faces, startingTeam, credit, fit, deck), 'new', 4, code != null)
   }
 
   // Re-host an existing game under the same room code (host reload or FIFO
   // takeover). Generous retries: after a reload the broker holds the old id for a
   // few seconds.
   static resume(roomCode: string, state: GameState): Promise<Host> {
-    return Host.launch(roomCode, state, 'resume', 15)
+    return Host.launch(roomCode, state, 'resume', 15, true)
   }
 
   private static async launch(
@@ -65,9 +68,12 @@ export class Host implements Session {
     initialState: GameState,
     mode: 'new' | 'resume',
     retries: number,
+    fixedCode: boolean,
   ): Promise<Host> {
     await iceServersReady
-    return new Promise((resolve, reject) => new Host(code, initialState, mode).run(retries, resolve, reject))
+    return new Promise((resolve, reject) =>
+      new Host(code, initialState, mode, fixedCode).run(retries, resolve, reject),
+    )
   }
 
   dispatch(action: Action): void {
@@ -120,6 +126,7 @@ export class Host implements Session {
 
     this.peer.on('connection', (connection) => {
       connection.on('open', () => {
+        logConnection(connection)
         this.connections.push(connection)
         this.lastSeen.set(connection, Date.now())
         this.room = this.room.assignTeam(connection.peer).autoSeat(connection.peer)
@@ -144,9 +151,10 @@ export class Host implements Session {
       if (error.type === 'unavailable-id' && retries > 0) {
         this.peer.destroy()
         if (this.heartbeat) clearInterval(this.heartbeat) // this attempt is dead; a fresh Host starts its own
+        if (this.fixedCode && this.mode === 'new') return reject(error)
         const nextCode = this.mode === 'new' ? randomCode() : this.code
         setTimeout(
-          () => Host.launch(nextCode, this.game.state, this.mode, retries - 1).then(resolve, reject),
+          () => Host.launch(nextCode, this.game.state, this.mode, retries - 1, this.fixedCode).then(resolve, reject),
           this.mode === 'resume' ? 800 : 0,
         )
       } else {

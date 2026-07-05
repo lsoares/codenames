@@ -5,6 +5,7 @@ import type { CardProvider } from '../cardProviders/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
 import DeckPicker from './DeckPicker'
+import DebugLog from './DebugLog'
 import RoomQr from './RoomQr'
 import styles from './GameScreen.module.css'
 
@@ -23,7 +24,22 @@ export default function GameScreen(props: {
   loadingFaces: boolean
   providers: CardProvider[]
 }) {
+  const pickerDialog = useRef<HTMLDialogElement>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
+  // The corner tools (invite, logs, full screen, deck) live behind one hamburger menu.
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
+  const [logsOpen, setLogsOpen] = useState(false)
+  const [fullscreen, setFullscreen] = useState(false)
+  useEffect(() => {
+    const sync = () => setFullscreen(document.fullscreenElement !== null)
+    document.addEventListener('fullscreenchange', sync)
+    return () => document.removeEventListener('fullscreenchange', sync)
+  }, [])
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) void document.exitFullscreen()
+    else void document.documentElement.requestFullscreen().catch(() => {})
+  }
 
   // Clicking a team's card joins it as an operative. Already a plain operative
   // there? Nothing to do. Moving to the other side mid-game confirms first;
@@ -170,10 +186,25 @@ export default function GameScreen(props: {
     )
   }
 
-  // A game in progress shouldn't be wiped by accident; confirm before starting a
-  // new one. A finished or still-untouched game starts immediately.
-  const confirmNewGame = (): boolean =>
-    props.game.idle() || window.confirm('Start a new game? The current game will be lost.')
+  // Re-dealing wipes the current game, so a game in progress confirms first; a
+  // finished or untouched one goes straight through.
+  const confirmDiscard = (): boolean =>
+    props.game.idle() || window.confirm('The current game will be lost. Continue?')
+
+  // Fresh cards from the deck already in play — resolve its id from the stored
+  // deck name (labels are unique). Falls through silently if it can't be found.
+  const currentDeckId = props.providers.find((p) => p.label === props.game.state.deck)?.id
+  const dealNewCards = () => {
+    if (currentDeckId && confirmDiscard()) props.onNewGame(currentDeckId)
+  }
+
+  // Open the picker to re-deal from a chosen deck (same room).
+  const pickCards = () => {
+    if (confirmDiscard()) {
+      setPickerOpen(true)
+      pickerDialog.current?.showModal()
+    }
+  }
 
   // Once the game is over, each side swaps its live team badge for the full run
   // of clues that team gave — a keepsake of how the game was played.
@@ -317,11 +348,6 @@ export default function GameScreen(props: {
           ✕
         </button>
       )}
-      {winner && (
-        <button className={styles.newGame} onClick={() => setPickerOpen(true)}>
-          New game
-        </button>
-      )}
     </div>
   )
 
@@ -349,27 +375,106 @@ export default function GameScreen(props: {
         />
       </div>
 
-      <RoomQr />
-
-      {pickerOpen && (
-        <div className={styles.overlay} onClick={() => setPickerOpen(false)}>
-          <div
-            className={styles.overlayInner}
-            role="dialog"
-            aria-label="New game"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <DeckPicker
-              providers={props.providers}
-              onPick={(id) => {
-                if (!confirmNewGame()) return
-                props.onNewGame(id)
-                setPickerOpen(false)
+      <div className={styles.tools}>
+        {menuOpen && <div className={styles.toolsBackdrop} onClick={() => setMenuOpen(false)} />}
+        <button
+          type="button"
+          className={styles.hamburger}
+          aria-label="Menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          ☰
+        </button>
+        {menuOpen && (
+          <div className={styles.toolsMenu}>
+            {props.game.state.deck && (
+              <p className={styles.toolsCredit}>
+                {props.game.state.credit ? (
+                  <a href={props.game.state.credit.url} target="_blank" rel="noreferrer">
+                    {props.game.state.deck}, by {props.game.state.credit.label}
+                  </a>
+                ) : (
+                  props.game.state.deck
+                )}
+              </p>
+            )}
+            <button
+              type="button"
+              className={styles.toolItem}
+              onClick={() => {
+                setMenuOpen(false)
+                dealNewCards()
               }}
-            />
+            >
+              New cards
+            </button>
+            <button
+              type="button"
+              className={styles.toolItem}
+              onClick={() => {
+                setMenuOpen(false)
+                pickCards()
+              }}
+            >
+              Pick deck
+            </button>
+            <button
+              type="button"
+              className={styles.toolItem}
+              onClick={() => {
+                setMenuOpen(false)
+                setShareOpen(true)
+              }}
+            >
+              Invite players
+            </button>
+            <button
+              type="button"
+              className={styles.toolItem}
+              onClick={() => {
+                setMenuOpen(false)
+                setLogsOpen(true)
+              }}
+            >
+              Show logs
+            </button>
+            <button
+              type="button"
+              className={styles.toolItem}
+              onClick={() => {
+                setMenuOpen(false)
+                toggleFullscreen()
+              }}
+            >
+              {fullscreen ? 'Exit full screen' : 'Full screen'}
+            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      <RoomQr open={shareOpen} onClose={() => setShareOpen(false)} />
+      <DebugLog open={logsOpen} onClose={() => setLogsOpen(false)} />
+
+      <dialog
+        ref={pickerDialog}
+        className={styles.picker}
+        aria-label="Pick a deck"
+        onClose={() => setPickerOpen(false)}
+        onClick={(event) => {
+          if (event.target === pickerDialog.current) pickerDialog.current.close()
+        }}
+      >
+        {pickerOpen && (
+          <DeckPicker
+            providers={props.providers}
+            onPick={(id) => {
+              props.onNewGame(id)
+              pickerDialog.current?.close()
+            }}
+          />
+        )}
+      </dialog>
     </main>
   )
 }

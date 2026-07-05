@@ -1,0 +1,23 @@
+.dialog {
+  max-width: min(92vw, 560px);
+  padding: 0;
+  border: none;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.log {
+  margin: 0;
+  max-height: 70vh;
+  padding: 16px;
+  overflow: auto;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

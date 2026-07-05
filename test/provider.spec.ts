@@ -1,5 +1,16 @@
 import { test, expect } from '@playwright/test'
-import { GamePage, stubMixSources, stubPexels, stubTmdb, STUB_WORDS } from './gamePage'
+import { GamePage, stubCats, stubMixSources, stubPexels, stubTmdb, STUB_WORDS } from './gamePage'
+
+test('the credits area names the selected board type', async ({ page }) => {
+  await stubCats(page)
+  const game = new GamePage(page)
+  await game.open()
+
+  await game.startWithDeck('Cats')
+  await game.openToolsMenu()
+
+  await expect(game.getBoardType()).toHaveText('Cats, by The Cat API')
+})
 
 test('starting from Curated sources the board from Pexels', async ({ page }) => {
   await stubPexels(page)

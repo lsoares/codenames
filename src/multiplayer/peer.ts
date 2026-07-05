@@ -1,4 +1,4 @@
-import Peer, { type PeerOptions } from 'peerjs'
+import Peer, { type DataConnection, type PeerOptions } from 'peerjs'
 
 export function randomCode(): string {
   return Math.random().toString(36).slice(2, 8)
@@ -62,4 +62,22 @@ export function newPeer(id?: string): Peer {
     options.secure = import.meta.env.VITE_PEER_SECURE === 'true' || undefined
   }
   return id ? new Peer(id, options) : new Peer(options)
+}
+
+export function logConnection(connection: DataConnection): void {
+  const pc = connection.peerConnection
+  const report = async () => {
+    const stats = [...(await pc.getStats()).values()] as any[]
+    const pair = stats.find((s) => s.type === 'candidate-pair' && s.state === 'succeeded')
+    const local = stats.find((s) => s.id === pair?.localCandidateId)
+    const remote = stats.find((s) => s.id === pair?.remoteCandidateId)
+    const relayed = local?.candidateType === 'relay' || remote?.candidateType === 'relay'
+    console.info(
+      `[rtc] ${connection.peer}: ${local?.candidateType} ↔ ${remote?.candidateType} over ${local?.protocol} — ${relayed ? 'TURN relay' : 'direct'}`,
+    )
+  }
+  pc.addEventListener('connectionstatechange', () => {
+    console.info(`[rtc] ${connection.peer}: ${pc.connectionState}`)
+    if (pc.connectionState === 'connected') void report()
+  })
 }

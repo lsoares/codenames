@@ -166,11 +166,28 @@ export class GamePage {
     await this.page.reload()
   }
 
-  // The "New game" button appears beside the win message; it opens the deck
-  // picker overlay to re-deal the room. Start a fresh game from the named deck.
-  async startNewGameFromEnd(label: string): Promise<void> {
-    await this.page.getByRole('button', { name: 'New game' }).click()
-    await this.page.getByRole('dialog', { name: 'New game' }).getByRole('button', { name: label, exact: true }).click()
+  // "New cards" (in the tools menu) re-deals the current deck in place; a game in
+  // progress prompts a confirm first (arm a dialog handler).
+  async dealNewCards(): Promise<void> {
+    await this.openToolsMenu()
+    await this.page.getByRole('button', { name: 'New cards' }).click()
+  }
+
+  // "Pick deck" opens the deck picker without leaving the room; a game in
+  // progress prompts a confirm first (arm a dialog handler).
+  async openDeckPicker(): Promise<void> {
+    await this.openToolsMenu()
+    await this.page.getByRole('button', { name: 'Pick deck' }).click()
+  }
+
+  getDeckPicker() {
+    return this.page.getByRole('dialog', { name: 'Pick a deck' })
+  }
+
+  // Pick a deck in the picker to re-deal the room in place.
+  async closeGame(label: string): Promise<void> {
+    await this.openDeckPicker()
+    await this.getDeckPicker().getByRole('button', { name: label, exact: true }).click()
   }
 
   // Take a spymaster seat (defaults to the team on turn). Arm a dialog acceptor
@@ -211,8 +228,14 @@ export class GamePage {
     return this.page.getByRole('list', { name: `${team} clues` }).getByRole('listitem')
   }
 
-  // The corner badge opens the room's join QR in a dialog.
+  // The corner hamburger groups the invite, logs, and close-game tools.
+  async openToolsMenu(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Menu' }).click()
+  }
+
+  // The tools menu holds the join QR, which opens in a dialog.
   async openRoomQr(): Promise<void> {
+    await this.openToolsMenu()
     await this.page.getByRole('button', { name: 'Invite players' }).click()
   }
 
@@ -222,6 +245,20 @@ export class GamePage {
 
   async copyRoomLink(): Promise<void> {
     await this.page.getByRole('button', { name: 'Copy join link' }).click()
+  }
+
+  async openDebugLogs(): Promise<void> {
+    await this.openToolsMenu()
+    await this.page.getByRole('button', { name: 'Show logs' }).click()
+  }
+
+  getDebugLogDialog() {
+    return this.page.getByRole('dialog', { name: 'Connection logs' })
+  }
+
+  // The board footer links the deck the board was dealt from to its source.
+  getBoardType() {
+    return this.page.getByRole('link', { name: /, by / })
   }
 
   // Spymaster-only: the number of the first unrevealed card of a colour, so an

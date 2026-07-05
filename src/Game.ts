@@ -31,6 +31,7 @@ export interface Clue {
 
 export interface GameState {
   readonly cards: readonly Card[]
+  readonly deck: string | null // the picked deck's name, shown as the board type
   readonly credit: Credit | null // attribution for the deck's source, null when local
   readonly fit: CardFit // how image faces fill their card
   readonly turn: Team
@@ -62,6 +63,7 @@ export function createGame(
   startingTeam: Team,
   credit: Credit | null = null,
   fit: CardFit = 'cover',
+  deck: string | null = null,
 ): GameState {
   const otherTeam: Team = startingTeam === 'red' ? 'blue' : 'red'
   const colors = shuffle<CardColor>([
@@ -78,6 +80,7 @@ export function createGame(
       markedBy: [],
       outcome: null,
     })),
+    deck,
     credit,
     fit,
     turn: startingTeam,
@@ -146,13 +149,14 @@ export class Game {
 
   // A fresh game: new faces when the caller fetched some, else reshuffle the
   // current ones (keeping the deck's credit). Allowed even after a win.
-  newGame(faces?: string[], credit?: Credit | null, fit?: CardFit): Game {
+  newGame(faces?: string[], credit?: Credit | null, fit?: CardFit, deck?: string | null): Game {
     return new Game(
       createGame(
         faces ?? this.s.cards.map((card) => card.face),
         Math.random() < 0.5 ? 'red' : 'blue',
         credit === undefined ? this.s.credit : credit,
         fit ?? this.s.fit,
+        deck === undefined ? this.s.deck : deck,
       ),
     )
   }

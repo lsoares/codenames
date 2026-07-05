@@ -14,7 +14,12 @@ const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
 const teamName = (team: Team): string => (team === 'red' ? 'Red' : 'Blue')
 
 const normalizeCode = (raw: string): string =>
-  (raw.includes('#') ? raw.slice(raw.lastIndexOf('#') + 1) : raw).trim()
+  (raw.includes('#') ? raw.slice(raw.lastIndexOf('#') + 1) : raw)
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 
 const hostStateKey = (code: string): string => `codenames:host:${code}`
 
@@ -129,8 +134,8 @@ export default function App() {
   const newGame = async (id: string) => {
     setLoadingFaces(true)
     try {
-      const { faces, credit, fit } = await getFaces(id)
-      sessionRef.current?.dispatch({ type: 'newGame', faces, credit, fit })
+      const { faces, credit, fit, deck } = await getFaces(id)
+      sessionRef.current?.dispatch({ type: 'newGame', faces, credit, fit, deck })
     } finally {
       setLoadingFaces(false)
     }
@@ -182,16 +187,22 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const createRoom = async (id: string) => {
+  const createRoom = async (id: string, code?: string) => {
     // No loading screen: hosting is quick, so stay on the homepage until the
     // board is ready rather than flashing an intermediate card. Only a failure
     // surfaces a status (below).
-    const { faces, credit, fit } = await getFaces(id)
+    const { faces, credit, fit, deck } = await getFaces(id)
     // Tests can pin the starting team for determinism; players get a random one.
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
-      wire(await Host.start(faces, start, credit, fit), true)
+      wire(await Host.start(faces, start, credit, fit, deck, code), true)
     } catch (error) {
+      if (code && (error as { type?: string })?.type === 'unavailable-id') {
+        const joined = await Guest.join(code)
+          .then((session) => (wire(session, false), true))
+          .catch(() => false)
+        if (joined) return
+      }
       console.error('createRoom failed:', error)
       setStatus(
         `Could not create room (${(error as { type?: string })?.type ?? (error as Error)?.message ?? 'unknown'}). Try again.`,
@@ -298,6 +309,10 @@ export default function App() {
       })
       .catch((error) => {
         if (!saved) {
+          if (error instanceof JoinError && error.reason === 'room-not-found') {
+            setStatus('')
+            return
+          }
           setStatus(joinFailureMessage(error))
           return
         }
@@ -345,7 +360,10 @@ export default function App() {
           )}
         </div>
       ) : (
-        <Homepage providers={providers} onPick={(id) => void createRoom(id)} />
+        <Homepage
+          providers={providers}
+          onPick={(id) => void createRoom(id, normalizeCode(window.location.hash) || undefined)}
+        />
       )}
     </>
   )

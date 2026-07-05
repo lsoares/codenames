@@ -36,7 +36,6 @@ export default function Board(props: {
     !card.revealed &&
     (isSpymaster ? props.selected.has(index) : card.markedBy.includes(props.myTeam))
   const focusing = cards.some((card, index) => highlighted(card, index))
-  const credit = props.game.state.credit
   return (
     <div className={styles.board} data-focus={focusing || undefined} data-over={gameOver || undefined}>
       {cards.map((card, index) => {
@@ -113,16 +112,6 @@ export default function Board(props: {
           </button>
         )
       })}
-      {credit && (
-        <a
-          className={styles.credit}
-          href={credit.url}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {credit.label}
-        </a>
-      )}
     </div>
   )
 }
