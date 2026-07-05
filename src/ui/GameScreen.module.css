@@ -233,12 +233,21 @@
 /* The status/clue pill, team-tinted by whose turn it is. */
 .statusPill {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 4px 10px;
   padding: 8px 20px;
-  border-radius: 999px;
+  border-radius: 20px;
   color: var(--ink);
   white-space: nowrap;
+}
+
+.clueInline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .statusPill[data-team='red'] {
@@ -355,6 +364,10 @@
   .statusPill {
     white-space: normal;
     text-align: center;
+  }
+
+  .clueInline {
+    flex-basis: 100%;
   }
 
   /* Reclaim header width on a phone by stacking the operative faces vertically

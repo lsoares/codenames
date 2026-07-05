@@ -297,11 +297,11 @@ export default function GameScreen(props: {
             <>
               <span className={styles.statusText}>{statusText}</span>
               {!winner && phase === 'guess' && clue && (
-                <>
+                <span className={styles.clueInline}>
                   <strong className={styles.clueWord}>{clue.word}</strong>
                   <span className={styles.clueDot}>•</span>
                   <span className={styles.clueValue}>{clue.count}</span>
-                </>
+                </span>
               )}
             </>
           )}
