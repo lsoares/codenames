@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Game, type GameState, type Team } from './Game'
 import { getFaces, providers } from './cardProviders/providers'
 import { Host } from './multiplayer/Host'
-import { Guest } from './multiplayer/Guest'
+import { Guest, JoinError } from './multiplayer/Guest'
 import type { Session, Action } from './multiplayer/Session'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
@@ -17,6 +17,20 @@ const normalizeCode = (raw: string): string =>
   (raw.includes('#') ? raw.slice(raw.lastIndexOf('#') + 1) : raw).trim()
 
 const hostStateKey = (code: string): string => `codenames:host:${code}`
+
+// Turn a failed join into advice the player can act on: a missing room, an
+// unreachable broker, and a blocked peer link have different remedies. Every
+// message starts with "Could not" so the status screen offers "Back to home".
+const joinFailureMessage = (error: unknown): string => {
+  switch (error instanceof JoinError ? error.reason : null) {
+    case 'room-not-found':
+      return 'Could not find the room. Check the room code or link, or ask the host for a fresh one.'
+    case 'connection-blocked':
+      return 'Could not open a connection — the room exists, but a firewall or strict network is blocking it. Another network (like a phone hotspot) usually helps.'
+    default:
+      return 'Could not reach the connection service. Check your internet and try again.'
+  }
+}
 
 export default function App() {
   const [game, setGame] = useState<Game | null>(null)
@@ -271,29 +285,20 @@ export default function App() {
     }
 
     setStatus('Connecting…')
-    // A generous cap: a cross-network guest gathers STUN/TURN candidates and
-    // completes ICE over the internet, which routinely takes several seconds —
-    // and Guest.join itself retries an unavailable id up to 15×800ms. A tight
-    // timeout here only ever let same-machine tabs (local candidates, instant)
-    // through while every remote colleague fell into the failure branch. A truly
-    // absent host still rejects fast (peer-unavailable), so this only extends the
-    // legitimately-slow case, never the host's own refresh recovery.
-    const join = Guest.join(code)
-    const timeout = new Promise<never>((_, reject) =>
-      window.setTimeout(() => reject(new Error('join-timeout')), 15000),
-    )
-    Promise.race([join, timeout])
+    // Guest.join owns the deadline: it retries transient failures for the whole
+    // join window, then rejects with a JoinError naming what went wrong. The
+    // reloading host's own tab keeps a copy of the room state; there the join
+    // must not wait out the window on a missing room (waitForHost: false) — its
+    // next move is to re-host below, and that path recovers in a beat.
+    const saved = sessionStorage.getItem(hostStateKey(code))
+    Guest.join(code, { waitForHost: !saved })
       .then((session) => {
         wire(session, false)
         setStatus('')
       })
-      .catch(() => {
-        // If the join lands after we gave up, tear it down so it doesn't linger
-        // as a second live peer alongside whatever we do next.
-        join.then((late) => late.close()).catch(() => {})
-        const saved = sessionStorage.getItem(hostStateKey(code))
+      .catch((error) => {
         if (!saved) {
-          setStatus('Could not connect. Check the room code or link.')
+          setStatus(joinFailureMessage(error))
           return
         }
         setStatus('Restoring your room…')
