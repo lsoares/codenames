@@ -271,15 +271,26 @@ export default function App() {
     }
 
     setStatus('Connecting…')
+    // A generous cap: a cross-network guest gathers STUN/TURN candidates and
+    // completes ICE over the internet, which routinely takes several seconds —
+    // and Guest.join itself retries an unavailable id up to 15×800ms. A tight
+    // timeout here only ever let same-machine tabs (local candidates, instant)
+    // through while every remote colleague fell into the failure branch. A truly
+    // absent host still rejects fast (peer-unavailable), so this only extends the
+    // legitimately-slow case, never the host's own refresh recovery.
+    const join = Guest.join(code)
     const timeout = new Promise<never>((_, reject) =>
-      window.setTimeout(() => reject(new Error('join-timeout')), 3000),
+      window.setTimeout(() => reject(new Error('join-timeout')), 15000),
     )
-    Promise.race([Guest.join(code), timeout])
+    Promise.race([join, timeout])
       .then((session) => {
         wire(session, false)
         setStatus('')
       })
       .catch(() => {
+        // If the join lands after we gave up, tear it down so it doesn't linger
+        // as a second live peer alongside whatever we do next.
+        join.then((late) => late.close()).catch(() => {})
         const saved = sessionStorage.getItem(hostStateKey(code))
         if (!saved) {
           setStatus('Could not connect. Check the room code or link.')
