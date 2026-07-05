@@ -7,9 +7,10 @@ export interface Credit {
   readonly url: string
 }
 
-// How an image face fills its card: plain cover, or cover with a hair of zoom to
-// crop the scanned black frame off the official picture cards.
-export type CardFit = 'cover' | 'framed'
+// How an image face fills its card: plain cover; contain to show the whole image
+// at its own ratio (no crop); or cover with a hair of zoom to crop the scanned
+// black frame off the official picture cards.
+export type CardFit = 'cover' | 'contain' | 'framed'
 
 // GameState (and everything it holds) is deeply readonly: a Game never mutates
 // its state in place — every operation returns a new Game — and `game.state` is

@@ -64,6 +64,12 @@
   object-fit: cover;
 }
 
+/* Show the whole image at its own aspect ratio — no crop; the card face shows
+   around it where the ratios differ (e.g. Picbreeder's square art). */
+.contain {
+  object-fit: contain;
+}
+
 /* Official cards are square: fill the card height as a centred square and clip a
    few percent so the scanned black frame goes but the art stays whole. */
 .framed {

@@ -34,5 +34,6 @@ export const picbreeder: CardProvider = {
   icon: '🧬',
   description: 'CPPN-evolved images bred by the Picbreeder community',
   credit: { label: 'Picbreeder', url: 'https://picbreeder.net' },
+  fit: 'contain',
   fetch,
 }
