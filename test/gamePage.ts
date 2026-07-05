@@ -213,11 +213,15 @@ export class GamePage {
 
   // The corner badge opens the room's join QR in a dialog.
   async openRoomQr(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Show room QR code' }).click()
+    await this.page.getByRole('button', { name: 'Invite players' }).click()
   }
 
   getRoomQrDialog() {
     return this.page.getByRole('dialog', { name: 'Room QR code' })
+  }
+
+  async copyRoomLink(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Copy join link' }).click()
   }
 
   // Spymaster-only: the number of the first unrevealed card of a colour, so an

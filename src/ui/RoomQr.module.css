@@ -12,6 +12,7 @@
   border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
   border-radius: 10px;
   box-shadow: var(--shadow);
+  color: var(--ink);
   cursor: pointer;
   opacity: 0.4;
   transition: opacity 0.15s ease;
@@ -29,12 +30,35 @@
   box-shadow: var(--shadow);
 }
 
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .dialog::backdrop {
   background: rgba(0, 0, 0, 0.45);
+}
+
+.qr {
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  line-height: 0;
+  cursor: pointer;
 }
 
 .dialog svg {
   display: block;
   width: min(70vw, 260px);
   height: auto;
+}
+
+.copied {
+  min-height: 1.2em;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--muted);
 }
