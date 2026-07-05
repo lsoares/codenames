@@ -72,7 +72,7 @@
   margin: 0 auto;
   object-fit: cover;
   clip-path: inset(3.5% round 12px);
-  transform: scale(1.06);
+  transform: scale(1.16);
 }
 
 /* Icon on a light tile (like a word), its glyph masked so it can take the card
