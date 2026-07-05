@@ -63,11 +63,16 @@
   object-fit: cover;
 }
 
-/* Official cards are square, so fit them whole rather than cropping; the letterbox
-   takes the cream card face (not the team colour) so it reads as no padding. */
+/* Official cards are square: fill the card height as a centred square and clip a
+   few percent so the scanned black frame goes but the art stays whole. */
 .framed {
-  object-fit: contain;
-  background: var(--card-face);
+  width: auto;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  object-fit: cover;
+  clip-path: inset(3.5% round 12px);
+  transform: scale(1.06);
 }
 
 /* Icon on a light tile (like a word), its glyph masked so it can take the card
