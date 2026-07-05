@@ -30,16 +30,19 @@ export default function ClueBar(props: {
         }
       }}
     >
+      <input
+        className={styles.word}
+        value={word}
+        required
+        pattern="\S+"
+        maxLength={20}
+        title="One word, no spaces"
+        placeholder={props.turn === 'red' ? "Red's clue" : "Blue's clue"}
+        onChange={(event) => setWord(event.target.value)}
+      />
+      {/* Number and submit stay paired, so on a narrow phone they wrap together
+          onto the line below the (now full-width) clue word. */}
       <div className={styles.fields}>
-        <input
-          value={word}
-          required
-          pattern="\S+"
-          maxLength={20}
-          title="One word, no spaces"
-          placeholder={props.turn === 'red' ? "Red's clue" : "Blue's clue"}
-          onChange={(event) => setWord(event.target.value)}
-        />
         <input
           id="clue-count"
           type="number"
@@ -49,16 +52,16 @@ export default function ClueBar(props: {
           value={count}
           onChange={(event) => setCount(event.target.valueAsNumber)}
         />
+        <button
+          type="submit"
+          className={styles.submit}
+          aria-label="Give clue"
+          title="Give clue"
+          disabled={!word.trim() || Number.isNaN(count)}
+        >
+          ✓
+        </button>
       </div>
-      <button
-        type="submit"
-        className={styles.submit}
-        aria-label="Give clue"
-        title="Give clue"
-        disabled={!word.trim() || Number.isNaN(count)}
-      >
-        ✓
-      </button>
     </form>
   )
 }
