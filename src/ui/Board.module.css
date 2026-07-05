@@ -12,7 +12,8 @@
 
 .credit {
   position: absolute;
-  right: 4px;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: -30px;
   font-size: 0.8rem;
   color: var(--muted);
