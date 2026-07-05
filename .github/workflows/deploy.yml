@@ -33,13 +33,9 @@ jobs:
           VITE_PEXELS_API_KEY: ${{ secrets.VITE_PEXELS_API_KEY }}
           VITE_THECATAPI_KEY: ${{ secrets.VITE_THECATAPI_KEY }}
           VITE_RAWG_API_KEY: ${{ secrets.VITE_RAWG_API_KEY }}
-          # Optional: set these repo Variables to point the deployed site at a
-          # self-hosted PeerJS broker (see broker/README.md). Unset ⇒ public broker.
-          VITE_PEER_HOST: ${{ vars.PEER_HOST }}
-          VITE_PEER_PORT: ${{ vars.PEER_PORT }}
-          VITE_PEER_PATH: ${{ vars.PEER_PATH }}
-          VITE_PEER_KEY: ${{ vars.PEER_KEY }}
-          VITE_PEER_SECURE: ${{ vars.PEER_SECURE }}
+          # Signaling uses the public PeerJS broker. We deliberately do NOT pass
+          # VITE_PEER_* here, so the build ignores any self-hosted broker Variable
+          # and newPeer() falls back to the public broker (see src/multiplayer/peer.ts).
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
