@@ -259,10 +259,8 @@ export default function GameScreen(props: {
     />
   )
 
-  const lean = winner || (!clueForm && props.flash) ? undefined : turn
-
   const center = (
-    <div className={styles.menu} data-lean={lean}>
+    <div className={styles.menu}>
       {clueForm || (
         <div
           className={styles.statusPill}

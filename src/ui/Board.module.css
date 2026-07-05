@@ -16,12 +16,11 @@
   bottom: -30px;
   font-size: 0.8rem;
   color: var(--muted);
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .credit::before {
   content: 'source: ';
-  text-decoration: none;
 }
 
 .credit:hover {
@@ -64,10 +63,11 @@
   object-fit: cover;
 }
 
-/* Official cards fill the card like any photo, plus a hair of zoom so the scanned
-   black frame at the edges is cropped away (the art is well inset, so it stays). */
+/* Official cards are square, so fit them whole rather than cropping; the letterbox
+   takes the cream card face (not the team colour) so it reads as no padding. */
 .framed {
-  transform: scale(1.04);
+  object-fit: contain;
+  background: var(--card-face);
 }
 
 /* Icon on a light tile (like a word), its glyph masked so it can take the card

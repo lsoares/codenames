@@ -190,14 +190,6 @@
   justify-self: center;
 }
 
-.menu[data-lean='red'] {
-  justify-self: start;
-}
-
-.menu[data-lean='blue'] {
-  justify-self: end;
-}
-
 /* The status/clue pill, team-tinted by whose turn it is. */
 .statusPill {
   display: inline-flex;
