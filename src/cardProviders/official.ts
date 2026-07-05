@@ -18,6 +18,6 @@ export const official: CardProvider = {
   icon: '🕵️',
   description: 'The official Codenames Pictures cards',
   credit: { label: 'Codenames Pictures', url: 'https://czechgames.com/en/codenames-pictures/' },
-  fit: 'contain',
+  fit: 'framed',
   fetch,
 }

@@ -64,16 +64,10 @@
   object-fit: cover;
 }
 
-/* The official cards are square scans with a black frame at the very edge and a
-   wide cream margin inside. Render as a centred square and clip a few percent off
-   so the frame goes but the (well-inset) illustration stays. */
-.contain {
-  width: auto;
-  height: 100%;
-  aspect-ratio: 1 / 1;
-  margin: 0 auto;
-  object-fit: cover;
-  clip-path: inset(3% round 12px);
+/* Official cards fill the card like any photo, plus a hair of zoom so the scanned
+   black frame at the edges is cropped away (the art is well inset, so it stays). */
+.framed {
+  transform: scale(1.04);
 }
 
 /* Icon on a light tile (like a word), its glyph masked so it can take the card
