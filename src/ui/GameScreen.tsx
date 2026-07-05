@@ -83,7 +83,7 @@ export default function GameScreen(props: {
       ([id, t]) => t === team && id !== props.seats.red && id !== props.seats.blue,
     ).length
 
-  const { winner, phase, turn, clue } = props.game.state
+  const { winner, phase, turn, clue, clueHistory } = props.game.state
   // Whose action the turn team awaits: the spymaster clues, the operatives guess.
   const acting = props.game.awaitingRole()
 
@@ -174,7 +174,28 @@ export default function GameScreen(props: {
   const confirmNewGame = (): boolean =>
     props.game.idle() || window.confirm('Start a new game? The current game will be lost.')
 
-  const renderSide = (team: Team) => renderTeam(team)
+  // Once the game is over, each side swaps its live team badge for the full run
+  // of clues that team gave — a keepsake of how the game was played.
+  const renderClues = (team: Team) => {
+    const clues = clueHistory.filter((c) => c.team === team)
+    return (
+      <ul className={styles.clueLog} data-team={team} aria-label={`${team} clues`}>
+        {clues.length === 0 ? (
+          <li className={styles.clueLogEmpty}>—</li>
+        ) : (
+          clues.map((c, i) => (
+            <li key={i}>
+              <strong className={styles.clueLogWord}>{c.word}</strong>
+              <span className={styles.clueLogDot}>•</span>
+              <span className={styles.clueLogCount}>{c.count}</span>
+            </li>
+          ))
+        )}
+      </ul>
+    )
+  }
+
+  const renderSide = (team: Team) => (winner ? renderClues(team) : renderTeam(team))
 
   const activeSpymaster = props.mySeat === turn
   const mineTurn = turn === props.myTeam

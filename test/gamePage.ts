@@ -62,6 +62,66 @@ export async function stubDatamuse(page: Page): Promise<void> {
   )
 }
 
+// Return 20 canned cat photos so a Cats-sourced board is deterministic.
+export async function stubCats(page: Page): Promise<void> {
+  await page.route('**/api.thecatapi.com/**', (route) =>
+    route.fulfill({
+      json: Array.from({ length: 20 }, (_, index) => ({ url: `https://example.com/cat/${index}.jpg` })),
+    }),
+  )
+}
+
+// Foodish answers one image per call, so hand back a fresh URL each time to keep
+// the deck's dedupe happy.
+export async function stubFoodish(page: Page): Promise<void> {
+  let served = 0
+  await page.route('**/foodish-api.com/**', (route) =>
+    route.fulfill({ json: { image: `https://example.com/food/${served++}.jpg` } }),
+  )
+}
+
+// PokéAPI is hit once per dex id; derive the image from the id so each is unique.
+export async function stubPokemon(page: Page): Promise<void> {
+  await page.route('**/pokeapi.co/**', (route) => {
+    const id = route.request().url().split('/').filter(Boolean).pop()
+    route.fulfill({
+      json: { sprites: { other: { 'official-artwork': { front_default: `https://example.com/pokemon/${id}.png` } } } },
+    })
+  })
+}
+
+// The geeks deck degrades to its word bank when StackExchange yields nothing, so
+// an empty tag list keeps it offline while still producing word cards.
+export async function stubStackExchange(page: Page): Promise<void> {
+  await page.route('**/api.stackexchange.com/**', (route) => route.fulfill({ json: { items: [] } }))
+}
+
+// Picbreeder validates each thumbnail by loading it as an image, so answer with a
+// real 1×1 PNG (decoded by content, not extension) so the deck fills its board.
+const ONE_PX_PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+  'base64',
+)
+export async function stubPicbreeder(page: Page): Promise<void> {
+  await page.route('**/picbreeder.net/**', (route) =>
+    route.fulfill({ contentType: 'image/png', body: ONE_PX_PNG }),
+  )
+}
+
+// The Mix deck draws from every other deck at once, so stub the lot to keep a
+// Mix-sourced board deterministic and offline.
+export async function stubMixSources(page: Page): Promise<void> {
+  await stubDatamuse(page)
+  await stubUnsplash(page)
+  await stubPexels(page)
+  await stubTmdb(page)
+  await stubCats(page)
+  await stubFoodish(page)
+  await stubPokemon(page)
+  await stubStackExchange(page)
+  await stubPicbreeder(page)
+}
+
 // SUT client: drives the app through roles/labels only, hiding locators.
 export class GamePage {
   constructor(private readonly page: Page) {}
@@ -133,6 +193,22 @@ export class GamePage {
     await this.page.getByRole('textbox').fill(word)
     await this.page.getByRole('spinbutton').fill(String(count))
     await this.page.getByRole('button', { name: /give clue/i }).click()
+  }
+
+  // Type into the clue word field with real key presses, so the browser's
+  // maxlength is honoured (fill would bypass it).
+  async typeClueWord(text: string): Promise<void> {
+    await this.page.getByRole('textbox').pressSequentially(text)
+  }
+
+  getClueInput() {
+    return this.page.getByRole('textbox')
+  }
+
+  // At game end, the clues a team gave — one list item per clue, shown on that
+  // team's side of the header.
+  getTeamClues(team: 'red' | 'blue') {
+    return this.page.getByRole('list', { name: `${team} clues` }).getByRole('listitem')
   }
 
   // Spymaster-only: the number of the first unrevealed card of a colour, so an

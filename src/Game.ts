@@ -36,6 +36,7 @@ export interface GameState {
   readonly turn: Team
   readonly phase: GamePhase
   readonly clue: Clue | null
+  readonly clueHistory: readonly Clue[] // every clue given this game, in order — shown per team at the end
   readonly guessesRemaining: number
   readonly winner: Team | null
   readonly log: readonly string[]
@@ -82,6 +83,7 @@ export function createGame(
     turn: startingTeam,
     phase: 'clue',
     clue: null,
+    clueHistory: [],
     guessesRemaining: 0,
     winner: null,
     log: [],
@@ -185,6 +187,7 @@ export class Game {
       // finite number (not Infinity, which JSON.stringify would turn to null).
       guessesRemaining: count === 0 ? 99 : count + 1,
       clue: { team: this.s.turn, word, count },
+      clueHistory: [...this.s.clueHistory, { team: this.s.turn, word, count }],
       log: [...this.s.log, `${this.s.turn} clue: ${word} ${count}`],
     })
   }
