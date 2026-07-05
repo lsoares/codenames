@@ -64,11 +64,16 @@
   object-fit: cover;
 }
 
-/* Fit the whole (square) image, then a hair of zoom to swallow the scanned card's
-   thin black frame — clipped by the card's overflow. */
+/* The official cards are square scans with a black frame at the very edge and a
+   wide cream margin inside. Render as a centred square and clip a few percent off
+   so the frame goes but the (well-inset) illustration stays. */
 .contain {
-  object-fit: contain;
-  transform: scale(1.03);
+  width: auto;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  object-fit: cover;
+  clip-path: inset(3% round 12px);
 }
 
 /* Icon on a light tile (like a word), its glyph masked so it can take the card
@@ -185,11 +190,6 @@
 
 .card[data-color='assassin'] {
   background: #2b2d42;
-  /* A constant dark halo so the death card is unmistakable — it never fades
-     with the board, so the spymaster can always place the assassin at a glance. */
-  box-shadow:
-    0 0 16px 5px rgba(20, 21, 33, 0.9),
-    var(--shadow);
 }
 
 /* Revealed cards are out of play: fade them almost completely. */
