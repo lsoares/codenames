@@ -321,6 +321,10 @@
     height: auto;
     min-height: 100dvh;
     display: grid;
+    /* Constrain the single column to the screen's width. A default `auto` column
+       sizes to the board's content and would blow past the viewport (clipping the
+       right-hand cards on mobile); minmax(0, 1fr) lets it shrink to fit instead. */
+    grid-template-columns: minmax(0, 1fr);
     padding: 12px 0;
     gap: 14px;
   }
@@ -334,5 +338,22 @@
   .screen {
     width: 96vw;
     gap: 10px;
+  }
+
+  /* On a phone the three-column header can't stay on one line: let the centre
+     column shrink (minmax 0) and its status/clue pill wrap instead of forcing a
+     nowrap width that shoves the far team's badges off the right edge. */
+  .header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .menu {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .statusPill {
+    white-space: normal;
+    text-align: center;
   }
 }

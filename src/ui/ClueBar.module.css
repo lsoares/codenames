@@ -97,3 +97,19 @@
   color: var(--ink);
   white-space: nowrap;
 }
+
+/* On a phone the clue form shares a cramped header row, so let the word field
+   shrink to whatever width is left (the number stays a fixed 72px) instead of
+   holding its natural width and pushing the row past the screen edge. */
+@media (max-width: 640px) {
+  .clueForm,
+  .fields {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .clueForm input:not([type='number']) {
+    flex: 1;
+    min-width: 0;
+  }
+}

@@ -30,6 +30,10 @@
 
 .card {
   position: relative;
+  /* Both min-* zeroed so a 1fr grid track can shrink below the card's content
+     (its image's intrinsic size) instead of being propped open by it — otherwise
+     wide source images push the columns past the viewport and clip on mobile. */
+  min-width: 0;
   min-height: 0;
   padding: 5px;
   /* Drag-to-select sweeps across cards; don't let it select word-tile text. */
