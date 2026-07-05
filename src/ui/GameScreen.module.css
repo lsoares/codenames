@@ -357,9 +357,9 @@
     text-align: center;
   }
 
-  /* Reclaim header space on a phone: drop the operative faces (a plain player
-     count). The cards-left count and the spymaster button (a control) stay. */
+  /* Reclaim header width on a phone by stacking the operative faces vertically
+     instead of hiding them, so every player still shows without widening the row. */
   .ops {
-    display: none;
+    flex-direction: column;
   }
 }
