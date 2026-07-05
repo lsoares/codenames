@@ -11,5 +11,5 @@ test('joining a code nobody hosts lets you create the room under it', async ({ p
   await game.createRoom()
 
   await game.getCards().first().waitFor()
-  await expect(page).toHaveURL(/#serao-de-sexta$/)
+  await expect(page).toHaveURL(/\/serao-de-sexta$/)
 })

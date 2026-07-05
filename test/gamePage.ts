@@ -139,7 +139,7 @@ export class GamePage {
   }
 
   async openRoom(code: string): Promise<void> {
-    await this.page.goto(`/#${code}`)
+    await this.page.goto(`/${code}`)
   }
 
   // The homepage lists decks; picking one hosts a room. Random is the default
@@ -153,13 +153,13 @@ export class GamePage {
   // code lands in the URL). Deck-agnostic — word boards have no "Card N" labels.
   async startWithDeck(label: string): Promise<void> {
     await this.page.getByRole('button', { name: label, exact: true }).click()
-    await this.page.waitForURL(/#.+/)
+    await this.page.waitForURL(/\/[a-z0-9-]+$/)
   }
 
-  // The room code is the URL hash the app puts in the address bar for sharing.
+  // The room code is the URL path the app puts in the address bar for sharing.
   async getRoomCode(): Promise<string> {
-    await this.page.waitForURL(/#.+/)
-    return new URL(this.page.url()).hash.replace(/^#/, '')
+    await this.page.waitForURL(/\/[a-z0-9-]+$/)
+    return new URL(this.page.url()).pathname.replace(/^\//, '')
   }
 
   async reload(): Promise<void> {

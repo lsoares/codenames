@@ -5,7 +5,7 @@ import styles from './RoomQr.module.css'
 export default function RoomQr(props: { open: boolean; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const [copied, setCopied] = useState(false)
-  const url = `https://lsoares.github.io/codenames/${window.location.hash}`
+  const url = `${window.location.origin}${window.location.pathname}`
   useEffect(() => {
     if (props.open) {
       setCopied(false)

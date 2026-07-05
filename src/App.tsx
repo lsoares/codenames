@@ -14,7 +14,7 @@ const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
 const teamName = (team: Team): string => (team === 'red' ? 'Red' : 'Blue')
 
 const normalizeCode = (raw: string): string =>
-  (raw.includes('#') ? raw.slice(raw.lastIndexOf('#') + 1) : raw)
+  raw
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
@@ -79,7 +79,7 @@ export default function App() {
     selfIdRef.current = session.selfId
     roomCodeRef.current = session.roomCode
     setRoomCode(session.roomCode)
-    window.location.hash = session.roomCode
+    history.pushState({}, '', '/' + session.roomCode)
     session.subscribe((view) => {
       const next = new Game(view.state)
       gameRef.current = next
@@ -176,14 +176,14 @@ export default function App() {
     setStatus('')
   }
 
-  // The room code lives in the URL hash, so browser Back (hash → empty) returns
+  // The room code lives in the URL path, so browser Back (path → '/') returns
   // to the homepage deck picker.
   useEffect(() => {
-    const onHashChange = () => {
-      if (!normalizeCode(window.location.hash)) goHome()
+    const onPopState = () => {
+      if (!normalizeCode(window.location.pathname)) goHome()
     }
-    window.addEventListener('hashchange', onHashChange)
-    return () => window.removeEventListener('hashchange', onHashChange)
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -282,14 +282,14 @@ export default function App() {
   }, [game, roomCode])
 
 
-  // On load: join the live room in the URL hash if one exists — this also keeps
+  // On load: join the live room in the URL path if one exists — this also keeps
   // a duplicated tab (which inherits the host's saved state) from re-hosting.
   // Only re-host from saved state when nobody answers, so a host's own refresh
-  // still recovers. No hash ⇒ start a fresh game.
+  // still recovers. No room in the path ⇒ start a fresh game.
   useEffect(() => {
     if (startedRef.current) return
     startedRef.current = true
-    const code = normalizeCode(window.location.hash)
+    const code = normalizeCode(window.location.pathname)
     if (!code) {
       // No room in the URL: land on the homepage and let the player pick a deck.
       return
@@ -351,7 +351,7 @@ export default function App() {
           {/^(Could not|Lost)/.test(status) && (
             <button
               onClick={() => {
-                window.location.hash = ''
+                history.pushState({}, '', '/')
                 goHome()
               }}
             >
@@ -362,7 +362,7 @@ export default function App() {
       ) : (
         <Homepage
           providers={providers}
-          onPick={(id) => void createRoom(id, normalizeCode(window.location.hash) || undefined)}
+          onPick={(id) => void createRoom(id, normalizeCode(window.location.pathname) || undefined)}
         />
       )}
     </>
