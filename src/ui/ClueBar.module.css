@@ -30,7 +30,11 @@
 
 .clueForm input {
   width: auto;
+  padding: 8px 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
   border: 2px solid var(--turn);
+  border-radius: 999px;
 }
 
 .clueForm input:focus {
@@ -43,6 +47,7 @@
   padding: 8px 14px;
   background: color-mix(in srgb, var(--turn) 12%, transparent);
   color: var(--turn);
+  border-radius: 999px;
   box-shadow: none;
 }
 
