@@ -356,4 +356,10 @@
     white-space: normal;
     text-align: center;
   }
+
+  /* Reclaim header space on a phone: drop the operative faces (a plain player
+     count). The cards-left count and the spymaster button (a control) stay. */
+  .ops {
+    display: none;
+  }
 }
