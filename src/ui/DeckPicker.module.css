@@ -16,6 +16,11 @@
   width: 100%;
 }
 
+.gridBig {
+  composes: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
 .gridSmall {
   composes: grid;
   grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
@@ -38,6 +43,20 @@
 
 .tile:hover {
   filter: brightness(1.05);
+}
+
+.big {
+  composes: tile;
+  aspect-ratio: 3 / 2;
+  gap: 16px;
+}
+
+.big .icon {
+  font-size: 4rem;
+}
+
+.big .label {
+  font-size: 1.6rem;
 }
 
 .small {

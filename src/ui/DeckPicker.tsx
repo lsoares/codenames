@@ -2,7 +2,8 @@ import { useState } from 'react'
 import type { CardProvider } from '../cardProviders/providers'
 import styles from './DeckPicker.module.css'
 
-// The deck tiles: the first four headline decks large, the rest smaller below.
+// The deck tiles in three tiers: two hero decks, four headline, then the rest
+// smaller — largest at the top, shrinking down.
 export default function DeckPicker(props: {
   providers: CardProvider[]
   onPick: (id: string) => void
@@ -31,12 +32,15 @@ export default function DeckPicker(props: {
 
   return (
     <div className={styles.decks}>
-      <ul className={styles.grid} role="list">
-        {props.providers.slice(0, 4).map((provider) => tile(provider, styles.tile))}
+      <ul className={styles.gridBig} role="list">
+        {props.providers.slice(0, 2).map((provider) => tile(provider, styles.big))}
       </ul>
-      {props.providers.length > 4 && (
+      <ul className={styles.grid} role="list">
+        {props.providers.slice(2, 6).map((provider) => tile(provider, styles.tile))}
+      </ul>
+      {props.providers.length > 6 && (
         <ul className={styles.gridSmall} role="list">
-          {props.providers.slice(4).map((provider) => tile(provider, styles.small))}
+          {props.providers.slice(6).map((provider) => tile(provider, styles.small))}
         </ul>
       )}
     </div>

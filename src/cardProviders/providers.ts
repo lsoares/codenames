@@ -29,7 +29,7 @@ export interface CardProvider {
 
 // The first four are the picker's headline decks; the rest sit behind its "more"
 // reveal, so order matters.
-export const providers: CardProvider[] = [officialWords, official, unsplash, pexels, words, geeks, abstract, things, icons, tmdb, games, emojis, cats, foodish, pokemon]
+export const providers: CardProvider[] = [officialWords, official, words, geeks, unsplash, pexels, abstract, things, icons, tmdb, games, emojis, cats, foodish, pokemon]
 
 // Fetches 20 card faces plus the deck's credit. When a provider throws (missing
 // key, network error), fall back to the word board — no key, never fails — so a
