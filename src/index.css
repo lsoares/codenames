@@ -1,10 +1,10 @@
 :root {
-  --bg: #fdf6ec;
-  --bg-glow: #fff3d6;
+  --bg: #e1d3b5;
+  --bg-glow: #e8dbc0;
   --surface: #ffffff;
-  /* Card faces sit a touch below the white app surface: a soft cream that also
-     matches the official picture cards, so their letterbox blends in. */
-  --card-face: #fbf9e9;
+  /* Sampled from the official picture cards so their cream margin blends into
+     the card face and the letterbox disappears. */
+  --card-face: #f9fce5;
   --ink: #2b2d42;
   --muted: #7a7f92;
   --line: #ece5d6;
