@@ -5,6 +5,7 @@ import type { CardProvider } from '../cardProviders/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
 import DeckPicker from './DeckPicker'
+import RoomQr from './RoomQr'
 import styles from './GameScreen.module.css'
 
 export default function GameScreen(props: {
@@ -347,6 +348,8 @@ export default function GameScreen(props: {
           onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index, team: props.myTeam })}
         />
       </div>
+
+      <RoomQr />
 
       {pickerOpen && (
         <div className={styles.overlay} onClick={() => setPickerOpen(false)}>

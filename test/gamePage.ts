@@ -211,6 +211,15 @@ export class GamePage {
     return this.page.getByRole('list', { name: `${team} clues` }).getByRole('listitem')
   }
 
+  // The corner badge opens the room's join QR in a dialog.
+  async openRoomQr(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Show room QR code' }).click()
+  }
+
+  getRoomQrDialog() {
+    return this.page.getByRole('dialog', { name: 'Room QR code' })
+  }
+
   // Spymaster-only: the number of the first unrevealed card of a colour, so an
   // operative (who can't see colours) can be told which card to click.
   async getCardNumber(color: Color): Promise<number> {
