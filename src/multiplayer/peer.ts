@@ -19,7 +19,7 @@ export function tabPeerId(): string {
 
 // STUN + free TURN so peers behind restrictive NATs still connect. Defaults to
 // Metered's OpenRelay static credentials; override with VITE_TURN_* for your own.
-const iceServers: RTCIceServer[] = [
+const fallbackIceServers: RTCIceServer[] = [
   { urls: 'stun:stun.l.google.com:19302' },
   import.meta.env.VITE_TURN_URL
     ? {
@@ -37,6 +37,17 @@ const iceServers: RTCIceServer[] = [
         credential: 'openrelayproject',
       },
 ]
+
+let iceServers = fallbackIceServers
+
+export const iceServersReady: Promise<void> = import.meta.env.VITE_METERED_TURN_URL
+  ? fetch(import.meta.env.VITE_METERED_TURN_URL)
+      .then((response) => response.json())
+      .then((servers: RTCIceServer[]) => {
+        if (Array.isArray(servers) && servers.length) iceServers = servers
+      })
+      .catch(() => {})
+  : Promise.resolve()
 
 // Our own PeerServer when VITE_PEER_HOST is set (dev and prod point at it), else
 // the public PeerJS broker. Either way peers get the TURN config above.

@@ -1,5 +1,5 @@
 import { type DataConnection } from 'peerjs'
-import { newPeer, tabPeerId } from './peer'
+import { iceServersReady, newPeer, tabPeerId } from './peer'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
 
 // What a failed join concluded, so the UI can give the right advice instead of
@@ -77,7 +77,8 @@ export class Guest implements Session {
     this.peer.destroy()
   }
 
-  private open(waitForHost: boolean): Promise<Guest> {
+  private async open(waitForHost: boolean): Promise<Guest> {
+    await iceServersReady
     return new Promise((resolve, reject) => {
       // What the timeout should report if the window closes now — updated as the
       // join progresses, so the last thing we were stuck on names the failure.

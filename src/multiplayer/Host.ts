@@ -1,7 +1,7 @@
 import { type DataConnection } from 'peerjs'
 import { Game, createGame, type CardFit, type Credit, type GameState } from '../Game'
 import { Room } from './Room'
-import { newPeer, randomCode } from './peer'
+import { iceServersReady, newPeer, randomCode } from './peer'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
 
 const apply = (game: Game, action: Action): Game => {
@@ -60,12 +60,13 @@ export class Host implements Session {
     return Host.launch(roomCode, state, 'resume', 15)
   }
 
-  private static launch(
+  private static async launch(
     code: string,
     initialState: GameState,
     mode: 'new' | 'resume',
     retries: number,
   ): Promise<Host> {
+    await iceServersReady
     return new Promise((resolve, reject) => new Host(code, initialState, mode).run(retries, resolve, reject))
   }
 

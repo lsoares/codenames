@@ -42,6 +42,7 @@ jobs:
           VITE_TURN_URL: ${{ secrets.TURN_URL }}
           VITE_TURN_USERNAME: ${{ secrets.TURN_USERNAME }}
           VITE_TURN_CREDENTIAL: ${{ secrets.TURN_CREDENTIAL }}
+          VITE_METERED_TURN_URL: ${{ secrets.METERED_TURN_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
