@@ -36,6 +36,12 @@ jobs:
           # Signaling uses the public PeerJS broker. We deliberately do NOT pass
           # VITE_PEER_* here, so the build ignores any self-hosted broker Variable
           # and newPeer() falls back to the public broker (see src/multiplayer/peer.ts).
+          # TURN relay for cross-network NAT traversal. The built-in free OpenRelay
+          # relay is unreliable, so set these repo Secrets to your own (e.g. a free
+          # Metered account). Unset ⇒ the OpenRelay fallback in src/multiplayer/peer.ts.
+          VITE_TURN_URL: ${{ secrets.TURN_URL }}
+          VITE_TURN_USERNAME: ${{ secrets.TURN_USERNAME }}
+          VITE_TURN_CREDENTIAL: ${{ secrets.TURN_CREDENTIAL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
