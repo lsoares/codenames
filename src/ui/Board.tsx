@@ -35,7 +35,7 @@ export default function Board(props: {
   const highlighted = (card: Card, index: number): boolean =>
     !card.revealed &&
     (isSpymaster ? props.selected.has(index) : card.markedBy.includes(props.myTeam))
-  const focusing = cards.some((card, index) => highlighted(card, index))
+  const focusing = isSpymaster && cards.some((card, index) => highlighted(card, index))
   return (
     <div className={styles.board} data-focus={focusing || undefined} data-over={gameOver || undefined}>
       {cards.map((card, index) => {
@@ -47,69 +47,76 @@ export default function Board(props: {
         const label = showColor ? `${name}, ${card.color}` : marked ? `${name}, marked` : name
         const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
         const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
+        const canMark = props.game.canMark(index, isSpymaster)
         return (
-          <button
-            key={index}
-            className={styles.card}
-            aria-label={label}
-            data-color={showColor ? card.color : undefined}
-            data-mine={
-              (isSpymaster && !card.revealed && card.color === props.spymasterTeam) ||
-              undefined
-            }
-            data-revealed={card.revealed || undefined}
-            data-feedback={props.feedback[index] || undefined}
-            data-selected={highlighted(card, index) || undefined}
-            data-inert={!actionable || undefined}
-            disabled={card.revealed}
-            onClick={() => {
-              if (!actionable) return
-              if (isSpymaster) props.onToggleSelect(index)
-              else props.onCardClick(index)
-            }}
-            onContextMenu={(event) => {
-              event.preventDefault()
-              // Operatives mark on any turn — a private note to plan ahead while
-              // the opponent plays — so this isn't gated by `actionable`.
-              if (props.game.canMark(index, isSpymaster)) props.onCardMark(index)
-            }}
-          >
-            {props.loading ? (
-              <span className={`${styles.face} ${styles.loading}`} />
-            ) : card.face.endsWith('.svg') ? (
-              <span
-                className={`${styles.face} ${styles.svgIcon}`}
-                style={{ ['--mask']: `url("${card.face}")` } as CSSProperties}
-              />
-            ) : isImageFace(card.face) ? (
-              <img
-                className={`${styles.face} ${styles.image} ${
-                  props.game.state.fit === 'framed'
-                    ? styles.framed
-                    : props.game.state.fit === 'contain'
-                      ? styles.contain
-                      : ''
-                }`}
-                src={card.face}
-                alt=""
-                draggable={false}
-              />
-            ) : (
-              <span
-                className={`${styles.face} ${styles.word} ${
-                  isSingleGlyph(card.face) ? styles.big : ''
-                }`}
+          <div key={index} className={styles.cell}>
+            <button
+              className={styles.card}
+              aria-label={label}
+              data-color={showColor ? card.color : undefined}
+              data-mine={
+                (isSpymaster && !card.revealed && card.color === props.spymasterTeam) ||
+                undefined
+              }
+              data-revealed={card.revealed || undefined}
+              data-feedback={props.feedback[index] || undefined}
+              data-selected={(isSpymaster && highlighted(card, index)) || undefined}
+              data-inert={!actionable || undefined}
+              disabled={card.revealed}
+              onClick={() => {
+                if (!actionable) return
+                if (isSpymaster) props.onToggleSelect(index)
+                else props.onCardClick(index)
+              }}
+            >
+              {props.loading ? (
+                <span className={`${styles.face} ${styles.loading}`} />
+              ) : card.face.endsWith('.svg') ? (
+                <span
+                  className={`${styles.face} ${styles.svgIcon}`}
+                  style={{ ['--mask']: `url("${card.face}")` } as CSSProperties}
+                />
+              ) : isImageFace(card.face) ? (
+                <img
+                  className={`${styles.face} ${styles.image} ${
+                    props.game.state.fit === 'framed'
+                      ? styles.framed
+                      : props.game.state.fit === 'contain'
+                        ? styles.contain
+                        : ''
+                  }`}
+                  src={card.face}
+                  alt=""
+                  draggable={false}
+                />
+              ) : (
+                <span
+                  className={`${styles.face} ${styles.word} ${
+                    isSingleGlyph(card.face) ? styles.big : ''
+                  }`}
+                >
+                  {card.face}
+                </span>
+              )}
+              {badge && (
+                <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>
+                  {feedbackBadge[badge].emoji}
+                </span>
+              )}
+            </button>
+            {canMark && (
+              <button
+                type="button"
+                className={styles.overlayIcon}
+                data-on={marked || undefined}
+                aria-label={`${marked ? 'Unmark' : 'Mark'} ${name}`}
+                title={`${marked ? 'Unmark' : 'Mark'} ${name}`}
+                onClick={() => props.onCardMark(index)}
               >
-                {card.face}
-              </span>
+                📌
+              </button>
             )}
-            {badge && (
-              <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>
-                {feedbackBadge[badge].emoji}
-                {badge === 'wrong' && '🎁'}
-              </span>
-            )}
-          </button>
+          </div>
         )
       })}
     </div>

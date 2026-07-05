@@ -1,5 +1,6 @@
 :root {
-  --bg: #802238;
+  --bg: #e1d3b5;
+  --bg-glow: #e8dbc0;
   --surface: #ffffff;
   /* Sampled from the official picture cards so their cream margin blends into
      the card face and the letterbox disappears. */
@@ -9,8 +10,8 @@
   --line: #ece5d6;
   --primary: #6c5ce7;
   --primary-soft: #efeafe;
-  --red: #e74c3c;
-  --blue: #3b82f6;
+  --red: #e23227;
+  --blue: #2b6ff2;
   --radius: 14px;
   --radius-lg: 22px;
   --shadow: 0 8px 24px rgba(43, 45, 66, 0.1);
@@ -23,12 +24,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--bg);
-  background-image: url('./bg.svg');
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-  background-attachment: fixed;
+  background: radial-gradient(1200px 620px at 50% -12%, var(--bg-glow), var(--bg));
   color: var(--ink);
   font-family: 'Nunito', system-ui, -apple-system, sans-serif;
   font-size: 18px;

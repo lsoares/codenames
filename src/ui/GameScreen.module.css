@@ -384,7 +384,7 @@
   overflow: auto;
   padding: 20px;
   border: none;
-  background: var(--surface);
+  background: var(--bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }

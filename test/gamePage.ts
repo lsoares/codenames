@@ -281,11 +281,9 @@ export class GamePage {
     await this.page.getByRole('button', { name: new RegExp(`^Card ${n}(,|$)`) }).click()
   }
 
-  // Operative marks a card by number (right-click), allowed on any turn.
+  // Operative marks a card by number via its hover pin icon, allowed on any turn.
   async markCard(n: number): Promise<void> {
-    await this.page
-      .getByRole('button', { name: new RegExp(`^Card ${n}(,|$)`) })
-      .click({ button: 'right' })
+    await this.page.getByRole('button', { name: `Mark Card ${n}`, exact: true }).click()
   }
 
   // A card the viewer sees as marked by their own team.
