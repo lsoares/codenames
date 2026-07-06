@@ -1,5 +1,5 @@
 import { type DataConnection } from 'peerjs'
-import { iceServersReady, logConnection, newPeer, tabPeerId } from './peer'
+import { iceServersReady, logConnection, newPeer, resetTabPeerId, tabPeerId } from './peer'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
 
 // What a failed join concluded, so the UI can give the right advice instead of
@@ -185,9 +185,11 @@ export class Guest implements Session {
             if (!missingTimer) missingTimer = setTimeout(() => fail('room-not-found'), hostMissingMs())
             redial(this.connection)
           } else {
-            // Anything else — the broker still holding our tab id after a reload
-            // ('unavailable-id'), a rate limit, a dropped socket — gets a fresh
-            // peer until the window closes.
+            // Anything else — a rate limit, a dropped socket, or the broker still
+            // holding our tab id ('unavailable-id') from a ghost socket or a
+            // duplicated tab — gets a fresh peer until the window closes. On a
+            // taken id, reusing it just loops on ID-TAKEN, so mint a new one first.
+            if (error.type === 'unavailable-id') resetTabPeerId()
             phase = 'broker-unreachable'
             peer.destroy()
             setTimeout(attempt, 800)

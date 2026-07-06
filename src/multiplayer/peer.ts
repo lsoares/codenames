@@ -17,6 +17,15 @@ export function tabPeerId(): string {
   return id
 }
 
+// Abandon this tab's stored id and mint a new one. Used when the broker reports
+// the id is taken — by a ghost of a prior socket the server hasn't expired, or by
+// a duplicated tab that copied our sessionStorage — so retrying the same id would
+// loop forever on ID-TAKEN.
+export function resetTabPeerId(): string {
+  sessionStorage.removeItem('codenames:peer-id')
+  return tabPeerId()
+}
+
 // STUN + free TURN so peers behind restrictive NATs still connect. Defaults to
 // Metered's OpenRelay static credentials; override with VITE_TURN_* for your own.
 const fallbackIceServers: RTCIceServer[] = [
