@@ -61,12 +61,11 @@ export default function GameScreen(props: {
       next.has(index) ? next.delete(index) : next.add(index)
       return next
     })
+  // Clear the spymaster's picks whenever the turn passes or a new game resets the
+  // board, so each clue is planned on a clean slate.
   useEffect(() => {
     setSelected(new Set())
-  }, [props.game.state.turn])
-  useEffect(() => {
-    if (props.game.isFresh()) setSelected(new Set())
-  }, [props.game.isFresh()])
+  }, [props.game.state.turn, props.game.isFresh()])
 
   // Flash the guess outcome over each card the instant it's revealed, so every
   // viewer gets a beat of feedback (a bullseye / cross / shrug / skull) before
@@ -226,19 +225,26 @@ export default function GameScreen(props: {
   const renderClues = (team: Team) => {
     const clues = clueHistory.filter((c) => c.team === team)
     return (
-      <ul className={styles.clueLog} data-team={team} aria-label={`${team} clues`}>
-        {clues.length === 0 ? (
-          <li className={styles.clueLogEmpty}>—</li>
-        ) : (
-          clues.map((c, i) => (
-            <li key={i}>
-              <strong className={styles.clueLogWord}>{c.word}</strong>
-              <span className={styles.clueLogDot}>•</span>
-              <span className={styles.clueLogCount}>{c.count}</span>
-            </li>
-          ))
+      <>
+        {team === winner && (
+          <span className={styles.clueLogWin} role="img" aria-label={`${team} team wins`}>
+            🎉
+          </span>
         )}
-      </ul>
+        <ul className={styles.clueLog} data-team={team} aria-label={`${team} clues`}>
+          {clues.length === 0 ? (
+            <li className={styles.clueLogEmpty}>—</li>
+          ) : (
+            clues.map((c, i) => (
+              <li key={i}>
+                <strong className={styles.clueLogWord}>{c.word}</strong>
+                <span className={styles.clueLogDot}>•</span>
+                <span className={styles.clueLogCount}>{c.count}</span>
+              </li>
+            ))
+          )}
+        </ul>
+      </>
     )
   }
 
@@ -273,12 +279,13 @@ export default function GameScreen(props: {
       : statusText
 
   // Keep the browser tab in sync: the title mirrors the header-centre text, and
-  // the favicon carries my team's colour — plus the 🕵️ glyph only when I'm the
-  // spymaster — so the tab says what's happening even when the app isn't focused.
+  // the favicon carries my team's colour — 🏆 when my team wins, otherwise the 🕵️
+  // glyph while I'm the spymaster — so the tab says what's happening even when the
+  // app isn't focused. A loss never turns the favicon sad; it just drops the crown.
   useEffect(() => {
     document.title = centerText
 
-    const role = winner ? (winner === props.myTeam ? '🏆' : '😢') : props.mySeat ? '🕵️' : ''
+    const role = winner === props.myTeam ? '🏆' : props.mySeat ? '🕵️' : ''
     const colorVar = props.myTeam === 'red' ? '--red' : '--blue'
     const color = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim() || '#888'
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="${color}"/><text x="16" y="25" font-size="22" text-anchor="middle">${role}</text></svg>`

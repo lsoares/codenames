@@ -213,6 +213,11 @@
   font-size: 0.9rem;
 }
 
+/* A small celebration above the winning team's clue keepsake. */
+.clueLogWin {
+  font-size: 1.1rem;
+}
+
 .headerSide[data-side='right'] .clueLog {
   text-align: right;
 }
