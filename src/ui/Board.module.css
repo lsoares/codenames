@@ -31,7 +31,8 @@
   /* Rounder corners open the gaps into rounded pockets at each crossing,
      which breaks the Hermann-grid illusion (ghost blobs at intersections). */
   border-radius: 20px;
-  background: var(--card-face);
+  background-color: var(--card-face);
+  background-image: url('../assets/card-texture.png');
   box-shadow: var(--shadow);
   overflow: hidden;
   transition:
@@ -129,7 +130,7 @@
   margin: 0 auto;
   object-fit: cover;
   clip-path: inset(3.5% round 12px);
-  transform: scale(1.16);
+  transform: scale(1.08);
 }
 
 /* Icon on a light tile (like a word), its glyph masked so it can take the card
@@ -183,7 +184,8 @@
   place-items: center;
   box-sizing: border-box;
   padding: 4px;
-  background: var(--card-face);
+  background-color: var(--card-face);
+  background-image: url('../assets/card-texture.png');
   color: var(--ink);
   font-weight: 800;
   text-transform: uppercase;
@@ -292,26 +294,24 @@
   }
 }
 
-/* Hover clears any fade so you can check which card it is. The focus variant
-   out-specifies the focus fade below. */
-.card:hover .face,
-.board[data-focus] .card:not([data-selected]):not([data-color='assassin']):hover .face {
-  opacity: 1;
-}
-
 /* Hovering a dead card brings it back into view so you can see what it was. */
 .card[data-revealed]:hover {
   opacity: 1;
 }
 
 /* Singling out a card (a spymaster's pick, or an operative's mark) thickens
-   its coloured border and fades every other card to an intermediate level via
-   [data-focus] below. The assassin never fades. */
+   its coloured border. The board stays at full brightness by default; the dim
+   below only kicks in on hover. */
 .card[data-selected] {
   padding: 11px;
 }
 
-.board[data-focus] .card:not([data-selected]):not([data-color='assassin']) .face {
+/* No fade by default. In focus mode, hovering a card spotlights it: every other
+   card fades to an intermediate level (the selected card and the assassin never
+   fade). */
+.board[data-focus]:has(.card:hover)
+  .card:not(:hover):not([data-selected]):not([data-color='assassin'])
+  .face {
   opacity: 0.6;
 }
 
