@@ -4,6 +4,50 @@ export function randomCode(): string {
   return Math.random().toString(36).slice(2, 8)
 }
 
+// Friendly, shareable room codes: an adjective and a noun, lowercased and
+// hyphen-joined (e.g. "mighty-dragon"), so a host can read one aloud to whoever
+// is next to them. The two pools were harvested once from Datamuse — adjectives
+// describing evocative seeds (rel_jjb) and nouns triggered by concrete,
+// picturable seeds (rel_trg), frequency-banded to drop function words — then
+// kept here beside the id generator so a room is minted instantly and offline,
+// never blocking on a live word source. ~60×120 pairs make a clash unlikely, and
+// the host retries with a fresh pair on the rare collision.
+const ROOM_ADJECTIVES = [
+  'pure', 'ideal', 'evil', 'soft', 'strange', 'fresh', 'divine', 'wild',
+  'famous', 'warm', 'rare', 'clean', 'bright', 'vast', 'alive', 'silent',
+  'wise', 'hidden', 'sacred', 'cool', 'enormous', 'friendly', 'tiny', 'magic',
+  'noble', 'proud', 'calm', 'curious', 'infinite', 'romantic', 'solar', 'mad',
+  'giant', 'gentle', 'frozen', 'immense', 'bold', 'mighty', 'brave', 'purple',
+  'heroic', 'clever', 'splendid', 'fierce', 'potent', 'wicked', 'epic', 'cosmic',
+  'vivid', 'deadly', 'furious', 'scarlet', 'gigantic', 'fiery', 'mythical', 'sinister',
+  'luminous', 'crimson', 'gallant', 'fabulous', 'winged', 'stormy', 'mythic', 'fearless',
+  'valiant',
+]
+
+const ROOM_NOUNS = [
+  'dragon', 'wolf', 'tiger', 'lion', 'eagle', 'snake', 'owl', 'shark',
+  'monkey', 'elephant', 'deer', 'salmon', 'trout', 'raven', 'serpent', 'spider',
+  'dove', 'lizard', 'parrot', 'tuna', 'beetle', 'moth', 'bee', 'duck',
+  'bat', 'sheep', 'chicken', 'pigeon', 'ant', 'perch', 'cattle', 'fowl',
+  'dog', 'cat', 'bird', 'fish', 'knight', 'magician', 'captain', 'merchant',
+  'baron', 'earl', 'duke', 'princess', 'angel', 'devil', 'demon', 'fairy',
+  'witch', 'ghost', 'alien', 'robot', 'monster', 'beast', 'creature', 'dwarf',
+  'hero', 'villain', 'mutant', 'skeleton', 'hunter', 'warrior', 'clown', 'forest',
+  'ocean', 'mountain', 'valley', 'lake', 'coast', 'beach', 'desert', 'canyon',
+  'glacier', 'plateau', 'grove', 'pond', 'brook', 'creek', 'reef', 'coral',
+  'peak', 'palace', 'fortress', 'mansion', 'tower', 'abbey', 'chapel', 'manor',
+  'monument', 'ruin', 'garden', 'empire', 'planet', 'moon', 'star', 'galaxy',
+  'universe', 'orbit', 'rainbow', 'shadow', 'sword', 'blade', 'armor', 'weapon',
+  'spell', 'quest', 'voyage', 'legend', 'fantasy', 'treasure', 'oak', 'pine',
+  'palm', 'lotus', 'lily', 'blossom', 'berry', 'cherry', 'lemon', 'peach',
+  'plum', 'apple', 'olive', 'grape', 'coconut', 'honey',
+]
+
+export function randomRoomCode(): string {
+  const pick = (pool: string[]) => pool[Math.floor(Math.random() * pool.length)]
+  return `${pick(ROOM_ADJECTIVES)}-${pick(ROOM_NOUNS)}`
+}
+
 // A stable id for this browser tab, kept in sessionStorage so a reload or a
 // reconnect comes back as the *same* peer instead of a fresh one — otherwise the
 // host keeps the old id's seat/team around as a ghost. Per-tab (sessionStorage,
