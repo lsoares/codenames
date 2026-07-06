@@ -390,10 +390,29 @@
   background: color-mix(in srgb, var(--ink) 16%, transparent);
 }
 
+/* The pass ✕ lives inside the clue token, glued to the pips: passing spends
+   away the guesses those pips count. A hairline divider keeps it legible as its
+   own action without floating it off as a separate control. */
 .pass {
-  padding: 6px 10px;
-  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: -4px;
+  padding: 0 0 0 8px;
+  border: none;
+  border-left: 1px solid color-mix(in srgb, var(--card-face) 30%, transparent);
+  border-radius: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--card-face) 75%, transparent);
+  font-size: 0.85rem;
   line-height: 1;
+  cursor: pointer;
+}
+
+.pass:hover {
+  color: var(--card-face);
 }
 
 /* The three corner tools (invite, logs, close game) tucked behind one hamburger

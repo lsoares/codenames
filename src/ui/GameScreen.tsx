@@ -384,6 +384,17 @@ export default function GameScreen(props: {
                       ))}
                     </span>
                   )}
+                  {acting === 'operatives' && mineTurn && props.mySeat === null && (
+                    <button
+                      type="button"
+                      className={styles.pass}
+                      onClick={() => props.onAction({ type: 'endTurn' })}
+                      aria-label="Pass"
+                      title="Pass"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </span>
               )}
             </>
@@ -399,16 +410,6 @@ export default function GameScreen(props: {
             </span>
           )}
         </div>
-      )}
-      {!winner && acting === 'operatives' && mineTurn && props.mySeat === null && (
-        <button
-          className={`secondary ${styles.pass}`}
-          onClick={() => props.onAction({ type: 'endTurn' })}
-          aria-label="Pass"
-          title="Pass"
-        >
-          ✕
-        </button>
       )}
     </div>
   )
