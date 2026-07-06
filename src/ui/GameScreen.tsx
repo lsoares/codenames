@@ -253,11 +253,17 @@ export default function GameScreen(props: {
   const activeSpymaster = props.mySeat === turn
   const mineTurn = turn === props.myTeam
 
+  // The faces of the winning team, so the win line names who actually took it.
+  const winnerEmojis = winner
+    ? props.players
+        .filter((player) => player.team === winner)
+        .map((player) => player.emoji)
+        .join(' ')
+    : ''
+
   // One viewer-centric line about the current moment; doubles as the menu button.
   const statusText = winner
-    ? winner === props.myTeam
-      ? 'You win! 🏆'
-      : 'They win 😢'
+    ? `${winner === props.myTeam ? '🏆 You win!' : '😢 They win'} ${winnerEmojis}`.trim()
     : acting === 'spymaster'
       ? mineTurn
         ? activeSpymaster
@@ -352,11 +358,20 @@ export default function GameScreen(props: {
               {!winner && phase === 'guess' && clue && (
                 <span className={styles.clueInline}>
                   <strong className={styles.clueWord}>{clue.word}</strong>
-                  <span className={styles.clueDot}>•</span>
                   <span className={styles.clueValue}>{clue.count}</span>
                 </span>
               )}
             </>
+          )}
+          {winner && props.mySeat && (
+            <span className={styles.endActions}>
+              <button type="button" className={styles.endAction} onClick={pickCards}>
+                New deck
+              </button>
+              <button type="button" className={styles.endAction} onClick={dealNewCards}>
+                New game
+              </button>
+            </span>
           )}
         </div>
       )}
@@ -429,7 +444,7 @@ export default function GameScreen(props: {
                 dealNewCards()
               }}
             >
-              New cards
+              New game
             </button>
             <button
               type="button"
@@ -439,7 +454,7 @@ export default function GameScreen(props: {
                 pickCards()
               }}
             >
-              Pick deck
+              New deck
             </button>
             <button
               type="button"

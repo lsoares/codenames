@@ -284,11 +284,15 @@
   white-space: nowrap;
 }
 
+/* The clue word + count read as one solid, team-coloured token, so the eye
+   separates the actual clue from the quieter status label beside it. */
 .clueInline {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  gap: 8px;
+  padding: 4px 5px 4px 16px;
+  border-radius: 999px;
+  background: var(--turn);
 }
 
 .statusPill[data-team='red'] {
@@ -307,13 +311,9 @@
 }
 
 .clueWord {
-  font-size: 1.7rem;
+  font-size: 1.5rem;
   line-height: 1.1;
-}
-
-.clueDot {
-  font-size: 0.5rem;
-  color: var(--muted);
+  color: #fff;
 }
 
 .clueValue {
@@ -324,15 +324,38 @@
   height: 1.7rem;
   padding: 0 0.35rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--turn) 70%, black);
+  background: #fff;
   font-size: 1.15rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--turn);
 }
 
 .statusText {
   font-weight: 700;
   font-size: 1.1rem;
+}
+
+/* The start-over actions tucked into the winner banner. */
+.endActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.endAction {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.endAction:hover {
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
 }
 
 .pass {
