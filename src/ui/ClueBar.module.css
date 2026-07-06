@@ -62,6 +62,11 @@
   width: 72px;
 }
 
+.clueForm .word {
+  width: 12rem;
+  text-transform: uppercase;
+}
+
 /* The pill is also the menu button — click it to open the options dropdown. */
 .cluePill {
   display: inline-flex;

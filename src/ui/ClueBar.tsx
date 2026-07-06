@@ -32,6 +32,7 @@ export default function ClueBar(props: {
     >
       <input
         className={styles.word}
+        autoFocus
         value={word}
         required
         pattern="\S+"
