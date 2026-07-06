@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Game, type GuessOutcome, type Team } from '../Game'
-import type { Action } from '../multiplayer/Session'
+import type { Action, Player } from '../multiplayer/Session'
 import type { CardProvider } from '../cardProviders/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
@@ -16,8 +16,7 @@ export default function GameScreen(props: {
   mySeat: Team | null
   myTeam: Team
   seats: { red: string | null; blue: string | null }
-  teams: Record<string, Team>
-  emojis: Record<string, string>
+  players: Player[]
   selfId: string
   onClaimSeat: (team: Team | null) => void
   onJoinTeam: (team: Team) => void
@@ -97,10 +96,10 @@ export default function GameScreen(props: {
 
   // Operatives on a team: its members who aren't holding a spymaster seat, so
   // membership follows real state and shifts the instant someone switches.
-  const operativesOf = (team: Team): string[] =>
-    Object.entries(props.teams)
-      .filter(([id, t]) => t === team && id !== props.seats.red && id !== props.seats.blue)
-      .map(([id]) => id)
+  const operativesOf = (team: Team): Player[] =>
+    props.players.filter(
+      (player) => player.team === team && player.id !== props.seats.red && player.id !== props.seats.blue,
+    )
 
   const { winner, phase, turn, clue, clueHistory } = props.game.state
   // Whose action the turn team awaits: the spymaster clues, the operatives guess.
@@ -130,8 +129,8 @@ export default function GameScreen(props: {
     const seatId = team === 'red' ? props.seats.red : props.seats.blue
     const hasSpymaster = !!seatId
     const isMySeat = props.mySeat === team
-    const opIds = operativesOf(team)
-    const ops = opIds.length
+    const opPlayers = operativesOf(team)
+    const ops = opPlayers.length
     const headcount = (hasSpymaster ? 1 : 0) + ops
     const active = team === props.game.state.turn
     const spymasterLabel = isMySeat
@@ -180,17 +179,17 @@ export default function GameScreen(props: {
             onClick={() => requestJoinTeam(team)}
           >
             {ops > 0 ? (
-              opIds.map((id) => (
+              opPlayers.map((player) => (
                 <span
-                  key={id}
+                  key={player.id}
                   role="img"
                   className={styles.op}
                   data-team={team}
-                  data-mine={id === props.selfId || undefined}
-                  title={id === props.selfId ? 'You' : undefined}
-                  aria-label={id === props.selfId ? `${team} operative (you)` : `${team} operative`}
+                  data-mine={player.id === props.selfId || undefined}
+                  title={player.id === props.selfId ? 'You' : undefined}
+                  aria-label={player.id === props.selfId ? `${team} operative (you)` : `${team} operative`}
                 >
-                  {props.emojis[id] ?? '🙂'}
+                  {player.emoji}
                 </span>
               ))
             ) : (

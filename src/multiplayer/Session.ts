@@ -17,13 +17,20 @@ export type Presence = { __presence: true; spymasterTeam: Team | null }
 export type TeamClaim = { __team: true; team: Team }
 export type Ping = { __ping: true }
 
-// What every peer renders, plus presence used for FIFO host takeover.
+// One player in the room: their team and identity emoji, keyed by the peer id
+// that is otherwise sealed inside the transport layer.
+export interface Player {
+  id: string // peerId — the network address, kept out of the rest of the app
+  team: Team // auto-assigned on arrival, balanced across teams
+  emoji: string // stable identity emoji, survives a team switch
+}
+
+// What every peer renders: the game, the two spymaster chairs, and the players in
+// arrival order (host first — also the FIFO order used for host takeover).
 export interface RoomView {
   state: GameState
   seats: Seats // one spymaster seat per team, by holder id
-  teams: Record<string, Team> // auto-assigned team per peer, balanced on arrival
-  emojis: Record<string, string> // each player's identity emoji, by holder id
-  peers: string[] // arrival order, host first
+  players: Player[]
 }
 
 // The handle the UI holds onto a live connection, whether it's hosting or a

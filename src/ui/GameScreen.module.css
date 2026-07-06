@@ -158,10 +158,24 @@
   font-size: 1.35rem;
 }
 
-/* The viewer's own face: just enlarged, so you can pick yourself out of the row. */
-.op[data-mine] {
-  transform: scale(1.45);
-  margin: 0 4px;
+/* The viewer's own face — operative or spymaster — carries a small dot beneath it,
+   so you can find yourself without it being any bigger than the others. */
+.op[data-mine],
+.spymasterSlot[data-mine] {
+  position: relative;
+}
+
+.op[data-mine]::after,
+.spymasterSlot[data-mine]::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 /* Cards-left count: a subtle team-tinted pill, purely informational. */

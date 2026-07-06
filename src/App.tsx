@@ -3,7 +3,7 @@ import { Game, type GameState, type Team } from './Game'
 import { getFaces, providers } from './cardProviders/providers'
 import { Host } from './multiplayer/Host'
 import { Guest, JoinError } from './multiplayer/Guest'
-import type { Session, Action } from './multiplayer/Session'
+import type { Session, Action, Player } from './multiplayer/Session'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
 import Homepage from './ui/Homepage'
@@ -44,9 +44,7 @@ export default function App() {
     red: null,
     blue: null,
   })
-  const [teams, setTeams] = useState<Record<string, Team>>({})
-  const [emojis, setEmojis] = useState<Record<string, string>>({})
-  const [playerCount, setPlayerCount] = useState(1)
+  const [players, setPlayers] = useState<Player[]>([])
   const [isHost, setIsHost] = useState(false)
   // While the next board's faces are being fetched, blank the current cards so
   // their now-stale images don't linger — the new ones can take a moment.
@@ -84,12 +82,10 @@ export default function App() {
     session.subscribe((view) => {
       const next = new Game(view.state)
       gameRef.current = next
-      peersRef.current = view.peers
+      peersRef.current = view.players.map((player) => player.id)
       setGame(next)
       setSeats(view.seats)
-      setTeams(view.teams ?? {})
-      setEmojis(view.emojis ?? {})
-      setPlayerCount(view.peers.length)
+      setPlayers(view.players)
     })
     if (!asHost) session.onDisconnect(() => migrate())
   }
@@ -130,7 +126,7 @@ export default function App() {
     seats.red === selfIdRef.current ? 'red' : seats.blue === selfIdRef.current ? 'blue' : null
   // My team drives the background and who may play: a spymaster follows their
   // seat, everyone else the auto-assigned team.
-  const myTeam: Team = mySeat ?? teams?.[selfIdRef.current] ?? 'red'
+  const myTeam: Team = mySeat ?? players.find((player) => player.id === selfIdRef.current)?.team ?? 'red'
 
   // Re-deal the current room from a chosen deck, keeping everyone in place.
   const newGame = async (id: string) => {
@@ -173,8 +169,7 @@ export default function App() {
     setGame(null)
     setRoomCode('')
     setSeats({ red: null, blue: null })
-    setTeams({})
-    setPlayerCount(1)
+    setPlayers([])
     setStatus('')
   }
 
@@ -256,10 +251,10 @@ export default function App() {
   const prevCountRef = useRef<number | null>(null)
   useEffect(() => {
     const prev = prevCountRef.current
-    prevCountRef.current = playerCount
-    if (prev === null || playerCount === prev) return
-    notify(playerCount > prev ? 'A player joined 👋' : 'A player left')
-  }, [playerCount])
+    prevCountRef.current = players.length
+    if (prev === null || players.length === prev) return
+    notify(players.length > prev ? 'A player joined 👋' : 'A player left')
+  }, [players.length])
 
   // Announce to everyone else when a team gets a new spymaster. The claimer
   // already got their own toast in claimSeat, so skip the seat we now hold.
@@ -339,8 +334,7 @@ export default function App() {
           mySeat={mySeat}
           myTeam={myTeam}
           seats={seats}
-          teams={teams}
-          emojis={emojis}
+          players={players}
           selfId={selfIdRef.current}
           onClaimSeat={claimSeat}
           onJoinTeam={joinTeam}

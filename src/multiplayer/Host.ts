@@ -1,7 +1,7 @@
 import { type DataConnection } from 'peerjs'
 import { Game, createGame, type CardFit, type Credit, type GameState } from '../Game'
 import { Room } from './Room'
-import { iceServersReady, logConnection, newPeer, randomCode } from './peer'
+import { iceServersReady, logConnection, newPeer, randomRoomCode } from './peer'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
 
 const apply = (game: Game, action: Action): Game => {
@@ -53,7 +53,7 @@ export class Host implements Session {
     deck: string,
     code?: string,
   ): Promise<Host> {
-    return Host.launch(code ?? randomCode(), createGame(faces, startingTeam, credit, fit, deck), 'new', 4, code != null)
+    return Host.launch(code ?? randomRoomCode(), createGame(faces, startingTeam, credit, fit, deck), 'new', 4, code != null)
   }
 
   // Re-host an existing game under the same room code (host reload or FIFO
@@ -152,7 +152,7 @@ export class Host implements Session {
         this.peer.destroy()
         if (this.heartbeat) clearInterval(this.heartbeat) // this attempt is dead; a fresh Host starts its own
         if (this.fixedCode && this.mode === 'new') return reject(error)
-        const nextCode = this.mode === 'new' ? randomCode() : this.code
+        const nextCode = this.mode === 'new' ? randomRoomCode() : this.code
         setTimeout(
           () => Host.launch(nextCode, this.game.state, this.mode, retries - 1, this.fixedCode).then(resolve, reject),
           this.mode === 'resume' ? 800 : 0,
@@ -164,12 +164,13 @@ export class Host implements Session {
   }
 
   private view(): RoomView {
+    const ids = [this.peer.id, ...this.connections.map((connection) => connection.peer)]
+    const teams = this.room.teams
+    const emojis = this.room.emojis
     return {
       state: this.game.state,
       seats: this.room.seats,
-      teams: this.room.teams,
-      emojis: this.room.emojis,
-      peers: [this.peer.id, ...this.connections.map((connection) => connection.peer)],
+      players: ids.map((id) => ({ id, team: teams[id], emoji: emojis[id] })),
     }
   }
 
