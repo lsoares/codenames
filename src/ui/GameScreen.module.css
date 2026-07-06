@@ -292,10 +292,12 @@
 }
 
 .statusPill[data-team='red'] {
+  --turn: var(--red);
   background: color-mix(in srgb, var(--red) 26%, transparent);
 }
 
 .statusPill[data-team='blue'] {
+  --turn: var(--blue);
   background: color-mix(in srgb, var(--blue) 26%, transparent);
 }
 
@@ -315,8 +317,17 @@
 }
 
 .clueValue {
-  font-size: 1.2rem;
-  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7rem;
+  height: 1.7rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--turn) 70%, black);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
 }
 
 .statusText {
