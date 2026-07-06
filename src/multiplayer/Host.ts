@@ -34,6 +34,14 @@ export class Host implements Session {
   private readonly listeners: Array<(view: RoomView) => void> = []
   private readonly lastSeen = new Map<DataConnection, number>()
   private heartbeat?: ReturnType<typeof setInterval>
+  private opened = false
+
+  // Release the room id to the broker on a real tab close, so a re-host isn't
+  // blocked waiting for the broker to expire our ghost. Skip a bfcache freeze
+  // (persisted), where the same peer will resume.
+  private readonly releaseOnUnload = (event: PageTransitionEvent): void => {
+    if (!event.persisted) this.peer.destroy()
+  }
 
   private constructor(
     private readonly code: string,
@@ -43,6 +51,7 @@ export class Host implements Session {
   ) {
     this.game = new Game(initialState)
     this.peer = newPeer(code)
+    window.addEventListener('pagehide', this.releaseOnUnload)
   }
 
   static start(
@@ -103,6 +112,7 @@ export class Host implements Session {
   // every guest connection, so guests fall into their usual FIFO takeover.
   close(): void {
     if (this.heartbeat) clearInterval(this.heartbeat)
+    window.removeEventListener('pagehide', this.releaseOnUnload)
     this.peer.destroy()
   }
 
@@ -116,12 +126,25 @@ export class Host implements Session {
     this.peer.on('open', (id) => {
       this.roomCode = id
       this.selfId = id
-      this.room = this.room.assignTeam(id).assignEmoji(id)
-      // Seat the host as their team's spymaster too, just like a joiner — but only
-      // for a brand-new room, so a reload or FIFO takeover doesn't hand the seat
-      // (and the colour key) to whoever happens to re-host mid-game.
-      if (this.mode === 'new') this.room = this.room.autoSeat(id)
+      // The broker re-announces our id on every (re)connect; only seed the room
+      // the first time, so a reconnect after the host stepped down as spymaster
+      // doesn't silently re-seat them via autoSeat.
+      if (!this.opened) {
+        this.opened = true
+        this.room = this.room.assignTeam(id).assignEmoji(id)
+        // Seat the host as their team's spymaster too, just like a joiner — but only
+        // for a brand-new room, so a reload or FIFO takeover doesn't hand the seat
+        // (and the colour key) to whoever happens to re-host mid-game.
+        if (this.mode === 'new') this.room = this.room.autoSeat(id)
+      }
       resolve(this)
+    })
+
+    // The broker socket can drop while the tab is idle or asleep, though our
+    // peer-to-peer links live on. Re-register the same id so new guests can still
+    // find us and the room id stays ours — no reload, no ghost to wait out.
+    this.peer.on('disconnected', () => {
+      if (!this.peer.destroyed) this.peer.reconnect()
     })
 
     this.peer.on('connection', (connection) => {
@@ -150,6 +173,7 @@ export class Host implements Session {
     this.peer.on('error', (error: { type?: string }) => {
       if (error.type === 'unavailable-id' && retries > 0) {
         this.peer.destroy()
+        window.removeEventListener('pagehide', this.releaseOnUnload)
         if (this.heartbeat) clearInterval(this.heartbeat) // this attempt is dead; a fresh Host starts its own
         if (this.fixedCode && this.mode === 'new') return reject(error)
         const nextCode = this.mode === 'new' ? randomRoomCode() : this.code

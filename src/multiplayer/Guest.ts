@@ -45,6 +45,12 @@ export class Guest implements Session {
   private watchdog?: ReturnType<typeof setInterval>
   private lost = false
 
+  // Free our tab id on a real tab close so a reconnect can reclaim it without
+  // fighting a broker ghost. Skip a bfcache freeze (persisted), which resumes.
+  private readonly releaseOnUnload = (event: PageTransitionEvent): void => {
+    if (!event.persisted) this.peer?.destroy()
+  }
+
   private constructor(readonly roomCode: string) {}
 
   // Join a room, retrying transient failures — a broker hiccup or rate limit, a
@@ -81,12 +87,14 @@ export class Guest implements Session {
   // reclaim it.
   close(): void {
     this.lost = true
+    window.removeEventListener('pagehide', this.releaseOnUnload)
     if (this.watchdog) clearInterval(this.watchdog)
     this.peer.destroy()
   }
 
   private async open(waitForHost: boolean): Promise<Guest> {
     await iceServersReady
+    window.addEventListener('pagehide', this.releaseOnUnload)
     return new Promise((resolve, reject) => {
       // What the timeout should report if the window closes now — updated as the
       // join progresses, so the last thing we were stuck on names the failure.
@@ -106,6 +114,7 @@ export class Guest implements Session {
         if (settled) return
         settled = true
         clearTimers()
+        window.removeEventListener('pagehide', this.releaseOnUnload)
         this.peer.destroy()
         reject(new JoinError(reason))
       }
@@ -168,9 +177,19 @@ export class Guest implements Session {
         // peer, not a ghost.
         const peer = newPeer(tabPeerId())
         this.peer = peer
+        let dialed = false
         peer.on('open', (selfId) => {
           this.selfId = selfId
+          // The broker re-fires 'open' on every reconnect; the data link to the
+          // host is separate and already up, so only dial the first time.
+          if (dialed) return
+          dialed = true
           dial(peer)
+        })
+        // A dropped broker socket (idle/sleep/blip) leaves our peer alive: reclaim
+        // the same id so the host can still reach us, rather than reloading.
+        peer.on('disconnected', () => {
+          if (this.peer === peer && !peer.destroyed) peer.reconnect()
         })
         peer.on('error', (error: { type?: string }) => {
           if (settled) return
