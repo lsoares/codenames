@@ -247,19 +247,27 @@ export default function App() {
   }, [game])
 
   // Announce peers arriving and leaving so the room's size never changes
-  // silently. No sound — connections churn during host recovery.
+  // silently. No sound — connections churn during host recovery. Gate on being
+  // in a room so a joiner's own arrival — the jump from the empty default to the
+  // room's real headcount — is a silent baseline, not a phantom "player joined".
   const prevCountRef = useRef<number | null>(null)
   useEffect(() => {
+    if (!game) return
     const prev = prevCountRef.current
     prevCountRef.current = players.length
     if (prev === null || players.length === prev) return
     notify(players.length > prev ? 'A player joined 👋' : 'A player left')
-  }, [players.length])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [players.length, game])
 
   // Announce to everyone else when a team gets a new spymaster. The claimer
   // already got their own toast in claimSeat, so skip the seat we now hold.
+  // Gate on being in a room so the very first real view is only a baseline:
+  // without it the mount run seeds prev from the default empty seats, and a
+  // joiner would then hear every already-seated spymaster announced as "new".
   const prevSeatsRef = useRef<typeof seats | null>(null)
   useEffect(() => {
+    if (!game) return
     const prev = prevSeatsRef.current
     prevSeatsRef.current = seats
     if (!prev) return
@@ -270,7 +278,7 @@ export default function App() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seats])
+  }, [seats, game])
 
   useEffect(() => {
     if (isHostRef.current && roomCode && game) {
