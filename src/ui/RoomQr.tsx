@@ -5,7 +5,9 @@ import styles from './RoomQr.module.css'
 export default function RoomQr(props: { open: boolean; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const [copied, setCopied] = useState(false)
-  const url = `${window.location.origin}${window.location.pathname}`
+  // Always the public domain, not the current origin, so the link/QR stays
+  // scannable when hosting from localhost or a preview build.
+  const url = `https://codenamesany.pages.dev${window.location.pathname}`
   useEffect(() => {
     if (props.open) {
       setCopied(false)
