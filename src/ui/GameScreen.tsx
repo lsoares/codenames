@@ -100,7 +100,10 @@ export default function GameScreen(props: {
       (player) => player.team === team && player.id !== props.seats.red && player.id !== props.seats.blue,
     )
 
-  const { winner, phase, turn, clue, clueHistory } = props.game.state
+  const { winner, phase, turn, clue, clueHistory, guessesRemaining } = props.game.state
+  // A clue of N grants N+1 guesses: one pip per guess, the last one the bonus.
+  const guessesGiven = clue ? clue.count + 1 : 0
+  const guessesUsed = clue ? guessesGiven - guessesRemaining : 0
   // Whose action the turn team awaits: the spymaster clues, the operatives guess.
   const acting = props.game.awaitingRole()
 
@@ -358,7 +361,27 @@ export default function GameScreen(props: {
               {!winner && phase === 'guess' && clue && (
                 <span className={styles.clueInline}>
                   <strong className={styles.clueWord}>{clue.word}</strong>
-                  <span className={styles.clueValue}>{clue.count}</span>
+                  {clue.count === 0 ? (
+                    <span className={styles.clueInfinity} role="img" aria-label="0 guesses given" title="0">
+                      ∞
+                    </span>
+                  ) : (
+                    <span
+                      className={styles.pips}
+                      role="img"
+                      aria-label={`${guessesUsed} used out of ${guessesGiven}`}
+                      title={`${guessesUsed} used out of ${guessesGiven}`}
+                    >
+                      {Array.from({ length: guessesGiven }, (_, i) => (
+                        <span
+                          key={i}
+                          className={styles.pip}
+                          data-spent={i < guessesUsed || undefined}
+                          data-bonus={i === clue.count || undefined}
+                        />
+                      ))}
+                    </span>
+                  )}
                 </span>
               )}
             </>

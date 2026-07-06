@@ -105,7 +105,7 @@
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  padding: 2px 3px;
+  padding: 2px 8px;
   border-radius: 999px;
 }
 
@@ -175,7 +175,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: currentColor;
+  background: var(--turn);
 }
 
 /* Cards-left count: a subtle team-tinted pill, purely informational. */
@@ -255,6 +255,14 @@
 
 /* The shade marks whose action is pending: the spymaster while the clue is
    still coming, then the operatives once they're guessing. */
+.team[data-team='red'] {
+  --turn: var(--red);
+}
+
+.team[data-team='blue'] {
+  --turn: var(--blue);
+}
+
 .team[data-team='red'] [data-active] {
   background: color-mix(in srgb, var(--red) 28%, transparent);
 }
@@ -289,10 +297,10 @@
 .clueInline {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 5px 4px 16px;
+  gap: 12px;
+  padding: 6px 18px;
   border-radius: 999px;
-  background: var(--turn);
+  background: color-mix(in srgb, var(--turn) 80%, var(--bg));
 }
 
 .statusPill[data-team='red'] {
@@ -313,21 +321,45 @@
 .clueWord {
   font-size: 1.5rem;
   line-height: 1.1;
-  color: #fff;
+  color: var(--card-face);
+  text-transform: uppercase;
 }
 
-.clueValue {
+/* One pip per guess granted (N+1), the last marked as the bonus; they fill as
+   the team spends guesses, so the allowance and progress read at a glance. */
+.pips {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-width: 1.7rem;
-  height: 1.7rem;
-  padding: 0 0.35rem;
-  border-radius: 999px;
-  background: #fff;
-  font-size: 1.15rem;
+  gap: 5px;
+}
+
+.pip {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--card-face) 26%, transparent);
+}
+
+.pip[data-spent] {
+  background: var(--card-face);
+}
+
+/* The bonus (N+1) pip reads as extra: a ring when unspent, a softer fill when
+   spent — never the full solid of a regular guess. */
+.pip[data-bonus] {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--card-face) 50%, transparent);
+}
+
+.pip[data-bonus][data-spent] {
+  background: color-mix(in srgb, var(--card-face) 60%, transparent);
+}
+
+.clueInfinity {
+  font-size: 1.35rem;
   font-weight: 800;
-  color: var(--turn);
+  line-height: 1;
+  color: var(--card-face);
 }
 
 .statusText {
