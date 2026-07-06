@@ -135,11 +135,12 @@ export class Game {
   }
 
   // Whether a viewer may act on a card this turn: only the team on turn acts, and
-  // only on live cards; a spymaster picks only their own colour, an operative any.
+  // only on live cards; a spymaster picks only their own colour, an operative any
+  // card but only once a clue is out (the guess phase — before that, they wait).
   canAct(cardIndex: number, viewer: { team: Team; isSpymaster: boolean }): boolean {
     const card = this.s.cards[cardIndex]
     if (card.revealed || this.s.turn !== viewer.team) return false
-    return viewer.isSpymaster ? card.color === viewer.team : true
+    return viewer.isSpymaster ? card.color === viewer.team : this.s.phase === 'guess'
   }
 
   // Operatives mark unrevealed cards — a private note, allowed on any turn.
