@@ -145,8 +145,8 @@
   position: absolute;
   inset: 0;
   background-color: var(--ink);
-  mask: var(--mask) center / 60% no-repeat;
-  -webkit-mask: var(--mask) center / 60% no-repeat;
+  mask: var(--mask) center / 46% no-repeat;
+  -webkit-mask: var(--mask) center / 46% no-repeat;
 }
 
 .card[data-color='red'] .svgIcon::before {
