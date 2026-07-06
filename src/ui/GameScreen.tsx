@@ -242,12 +242,12 @@ export default function GameScreen(props: {
         ? activeSpymaster
           ? `Your turn (${turn})`
           : `Your spymaster's turn (${turn})`
-        : `The other team (${turn}) is playing`
+        : `Their spymaster's turn (${turn})`
       : mineTurn
         ? props.mySeat
           ? `Your operatives' turn (${turn})`
           : `Your turn (${turn})`
-        : `The other team (${turn}) is playing`
+        : `Their operatives' turn (${turn})`
 
   // The tab title mirrors the header-centre pill text exactly, so a glance at the
   // tab reads the same as the app.
