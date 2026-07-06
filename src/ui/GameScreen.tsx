@@ -17,6 +17,8 @@ export default function GameScreen(props: {
   myTeam: Team
   seats: { red: string | null; blue: string | null }
   teams: Record<string, Team>
+  emojis: Record<string, string>
+  selfId: string
   onClaimSeat: (team: Team | null) => void
   onJoinTeam: (team: Team) => void
   onAction: (action: Action) => void
@@ -94,11 +96,11 @@ export default function GameScreen(props: {
   useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
 
   // Operatives on a team: its members who aren't holding a spymaster seat, so
-  // the count follows real membership and shifts the instant someone switches.
-  const opsFor = (team: Team): number =>
-    Object.entries(props.teams).filter(
-      ([id, t]) => t === team && id !== props.seats.red && id !== props.seats.blue,
-    ).length
+  // membership follows real state and shifts the instant someone switches.
+  const operativesOf = (team: Team): string[] =>
+    Object.entries(props.teams)
+      .filter(([id, t]) => t === team && id !== props.seats.red && id !== props.seats.blue)
+      .map(([id]) => id)
 
   const { winner, phase, turn, clue, clueHistory } = props.game.state
   // Whose action the turn team awaits: the spymaster clues, the operatives guess.
@@ -128,7 +130,8 @@ export default function GameScreen(props: {
     const seatId = team === 'red' ? props.seats.red : props.seats.blue
     const hasSpymaster = !!seatId
     const isMySeat = props.mySeat === team
-    const ops = opsFor(team)
+    const opIds = operativesOf(team)
+    const ops = opIds.length
     const headcount = (hasSpymaster ? 1 : 0) + ops
     const active = team === props.game.state.turn
     const spymasterLabel = isMySeat
@@ -140,16 +143,13 @@ export default function GameScreen(props: {
         data-team={team}
         title={active ? `${team}'s turn` : undefined}
       >
-        <button
-          type="button"
+        <span
           className={styles.count}
           data-team={team}
-          aria-label={`Join ${team} team`}
-          title={`${team} cards left`}
-          onClick={() => requestJoinTeam(team)}
+          title={`${team} cards left to guess`}
         >
           {props.game.remaining(team)}
-        </button>
+        </span>
         <span
           className={styles.players}
           title={`${headcount} ${team} player${headcount === 1 ? '' : 's'}`}
@@ -170,17 +170,33 @@ export default function GameScreen(props: {
               <span aria-hidden="true" className={styles.spymasterDim}>🕵️</span>
             )}
           </button>
-          <span
+          <button
+            type="button"
             className={styles.ops}
             data-team={team}
             data-active={(active && acting === 'operatives') || undefined}
+            aria-label={`Join ${team} team`}
+            title={`Join ${team} team`}
+            onClick={() => requestJoinTeam(team)}
           >
-            {Array.from({ length: ops }, (_, i) => (
-              <span key={i} role="img" aria-label={`${team} operative`}>
-                {winner && winner !== team ? '😢' : '🙂'}
-              </span>
-            ))}
-          </span>
+            {ops > 0 ? (
+              opIds.map((id) => (
+                <span
+                  key={id}
+                  role="img"
+                  className={styles.op}
+                  data-team={team}
+                  data-mine={id === props.selfId || undefined}
+                  title={id === props.selfId ? 'You' : undefined}
+                  aria-label={id === props.selfId ? `${team} operative (you)` : `${team} operative`}
+                >
+                  {props.emojis[id] ?? '🙂'}
+                </span>
+              ))
+            ) : (
+              <span aria-hidden="true" className={styles.opsDim}>🙂</span>
+            )}
+          </button>
         </span>
       </span>
     )

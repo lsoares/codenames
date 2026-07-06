@@ -89,7 +89,7 @@
 .players {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 8px;
 }
 
 /* Right side mirrors so each team's count sits at the outer edge, and the
@@ -129,40 +129,62 @@
   opacity: 0.25;
 }
 
+/* The operatives slot doubles as the "join this team" button: no chrome. */
 .ops {
-  letter-spacing: 1px;
+  gap: 5px;
   font-size: 1rem;
   line-height: 1;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  appearance: none;
 }
 
-/* Cards-left count shown as a little horizontal team-coloured card. */
+.ops:hover {
+  filter: brightness(1.1);
+}
+
+/* Dim placeholder shown when a team has no operatives yet. */
+.opsDim {
+  opacity: 0.25;
+}
+
+/* Each operative's identity face. */
+.op {
+  display: inline-block;
+  line-height: 1;
+  border-radius: 999px;
+  font-size: 1.35rem;
+}
+
+/* The viewer's own face: just enlarged, so you can pick yourself out of the row. */
+.op[data-mine] {
+  transform: scale(1.45);
+  margin: 0 4px;
+}
+
+/* Cards-left count: a subtle team-tinted pill, purely informational. */
 .count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 24px;
+  width: 30px;
+  height: 22px;
   border-radius: 5px;
-  color: #fff;
-  font-weight: 800;
-  font-size: 1rem;
+  font-weight: 700;
+  font-size: 0.9rem;
   padding: 0;
-  border: none;
-  appearance: none;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(43, 45, 66, 0.25);
-}
-
-.count:hover {
-  filter: brightness(1.08);
 }
 
 .team[data-team='red'] .count {
-  background: var(--red);
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 14%, transparent);
 }
 
 .team[data-team='blue'] .count {
-  background: var(--blue);
+  color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 14%, transparent);
 }
 
 /* At game end each side lists the clues that team gave, stacked vertically and

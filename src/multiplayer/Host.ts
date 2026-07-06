@@ -116,7 +116,7 @@ export class Host implements Session {
     this.peer.on('open', (id) => {
       this.roomCode = id
       this.selfId = id
-      this.room = this.room.assignTeam(id)
+      this.room = this.room.assignTeam(id).assignEmoji(id)
       // Seat the host as their team's spymaster too, just like a joiner — but only
       // for a brand-new room, so a reload or FIFO takeover doesn't hand the seat
       // (and the colour key) to whoever happens to re-host mid-game.
@@ -129,7 +129,7 @@ export class Host implements Session {
         logConnection(connection)
         this.connections.push(connection)
         this.lastSeen.set(connection, Date.now())
-        this.room = this.room.assignTeam(connection.peer).autoSeat(connection.peer)
+        this.room = this.room.assignTeam(connection.peer).assignEmoji(connection.peer).autoSeat(connection.peer)
         this.broadcast()
       })
       connection.on('data', (data) => {
@@ -168,6 +168,7 @@ export class Host implements Session {
       state: this.game.state,
       seats: this.room.seats,
       teams: this.room.teams,
+      emojis: this.room.emojis,
       peers: [this.peer.id, ...this.connections.map((connection) => connection.peer)],
     }
   }

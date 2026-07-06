@@ -22,6 +22,7 @@ export interface RoomView {
   state: GameState
   seats: Seats // one spymaster seat per team, by holder id
   teams: Record<string, Team> // auto-assigned team per peer, balanced on arrival
+  emojis: Record<string, string> // each player's identity emoji, by holder id
   peers: string[] // arrival order, host first
 }
 

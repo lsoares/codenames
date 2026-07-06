@@ -45,6 +45,7 @@ export default function App() {
     blue: null,
   })
   const [teams, setTeams] = useState<Record<string, Team>>({})
+  const [emojis, setEmojis] = useState<Record<string, string>>({})
   const [playerCount, setPlayerCount] = useState(1)
   const [isHost, setIsHost] = useState(false)
   // While the next board's faces are being fetched, blank the current cards so
@@ -87,6 +88,7 @@ export default function App() {
       setGame(next)
       setSeats(view.seats)
       setTeams(view.teams ?? {})
+      setEmojis(view.emojis ?? {})
       setPlayerCount(view.peers.length)
     })
     if (!asHost) session.onDisconnect(() => migrate())
@@ -338,6 +340,8 @@ export default function App() {
           myTeam={myTeam}
           seats={seats}
           teams={teams}
+          emojis={emojis}
+          selfId={selfIdRef.current}
           onClaimSeat={claimSeat}
           onJoinTeam={joinTeam}
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
