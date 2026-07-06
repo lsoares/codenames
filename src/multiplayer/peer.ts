@@ -1,6 +1,6 @@
 import Peer, { type DataConnection, type PeerOptions } from 'peerjs'
 
-export function randomCode(): string {
+function randomCode(): string {
   return Math.random().toString(36).slice(2, 8)
 }
 

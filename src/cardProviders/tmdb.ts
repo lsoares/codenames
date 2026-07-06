@@ -1,16 +1,8 @@
 import type { CardProvider } from './providers'
+import { shuffle } from './words'
 
 interface TmdbMovie {
   backdrop_path: string | null
-}
-
-const shuffle = <T>(items: T[]): T[] => {
-  const out = [...items]
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[out[i], out[j]] = [out[j], out[i]]
-  }
-  return out
 }
 
 // Fetches 20 movie backdrops from TMDB — wide film stills that make recognizable
