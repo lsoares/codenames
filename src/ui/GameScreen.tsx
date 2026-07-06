@@ -138,6 +138,8 @@ export default function GameScreen(props: {
     const spymasterLabel = isMySeat
       ? `Step down as ${team} spymaster`
       : `Become ${team} spymaster`
+    const iAmOperativeHere = team === props.myTeam && props.mySeat === null
+    const opsLabel = iAmOperativeHere ? `You're on the ${team} team` : `Join ${team} team`
     return (
       <span
         className={styles.team}
@@ -176,8 +178,8 @@ export default function GameScreen(props: {
             className={styles.ops}
             data-team={team}
             data-active={(active && acting === 'operatives') || undefined}
-            aria-label={`Join ${team} team`}
-            title={`Join ${team} team`}
+            aria-label={opsLabel}
+            title={opsLabel}
             onClick={() => requestJoinTeam(team)}
           >
             {ops > 0 ? (
