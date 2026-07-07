@@ -5,7 +5,6 @@ import type { CardProvider } from '../cardProviders/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
 import DeckPicker from './DeckPicker'
-import DebugLog from './DebugLog'
 import RoomQr from './RoomQr'
 import styles from './GameScreen.module.css'
 
@@ -27,20 +26,8 @@ export default function GameScreen(props: {
 }) {
   const pickerDialog = useRef<HTMLDialogElement>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
-  // The corner tools (invite, logs, full screen, deck) live behind one hamburger menu.
   const [menuOpen, setMenuOpen] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
-  const [logsOpen, setLogsOpen] = useState(false)
-  const [fullscreen, setFullscreen] = useState(false)
-  useEffect(() => {
-    const sync = () => setFullscreen(document.fullscreenElement !== null)
-    document.addEventListener('fullscreenchange', sync)
-    return () => document.removeEventListener('fullscreenchange', sync)
-  }, [])
-  const toggleFullscreen = () => {
-    if (document.fullscreenElement) void document.exitFullscreen()
-    else void document.documentElement.requestFullscreen().catch(() => {})
-  }
 
   // Fresh cards from the deck already in play, dealt without a prompt — used when
   // a seat change means a spymaster who has seen the key must not keep the board.
@@ -539,34 +526,13 @@ export default function GameScreen(props: {
                 setShareOpen(true)
               }}
             >
-              Invite players
-            </button>
-            <button
-              type="button"
-              className={styles.toolItem}
-              onClick={() => {
-                setMenuOpen(false)
-                setLogsOpen(true)
-              }}
-            >
-              Show logs
-            </button>
-            <button
-              type="button"
-              className={styles.toolItem}
-              onClick={() => {
-                setMenuOpen(false)
-                toggleFullscreen()
-              }}
-            >
-              {fullscreen ? 'Exit full screen' : 'Full screen'}
+              Invite
             </button>
           </div>
         )}
       </div>
 
       <RoomQr open={shareOpen} onClose={() => setShareOpen(false)} />
-      <DebugLog open={logsOpen} onClose={() => setLogsOpen(false)} />
 
       <dialog
         ref={pickerDialog}
