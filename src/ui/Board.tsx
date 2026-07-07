@@ -84,7 +84,13 @@ export default function Board(props: {
         const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
         const canMark = props.game.canMark(index, isSpymaster)
         return (
-          <div key={index} className={styles.cell}>
+          // A per-card view-transition name lets the browser glide each card from
+          // its old spot to its new one when Focus mode reorders the board.
+          <div
+            key={index}
+            className={styles.cell}
+            style={{ viewTransitionName: `card-${index}` } as CSSProperties}
+          >
             <button
               className={styles.card}
               aria-label={label}

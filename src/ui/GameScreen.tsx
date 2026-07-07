@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Game, INFINITE_CLUE, type GuessOutcome, type Team } from '../Game'
 import type { Action, Player } from '../multiplayer/Session'
 import type { CardProvider } from '../cardProviders/providers'
@@ -53,12 +54,27 @@ export default function GameScreen(props: {
   // A private, throwaway planning view: while on, the board reorders (only on this
   // client) to cluster the spymaster's own cards. Never synced; see Board.
   const [focus, setFocus] = useState(false)
-  const toggleSelected = (index: number) =>
-    setSelected((prev) => {
-      const next = new Set(prev)
-      next.has(index) ? next.delete(index) : next.add(index)
-      return next
-    })
+  // Run a state change through a view transition so the board's cards visibly glide
+  // to their new spots; fall back to an instant change where the API is missing or
+  // the user prefers reduced motion.
+  const animate = (update: () => void) => {
+    const doc = document as Document & { startViewTransition?: (run: () => void) => void }
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!doc.startViewTransition || reduce) return update()
+    doc.startViewTransition(() => flushSync(update))
+  }
+  const toggleFocus = () => animate(() => setFocus((on) => !on))
+  const toggleSelected = (index: number) => {
+    // In Focus mode a pick jumps the card into the leading group, so glide it there;
+    // out of Focus the order doesn't change, so just toggle instantly.
+    const pick = () =>
+      setSelected((prev) => {
+        const next = new Set(prev)
+        next.has(index) ? next.delete(index) : next.add(index)
+        return next
+      })
+    focus ? animate(pick) : pick()
+  }
   // A stable per-deal identity: only a fresh deal reshuffles the card colours (a
   // guess, clue or turn pass never touch them), so this signature changes exactly
   // when the board is re-dealt — even between two fresh deals in a row, which
@@ -387,7 +403,7 @@ export default function GameScreen(props: {
       teamCardsLeft={props.game.remaining(turn)}
       selectedCount={selected.size}
       focus={focus}
-      onToggleFocus={() => setFocus((on) => !on)}
+      onToggleFocus={toggleFocus}
       onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
     />
   )

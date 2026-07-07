@@ -45,7 +45,7 @@ export default function ClueBar(props: {
         title="Focus mode — cluster your cards to plan a clue"
         onClick={props.onToggleFocus}
       >
-        Focus
+        🔎
       </button>
       <input
         className={styles.word}

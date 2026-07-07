@@ -113,3 +113,11 @@ label {
   box-shadow: var(--shadow);
   padding: 34px;
 }
+
+/* The spymaster's Focus sort glides each card to its new group via the View
+   Transitions API (see Board/GameScreen). Tune the default duration and easing;
+   under reduced motion the toggle skips the transition entirely, in JS. */
+::view-transition-group(*) {
+  animation-duration: 0.32s;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
