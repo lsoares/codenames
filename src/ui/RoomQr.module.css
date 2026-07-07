@@ -17,24 +17,70 @@
 }
 
 .qr {
-  padding: 0;
-  border: none;
-  background: none;
-  box-shadow: none;
   line-height: 0;
-  cursor: pointer;
 }
 
-.dialog svg {
+.qr svg {
   display: block;
   width: min(70vw, 260px);
   height: auto;
 }
 
+/* The space under the QR: the room's name (click to copy the link) and a share
+   icon beside it, with a small "Copied!" note under. */
+.share {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.roomLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.roomName {
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.roomName:hover {
+  color: var(--primary);
+  filter: none;
+}
+
 .copied {
-  min-height: 1.2em;
-  margin-top: 12px;
-  font-size: 0.9rem;
+  min-height: 1.1em;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--muted);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.iconBtn:hover {
+  opacity: 1;
+  filter: none;
 }
