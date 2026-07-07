@@ -18,9 +18,10 @@ export default function ClueBar(props: {
     if (props.selectedCount > 0) setCount(props.selectedCount)
   }, [props.selectedCount])
 
-  // The count steps 0, 1, …, cards-left, then ∞ (unlimited) — one past the max.
-  const stepUp = (c: number) => (c === INFINITE_CLUE || c >= props.teamCardsLeft ? INFINITE_CLUE : c + 1)
-  const stepDown = (c: number) => (c === INFINITE_CLUE ? props.teamCardsLeft : Math.max(0, c - 1))
+  // One step past the max reads as unlimited (∞); onSubmit converts it.
+  const unlimited = count > props.teamCardsLeft
+  const stepUp = (c: number) => Math.min(c + 1, props.teamCardsLeft + 1)
+  const stepDown = (c: number) => Math.max(0, c - 1)
 
   return (
     <form
@@ -29,7 +30,7 @@ export default function ClueBar(props: {
       onSubmit={(event) => {
         event.preventDefault()
         if (word.trim()) {
-          props.onClue(word.trim(), count)
+          props.onClue(word.trim(), unlimited ? INFINITE_CLUE : count)
           setWord('')
         }
       }}
@@ -45,8 +46,6 @@ export default function ClueBar(props: {
         placeholder={props.turn === 'red' ? "Red's clue" : "Blue's clue"}
         onChange={(event) => setWord(event.target.value)}
         onKeyDown={(event) => {
-          // Up/down from the word field steps the count too, so the spymaster can
-          // set the number (including ∞) without leaving the clue box.
           if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
           event.preventDefault()
           setCount(event.key === 'ArrowUp' ? stepUp : stepDown)
@@ -55,20 +54,27 @@ export default function ClueBar(props: {
       {/* Number and submit stay paired, so on a narrow phone they wrap together
           onto the line below the (now full-width) clue word. */}
       <div className={styles.fields}>
-        <div className={styles.stepper} data-team={props.turn}>
-          <button type="button" className={styles.step} aria-label="Fewer" onClick={() => setCount(stepDown)}>
-            −
-          </button>
-          <span
-            className={styles.countValue}
-            role="status"
-            aria-label={`${count === INFINITE_CLUE ? 'unlimited' : count} guesses`}
-          >
-            {count === INFINITE_CLUE ? '∞' : count}
-          </span>
-          <button type="button" className={styles.step} aria-label="More" onClick={() => setCount(stepUp)}>
-            +
-          </button>
+        <div className={styles.count} data-unlimited={unlimited || undefined}>
+          <input
+            className={styles.countInput}
+            type="number"
+            min={0}
+            max={props.teamCardsLeft + 1}
+            value={count}
+            aria-label={unlimited ? 'unlimited guesses' : 'number of guesses'}
+            onChange={(event) =>
+              setCount(
+                Number.isNaN(event.target.valueAsNumber)
+                  ? 0
+                  : Math.max(0, Math.min(event.target.valueAsNumber, props.teamCardsLeft + 1)),
+              )
+            }
+          />
+          {unlimited && (
+            <span className={styles.infinityOverlay} aria-hidden="true">
+              ∞
+            </span>
+          )}
         </div>
         <button
           type="submit"

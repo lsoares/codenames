@@ -9,7 +9,7 @@
 
 .clueForm {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -58,38 +58,35 @@
   line-height: 1;
 }
 
-/* The count stepper: −  N  + , where N steps 0…cards-left then ∞. A custom
-   control (not <input type=number>) because ∞ sits past the max, so the value
-   sequence isn't the monotonic range a native spinner needs. */
-.stepper {
+/* A plain native number spinner (type, tab, arrows all free). Its max is one
+   past the cards left, and that extra step reads as ∞ via the overlay. */
+.count {
+  position: relative;
   display: inline-flex;
-  align-items: center;
-  border: 2px solid var(--turn);
-  border-radius: 999px;
-  overflow: hidden;
 }
 
-.step {
-  padding: 8px 10px;
-  background: transparent;
-  color: var(--turn);
-  box-shadow: none;
-  border-radius: 0;
-  font-size: 1.15rem;
-  line-height: 1.2;
-}
-
-.step:hover {
-  background: color-mix(in srgb, var(--turn) 14%, transparent);
-  filter: none;
-}
-
-.countValue {
-  min-width: 1.5rem;
+.countInput {
+  width: 4.5rem;
   text-align: center;
-  font-size: 1.1rem;
+}
+
+/* Past the max: hide the held number (and caret) and float ∞ over the field. */
+.count[data-unlimited] .countInput {
+  color: transparent;
+  caret-color: transparent;
+}
+
+.infinityOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 20px;
+  font-size: 1.3rem;
   font-weight: 800;
-  color: var(--ink);
+  color: var(--turn);
+  pointer-events: none;
 }
 
 .clueForm .word {
