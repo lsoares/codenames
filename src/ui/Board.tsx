@@ -28,9 +28,9 @@ export default function Board(props: {
   const cards = props.game.state.cards
   const gameOver = props.game.state.winner !== null
 
-  // Both roles single out cards the same way — a thicker border with the rest of
-  // the board dimmed. A spymaster's picks are private (the selected set, owned by
-  // GameScreen so the clue's proposed number can follow it); an operative sees
+  // Both roles single out cards the same way — the picked card stays lit while the
+  // rest of the board dims. A spymaster's picks are private (the selected set, owned
+  // by GameScreen so the clue's proposed number can follow it); an operative sees
   // their own team's shared marks (`card.markedBy`, toggled by right-click).
   const highlighted = (card: Card, index: number): boolean =>
     !card.revealed &&

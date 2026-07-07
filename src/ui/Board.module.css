@@ -36,7 +36,7 @@
   box-shadow: var(--shadow);
   overflow: hidden;
   transition:
-    transform 0.4s ease,
+    transform 0.1s ease,
     box-shadow 0.4s ease,
     padding 0.2s ease;
 }
@@ -316,11 +316,20 @@
   opacity: 1;
 }
 
-/* Singling out a card (a spymaster's pick, or an operative's mark) thickens
-   its coloured border. The board stays at full brightness by default; the dim
-   below only kicks in on hover. */
+/* A pick lifts off the board — a deeper shadow and a small rise — so the chosen
+   cards read as picked up, not merely the ones that didn't dim. It sits above its
+   neighbours so the shadow falls over them cleanly. */
 .card[data-selected] {
-  padding: 11px;
+  transform: translateY(-5px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+/* A pick isn't singled out by a border — it lifts (above) and stays lit while the
+   rest of the board dims (below). Pressing any card dips it, so the click reads as
+   a press; this comes after the lift so the dip wins while the button is held. */
+.card:active {
+  transform: scale(0.96);
 }
 
 /* No fade by default. Once a spymaster picks a card (focus mode), the picks stay
