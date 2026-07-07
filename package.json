@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "predev": "lsof -ti:5173 | xargs -I{} kill -9 {} 2>/dev/null; true",
-    "dev": "vite --open",
+    "dev": "VITE_PEER_HOST=codenames-broker-lsoares.fly.dev VITE_PEER_PORT=443 VITE_PEER_PATH=/ VITE_PEER_KEY=peerjs VITE_PEER_SECURE=true vite --open",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "pretest": "lsof -ti:5174 -ti:9000 | xargs -I{} kill -9 {} 2>/dev/null; true",

@@ -31,9 +31,15 @@ jobs:
           VITE_PEXELS_API_KEY: ${{ secrets.VITE_PEXELS_API_KEY }}
           VITE_THECATAPI_KEY: ${{ secrets.VITE_THECATAPI_KEY }}
           VITE_RAWG_API_KEY: ${{ secrets.VITE_RAWG_API_KEY }}
-          # Signaling uses the public PeerJS broker. We deliberately do NOT pass
-          # VITE_PEER_* here, so the build ignores any self-hosted broker Variable
-          # and newPeer() falls back to the public broker (see src/multiplayer/peer.ts).
+          # Signaling uses the self-hosted Fly broker (same as dev), so localhost
+          # and the deployed site share one broker and can join each other's rooms.
+          # (History note: an earlier build used the public broker because the
+          # self-hosted one was blocking colleagues — retest cross-network joins.)
+          VITE_PEER_HOST: codenames-broker-lsoares.fly.dev
+          VITE_PEER_PORT: '443'
+          VITE_PEER_PATH: /
+          VITE_PEER_KEY: peerjs
+          VITE_PEER_SECURE: 'true'
           # TURN relay for cross-network NAT traversal. The built-in free OpenRelay
           # relay is unreliable, so set these repo Secrets to your own (e.g. a free
           # Metered account). Unset ⇒ the OpenRelay fallback in src/multiplayer/peer.ts.
