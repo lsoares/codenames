@@ -323,12 +323,10 @@
   padding: 11px;
 }
 
-/* No fade by default. In focus mode, hovering a card spotlights it: every other
-   card fades to an intermediate level (the selected card and the assassin never
-   fade). */
-.board[data-focus]:has(.card:hover)
-  .card:not(:hover):not([data-selected]):not([data-color='assassin'])
-  .face {
+/* No fade by default. Once a spymaster picks a card (focus mode), the picks stay
+   spotlit: every other card fades to an intermediate level and stays there,
+   regardless of the pointer (the picks and the assassin never fade). */
+.board[data-focus] .card:not([data-selected]):not([data-color='assassin']) .face {
   opacity: 0.6;
 }
 
