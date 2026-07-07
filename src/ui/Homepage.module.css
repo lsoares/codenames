@@ -9,12 +9,24 @@
   padding-top: 6vh;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  width: 72px;
+  height: 72px;
+  filter: drop-shadow(var(--shadow));
+}
+
 .title {
   margin: 0;
   font-size: 2.2rem;
+  line-height: 1.05;
 }
 
-.subtitle {
-  margin: 0;
-  color: var(--muted);
+.titleAccent {
+  color: var(--primary);
 }

@@ -496,8 +496,6 @@ button.spymasterSlot[data-mine] {
   border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
   border-radius: 999px;
   box-shadow: var(--shadow);
-  color: var(--ink);
-  font-size: 1.1rem;
   cursor: pointer;
   opacity: 0.55;
   transition: opacity 0.15s ease;
@@ -507,12 +505,29 @@ button.spymasterSlot[data-mine] {
   opacity: 1;
 }
 
+/* The app mark stands in for a generic menu glyph: sepia-muted at rest so it
+   reads as a quiet corner tool, blooming into full colour on hover. */
+.hamburgerIcon {
+  width: 20px;
+  height: 20px;
+  filter: sepia(0.85) saturate(0.7);
+  transition: filter 0.15s ease;
+}
+
+.hamburger:hover .hamburgerIcon {
+  filter: none;
+}
+
 /* You host this room: the hamburger wears a subtle accent tint, a quiet badge of
    ownership that pairs with the pill's host shadow. */
 .hamburger[data-host] {
   border-color: color-mix(in srgb, var(--primary) 45%, transparent);
-  color: var(--primary);
   opacity: 0.75;
+}
+
+/* The host's mark carries more of its true colour, a quiet badge of ownership. */
+.hamburger[data-host] .hamburgerIcon {
+  filter: sepia(0.4) saturate(0.85);
 }
 
 /* A screen-wide catcher so a click anywhere else dismisses the open menu. */
