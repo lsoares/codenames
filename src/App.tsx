@@ -25,15 +25,15 @@ const hostStateKey = (code: string): string => `codenames:host:${code}`
 
 // Turn a failed join into advice the player can act on: a missing room, an
 // unreachable broker, and a blocked peer link have different remedies. Every
-// message starts with "Could not" so the status screen offers "Back to home".
+// message starts with "Could not" so the status screen offers Retry / New game.
 const joinFailureMessage = (error: unknown): string => {
   switch (error instanceof JoinError ? error.reason : null) {
     case 'room-not-found':
       return 'Could not find the room. Check the room code or link, or ask the host for a fresh one.'
     case 'connection-blocked':
-      return 'Could not open a connection — the room exists, but a firewall or strict network is blocking it. Another network (like a phone hotspot) usually helps.'
+      return 'Could not connect — the room is there, but your network is blocking it. Another network (like a phone hotspot) usually helps.'
     default:
-      return 'Could not reach the connection service. Check your internet and try again.'
+      return 'Could not reach the server. Check your internet and try again.'
   }
 }
 
@@ -112,11 +112,12 @@ export default function App() {
         try {
           wire(await Guest.join(roomCodeRef.current), false)
           playSound('takeover')
-          notify('Host recovered — reconnected')
+          notify("You're back in the room")
         } catch {
-          // Losing the room mid-game is terminal for this tab; hold it in the one
-          // message zone (sticky) rather than a separate in-header line.
-          notify('Lost connection to the room.', true)
+          // Couldn't re-host or rejoin: drop to the error screen so the player can
+          // retry the connection (or start over) rather than sit on a dead board.
+          setGame(null)
+          setStatus('Lost connection to the room.')
         }
       }
     }, delay)
@@ -128,12 +129,14 @@ export default function App() {
   // seat, everyone else the auto-assigned team.
   const myTeam: Team = mySeat ?? players.find((player) => player.id === selfIdRef.current)?.team ?? 'red'
 
-  // Re-deal the current room from a chosen deck, keeping everyone in place.
-  const newGame = async (id: string) => {
+  // Re-deal the current room from a chosen deck. A deliberate new game rotates
+  // each team's spymaster to the next member; an auto re-deal leaves seats as they
+  // are.
+  const newGame = async (id: string, rotate = false) => {
     setLoadingFaces(true)
     try {
       const { faces, credit, fit, deck } = await getFaces(id)
-      sessionRef.current?.dispatch({ type: 'newGame', faces, credit, fit, deck })
+      sessionRef.current?.dispatch({ type: 'newGame', faces, credit, fit, deck, rotate })
     } finally {
       setLoadingFaces(false)
     }
@@ -141,15 +144,13 @@ export default function App() {
 
   const claimSeat = (team: Team | null) => {
     sessionRef.current?.setSpymaster(team)
-    if (team) {
-      playSound('spymaster')
-      notify(`You are the ${team} spymaster 🕵️`)
-    }
+    // No toast: taking the seat reveals every card's colour to you (and plays a
+    // sound) — confirmation enough. Joining likewise recolours the whole page.
+    if (team) playSound('spymaster')
   }
 
   const joinTeam = (team: Team) => {
     sessionRef.current?.setTeam(team)
-    notify(`You joined ${team} ${team === 'red' ? '🔴' : '🔵'}`)
   }
 
   const goHome = () => {
@@ -223,24 +224,21 @@ export default function App() {
     }
     if (change.win) {
       playSound('gameOver')
-      notify(
-        change.win.byAssassin
-          ? `💀 Assassin! ${teamName(change.win.team)} team wins`
-          : `🏆 ${teamName(change.win.team)} team wins!`,
-        true,
-      )
+      // The win itself now rides the persistent status line (viewer-aware, with
+      // your team's faces when you win), so no transient copy duplicates it. Only
+      // the assassin's sudden end still earns a brief call-out.
+      if (change.win.byAssassin) notify(`💀 Assassin! ${teamName(change.win.team)} wins`)
     } else if (change.clueGiven) {
       playSound('clue')
     } else if (change.turnPassed) {
       playSound('endTurn')
-      // A wrong guess (a neutral or the rivals' card) flips the turn; say why, so
-      // the pass doesn't look like it came out of nowhere.
+      // Only a pass caused by a wrong guess needs words — say why, so it doesn't
+      // look like it came from nowhere. A clean pass is already clear from the
+      // persistent turn line, so no transient copy of it.
       if (change.guessed && change.guessed.outcome !== 'correct') {
         const hit =
           change.guessed.outcome === 'neutral' ? 'a neutral' : `${teamName(change.turnPassed.from)}'s card`
         notify(`${teamName(change.turnPassed.from)} hit ${hit} — ${teamName(change.turnPassed.to)}'s turn`)
-      } else {
-        notify(`${teamName(change.turnPassed.to)}'s turn`)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -287,20 +285,16 @@ export default function App() {
   }, [game, roomCode])
 
 
-  // On load: join the live room in the URL path if one exists — this also keeps
-  // a duplicated tab (which inherits the host's saved state) from re-hosting.
-  // Only re-host from saved state when nobody answers, so a host's own refresh
-  // still recovers. No room in the path ⇒ start a fresh game.
-  useEffect(() => {
-    if (startedRef.current) return
-    startedRef.current = true
+  // Join the live room in the URL path if one exists — this also keeps a
+  // duplicated tab (which inherits the host's saved state) from re-hosting. Only
+  // re-host from saved state when nobody answers, so a host's own refresh still
+  // recovers. No room in the path ⇒ start a fresh game. Pulled out of the mount
+  // effect so the failure screen can retry it.
+  const attemptJoin = () => {
     const code = normalizeCode(window.location.pathname)
-    if (!code) {
-      // No room in the URL: land on the homepage and let the player pick a deck.
-      return
-    }
+    if (!code) return // no room in the URL: land on the homepage instead
 
-    setStatus('Connecting…')
+    setStatus('Entering the room…')
     // Guest.join owns the deadline: it retries transient failures for the whole
     // join window, then rejects with a JoinError naming what went wrong. The
     // reloading host's own tab keeps a copy of the room state; there the join
@@ -321,14 +315,21 @@ export default function App() {
           setStatus(joinFailureMessage(error))
           return
         }
-        setStatus('Restoring your room…')
+        setStatus('Getting your room back…')
         Host.resume(code, JSON.parse(saved) as GameState)
           .then((session) => {
             wire(session, true)
             setStatus('')
           })
-          .catch(() => setStatus('Could not restore the room.'))
+          .catch(() => setStatus('Could not get your room back.'))
       })
+  }
+
+  // On load: run the join/restore once.
+  useEffect(() => {
+    if (startedRef.current) return
+    startedRef.current = true
+    attemptJoin()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -355,14 +356,18 @@ export default function App() {
         <div className={styles.status} role="status">
           {status}
           {/^(Could not|Lost)/.test(status) && (
-            <button
-              onClick={() => {
-                history.pushState({}, '', '/')
-                goHome()
-              }}
-            >
-              Back to home
-            </button>
+            <div className={styles.statusActions}>
+              <button onClick={attemptJoin}>Retry</button>
+              <button
+                className="secondary"
+                onClick={() => {
+                  history.pushState({}, '', '/')
+                  goHome()
+                }}
+              >
+                New game
+              </button>
+            </div>
           )}
         </div>
       ) : (
