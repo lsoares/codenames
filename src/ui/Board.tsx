@@ -77,18 +77,20 @@ export default function Board(props: {
                   style={{ ['--mask']: `url("${card.face}")` } as CSSProperties}
                 />
               ) : isImageFace(card.face) ? (
-                <img
-                  className={`${styles.face} ${styles.image} ${
-                    props.game.state.fit === 'framed'
-                      ? styles.framed
-                      : props.game.state.fit === 'contain'
-                        ? styles.contain
-                        : ''
-                  }`}
-                  src={card.face}
-                  alt=""
-                  draggable={false}
-                />
+                <span className={`${styles.face} ${styles.imageWrap}`}>
+                  <img
+                    className={`${styles.image} ${
+                      props.game.state.fit === 'framed'
+                        ? styles.framed
+                        : props.game.state.fit === 'contain'
+                          ? styles.contain
+                          : ''
+                    }`}
+                    src={card.face}
+                    alt=""
+                    draggable={false}
+                  />
+                </span>
               ) : (
                 <span
                   className={`${styles.face} ${styles.word} ${
