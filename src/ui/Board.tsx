@@ -19,6 +19,7 @@ export default function Board(props: {
   spymasterTeam: Team | null
   myTeam: Team
   selected: Set<number>
+  focus: boolean
   feedback: Record<number, GuessOutcome>
   onToggleSelect: (index: number) => void
   onCardClick: (index: number) => void
@@ -36,10 +37,40 @@ export default function Board(props: {
     !card.revealed &&
     !gameOver &&
     (isSpymaster ? props.selected.has(index) : card.markedBy.includes(props.myTeam))
-  const focusing = isSpymaster && cards.some((card, index) => highlighted(card, index))
+  const spotlight = isSpymaster && cards.some((card, index) => highlighted(card, index))
+
+  // Focus mode: a private, temporary spymaster view for planning a clue. It drops
+  // the revealed cards and clusters the rest so the cards you can clue sit together
+  // — the ones you've already picked first, then the rest of yours, then the
+  // assassin, enemy and neutral cards you must steer around. The real card order
+  // (GameState.cards) never changes; this only reorders what this client renders.
+  const focusRank = (card: Card, index: number): number =>
+    props.selected.has(index)
+      ? 0
+      : card.color === props.spymasterTeam
+        ? 1
+        : card.color === 'assassin'
+          ? 2
+          : card.color === 'neutral'
+            ? 4
+            : 3
+  const order =
+    props.focus && isSpymaster
+      ? cards
+          .map((_, index) => index)
+          .filter((index) => !cards[index].revealed)
+          .sort((a, b) => focusRank(cards[a], a) - focusRank(cards[b], b))
+      : cards.map((_, index) => index)
+
   return (
-    <div className={styles.board} data-focus={focusing || undefined} data-over={gameOver || undefined}>
-      {cards.map((card, index) => {
+    <div
+      className={styles.board}
+      data-focus={props.focus || undefined}
+      data-spotlight={(spotlight && !props.focus) || undefined}
+      data-over={gameOver || undefined}
+    >
+      {order.map((index) => {
+        const card = cards[index]
         const showColor = props.game.showsColor(index, isSpymaster)
         // Once the game is won every card reads as revealed — laid face-up, out of
         // play — even the ones nobody guessed.

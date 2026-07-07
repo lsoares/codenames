@@ -42,6 +42,23 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--turn) 30%, transparent);
 }
 
+/* Toggle for the private planning view: quiet and team-tinted until on, then a
+   solid fill so it reads as active. */
+.focusToggle {
+  padding: 8px 14px;
+  font-weight: 700;
+  color: var(--turn);
+  background: color-mix(in srgb, var(--turn) 12%, transparent);
+  border-radius: 999px;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.focusToggle[aria-pressed='true'] {
+  color: #fff;
+  background: var(--turn);
+}
+
 /* Quiet, team-tinted submit instead of a loud solid button. */
 .submit {
   padding: 8px 14px;

@@ -7,6 +7,8 @@ export default function ClueBar(props: {
   turn: Team
   teamCardsLeft: number
   selectedCount: number
+  focus: boolean
+  onToggleFocus: () => void
   onClue: (word: string, count: number) => void
 }) {
   const [word, setWord] = useState('')
@@ -35,6 +37,16 @@ export default function ClueBar(props: {
         }
       }}
     >
+      <button
+        type="button"
+        className={styles.focusToggle}
+        aria-pressed={props.focus}
+        aria-label="Focus mode"
+        title="Focus mode — cluster your cards to plan a clue"
+        onClick={props.onToggleFocus}
+      >
+        Focus
+      </button>
       <input
         className={styles.word}
         autoFocus

@@ -311,9 +311,10 @@
   }
 }
 
-/* Hovering a dead card brings it back into view so you can see what it was. */
+/* Hovering a dead card lifts it partway so you can see what it was, but it stays
+   clearly dimmer than a live card — never full opacity, or it'd read as unrevealed. */
 .card[data-revealed]:hover {
-  opacity: 1;
+  opacity: 0.45;
 }
 
 /* A pick lifts off the board — a deeper shadow and a small rise — so the chosen
@@ -332,10 +333,10 @@
   transform: scale(0.96);
 }
 
-/* No fade by default. Once a spymaster picks a card (focus mode), the picks stay
-   spotlit: every other card fades to an intermediate level and stays there,
-   regardless of the pointer (the picks and the assassin never fade). */
-.board[data-focus] .card:not([data-selected]):not([data-color='assassin']) .face {
+/* No fade by default. Once a spymaster picks a card, the picks stay spotlit: every
+   other card fades to an intermediate level and stays there, regardless of the
+   pointer (the picks and the assassin never fade). */
+.board[data-spotlight] .card:not([data-selected]):not([data-color='assassin']) .face {
   opacity: 0.6;
 }
 

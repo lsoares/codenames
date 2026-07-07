@@ -50,6 +50,9 @@ export default function GameScreen(props: {
   // can follow them. Cleared when the turn passes or a new game starts, so each
   // clue is planned on a clean board.
   const [selected, setSelected] = useState<Set<number>>(new Set())
+  // A private, throwaway planning view: while on, the board reorders (only on this
+  // client) to cluster the spymaster's own cards. Never synced; see Board.
+  const [focus, setFocus] = useState(false)
   const toggleSelected = (index: number) =>
     setSelected((prev) => {
       const next = new Set(prev)
@@ -103,6 +106,11 @@ export default function GameScreen(props: {
     )
 
   const { winner, phase, turn, clue, clueHistory, guessesRemaining } = props.game.state
+  // Focus mode is a throwaway planning aid: switch it off the moment the clue is
+  // given (phase leaves 'clue'), the turn passes, or a fresh board is dealt.
+  useEffect(() => {
+    setFocus(false)
+  }, [phase, dealKey])
   const guessesGiven = clue ? clue.count + 1 : 0
   const guessesUsed = clue ? guessesGiven - guessesRemaining : 0
   // No bonus pip once the clue already covers all the team's cards — they'd have
@@ -378,6 +386,8 @@ export default function GameScreen(props: {
       turn={turn}
       teamCardsLeft={props.game.remaining(turn)}
       selectedCount={selected.size}
+      focus={focus}
+      onToggleFocus={() => setFocus((on) => !on)}
       onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
     />
   )
@@ -482,6 +492,7 @@ export default function GameScreen(props: {
           spymasterTeam={props.mySeat}
           myTeam={props.myTeam}
           selected={selected}
+          focus={focus}
           feedback={feedback}
           onToggleSelect={toggleSelected}
           onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
