@@ -22,4 +22,4 @@ async function fetch(): Promise<string[]> {
   return images.map((image) => image.url)
 }
 
-export const cats: CardProvider = { id: 'cats', label: 'Cats', icon: '🐱', description: 'Random cat photos', credit: { label: 'The Cat API', url: 'https://thecatapi.com' }, fetch }
+export const cats: CardProvider = { id: 'cats', label: 'Cats', icon: '🐱', description: 'Random cat photos', credit: { label: 'The Cat API', url: 'https://thecatapi.com' }, hidden: true, fetch }

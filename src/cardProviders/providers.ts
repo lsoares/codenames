@@ -10,6 +10,7 @@ import { games } from './games'
 import { things } from './things'
 import { emojis } from './emojis'
 import { abstract } from './abstract'
+import { abstractArt } from './abstractArt'
 import { picbreeder } from './picbreeder'
 import { dreams } from './dreams'
 import { mix } from './mix'
@@ -27,12 +28,13 @@ export interface CardProvider {
   description: string // shown as the tile's hover tooltip
   credit?: Credit // deck-source attribution shown on the board; omitted for local decks
   fit?: CardFit // how its image faces fill a card; defaults to 'cover'
+  hidden?: boolean // a long-tail deck, tucked behind the picker's "+" until opened
   fetch: () => Promise<string[]>
 }
 
 // The first four are the picker's headline decks; the rest sit behind its "more"
 // reveal, so order matters.
-export const providers: CardProvider[] = [officialWords, official, words, geeks, unsplash, pexels, abstract, picbreeder, dreams, things, icons, tmdb, games, emojis, cats, foodish, pokemon, mix]
+export const providers: CardProvider[] = [officialWords, official, words, geeks, unsplash, pexels, abstract, abstractArt, picbreeder, dreams, things, icons, tmdb, games, emojis, cats, foodish, pokemon, mix]
 
 // Fetches 20 card faces plus the deck's credit. When a provider throws (missing
 // key, network error), fall back to the word board — no key, never fails — so a

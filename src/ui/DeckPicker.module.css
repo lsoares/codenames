@@ -49,6 +49,30 @@
   opacity: 0.4;
 }
 
+.more {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: color-mix(in srgb, var(--ink) 30%, transparent);
+  font-size: 2.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.more:hover {
+  color: var(--ink);
+}
+
+.more:disabled {
+  cursor: default;
+  color: color-mix(in srgb, var(--ink) 15%, transparent);
+}
+
 .tile:disabled {
   cursor: default;
 }

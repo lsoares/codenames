@@ -30,3 +30,15 @@
 .titleAccent {
   color: var(--primary);
 }
+
+.rules {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.rules:hover {
+  opacity: 1;
+  text-decoration: underline;
+}

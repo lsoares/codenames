@@ -15,4 +15,4 @@ async function fetch(): Promise<string[]> {
     .map((name) => `https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@6.5.2/svgs/solid/${name}.svg`)
 }
 
-export const icons: CardProvider = { id: 'icons', label: 'Icons', icon: '✳️', description: 'Simple Font Awesome pictograms', credit: { label: 'Font Awesome', url: 'https://fontawesome.com' }, fetch }
+export const icons: CardProvider = { id: 'icons', label: 'Pictograms', icon: '✳️', description: 'Simple Font Awesome pictograms', credit: { label: 'Font Awesome', url: 'https://fontawesome.com' }, fetch }

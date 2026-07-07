@@ -37,5 +37,6 @@ export const mix: CardProvider = {
   label: 'Mix',
   icon: '🎲',
   description: 'A blend of every other deck',
+  hidden: true,
   fetch,
 }
