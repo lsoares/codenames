@@ -10,7 +10,7 @@ import styles from './GameScreen.module.css'
 
 export default function GameScreen(props: {
   game: Game
-  flash: string | null
+  flash: { text: string; team: Team | null; emoji?: string } | null
   isHost: boolean
   mySeat: Team | null
   myTeam: Team
@@ -311,7 +311,7 @@ export default function GameScreen(props: {
   // The tab title mirrors the header-centre pill text exactly, so a glance at the
   // tab reads the same as the app.
   const centerText = props.flash
-    ? props.flash
+    ? `${props.flash.emoji ? `${props.flash.emoji} ` : ''}${props.flash.text}`
     : !winner && phase === 'guess' && clue
       ? `${statusText} — ${clue.word} · ${clueCountLabel(clue.count)}`
       : statusText
@@ -377,12 +377,13 @@ export default function GameScreen(props: {
       {clueForm || (
         <div
           className={styles.statusPill}
-          data-team={winner ?? turn}
+          data-team={props.flash ? (props.flash.team ?? undefined) : (winner ?? turn)}
           data-host={props.isHost || undefined}
         >
           {props.flash ? (
-            <span key={props.flash} className={styles.statusText} role="status">
-              {props.flash}
+            <span key={props.flash.text} className={styles.statusText} role="status">
+              {props.flash.emoji && <span className={styles.flashEmoji}>{props.flash.emoji}</span>}
+              {props.flash.text}
             </span>
           ) : (
             <>

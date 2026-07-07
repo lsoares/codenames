@@ -315,6 +315,8 @@ button.spymasterSlot[data-mine] {
   border-radius: 20px;
   color: var(--ink);
   white-space: nowrap;
+  /* Neutral fill for a teamless message; red/blue below override it. */
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
 }
 
 /* The clue word + count read as one solid, team-coloured token, so the eye
@@ -385,6 +387,16 @@ button.spymasterSlot[data-mine] {
   font-weight: 800;
   line-height: 1;
   color: var(--card-face);
+}
+
+/* An arriving player's identity emoji, blown up so the room notices who joined.
+   line-height:0 keeps the bigger glyph from stretching the pill — it overflows
+   the line box instead of growing it, so nothing below jumps down. */
+.flashEmoji {
+  font-size: 1.7em;
+  line-height: 0;
+  vertical-align: middle;
+  margin-right: 0.1em;
 }
 
 .statusText {

@@ -59,14 +59,17 @@ export default function App() {
   const roomCodeRef = useRef('')
   // A transient message shown in the header status pill, then it reverts to the
   // live status. Replaces separate toast popups — one message zone for both.
-  const [flash, setFlash] = useState<string | null>(null)
+  // The message carries the team it concerns so the pill can tint to that team's
+  // colour — or stay neutral (team null) when the event affects no side. An
+  // optional emoji is rendered oversized ahead of the text (an arriving player).
+  const [flash, setFlash] = useState<{ text: string; team: Team | null; emoji?: string } | null>(null)
   const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   // A sticky message holds until the next one replaces it — for a terminal state
   // like a win, whose announcement now lives in this one message zone (no longer
   // a separate banner) and so must stay put rather than fade after a few seconds.
-  const notify = (text: string, sticky = false) => {
-    setFlash(text)
+  const notify = (text: string, team: Team | null = null, emoji?: string, sticky = false) => {
+    setFlash({ text, team, emoji })
     clearTimeout(flashTimer.current)
     if (!sticky) flashTimer.current = setTimeout(() => setFlash(null), 3000)
   }
@@ -88,6 +91,10 @@ export default function App() {
       setPlayers(view.players)
     })
     if (!asHost) session.onDisconnect(() => migrate())
+    // Tests pin a peer's team via this key so multi-tab games are deterministic
+    // (host and guests alike); real players leave it unset and are auto-balanced.
+    const pinnedTeam = localStorage.getItem('codenames:start-team') as Team | null
+    if (pinnedTeam) session.setTeam(pinnedTeam)
   }
 
   // Host gone: the surviving peer with the smallest id re-hosts the same room
@@ -151,6 +158,7 @@ export default function App() {
 
   const joinTeam = (team: Team) => {
     sessionRef.current?.setTeam(team)
+    playSound('teamSwitch')
   }
 
   const goHome = () => {
@@ -162,7 +170,7 @@ export default function App() {
     gameRef.current = null
     peersRef.current = []
     prevGameRef.current = null
-    prevCountRef.current = null
+    prevPlayersRef.current = null
     prevSeatsRef.current = null
     clearTimeout(flashTimer.current)
     setFlash(null)
@@ -219,26 +227,36 @@ export default function App() {
     const change = game.changesFrom(prev)
     if (change.newGame) {
       playSound('newGame')
-      notify(`New game — ${teamName(game.state.turn)} starts 🔀`)
+      notify(`New game — ${teamName(game.state.turn)} starts 🔀`, game.state.turn)
       return
     }
     if (change.win) {
-      playSound('gameOver')
+      // Hitting the assassin ends the game as a sudden loss, not a triumph — its
+      // own heavy cue, never the victory jingle a normal win earns.
+      playSound(change.win.byAssassin ? 'assassin' : 'gameOver')
       // The win itself now rides the persistent status line (viewer-aware, with
       // your team's faces when you win), so no transient copy duplicates it. Only
       // the assassin's sudden end still earns a brief call-out.
-      if (change.win.byAssassin) notify(`💀 Assassin! ${teamName(change.win.team)} wins`)
+      if (change.win.byAssassin) notify(`💀 Assassin! ${teamName(change.win.team)} wins`, change.win.team)
     } else if (change.clueGiven) {
       playSound('clue')
+    } else if (change.guessed && change.guessed.outcome === 'correct') {
+      // A right guess that keeps the turn alive — a rising cue, heard by everyone.
+      playSound('guessRight')
     } else if (change.turnPassed) {
-      playSound('endTurn')
+      const wrongGuess = change.guessed && change.guessed.outcome !== 'correct'
+      // A wrong guess gets a falling cue; a clean end of turn keeps the plain blip.
+      playSound(wrongGuess ? 'guessWrong' : 'endTurn')
       // Only a pass caused by a wrong guess needs words — say why, so it doesn't
       // look like it came from nowhere. A clean pass is already clear from the
       // persistent turn line, so no transient copy of it.
       if (change.guessed && change.guessed.outcome !== 'correct') {
         const hit =
           change.guessed.outcome === 'neutral' ? 'a neutral' : `${teamName(change.turnPassed.from)}'s card`
-        notify(`${teamName(change.turnPassed.from)} hit ${hit} — ${teamName(change.turnPassed.to)}'s turn`)
+        notify(
+          `${teamName(change.turnPassed.from)} hit ${hit} — ${teamName(change.turnPassed.to)}'s turn`,
+          change.turnPassed.to,
+        )
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -248,15 +266,17 @@ export default function App() {
   // silently. No sound — connections churn during host recovery. Gate on being
   // in a room so a joiner's own arrival — the jump from the empty default to the
   // room's real headcount — is a silent baseline, not a phantom "player joined".
-  const prevCountRef = useRef<number | null>(null)
+  const prevPlayersRef = useRef<Player[] | null>(null)
   useEffect(() => {
     if (!game) return
-    const prev = prevCountRef.current
-    prevCountRef.current = players.length
-    if (prev === null || players.length === prev) return
-    notify(players.length > prev ? 'A player joined 👋' : 'A player left')
+    const prev = prevPlayersRef.current
+    prevPlayersRef.current = players
+    if (prev === null) return
+    const joined = players.find((player) => !prev.some((was) => was.id === player.id))
+    if (joined) notify(`joined ${teamName(joined.team)} 👋`, joined.team, joined.emoji)
+    else if (players.length < prev.length) notify('A player left')
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [players.length, game])
+  }, [players, game])
 
   // Announce to everyone else when a team gets a new spymaster. The claimer
   // already got their own toast in claimSeat, so skip the seat we now hold.
@@ -272,7 +292,7 @@ export default function App() {
     for (const team of ['red', 'blue'] as const) {
       if (seats[team] && seats[team] !== prev[team] && seats[team] !== selfIdRef.current) {
         playSound('spymaster')
-        notify(`New ${team} spymaster 🕵️`)
+        notify(`New ${team} spymaster 🕵️`, team)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

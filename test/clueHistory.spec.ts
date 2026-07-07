@@ -1,21 +1,8 @@
 import { test, expect } from '@playwright/test'
 import { GamePage, stubUnsplash } from './gamePage'
 
-test('at game end each side shows the clues that team gave', async ({ page }) => {
-  await stubUnsplash(page)
-  const game = new GamePage(page)
-  await game.open('red')
-  await game.createRoom()
-  const target = await game.getCardNumber('assassin')
-  await game.giveClue('trap', 1)
-  await game.releaseSpymaster()
-
-  await game.guessNumber(target)
-
-  await expect(game.getTeamClues('red')).toHaveText([/trap/])
-  await expect(game.getTeamClues('blue')).toHaveText(['—'])
-})
-
+// The end-of-game clue list is covered by the full game in endgame.spec; this
+// keeps the input-only rule that needs no play.
 test('the clue word is capped at 20 characters', async ({ page }) => {
   await stubUnsplash(page)
   const game = new GamePage(page)

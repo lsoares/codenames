@@ -138,7 +138,16 @@ export class GamePage {
     await this.page.goto('/')
   }
 
-  async openRoom(code: string): Promise<void> {
+  // Join a room. A pinned team makes the joiner land on that side deterministically
+  // (auto-seated as its spymaster if the seat is open, else an operative), so a
+  // multi-tab game can be set up without relying on the auto-balancer's coin toss.
+  async openRoom(code: string, startTeam?: 'red' | 'blue'): Promise<void> {
+    if (startTeam) {
+      await this.page.addInitScript(
+        (team) => localStorage.setItem('codenames:start-team', team),
+        startTeam,
+      )
+    }
     await this.page.goto(`/${code}`)
   }
 
@@ -166,18 +175,18 @@ export class GamePage {
     await this.page.reload()
   }
 
-  // "New cards" (in the tools menu) re-deals the current deck in place; a game in
-  // progress prompts a confirm first (arm a dialog handler).
+  // The 🔀 "New game" tool re-deals the current deck in place (rotating the
+  // spymasters); a game in progress prompts a confirm first (arm a dialog handler).
   async dealNewCards(): Promise<void> {
     await this.openToolsMenu()
-    await this.page.getByRole('button', { name: 'New cards' }).click()
+    await this.page.getByRole('button', { name: 'New game' }).click()
   }
 
-  // "Pick deck" opens the deck picker without leaving the room; a game in
+  // "Change deck" opens the deck picker without leaving the room; a game in
   // progress prompts a confirm first (arm a dialog handler).
   async openDeckPicker(): Promise<void> {
     await this.openToolsMenu()
-    await this.page.getByRole('button', { name: 'Pick deck' }).click()
+    await this.page.getByRole('button', { name: 'Change deck' }).click()
   }
 
   getDeckPicker() {
@@ -316,6 +325,12 @@ export class GamePage {
   // The win announcement is folded into that same status pill.
   getWinnerBanner() {
     return this.getByRoleStatus()
+  }
+
+  // At game end the winning team's clue list is badged with a trophy labelled
+  // "{team} team wins" — a stable, viewer-independent marker of the result.
+  getWinBadge(team: 'red' | 'blue') {
+    return this.page.getByRole('img', { name: `${team} team wins` })
   }
 
   // The outcome emoji flashed over a card the instant it's revealed. Labelled by

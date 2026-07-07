@@ -1,30 +1,65 @@
-// Tiny synth for game cues: no audio files, just Web Audio oscillator blips.
-// Each client plays these off the broadcast state, so everyone hears them.
-let ctx: AudioContext | null = null
+// Game cues, played off the broadcast state so every client hears the same
+// thing. The samples are CC0 from Kenney (kenney.nl) — see sounds/CREDITS.md.
+// Each is fetched and decoded once, then replayed from the cached buffer.
+import assassin from './sounds/assassin.ogg'
+import clue from './sounds/clue.ogg'
+import endTurn from './sounds/endTurn.ogg'
+import gameOver from './sounds/gameOver.ogg'
+import guessRight from './sounds/guessRight.ogg'
+import guessWrong from './sounds/guessWrong.ogg'
+import newGame from './sounds/newGame.ogg'
+import spymaster from './sounds/spymaster.ogg'
+import takeover from './sounds/takeover.ogg'
+import teamSwitch from './sounds/teamSwitch.ogg'
 
-function blip(freq: number, at: number, duration: number): void {
-  if (!ctx) return
-  const osc = ctx.createOscillator()
-  const gain = ctx.createGain()
-  osc.type = 'sine'
-  osc.frequency.value = freq
-  gain.gain.setValueAtTime(0, ctx.currentTime + at)
-  gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + at + 0.01)
-  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + at + duration)
-  osc.connect(gain).connect(ctx.destination)
-  osc.start(ctx.currentTime + at)
-  osc.stop(ctx.currentTime + at + duration)
+export type Sound =
+  | 'clue'
+  | 'endTurn'
+  | 'gameOver'
+  | 'takeover'
+  | 'spymaster'
+  | 'newGame'
+  | 'guessRight'
+  | 'guessWrong'
+  | 'teamSwitch'
+  | 'assassin'
+
+const urls: Record<Sound, string> = {
+  assassin,
+  clue,
+  endTurn,
+  gameOver,
+  takeover,
+  spymaster,
+  newGame,
+  guessRight,
+  guessWrong,
+  teamSwitch,
 }
 
-export type Sound = 'clue' | 'endTurn' | 'gameOver' | 'takeover' | 'spymaster' | 'newGame'
+let ctx: AudioContext | null = null
+const buffers = new Map<Sound, AudioBuffer>()
+
+async function load(sound: Sound): Promise<AudioBuffer | null> {
+  if (!ctx) return null
+  const cached = buffers.get(sound)
+  if (cached) return cached
+  const data = await (await fetch(urls[sound])).arrayBuffer()
+  const buffer = await ctx.decodeAudioData(data)
+  buffers.set(sound, buffer)
+  return buffer
+}
 
 export function playSound(sound: Sound): void {
   ctx ??= new (window.AudioContext ?? (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
   void ctx.resume()
-  if (sound === 'clue') blip(660, 0, 0.18)
-  else if (sound === 'endTurn') blip(330, 0, 0.22)
-  else if (sound === 'takeover') [440, 587, 880].forEach((freq, i) => blip(freq, i * 0.1, 0.14))
-  else if (sound === 'spymaster') [988, 1319].forEach((freq, i) => blip(freq, i * 0.07, 0.12))
-  else if (sound === 'newGame') [784, 1047, 1319].forEach((freq, i) => blip(freq, i * 0.08, 0.14))
-  else [523, 659, 784].forEach((freq, i) => blip(freq, i * 0.16, i === 2 ? 0.3 : 0.16))
+  void load(sound).then((buffer) => {
+    if (!buffer || !ctx) return
+    const source = ctx.createBufferSource()
+    const gain = ctx.createGain()
+    gain.gain.value = 0.5 // the samples are normalised loud; keep cues in the background
+    source.buffer = buffer
+    source.connect(gain).connect(ctx.destination)
+    source.start()
+  })
 }
