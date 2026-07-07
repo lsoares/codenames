@@ -487,17 +487,16 @@ export default function GameScreen(props: {
         </button>
         {menuOpen && (
           <div className={styles.toolsMenu}>
-            {props.game.state.deck && (
-              <p className={styles.toolsCredit}>
-                {props.game.state.credit ? (
-                  <a href={props.game.state.credit.url} target="_blank" rel="noreferrer">
-                    {props.game.state.deck}, by {props.game.state.credit.label}
-                  </a>
-                ) : (
-                  props.game.state.deck
-                )}
-              </p>
-            )}
+            <button
+              type="button"
+              className={styles.toolItem}
+              onClick={() => {
+                setMenuOpen(false)
+                setShareOpen(true)
+              }}
+            >
+              Invite
+            </button>
             <button
               type="button"
               className={styles.toolItem}
@@ -518,16 +517,17 @@ export default function GameScreen(props: {
             >
               New deck
             </button>
-            <button
-              type="button"
-              className={styles.toolItem}
-              onClick={() => {
-                setMenuOpen(false)
-                setShareOpen(true)
-              }}
-            >
-              Invite
-            </button>
+            {props.game.state.deck && (
+              <p className={styles.toolsCredit}>
+                {props.game.state.credit ? (
+                  <a href={props.game.state.credit.url} target="_blank" rel="noreferrer">
+                    {props.game.state.deck}, by {props.game.state.credit.label}
+                  </a>
+                ) : (
+                  props.game.state.deck
+                )}
+              </p>
+            )}
           </div>
         )}
       </div>

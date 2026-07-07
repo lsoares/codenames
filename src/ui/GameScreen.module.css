@@ -525,9 +525,9 @@ button.spymasterSlot[data-mine] {
 
 /* The board's source line, folded into the menu so it costs no board space. */
 .toolsCredit {
-  margin: 0 0 4px;
-  padding: 6px 12px;
-  border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  margin: 4px 0 0;
+  padding: 10px 12px 6px;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
   font-size: 0.8rem;
   color: var(--muted);
 }
