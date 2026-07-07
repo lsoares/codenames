@@ -56,11 +56,18 @@ export default function GameScreen(props: {
       next.has(index) ? next.delete(index) : next.add(index)
       return next
     })
-  // Clear the spymaster's picks whenever the turn passes or a new game resets the
-  // board, so each clue is planned on a clean slate.
+  // A stable per-deal identity: only a fresh deal reshuffles the card colours (a
+  // guess, clue or turn pass never touch them), so this signature changes exactly
+  // when the board is re-dealt — even between two fresh deals in a row, which
+  // isFresh() alone can't tell apart. Both reshuffle paths (New game, Change deck)
+  // and a seat-change deal all mint a new deal, so all of them reset through it.
+  const dealKey = props.game.state.cards.map((card) => card.color).join(',')
+  // Clear the spymaster's picks whenever the turn passes, the first card of the
+  // turn is revealed, or a fresh deal replaces the board — so each clue is planned
+  // on a clean slate.
   useEffect(() => {
     setSelected(new Set())
-  }, [props.game.state.turn, props.game.isFresh()])
+  }, [props.game.state.turn, props.game.isFresh(), dealKey])
 
   // Flash the guess outcome over each card the instant it's revealed, so every
   // viewer gets a beat of feedback (a bullseye / cross / shrug / skull) before
@@ -364,7 +371,10 @@ export default function GameScreen(props: {
   }, [myMove, centerText])
 
   const clueForm = !winner && acting === 'spymaster' && activeSpymaster && (
+    // Keyed on the deal so a fresh board remounts the bar — clearing any half-typed
+    // clue word and resetting the count.
     <ClueBar
+      key={dealKey}
       turn={turn}
       teamCardsLeft={props.game.remaining(turn)}
       selectedCount={selected.size}
@@ -489,7 +499,7 @@ export default function GameScreen(props: {
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
         >
-          ☰
+          <img src="/favicon.svg" alt="" className={styles.hamburgerIcon} />
         </button>
         {menuOpen && (
           <div className={styles.toolsMenu}>
