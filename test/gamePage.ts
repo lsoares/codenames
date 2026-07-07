@@ -1,4 +1,4 @@
-import { type Page } from '@playwright/test'
+import { type Browser, type Page } from '@playwright/test'
 
 type Color = 'red' | 'blue' | 'neutral' | 'assassin'
 
@@ -16,110 +16,33 @@ export async function stubUnsplash(page: Page): Promise<void> {
   )
 }
 
-// Return 20 canned photos so a Pexels-sourced board is deterministic and offline.
-export async function stubPexels(page: Page): Promise<void> {
-  await page.route('**/api.pexels.com/**', (route) =>
-    route.fulfill({
-      json: {
-        photos: Array.from({ length: 20 }, (_, index) => ({
-          src: {
-            medium: `https://example.com/pexels/${index}.jpg`,
-            small: `https://example.com/pexels/${index}.jpg`,
-          },
-        })),
-      },
-    }),
-  )
+// Open a fresh tab (own context, stubbed source) hosting a room on a pinned team.
+export async function hostRoom(
+  browser: Browser,
+  team: 'red' | 'blue',
+  stub: (page: Page) => Promise<void> = stubUnsplash,
+): Promise<{ game: GamePage; code: string }> {
+  const page = await (await browser.newContext()).newPage()
+  await stub(page)
+  const game = new GamePage(page)
+  await game.open(team)
+  await game.createRoom()
+  return { game, code: await game.getRoomCode() }
 }
 
-// Return two pages of 20 canned movies (each with a backdrop) so a TMDB-sourced
-// board is deterministic and offline.
-export async function stubTmdb(page: Page): Promise<void> {
-  await page.route('**/api.themoviedb.org/**', (route) =>
-    route.fulfill({
-      json: {
-        results: Array.from({ length: 20 }, (_, index) => ({
-          backdrop_path: `/backdrop${index}.jpg`,
-        })),
-      },
-    }),
-  )
-}
-
-// Datamuse returns exactly 20 canned nouns (with the tags the filter needs), so
-// the word board is deterministic and every stubbed word ends up on the board.
-export const STUB_WORDS = [
-  'APPLE', 'TIGER', 'RIVER', 'ENGINE', 'CASTLE', 'GUITAR', 'PLANET', 'ANCHOR',
-  'JUNGLE', 'ROCKET', 'PIRATE', 'VIOLIN', 'DRAGON', 'HELMET', 'LANTERN', 'COMPASS',
-  'ROBOT', 'SPIDER', 'VOLCANO', 'WINDMILL',
-]
-
-export async function stubDatamuse(page: Page): Promise<void> {
-  await page.route('**/api.datamuse.com/**', (route) =>
-    route.fulfill({
-      json: STUB_WORDS.map((word) => ({ word: word.toLowerCase(), tags: ['n', 'f:40'] })),
-    }),
-  )
-}
-
-// Return 20 canned cat photos so a Cats-sourced board is deterministic.
-export async function stubCats(page: Page): Promise<void> {
-  await page.route('**/api.thecatapi.com/**', (route) =>
-    route.fulfill({
-      json: Array.from({ length: 20 }, (_, index) => ({ url: `https://example.com/cat/${index}.jpg` })),
-    }),
-  )
-}
-
-// Foodish answers one image per call, so hand back a fresh URL each time to keep
-// the deck's dedupe happy.
-export async function stubFoodish(page: Page): Promise<void> {
-  let served = 0
-  await page.route('**/foodish-api.com/**', (route) =>
-    route.fulfill({ json: { image: `https://example.com/food/${served++}.jpg` } }),
-  )
-}
-
-// PokéAPI is hit once per dex id; derive the image from the id so each is unique.
-export async function stubPokemon(page: Page): Promise<void> {
-  await page.route('**/pokeapi.co/**', (route) => {
-    const id = route.request().url().split('/').filter(Boolean).pop()
-    route.fulfill({
-      json: { sprites: { other: { 'official-artwork': { front_default: `https://example.com/pokemon/${id}.png` } } } },
-    })
-  })
-}
-
-// The geeks deck degrades to its word bank when StackExchange yields nothing, so
-// an empty tag list keeps it offline while still producing word cards.
-export async function stubStackExchange(page: Page): Promise<void> {
-  await page.route('**/api.stackexchange.com/**', (route) => route.fulfill({ json: { items: [] } }))
-}
-
-// Picbreeder validates each thumbnail by loading it as an image, so answer with a
-// real 1×1 PNG (decoded by content, not extension) so the deck fills its board.
-const ONE_PX_PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-  'base64',
-)
-export async function stubPicbreeder(page: Page): Promise<void> {
-  await page.route('**/picbreeder.net/**', (route) =>
-    route.fulfill({ contentType: 'image/png', body: ONE_PX_PNG }),
-  )
-}
-
-// The Mix deck draws from every other deck at once, so stub the lot to keep a
-// Mix-sourced board deterministic and offline.
-export async function stubMixSources(page: Page): Promise<void> {
-  await stubDatamuse(page)
-  await stubUnsplash(page)
-  await stubPexels(page)
-  await stubTmdb(page)
-  await stubCats(page)
-  await stubFoodish(page)
-  await stubPokemon(page)
-  await stubStackExchange(page)
-  await stubPicbreeder(page)
+// Open a fresh tab joining a room on a pinned team, waiting until its board is up.
+export async function joinRoom(
+  browser: Browser,
+  code: string,
+  team: 'red' | 'blue',
+  stub: (page: Page) => Promise<void> = stubUnsplash,
+): Promise<GamePage> {
+  const page = await (await browser.newContext()).newPage()
+  await stub(page)
+  const game = new GamePage(page)
+  await game.openRoom(code, team)
+  await game.getCards().first().waitFor()
+  return game
 }
 
 // SUT client: drives the app through roles/labels only, hiding locators.
@@ -158,13 +81,6 @@ export class GamePage {
     await this.getCards().first().waitFor()
   }
 
-  // Start a game from a named homepage deck, waiting until the room is up (its
-  // code lands in the URL). Deck-agnostic — word boards have no "Card N" labels.
-  async startWithDeck(label: string): Promise<void> {
-    await this.page.getByRole('button', { name: label, exact: true }).click()
-    await this.page.waitForURL(/\/[a-z0-9-]+$/)
-  }
-
   // The room code is the URL path the app puts in the address bar for sharing.
   async getRoomCode(): Promise<string> {
     await this.page.waitForURL(/\/[a-z0-9-]+$/)
@@ -175,44 +91,15 @@ export class GamePage {
     await this.page.reload()
   }
 
-  // The 🔀 "New game" tool re-deals the current deck in place (rotating the
-  // spymasters); a game in progress prompts a confirm first (arm a dialog handler).
-  async dealNewCards(): Promise<void> {
-    await this.openToolsMenu()
-    await this.page.getByRole('button', { name: 'New game' }).click()
-  }
-
-  // "Change deck" opens the deck picker without leaving the room; a game in
-  // progress prompts a confirm first (arm a dialog handler).
-  async openDeckPicker(): Promise<void> {
-    await this.openToolsMenu()
-    await this.page.getByRole('button', { name: 'Change deck' }).click()
-  }
-
   getDeckPicker() {
     return this.page.getByRole('dialog', { name: 'Pick a deck' })
   }
 
-  // Pick a deck in the picker to re-deal the room in place.
-  async closeGame(label: string): Promise<void> {
-    await this.openDeckPicker()
+  // At game end the re-deal actions (New game / Change deck) sit in the header
+  // itself, not behind the tools menu — pick a deck straight from there.
+  async changeDeckAtEnd(label: string): Promise<void> {
+    await this.page.getByRole('button', { name: 'Change deck' }).click()
     await this.getDeckPicker().getByRole('button', { name: label, exact: true }).click()
-  }
-
-  // Take a spymaster seat (defaults to the team on turn). Arm a dialog acceptor
-  // before clicking because mid-game the app prompts for confirmation.
-  async enableSpymaster(team?: 'red' | 'blue'): Promise<void> {
-    const t = team ?? (await this.getCurrentTurn())
-    this.page.once('dialog', (dialog) => dialog.accept())
-    await this.page.getByRole('button', { name: `Become ${t} spymaster` }).click()
-  }
-
-  // Release the seat to play as an operative again (defaults to the turn's team).
-  // No dialog — stepping down never prompts. The caller must already hold that
-  // team's seat, or the "Step down as {t} spymaster" button won't exist.
-  async releaseSpymaster(team?: 'red' | 'blue'): Promise<void> {
-    const t = team ?? (await this.getCurrentTurn())
-    await this.page.getByRole('button', { name: `Step down as ${t} spymaster` }).click()
   }
 
   async giveClue(word: string, count: number): Promise<void> {
@@ -229,6 +116,12 @@ export class GamePage {
 
   getClueInput() {
     return this.page.getByRole('textbox')
+  }
+
+  // The clue in play, shown to operatives once the spymaster commits it. It's a
+  // plain emphasised word with no accessible role, so it's read by its text.
+  findActiveClue(word: string) {
+    return this.page.getByText(word, { exact: true })
   }
 
   // At game end, the clues a team gave — one list item per clue, shown on that
@@ -253,11 +146,6 @@ export class GamePage {
 
   getCopiedNote() {
     return this.page.getByText('Copied!')
-  }
-
-  // The board footer links the deck the board was dealt from to its source.
-  getBoardType() {
-    return this.page.getByRole('link', { name: /, by / })
   }
 
   // Spymaster-only: the number of the first unrevealed card of a colour, so an
@@ -311,20 +199,9 @@ export class GamePage {
     await this.page.getByRole('button', { name: `Join ${team} team` }).click()
   }
 
-  // Switch sides mid-game, which prompts a confirmation; accept it.
-  async switchToTeam(team: 'red' | 'blue'): Promise<void> {
-    this.page.once('dialog', (dialog) => dialog.accept())
-    await this.page.getByRole('button', { name: `Join ${team} team` }).click()
-  }
-
   // The transient toast / sticky announcement shown in the header status pill.
   getByRoleStatus() {
     return this.page.getByRole('status')
-  }
-
-  // The win announcement is folded into that same status pill.
-  getWinnerBanner() {
-    return this.getByRoleStatus()
   }
 
   // At game end the winning team's clue list is badged with a trophy labelled
@@ -349,11 +226,5 @@ export class GamePage {
   // counting them reads how many players the room believes are present.
   async countPlayers(): Promise<number> {
     return this.page.getByRole('img', { name: /operative|spymaster/ }).count()
-  }
-
-  // The operative faces on one team, so a switch can be read as the count
-  // moving from one side to the other.
-  async countTeamOperatives(team: 'red' | 'blue'): Promise<number> {
-    return this.page.getByRole('img', { name: `${team} operative` }).count()
   }
 }

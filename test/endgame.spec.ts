@@ -1,24 +1,9 @@
-import { test, expect, type Browser } from '@playwright/test'
-import { GamePage, stubUnsplash } from './gamePage'
-
-// A tab on its own team: opens a page, stubs the board source, returns its driver.
-async function joinAs(browser: Browser, code: string, team: 'red' | 'blue'): Promise<GamePage> {
-  const page = await (await browser.newContext()).newPage()
-  await stubUnsplash(page)
-  const game = new GamePage(page)
-  await game.openRoom(code, team)
-  await game.getCards().first().waitFor()
-  return game
-}
+import { test, expect } from '@playwright/test'
+import { hostRoom, joinRoom } from './gamePage'
 
 test('revealing the assassin ends the game for the other team', async ({ browser }) => {
-  const hostPage = await (await browser.newContext()).newPage()
-  await stubUnsplash(hostPage)
-  const spymaster = new GamePage(hostPage)
-  await spymaster.open('red')
-  await spymaster.createRoom()
-  const code = await spymaster.getRoomCode()
-  const operative = await joinAs(browser, code, 'red')
+  const { game: spymaster, code } = await hostRoom(browser, 'red')
+  const operative = await joinRoom(browser, code, 'red')
 
   const target = await spymaster.getCardNumber('assassin')
   await spymaster.giveClue('trap', 1)
@@ -29,18 +14,13 @@ test('revealing the assassin ends the game for the other team', async ({ browser
 })
 
 test('a full game — cap runs out, misses on neutral and enemy, red then wins', async ({ browser }) => {
-  const hostPage = await (await browser.newContext()).newPage()
-  await stubUnsplash(hostPage)
-  const redSpy = new GamePage(hostPage)
-  await redSpy.open('red')
-  await redSpy.createRoom()
-  const code = await redSpy.getRoomCode()
+  const { game: redSpy, code } = await hostRoom(browser, 'red')
   // Four fixed seats — a spymaster and an operative per team — so every turn is
   // played by its own tabs, no mid-game switching. The red spymaster sees every
   // colour, so note the cards up front.
-  const redOp = await joinAs(browser, code, 'red')
-  const blueSpy = await joinAs(browser, code, 'blue')
-  const blueOp = await joinAs(browser, code, 'blue')
+  const redOp = await joinRoom(browser, code, 'red')
+  const blueSpy = await joinRoom(browser, code, 'blue')
+  const blueOp = await joinRoom(browser, code, 'blue')
   const reds = await redSpy.getCardNumbers('red')
   const blues = await redSpy.getCardNumbers('blue')
   const neutrals = await redSpy.getCardNumbers('neutral')

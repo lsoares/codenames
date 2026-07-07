@@ -1,24 +1,20 @@
 import { test, expect } from '@playwright/test'
-import { GamePage, stubUnsplash } from './gamePage'
+import { hostRoom, joinRoom } from './gamePage'
 
-test('host refresh restores the room and its revealed cards', async ({ page }) => {
-  await stubUnsplash(page)
-  const game = new GamePage(page)
-  await game.open('red')
-  await game.createRoom()
-  const code = await game.getRoomCode()
+test('host refresh restores the room and its revealed cards', async ({ browser }) => {
+  const { game: host, code } = await hostRoom(browser, 'red')
+  const operative = await joinRoom(browser, code, 'red')
 
-  const team = await game.getCurrentTurn()
-  const target = await game.getCardNumber(team)
-  await game.giveClue('anchor', 1)
-  await game.releaseSpymaster()
-  await game.guessNumber(target)
-  await expect(game.getCard(team, { revealed: true }).first()).toBeVisible()
+  const target = await host.getCardNumber('red')
+  await host.giveClue('anchor', 1)
+  await operative.guessNumber(target)
+  await expect(host.getCard('red', { revealed: true }).first()).toBeVisible()
 
-  await game.reload()
+  await host.reload()
 
-  await expect(game.getCards()).toHaveCount(20)
-  expect(await game.getRoomCode()).toBe(code)
-  await game.enableSpymaster()
-  await expect(game.getCard(team, { revealed: true }).first()).toBeVisible()
+  await expect(host.getCards()).toHaveCount(20)
+  expect(await host.getRoomCode()).toBe(code)
+  // A revealed card shows its colour to everyone, so it survives the reload even
+  // though the reconnecting host isn't re-seated as spymaster.
+  await expect(host.getCard('red', { revealed: true }).first()).toBeVisible()
 })
