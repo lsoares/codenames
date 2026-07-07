@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Game, type GuessOutcome, type Team } from '../Game'
+import { Game, INFINITE_CLUE, type GuessOutcome, type Team } from '../Game'
 import type { Action, Player } from '../multiplayer/Session'
 import type { CardProvider } from '../cardProviders/providers'
 import Board from './Board'
@@ -113,6 +113,9 @@ export default function GameScreen(props: {
   // A clue of N grants N+1 guesses: one pip per guess, the last one the bonus.
   const guessesGiven = clue ? clue.count + 1 : 0
   const guessesUsed = clue ? guessesGiven - guessesRemaining : 0
+  // A 0 (avoid) or ∞ clue is unlimited, shown as its glyph; only 1…N draw pips.
+  const isUnlimitedClue = clue !== null && (clue.count === 0 || clue.count === INFINITE_CLUE)
+  const clueCountLabel = (n: number) => (n === INFINITE_CLUE ? '∞' : String(n))
   // Whose action the turn team awaits: the spymaster clues, the operatives guess.
   const acting = props.game.awaitingRole()
 
@@ -276,7 +279,7 @@ export default function GameScreen(props: {
               <li key={i}>
                 <strong className={styles.clueLogWord}>{c.word}</strong>
                 <span className={styles.clueLogDot}>•</span>
-                <span className={styles.clueLogCount}>{c.count}</span>
+                <span className={styles.clueLogCount}>{clueCountLabel(c.count)}</span>
               </li>
             ))
           )}
@@ -322,7 +325,7 @@ export default function GameScreen(props: {
   const centerText = props.flash
     ? props.flash
     : !winner && phase === 'guess' && clue
-      ? `${statusText} — ${clue.word} · ${clue.count}`
+      ? `${statusText} — ${clue.word} · ${clueCountLabel(clue.count)}`
       : statusText
 
   // Keep the browser tab in sync: the title mirrors the header-centre text, and
@@ -401,9 +404,14 @@ export default function GameScreen(props: {
               {!winner && phase === 'guess' && clue && (
                 <span className={styles.clueInline}>
                   <strong className={styles.clueWord}>{clue.word}</strong>
-                  {clue.count === 0 ? (
-                    <span className={styles.clueInfinity} role="img" aria-label="0 guesses given" title="0">
-                      ∞
+                  {isUnlimitedClue ? (
+                    <span
+                      className={styles.clueInfinity}
+                      role="img"
+                      aria-label={clue.count === 0 ? 'zero — unlimited guesses' : 'unlimited guesses'}
+                      title={clueCountLabel(clue.count)}
+                    >
+                      {clueCountLabel(clue.count)}
                     </span>
                   ) : (
                     <span

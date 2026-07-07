@@ -29,6 +29,12 @@ export interface Clue {
   readonly count: number
 }
 
+// A clue count sentinel for the "unlimited" (∞) clue, stepped past the max.
+// Both this and a plain 0 (the "avoid" clue) grant unlimited guesses — the
+// official rule — they only read differently. Negative so it never collides
+// with a real 0..cards-left count.
+export const INFINITE_CLUE = -1
+
 export interface GameState {
   readonly cards: readonly Card[]
   readonly deck: string | null // the picked deck's name, shown as the board type
@@ -188,9 +194,10 @@ export class Game {
     return new Game({
       ...this.s,
       phase: 'guess',
-      // A normal clue grants count + 1 guesses; a 0 clue is "unlimited" — a big
-      // finite number (not Infinity, which JSON.stringify would turn to null).
-      guessesRemaining: count === 0 ? 99 : count + 1,
+      // A normal clue grants count + 1 guesses; a 0 (avoid) or ∞ clue is
+      // "unlimited" — a big finite number (not Infinity, which JSON.stringify
+      // would turn to null).
+      guessesRemaining: count === 0 || count === INFINITE_CLUE ? 99 : count + 1,
       clue: { team: this.s.turn, word, count },
       clueHistory: [...this.s.clueHistory, { team: this.s.turn, word, count }],
       log: [...this.s.log, `${this.s.turn} clue: ${word} ${count}`],

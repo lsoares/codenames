@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Team } from '../Game'
+import { INFINITE_CLUE, type Team } from '../Game'
 import styles from './ClueBar.module.css'
 
 // The spymaster's clue input, docked at the bottom centre while it's their turn.
@@ -17,6 +17,10 @@ export default function ClueBar(props: {
   useEffect(() => {
     if (props.selectedCount > 0) setCount(props.selectedCount)
   }, [props.selectedCount])
+
+  // The count steps 0, 1, …, cards-left, then ∞ (unlimited) — one past the max.
+  const stepUp = (c: number) => (c === INFINITE_CLUE || c >= props.teamCardsLeft ? INFINITE_CLUE : c + 1)
+  const stepDown = (c: number) => (c === INFINITE_CLUE ? props.teamCardsLeft : Math.max(0, c - 1))
 
   return (
     <form
@@ -41,32 +45,37 @@ export default function ClueBar(props: {
         placeholder={props.turn === 'red' ? "Red's clue" : "Blue's clue"}
         onChange={(event) => setWord(event.target.value)}
         onKeyDown={(event) => {
-          // Up/down from the word field nudges the number too, so the spymaster
-          // can set the count without leaving the clue box.
+          // Up/down from the word field steps the count too, so the spymaster can
+          // set the number (including ∞) without leaving the clue box.
           if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
           event.preventDefault()
-          const delta = event.key === 'ArrowUp' ? 1 : -1
-          setCount((c) => Math.max(0, Math.min((Number.isNaN(c) ? 0 : c) + delta, props.teamCardsLeft)))
+          setCount(event.key === 'ArrowUp' ? stepUp : stepDown)
         }}
       />
       {/* Number and submit stay paired, so on a narrow phone they wrap together
           onto the line below the (now full-width) clue word. */}
       <div className={styles.fields}>
-        <input
-          id="clue-count"
-          type="number"
-          min={0}
-          max={props.teamCardsLeft}
-          placeholder="Number"
-          value={count}
-          onChange={(event) => setCount(event.target.valueAsNumber)}
-        />
+        <div className={styles.stepper} data-team={props.turn}>
+          <button type="button" className={styles.step} aria-label="Fewer" onClick={() => setCount(stepDown)}>
+            −
+          </button>
+          <span
+            className={styles.countValue}
+            role="status"
+            aria-label={`${count === INFINITE_CLUE ? 'unlimited' : count} guesses`}
+          >
+            {count === INFINITE_CLUE ? '∞' : count}
+          </span>
+          <button type="button" className={styles.step} aria-label="More" onClick={() => setCount(stepUp)}>
+            +
+          </button>
+        </div>
         <button
           type="submit"
           className={styles.submit}
           aria-label="Give clue"
           title="Give clue"
-          disabled={!word.trim() || Number.isNaN(count)}
+          disabled={!word.trim()}
         >
           ✓
         </button>

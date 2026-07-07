@@ -58,8 +58,38 @@
   line-height: 1;
 }
 
-.clueForm input[type='number'] {
-  width: 72px;
+/* The count stepper: −  N  + , where N steps 0…cards-left then ∞. A custom
+   control (not <input type=number>) because ∞ sits past the max, so the value
+   sequence isn't the monotonic range a native spinner needs. */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid var(--turn);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.step {
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--turn);
+  box-shadow: none;
+  border-radius: 0;
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.step:hover {
+  background: color-mix(in srgb, var(--turn) 14%, transparent);
+  filter: none;
+}
+
+.countValue {
+  min-width: 1.5rem;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--ink);
 }
 
 .clueForm .word {
