@@ -436,11 +436,17 @@ export default function GameScreen(props: {
           )}
           {winner && props.mySeat && (
             <span className={styles.endActions}>
-              <button type="button" className={styles.endAction} onClick={dealNewCards}>
-                New game
+              <button
+                type="button"
+                className={styles.endAction}
+                onClick={dealNewCards}
+                aria-label="New game"
+                title="New game"
+              >
+                🔀
               </button>
               <button type="button" className={styles.endAction} onClick={pickCards}>
-                New deck
+                Change deck
               </button>
             </span>
           )}
@@ -505,7 +511,7 @@ export default function GameScreen(props: {
                 pickCards()
               }}
             >
-              New deck
+              Change deck
             </button>
             <div className={styles.toolsFooter}>
               {props.game.state.deck && (
