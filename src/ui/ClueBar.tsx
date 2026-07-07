@@ -40,6 +40,14 @@ export default function ClueBar(props: {
         title="One word, no spaces"
         placeholder={props.turn === 'red' ? "Red's clue" : "Blue's clue"}
         onChange={(event) => setWord(event.target.value)}
+        onKeyDown={(event) => {
+          // Up/down from the word field nudges the number too, so the spymaster
+          // can set the count without leaving the clue box.
+          if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+          event.preventDefault()
+          const delta = event.key === 'ArrowUp' ? 1 : -1
+          setCount((c) => Math.max(0, Math.min((Number.isNaN(c) ? 0 : c) + delta, props.teamCardsLeft)))
+        }}
       />
       {/* Number and submit stay paired, so on a narrow phone they wrap together
           onto the line below the (now full-width) clue word. */}
