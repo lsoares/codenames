@@ -40,9 +40,9 @@ export default function ClueBar(props: {
         autoFocus
         value={word}
         required
-        pattern="[\p{L}\p{M}]+"
+        pattern="\s*[\p{L}\p{M}]+\s*"
         maxLength={20}
-        title="One word — letters only, no spaces or symbols"
+        title="One word — letters only, no symbols"
         placeholder={props.turn === 'red' ? "Red's clue" : "Blue's clue"}
         onChange={(event) => setWord(event.target.value)}
         onKeyDown={(event) => {
