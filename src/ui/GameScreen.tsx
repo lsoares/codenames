@@ -502,32 +502,36 @@ export default function GameScreen(props: {
               className={styles.toolItem}
               onClick={() => {
                 setMenuOpen(false)
-                dealNewCards()
-              }}
-            >
-              New game
-            </button>
-            <button
-              type="button"
-              className={styles.toolItem}
-              onClick={() => {
-                setMenuOpen(false)
                 pickCards()
               }}
             >
               New deck
             </button>
-            {props.game.state.deck && (
-              <p className={styles.toolsCredit}>
-                {props.game.state.credit ? (
-                  <a href={props.game.state.credit.url} target="_blank" rel="noreferrer">
-                    {props.game.state.deck}, by {props.game.state.credit.label}
-                  </a>
-                ) : (
-                  props.game.state.deck
-                )}
-              </p>
-            )}
+            <div className={styles.toolsFooter}>
+              {props.game.state.deck && (
+                <p className={styles.toolsCredit}>
+                  {props.game.state.credit ? (
+                    <a href={props.game.state.credit.url} target="_blank" rel="noreferrer">
+                      {props.game.state.deck}, by {props.game.state.credit.label}
+                    </a>
+                  ) : (
+                    props.game.state.deck
+                  )}
+                </p>
+              )}
+              <button
+                type="button"
+                className={styles.reshuffle}
+                aria-label="New game"
+                title="New game"
+                onClick={() => {
+                  setMenuOpen(false)
+                  dealNewCards()
+                }}
+              >
+                🔀
+              </button>
+            </div>
           </div>
         )}
       </div>
