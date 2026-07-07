@@ -110,9 +110,11 @@ export default function GameScreen(props: {
     )
 
   const { winner, phase, turn, clue, clueHistory, guessesRemaining } = props.game.state
-  // A clue of N grants N+1 guesses: one pip per guess, the last one the bonus.
   const guessesGiven = clue ? clue.count + 1 : 0
   const guessesUsed = clue ? guessesGiven - guessesRemaining : 0
+  // No bonus pip once the clue already covers all the team's cards — they'd have
+  // won before ever using it.
+  const guessesShown = clue ? Math.min(guessesGiven, props.game.remaining(turn) + guessesUsed) : 0
   // A 0 (avoid) or ∞ clue is unlimited, shown as its glyph; only 1…N draw pips.
   const isUnlimitedClue = clue !== null && (clue.count === 0 || clue.count === INFINITE_CLUE)
   const clueCountLabel = (n: number) => (n === INFINITE_CLUE ? '∞' : String(n))
@@ -417,10 +419,10 @@ export default function GameScreen(props: {
                     <span
                       className={styles.pips}
                       role="img"
-                      aria-label={`${guessesUsed} used out of ${guessesGiven}`}
-                      title={`${guessesUsed} used out of ${guessesGiven}`}
+                      aria-label={`${guessesUsed} used out of ${guessesShown}`}
+                      title={`${guessesUsed} used out of ${guessesShown}`}
                     >
-                      {Array.from({ length: guessesGiven }, (_, i) => (
+                      {Array.from({ length: guessesShown }, (_, i) => (
                         <span
                           key={i}
                           className={styles.pip}
