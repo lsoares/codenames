@@ -73,7 +73,9 @@
   line-height: 1;
   cursor: pointer;
   opacity: 0;
-  transform: rotate(45deg);
+  /* A slight lean, already tipped toward where hover straightens it (11.25deg) —
+     not a hard 45deg flat to the left — so hover reads as a small settling nudge. */
+  transform: rotate(20deg);
   transition:
     opacity 0.15s ease,
     transform 0.15s ease;
