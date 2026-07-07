@@ -87,11 +87,12 @@
 
 .overlayIcon:hover,
 .overlayIcon:focus-visible {
-  transform: scale(1.15) rotate(0deg);
+  transform: scale(1.15) rotate(11.25deg);
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
 .overlayIcon[data-on] {
+  transform: rotate(0deg);
   background: rgba(255, 255, 255, 0.72);
 }
 
