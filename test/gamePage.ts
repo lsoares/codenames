@@ -233,18 +233,17 @@ export class GamePage {
     await this.page.getByRole('button', { name: 'Menu' }).click()
   }
 
-  // The tools menu holds the join QR, which opens in a dialog.
-  async openRoomQr(): Promise<void> {
-    await this.openToolsMenu()
-    await this.page.getByRole('button', { name: 'Invite players' }).click()
-  }
-
-  getRoomQrDialog() {
-    return this.page.getByRole('dialog', { name: 'Room QR code' })
+  // The tools menu holds the join QR and the room name (click to copy the link).
+  getJoinLinkButton() {
+    return this.page.getByRole('button', { name: 'Copy join link' })
   }
 
   async copyRoomLink(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Copy join link' }).click()
+    await this.getJoinLinkButton().click()
+  }
+
+  getCopiedNote() {
+    return this.page.getByText('Copied!')
   }
 
   // The board footer links the deck the board was dealt from to its source.

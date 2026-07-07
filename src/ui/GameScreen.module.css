@@ -523,14 +523,20 @@ button.spymasterSlot[data-mine] {
   box-shadow: var(--shadow);
 }
 
-/* Deck source line plus the reshuffle shortcut, tucked under the menu actions. */
+/* Bottom zone: deck credit + reshuffle on one row, then New deck below. */
 .toolsFooter {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.toolsCreditRow {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 4px;
-  padding: 8px 12px 2px;
-  border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  padding: 2px 12px;
 }
 
 /* The board's source line, folded into the menu so it costs no board space. */

@@ -27,7 +27,6 @@ export default function GameScreen(props: {
   const pickerDialog = useRef<HTMLDialogElement>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [shareOpen, setShareOpen] = useState(false)
 
   // Fresh cards from the deck already in play, dealt without a prompt — used when
   // a seat change means a spymaster who has seen the key must not keep the board.
@@ -493,56 +492,47 @@ export default function GameScreen(props: {
         </button>
         {menuOpen && (
           <div className={styles.toolsMenu}>
-            <button
-              type="button"
-              className={styles.toolItem}
-              onClick={() => {
-                setMenuOpen(false)
-                setShareOpen(true)
-              }}
-            >
-              Invite
-            </button>
-            <button
-              type="button"
-              className={styles.toolItem}
-              onClick={() => {
-                setMenuOpen(false)
-                pickCards()
-              }}
-            >
-              Change deck
-            </button>
+            <RoomQr />
             <div className={styles.toolsFooter}>
-              {props.game.state.deck && (
-                <p className={styles.toolsCredit}>
-                  {props.game.state.credit ? (
-                    <a href={props.game.state.credit.url} target="_blank" rel="noreferrer">
-                      {props.game.state.deck}, by {props.game.state.credit.label}
-                    </a>
-                  ) : (
-                    props.game.state.deck
-                  )}
-                </p>
-              )}
+              <div className={styles.toolsCreditRow}>
+                {props.game.state.deck && (
+                  <p className={styles.toolsCredit}>
+                    {props.game.state.credit ? (
+                      <a href={props.game.state.credit.url} target="_blank" rel="noreferrer">
+                        {props.game.state.deck}, by {props.game.state.credit.label}
+                      </a>
+                    ) : (
+                      props.game.state.deck
+                    )}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  className={styles.reshuffle}
+                  aria-label="New game"
+                  title="New game"
+                  onClick={() => {
+                    setMenuOpen(false)
+                    dealNewCards()
+                  }}
+                >
+                  🔀
+                </button>
+              </div>
               <button
                 type="button"
-                className={styles.reshuffle}
-                aria-label="New game"
-                title="New game"
+                className={styles.toolItem}
                 onClick={() => {
                   setMenuOpen(false)
-                  dealNewCards()
+                  pickCards()
                 }}
               >
-                🔀
+                Change deck
               </button>
             </div>
           </div>
         )}
       </div>
-
-      <RoomQr open={shareOpen} onClose={() => setShareOpen(false)} />
 
       <dialog
         ref={pickerDialog}
