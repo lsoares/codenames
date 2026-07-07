@@ -73,7 +73,7 @@
   line-height: 1;
   cursor: pointer;
   opacity: 0;
-  transform: rotate(-45deg);
+  transform: rotate(-135deg);
   transition:
     opacity 0.15s ease,
     transform 0.15s ease;
@@ -87,18 +87,17 @@
 
 .overlayIcon:hover,
 .overlayIcon:focus-visible {
-  transform: scale(1.15) rotate(-45deg);
+  transform: scale(1.15) rotate(-90deg);
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
 .overlayIcon[data-on] {
-  transform: rotate(0deg);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .overlayIcon[data-on]:hover,
 .overlayIcon[data-on]:focus-visible {
-  transform: scale(1.15);
+  transform: scale(1.15) rotate(-90deg);
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
