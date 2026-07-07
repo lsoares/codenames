@@ -8,27 +8,34 @@ export default function DeckPicker(props: {
   providers: CardProvider[]
   onPick: (id: string) => void
 }) {
-  const [picked, setPicked] = useState(false)
+  const [pickedId, setPickedId] = useState<string | null>(null)
   const pick = (id: string) => {
-    if (picked) return
-    setPicked(true)
+    if (pickedId) return
+    setPickedId(id)
     props.onPick(id)
   }
 
-  const tile = (provider: CardProvider, className: string) => (
-    <li key={provider.id}>
-      <button
-        type="button"
-        className={className}
-        title={provider.description}
-        disabled={picked}
-        onClick={() => pick(provider.id)}
-      >
-        <span className={styles.icon} aria-hidden="true">{provider.icon}</span>
-        <span className={styles.label}>{provider.label}</span>
-      </button>
-    </li>
-  )
+  const tile = (provider: CardProvider, className: string) => {
+    const loading = pickedId === provider.id
+    return (
+      <li key={provider.id}>
+        <button
+          type="button"
+          className={`${className}${pickedId && !loading ? ` ${styles.dimmed}` : ''}`}
+          title={provider.description}
+          disabled={pickedId !== null}
+          onClick={() => pick(provider.id)}
+        >
+          {loading ? (
+            <span className={styles.spinner} role="progressbar" aria-label={`Dealing ${provider.label}`} />
+          ) : (
+            <span className={styles.icon} aria-hidden="true">{provider.icon}</span>
+          )}
+          <span className={styles.label}>{provider.label}</span>
+        </button>
+      </li>
+    )
+  }
 
   return (
     <div className={styles.decks}>

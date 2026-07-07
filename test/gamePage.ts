@@ -81,6 +81,17 @@ export class GamePage {
     await this.getCards().first().waitFor()
   }
 
+  // Pick a homepage deck without waiting for the board, so a test can observe the
+  // dealing state while the deck's faces are still being fetched.
+  async pickDeck(label: string): Promise<void> {
+    await this.page.getByRole('button', { name: label, exact: true }).click()
+  }
+
+  // The spinner that replaces a deck tile's icon while its faces are being dealt.
+  findDealingSpinner(label: string) {
+    return this.page.getByRole('progressbar', { name: `Dealing ${label}` })
+  }
+
   // The room code is the URL path the app puts in the address bar for sharing.
   async getRoomCode(): Promise<string> {
     await this.page.waitForURL(/\/[a-z0-9-]+$/)
