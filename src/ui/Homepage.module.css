@@ -4,7 +4,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 12px;
+  gap: clamp(36px, 8vh, 72px);
   padding: 32px;
   padding-top: 6vh;
 }
