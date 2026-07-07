@@ -2,12 +2,13 @@
 
 The Kenney samples below are **CC0 1.0 (public domain)** by
 [Kenney](https://kenney.nl) — no attribution required, this note is courtesy.
-`clue.wav` is a chime synthesised for this project (a rising perfect fifth,
-celesta-like) and likewise placed in the public domain.
+`clue.wav` and `victory.wav` are chimes synthesised for this project (a rising
+fifth and a triumphant major roll) and likewise placed in the public domain.
 
 | File | Pack | Original |
 |------|------|----------|
 | `clue.wav` | — | synthesised (rising fifth chime) |
+| `victory.wav` | — | synthesised (triumphant major roll) |
 | `guessRight.ogg` | [Interface Sounds](https://kenney.nl/assets/interface-sounds) | `confirmation_001.ogg` |
 | `guessWrong.ogg` | Interface Sounds | `error_006.ogg` |
 | `endTurn.ogg` | Interface Sounds | `switch_002.ogg` |

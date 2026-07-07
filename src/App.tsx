@@ -232,8 +232,16 @@ export default function App() {
     }
     if (change.win) {
       // Hitting the assassin ends the game as a sudden loss, not a triumph — its
-      // own heavy cue, never the victory jingle a normal win earns.
-      playSound(change.win.byAssassin ? 'assassin' : 'gameOver')
+      // own heavy cue for everyone, never the victory jingle a normal win earns.
+      // Otherwise the cue is viewer-aware: the team that won hears the triumphant
+      // jingle, the team that lost the sombre one — so a win actually sounds like one.
+      playSound(
+        change.win.byAssassin
+          ? 'assassin'
+          : change.win.team === myTeam
+            ? 'victory'
+            : 'gameOver',
+      )
       // The win itself now rides the persistent status line (viewer-aware, with
       // your team's faces when you win), so no transient copy duplicates it. Only
       // the assassin's sudden end still earns a brief call-out.
