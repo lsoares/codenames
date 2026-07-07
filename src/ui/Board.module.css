@@ -319,16 +319,18 @@
 
 /* A pick lifts off the board — a deeper shadow and a small rise — so the chosen
    cards read as picked up, not merely the ones that didn't dim. It sits above its
-   neighbours so the shadow falls over them cleanly. */
+   neighbours so the shadow falls over them cleanly, and its coloured frame
+   thickens by a pixel (padding) as an extra tell. */
 .card[data-selected] {
   transform: translateY(-5px);
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);
+  padding: 6px;
   z-index: 1;
 }
 
-/* A pick isn't singled out by a border — it lifts (above) and stays lit while the
-   rest of the board dims (below). Pressing any card dips it, so the click reads as
-   a press; this comes after the lift so the dip wins while the button is held. */
+/* A pick lifts (above) and stays lit while the rest of the board dims (below).
+   Pressing any card dips it, so the click reads as a press; this comes after the
+   lift so the dip wins while the button is held. */
 .card:active {
   transform: scale(0.96);
 }
