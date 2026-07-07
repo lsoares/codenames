@@ -178,8 +178,10 @@ export class Guest implements Session {
         const peer = newPeer(tabPeerId())
         this.peer = peer
         let dialed = false
+        let reconnectDelay = 0
         peer.on('open', (selfId) => {
           this.selfId = selfId
+          reconnectDelay = 0 // a clean (re)connect resets the backoff
           // The broker re-fires 'open' on every reconnect; the data link to the
           // host is separate and already up, so only dial the first time.
           if (dialed) return
@@ -187,9 +189,14 @@ export class Guest implements Session {
           dial(peer)
         })
         // A dropped broker socket (idle/sleep/blip) leaves our peer alive: reclaim
-        // the same id so the host can still reach us, rather than reloading.
+        // the same id so the host can still reach us, rather than reloading. Back
+        // off (capped) so a flapping broker can't turn into a reconnect storm.
         peer.on('disconnected', () => {
-          if (this.peer === peer && !peer.destroyed) peer.reconnect()
+          if (this.peer !== peer || peer.destroyed) return
+          reconnectDelay = reconnectDelay ? Math.min(reconnectDelay * 2, 30000) : 500
+          setTimeout(() => {
+            if (this.peer === peer && !peer.destroyed && peer.disconnected) peer.reconnect()
+          }, reconnectDelay)
         })
         peer.on('error', (error: { type?: string }) => {
           if (settled) return

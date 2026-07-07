@@ -35,6 +35,7 @@ export class Host implements Session {
   private readonly lastSeen = new Map<DataConnection, number>()
   private heartbeat?: ReturnType<typeof setInterval>
   private opened = false
+  private reconnectDelay = 0
 
   // Release the room id to the broker on a real tab close, so a re-host isn't
   // blocked waiting for the broker to expire our ghost. Skip a bfcache freeze
@@ -86,8 +87,15 @@ export class Host implements Session {
   }
 
   dispatch(action: Action): void {
-    this.game = apply(this.game, action)
+    this.applyAction(action)
     this.broadcast()
+  }
+
+  // Apply a game action plus its room side effect: a rotating new game passes each
+  // team's spymaster seat to the next member, so the role goes round over games.
+  private applyAction(action: Action): void {
+    this.game = apply(this.game, action)
+    if (action.type === 'newGame' && action.rotate) this.room = this.room.rotateSpymasters()
   }
 
   setSpymaster(team: 'red' | 'blue' | null): void {
@@ -96,7 +104,9 @@ export class Host implements Session {
   }
 
   setTeam(team: 'red' | 'blue'): void {
-    this.room = this.room.setTeam(this.peer.id, team)
+    // Joining a team whose spymaster seat is open takes it (autoSeat no-ops when
+    // the seat is already held), so a team's first arrival becomes its spymaster.
+    this.room = this.room.setTeam(this.peer.id, team).autoSeat(this.peer.id)
     this.broadcast()
   }
 
@@ -126,6 +136,7 @@ export class Host implements Session {
     this.peer.on('open', (id) => {
       this.roomCode = id
       this.selfId = id
+      this.reconnectDelay = 0 // a clean (re)connect resets the backoff
       // The broker re-announces our id on every (re)connect; only seed the room
       // the first time, so a reconnect after the host stepped down as spymaster
       // doesn't silently re-seat them via autoSeat.
@@ -142,9 +153,14 @@ export class Host implements Session {
 
     // The broker socket can drop while the tab is idle or asleep, though our
     // peer-to-peer links live on. Re-register the same id so new guests can still
-    // find us and the room id stays ours — no reload, no ghost to wait out.
+    // find us and the room id stays ours — no reload, no ghost to wait out. Back
+    // off (capped) so a broker that keeps dropping us can't become a storm.
     this.peer.on('disconnected', () => {
-      if (!this.peer.destroyed) this.peer.reconnect()
+      if (this.peer.destroyed) return
+      this.reconnectDelay = this.reconnectDelay ? Math.min(this.reconnectDelay * 2, 30000) : 500
+      setTimeout(() => {
+        if (!this.peer.destroyed && this.peer.disconnected) this.peer.reconnect()
+      }, this.reconnectDelay)
     })
 
     this.peer.on('connection', (connection) => {
@@ -161,9 +177,10 @@ export class Host implements Session {
         if ((data as Presence).__presence) {
           this.room = this.room.claimSeat(connection.peer, (data as Presence).spymasterTeam)
         } else if ((data as TeamClaim).__team) {
-          this.room = this.room.setTeam(connection.peer, (data as TeamClaim).team)
+          // Auto-take the team's spymaster seat when it's open (see setTeam).
+          this.room = this.room.setTeam(connection.peer, (data as TeamClaim).team).autoSeat(connection.peer)
         } else {
-          this.game = apply(this.game, data as Action)
+          this.applyAction(data as Action)
         }
         this.broadcast()
       })
@@ -229,13 +246,13 @@ export class Host implements Session {
           if (now - (this.lastSeen.get(connection) ?? now) > 6000) this.dropConnection(connection)
         }
       }
-      // Free any spymaster seat whose holder is no longer present; Room returns
-      // itself unchanged when every held seat is still here, so we skip a needless
-      // broadcast in the common case.
+      // Free any spymaster seat whose holder has left, then auto-promote a present
+      // member so a team with players is never leaderless. Room returns itself
+      // unchanged when nothing moved, so we skip a needless broadcast.
       const present = new Set([this.peer.id, ...this.connections.map((connection) => connection.peer)])
-      const pruned = this.room.freeAbsentSeats(present)
-      if (pruned !== this.room) {
-        this.room = pruned
+      const settled = this.room.freeAbsentSeats(present).fillEmptySeats(present)
+      if (settled !== this.room) {
+        this.room = settled
         this.broadcast()
       }
     }, 2000)

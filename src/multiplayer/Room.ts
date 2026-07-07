@@ -40,10 +40,9 @@ export class Room {
     return { ...this.emojiOf }
   }
 
-  // Auto-assign each peer to a team on arrival, then leave it fixed. Fill the two
-  // spymaster chairs first (red, then blue) so the first two players become the
-  // two spymasters — even after one leaves an empty chair; only once both are
-  // seated do further arrivals balance out as operatives.
+  // Auto-assign each peer to a team on arrival, then leave it fixed: the smaller
+  // team, or a coin toss when they're even. The first player to land on a side
+  // becomes its spymaster via autoSeat.
   assignTeam(peerId: string): Room {
     if (this.teamOf[peerId]) return this
     return new Room({ ...this.teamOf, [peerId]: this.teamForArrival() }, this.seatOf, this.emojiOf)
@@ -59,11 +58,10 @@ export class Room {
   }
 
   private teamForArrival(): Team {
-    if (!this.seatOf.red) return 'red'
-    if (!this.seatOf.blue) return 'blue'
     const red = Object.values(this.teamOf).filter((t) => t === 'red').length
     const blue = Object.values(this.teamOf).filter((t) => t === 'blue').length
-    return red <= blue ? 'red' : 'blue'
+    if (red !== blue) return red < blue ? 'red' : 'blue'
+    return Math.random() < 0.5 ? 'red' : 'blue'
   }
 
   // A player overriding their auto-assigned team, as an operative. Dropping to an
@@ -112,6 +110,33 @@ export class Room {
       },
       this.emojiOf,
     )
+  }
+
+  // Auto-promote a present member to any spymaster seat left empty, so a team
+  // that still has players is never leaderless — e.g. after its spymaster drops
+  // mid-game, or steps aside pre-game. Picks the earliest-known member; returns
+  // this unchanged when nothing needs filling, so callers can skip a broadcast.
+  fillEmptySeats(present: ReadonlySet<string>): Room {
+    const firstPresent = (team: Team) =>
+      Object.keys(this.teamOf).find((id) => this.teamOf[id] === team && present.has(id)) ?? null
+    const red = this.seatOf.red ?? firstPresent('red')
+    const blue = this.seatOf.blue ?? firstPresent('blue')
+    if (red === this.seatOf.red && blue === this.seatOf.blue) return this
+    return new Room(this.teamOf, { red, blue }, this.emojiOf)
+  }
+
+  // Pass each team's spymaster seat to the next member in arrival order, so a new
+  // game gives everyone a turn at the role. A team with one member (or none)
+  // keeps its seat.
+  rotateSpymasters(): Room {
+    const rotated = (team: Team): string | null => {
+      const holder = this.seatOf[team]
+      if (holder === null) return null
+      const members = Object.keys(this.teamOf).filter((id) => this.teamOf[id] === team)
+      if (members.length < 2) return holder
+      return members[(members.indexOf(holder) + 1) % members.length]
+    }
+    return new Room(this.teamOf, { red: rotated('red'), blue: rotated('blue') }, this.emojiOf)
   }
 
   // Release whichever seat this peer holds, leaving the other team's untouched.

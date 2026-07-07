@@ -8,7 +8,7 @@ export type Action =
   | { type: 'guess'; cardIndex: number }
   | { type: 'toggleMark'; cardIndex: number; team: Team }
   | { type: 'endTurn' }
-  | { type: 'newGame'; faces?: string[]; credit?: Credit | null; fit?: CardFit; deck?: string | null }
+  | { type: 'newGame'; faces?: string[]; credit?: Credit | null; fit?: CardFit; deck?: string | null; rotate?: boolean }
 
 // Control frames on the same wire as Action/RoomView. A guest announces its
 // spymaster seat (Presence) or team (TeamClaim); both sides send a Ping so each
