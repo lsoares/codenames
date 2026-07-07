@@ -193,6 +193,11 @@ export class GamePage {
     return this.page.getByRole('button', { name: /^Card \d+/ })
   }
 
+  // Every card the viewer currently sees face-up — a revealed card is disabled.
+  findRevealedCards() {
+    return this.page.getByRole('button', { name: /^Card \d+/, disabled: true })
+  }
+
   getCard(color: Color, options: { revealed?: boolean } = {}) {
     return this.page.getByRole('button', {
       name: new RegExp(`^Card \\d+, ${color}$`),

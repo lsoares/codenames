@@ -34,12 +34,16 @@ export default function Board(props: {
   // their own team's shared marks (`card.markedBy`, toggled by right-click).
   const highlighted = (card: Card, index: number): boolean =>
     !card.revealed &&
+    !gameOver &&
     (isSpymaster ? props.selected.has(index) : card.markedBy.includes(props.myTeam))
   const focusing = isSpymaster && cards.some((card, index) => highlighted(card, index))
   return (
     <div className={styles.board} data-focus={focusing || undefined} data-over={gameOver || undefined}>
       {cards.map((card, index) => {
         const showColor = props.game.showsColor(index, isSpymaster)
+        // Once the game is won every card reads as revealed — laid face-up, out of
+        // play — even the ones nobody guessed.
+        const revealed = card.revealed || gameOver
         // Word/emoji cards are named by their face; picture cards by position.
         const name = isImageFace(card.face) ? `Card ${index + 1}` : card.face
         // Announce an operative's own-team mark so it's perceivable without sight.
@@ -58,11 +62,11 @@ export default function Board(props: {
                 (isSpymaster && !card.revealed && card.color === props.spymasterTeam) ||
                 undefined
               }
-              data-revealed={card.revealed || undefined}
+              data-revealed={revealed || undefined}
               data-feedback={props.feedback[index] || undefined}
               data-selected={(isSpymaster && highlighted(card, index)) || undefined}
               data-inert={!actionable || undefined}
-              disabled={card.revealed}
+              disabled={revealed}
               onClick={() => {
                 if (!actionable) return
                 if (isSpymaster) props.onToggleSelect(index)

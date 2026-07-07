@@ -135,9 +135,10 @@ export class Game {
     return this.s.phase === 'clue' ? 'spymaster' : 'operatives'
   }
 
-  // A card's colour is visible once it's revealed, or to a spymaster.
+  // A card's colour is visible once it's revealed, or to a spymaster — and once
+  // the game is won the whole key is laid bare to everyone.
   showsColor(cardIndex: number, isSpymaster: boolean): boolean {
-    return this.s.cards[cardIndex].revealed || isSpymaster
+    return this.s.cards[cardIndex].revealed || isSpymaster || this.s.winner !== null
   }
 
   // Whether a viewer may act on a card this turn: only the team on turn acts, and
@@ -145,13 +146,14 @@ export class Game {
   // card but only once a clue is out (the guess phase — before that, they wait).
   canAct(cardIndex: number, viewer: { team: Team; isSpymaster: boolean }): boolean {
     const card = this.s.cards[cardIndex]
-    if (card.revealed || this.s.turn !== viewer.team) return false
+    if (this.s.winner || card.revealed || this.s.turn !== viewer.team) return false
     return viewer.isSpymaster ? card.color === viewer.team : this.s.phase === 'guess'
   }
 
-  // Operatives mark unrevealed cards — a private note, allowed on any turn.
+  // Operatives mark unrevealed cards — a private note, allowed on any turn until
+  // the game is won.
   canMark(cardIndex: number, isSpymaster: boolean): boolean {
-    return !isSpymaster && !this.s.cards[cardIndex].revealed
+    return !isSpymaster && !this.s.cards[cardIndex].revealed && !this.s.winner
   }
 
   // A fresh game: new faces when the caller fetched some, else reshuffle the

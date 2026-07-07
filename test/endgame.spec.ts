@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { hostRoom, joinRoom } from './gamePage'
 
-test('revealing the assassin ends the game for the other team', async ({ browser }) => {
+test('revealing the assassin ends the game and lays the whole board face-up', async ({ browser }) => {
   const { game: spymaster, code } = await hostRoom(browser, 'red')
   const operative = await joinRoom(browser, code, 'red')
 
@@ -11,6 +11,9 @@ test('revealing the assassin ends the game for the other team', async ({ browser
   await operative.guessNumber(target)
 
   await expect(operative.getWinBadge('blue')).toBeVisible()
+  // The finish reveals the whole key to everyone — even the operative, who never
+  // saw a colour, now sees all 20 cards face-up.
+  await expect(operative.findRevealedCards()).toHaveCount(20)
 })
 
 test('a full game — cap runs out, misses on neutral and enemy, red then wins', async ({ browser }) => {
