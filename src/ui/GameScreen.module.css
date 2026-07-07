@@ -89,7 +89,12 @@
 .players {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
+}
+
+/* The team that isn't up is held back, so the eye lands on whoever's playing. */
+.team:not([data-turn]) .players {
+  opacity: 0.55;
 }
 
 /* Right side mirrors so each team's count sits at the outer edge, and the
@@ -105,23 +110,37 @@
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  padding: 2px 8px;
+  padding: 2px 3px;
   border-radius: 999px;
 }
 
-/* The spymaster slot button: no chrome, just the icon. */
+/* The spymaster reads as one more face in the team's list — same size as an
+   operative — set apart only by the 🕵️ and by sitting at the outer edge. */
 .spymasterSlot {
   background: transparent;
   border: none;
   box-shadow: none;
-  cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.35rem;
   line-height: 1;
   appearance: none;
+  transition: font-size 0.18s ease;
 }
 
-.spymasterSlot:hover {
+/* Only the seat you can actually act on invites a click: your own team's, and
+   not the one you already hold. The other team's is a plain span, never a
+   button, so it never gets here. */
+button.spymasterSlot:not([data-mine]) {
+  cursor: pointer;
+}
+
+button.spymasterSlot:not([data-mine]):hover {
   filter: brightness(1.1);
+}
+
+/* The seat you already hold does nothing when clicked, so override the global
+   button pointer back to the plain cursor. */
+button.spymasterSlot[data-mine] {
+  cursor: default;
 }
 
 /* Dim placeholder shown when the seat is empty. */
@@ -129,7 +148,8 @@
   opacity: 0.25;
 }
 
-/* The operatives slot doubles as the "join this team" button: no chrome. */
+/* The operatives, shown as a row of faces (display only — joining is its own
+   button now). */
 .ops {
   gap: 5px;
   font-size: 1rem;
@@ -137,45 +157,41 @@
   background: transparent;
   border: none;
   box-shadow: none;
+  appearance: none;
+}
+
+/* The dedicated "join this team" control: a team-tinted + that fills in on
+   hover, so joining a team is its own affordance rather than clicking a face. */
+.join {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1px dashed color-mix(in srgb, var(--turn) 45%, transparent);
+  border-radius: 50%;
+  background: transparent;
+  color: color-mix(in srgb, var(--turn) 70%, transparent);
+  font-size: 0.95rem;
+  line-height: 1;
   cursor: pointer;
   appearance: none;
 }
 
-.ops:hover {
-  filter: brightness(1.1);
+.join:hover {
+  border-style: solid;
+  color: var(--turn);
 }
 
-/* Dim placeholder shown when a team has no operatives yet. */
-.opsDim {
-  opacity: 0.25;
-}
-
-/* Each operative's identity face. */
+/* Each operative's identity face. Size is reserved for whose turn it is (see
+   [data-active] below), so it grows/shrinks smoothly as play passes. */
 .op {
   display: inline-block;
   line-height: 1;
   border-radius: 999px;
   font-size: 1.35rem;
-}
-
-/* The viewer's own face — operative or spymaster — carries a small dot beneath it,
-   so you can find yourself without it being any bigger than the others. */
-.op[data-mine],
-.spymasterSlot[data-mine] {
-  position: relative;
-}
-
-.op[data-mine]::after,
-.spymasterSlot[data-mine]::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -5px;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--turn);
+  transition: font-size 0.18s ease;
 }
 
 /* Cards-left count: a subtle team-tinted pill, purely informational. */
@@ -199,6 +215,15 @@
 .team[data-team='blue'] .count {
   color: var(--blue);
   background: color-mix(in srgb, var(--blue) 14%, transparent);
+}
+
+/* The team on turn wears a solid, glowing badge, so the count that matters right
+   now — how many that team still has to find — is the one the eye lands on. The
+   idle team keeps the quiet tinted pill above. */
+.team[data-turn] .count {
+  color: var(--card-face);
+  background: var(--turn);
+  box-shadow: 0 1px 8px color-mix(in srgb, var(--turn) 45%, transparent);
 }
 
 /* At game end each side lists the clues that team gave, stacked vertically and
@@ -263,12 +288,11 @@
   --turn: var(--blue);
 }
 
-.team[data-team='red'] [data-active] {
-  background: color-mix(in srgb, var(--red) 28%, transparent);
-}
-
-.team[data-team='blue'] [data-active] {
-  background: color-mix(in srgb, var(--blue) 28%, transparent);
+/* Size marks who's on the clock: the acting role's faces grow — the spymaster's
+   icon while the clue is coming, then every operative once they guess. */
+.spymasterSlot[data-active],
+.ops[data-active] .op {
+  font-size: 2rem;
 }
 
 .menu {
@@ -365,6 +389,29 @@
 .statusText {
   font-weight: 700;
   font-size: 1.1rem;
+  /* A little pop each time the line changes draws the eye — enough of a cue that
+     the persistent banner doesn't need transient toasts stacked over it. */
+  animation: statusChange 0.34s ease;
+}
+
+@keyframes statusChange {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statusText {
+    animation: none;
+  }
 }
 
 /* The start-over actions tucked into the winner banner. */
@@ -377,8 +424,8 @@
 .endAction {
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
-  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  background: var(--surface);
   color: var(--ink);
   font-weight: 700;
   font-size: 0.95rem;
@@ -387,7 +434,7 @@
 }
 
 .endAction:hover {
-  background: color-mix(in srgb, var(--ink) 16%, transparent);
+  background: color-mix(in srgb, var(--surface) 85%, var(--ink));
 }
 
 /* The pass ✕ lives inside the clue token, glued to the pips: passing spends
@@ -445,6 +492,14 @@
 
 .hamburger:hover {
   opacity: 1;
+}
+
+/* You host this room: the hamburger wears a subtle accent tint, a quiet badge of
+   ownership that pairs with the pill's host shadow. */
+.hamburger[data-host] {
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  color: var(--primary);
+  opacity: 0.75;
 }
 
 /* A screen-wide catcher so a click anywhere else dismisses the open menu. */

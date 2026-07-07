@@ -21,7 +21,7 @@ export default function GameScreen(props: {
   onClaimSeat: (team: Team | null) => void
   onJoinTeam: (team: Team) => void
   onAction: (action: Action) => void
-  onNewGame: (providerId: string) => void
+  onNewGame: (providerId: string, rotateSpymaster?: boolean) => void
   loadingFaces: boolean
   providers: CardProvider[]
 }) {
@@ -42,13 +42,22 @@ export default function GameScreen(props: {
     else void document.documentElement.requestFullscreen().catch(() => {})
   }
 
-  // Clicking a team's card joins it as an operative. Already a plain operative
-  // there? Nothing to do. Moving to the other side mid-game confirms first;
-  // dropping from your own spymaster seat to operative on the same side doesn't.
+  // Fresh cards from the deck already in play, dealt without a prompt — used when
+  // a seat change means a spymaster who has seen the key must not keep the board.
+  // Resolves the deck id from its stored name (labels are unique).
+  const currentDeckId = props.providers.find((p) => p.label === props.game.state.deck)?.id
+  const dealFreshBoard = () => {
+    if (currentDeckId) props.onNewGame(currentDeckId)
+  }
+
+  // Switch to another team — only before play starts; once a game is underway
+  // the teams are locked. Leaving your own spymaster seat displaces a spymaster
+  // who has already seen the board, so fresh cards are dealt.
   const requestJoinTeam = (team: Team) => {
-    if (team === props.myTeam && props.mySeat === null) return
-    if (team !== props.myTeam && props.game.inProgress() && !window.confirm(`Switch to the ${team} team?`)) return
+    if (team === props.myTeam || props.game.inProgress()) return
+    const wasSpymaster = props.mySeat !== null
     props.onJoinTeam(team)
+    if (wasSpymaster) dealFreshBoard()
   }
 
   // The spymaster's private card picks, owned here so the clue's proposed number
@@ -115,35 +124,55 @@ export default function GameScreen(props: {
     }
   }, [props.myTeam])
 
+  // Take a spymaster seat before play starts — either team's (a fresh board means
+  // no advantage in switching). An open seat is claimed outright; replacing whoever
+  // holds it deals fresh cards, since they have seen the board. Taking the other
+  // team's seat moves you onto that team first.
   const requestSpymasterSeat = (team: Team) => {
-    const isMine = props.mySeat === team
-    if (isMine) {
-      // Stepping down: never prompt.
-      props.onClaimSeat(null)
-    } else {
-      // Claiming: prompt mid-game only.
-      if (props.game.inProgress() && !window.confirm(`Become ${team} spymaster?`)) return
-      props.onClaimSeat(team)
-    }
+    if (props.mySeat === team || props.game.inProgress()) return
+    const taken = !!(team === 'red' ? props.seats.red : props.seats.blue)
+    if (team !== props.myTeam) props.onJoinTeam(team)
+    props.onClaimSeat(team)
+    if (taken) dealFreshBoard()
   }
 
   const renderTeam = (team: Team) => {
     const seatId = team === 'red' ? props.seats.red : props.seats.blue
     const hasSpymaster = !!seatId
     const isMySeat = props.mySeat === team
-    const opPlayers = operativesOf(team)
+    // Your own face sits on your team's inner edge — nearest the centre — so you
+    // find yourself by position and size rather than a marker beneath it. Red is
+    // the left team, its ops running toward the centre, so you go last; blue
+    // mirrors on the right, so you go first.
+    const selfFirst = team === 'blue'
+    const opPlayers = operativesOf(team).sort((a, b) => {
+      if (a.id === props.selfId) return selfFirst ? -1 : 1
+      if (b.id === props.selfId) return selfFirst ? 1 : -1
+      return 0
+    })
     const ops = opPlayers.length
     const headcount = (hasSpymaster ? 1 : 0) + ops
     const active = team === props.game.state.turn
-    const spymasterLabel = isMySeat
-      ? `Step down as ${team} spymaster`
+    const isMyTeam = team === props.myTeam
+    const spymasterActive = (active && acting === 'spymaster') || undefined
+    // Teams and spymasters are only editable before play starts; once a game is
+    // underway everything is display-only. Any seat you don't already hold is a
+    // button to take (or replace) it — either team's, before play.
+    const editable = !props.game.inProgress()
+    const canTakeSeat = !isMySeat && editable
+    const spymasterFace = hasSpymaster ? (
+      <span role="img" aria-label={`${team} spymaster`}>🕵️</span>
+    ) : (
+      <span aria-hidden="true" className={styles.spymasterDim}>🕵️</span>
+    )
+    const spymasterLabel = hasSpymaster
+      ? `Replace the ${team} spymaster`
       : `Become ${team} spymaster`
-    const iAmOperativeHere = team === props.myTeam && props.mySeat === null
-    const opsLabel = iAmOperativeHere ? `You're on the ${team} team` : `Join ${team} team`
     return (
       <span
         className={styles.team}
         data-team={team}
+        data-turn={active || undefined}
         title={active ? `${team}'s turn` : undefined}
       >
         <span
@@ -157,49 +186,55 @@ export default function GameScreen(props: {
           className={styles.players}
           title={`${headcount} ${team} player${headcount === 1 ? '' : 's'}`}
         >
-          <button
-            type="button"
-            className={styles.spymasterSlot}
-            data-team={team}
-            data-mine={isMySeat || undefined}
-            data-active={(active && acting === 'spymaster') || undefined}
-            aria-label={spymasterLabel}
-            title={spymasterLabel}
-            onClick={() => requestSpymasterSeat(team)}
-          >
-            {hasSpymaster ? (
-              <span role="img" aria-label={`${team} spymaster`}>🕵️</span>
-            ) : (
-              <span aria-hidden="true" className={styles.spymasterDim}>🕵️</span>
-            )}
-          </button>
-          <button
-            type="button"
-            className={styles.ops}
-            data-team={team}
-            data-active={(active && acting === 'operatives') || undefined}
-            aria-label={opsLabel}
-            title={opsLabel}
-            onClick={() => requestJoinTeam(team)}
-          >
-            {ops > 0 ? (
-              opPlayers.map((player) => (
-                <span
-                  key={player.id}
-                  role="img"
-                  className={styles.op}
-                  data-team={team}
-                  data-mine={player.id === props.selfId || undefined}
-                  title={player.id === props.selfId ? 'You' : undefined}
-                  aria-label={player.id === props.selfId ? `${team} operative (you)` : `${team} operative`}
-                >
-                  {player.emoji}
-                </span>
-              ))
-            ) : (
-              <span aria-hidden="true" className={styles.opsDim}>🙂</span>
-            )}
-          </button>
+          {canTakeSeat ? (
+            <button
+              type="button"
+              className={styles.spymasterSlot}
+              data-team={team}
+              data-active={spymasterActive}
+              aria-label={spymasterLabel}
+              title={spymasterLabel}
+              onClick={() => requestSpymasterSeat(team)}
+            >
+              {spymasterFace}
+            </button>
+          ) : (
+            <span
+              className={styles.spymasterSlot}
+              data-team={team}
+              data-mine={isMySeat || undefined}
+              data-active={spymasterActive}
+            >
+              {spymasterFace}
+            </span>
+          )}
+          <span className={styles.ops} data-team={team} data-active={(active && acting === 'operatives') || undefined}>
+            {opPlayers.map((player) => (
+              <span
+                key={player.id}
+                role="img"
+                className={styles.op}
+                data-team={team}
+                data-mine={player.id === props.selfId || undefined}
+                title={player.id === props.selfId ? 'You' : undefined}
+                aria-label={player.id === props.selfId ? `${team} operative (you)` : `${team} operative`}
+              >
+                {player.emoji}
+              </span>
+            ))}
+          </span>
+          {!isMyTeam && editable && (
+            <button
+              type="button"
+              className={styles.join}
+              data-team={team}
+              aria-label={`Join ${team} team`}
+              title={`Join ${team} team`}
+              onClick={() => requestJoinTeam(team)}
+            >
+              ＋
+            </button>
+          )}
         </span>
       </span>
     )
@@ -210,11 +245,8 @@ export default function GameScreen(props: {
   const confirmDiscard = (): boolean =>
     props.game.idle() || window.confirm('The current game will be lost. Continue?')
 
-  // Fresh cards from the deck already in play — resolve its id from the stored
-  // deck name (labels are unique). Falls through silently if it can't be found.
-  const currentDeckId = props.providers.find((p) => p.label === props.game.state.deck)?.id
   const dealNewCards = () => {
-    if (currentDeckId && confirmDiscard()) props.onNewGame(currentDeckId)
+    if (currentDeckId && confirmDiscard()) props.onNewGame(currentDeckId, true)
   }
 
   // Open the picker to re-deal from a chosen deck (same room).
@@ -258,7 +290,9 @@ export default function GameScreen(props: {
   const activeSpymaster = props.mySeat === turn
   const mineTurn = turn === props.myTeam
 
-  // The faces of the winning team, so the win line names who actually took it.
+  // The faces of the winning team, shown only when it's your own win to savour;
+  // a loss stays sober, without parading the rivals' roster.
+  const winnerName = winner ? winner.charAt(0).toUpperCase() + winner.slice(1) : ''
   const winnerEmojis = winner
     ? props.players
         .filter((player) => player.team === winner)
@@ -268,7 +302,9 @@ export default function GameScreen(props: {
 
   // One viewer-centric line about the current moment; doubles as the menu button.
   const statusText = winner
-    ? `${winner === props.myTeam ? '🏆 You win!' : '😢 They win'} ${winnerEmojis}`.trim()
+    ? winner === props.myTeam
+      ? `🏆 ${winnerName} wins! ${winnerEmojis}`.trim()
+      : `😢 ${winnerName} wins…`
     : acting === 'spymaster'
       ? mineTurn
         ? activeSpymaster
@@ -354,12 +390,14 @@ export default function GameScreen(props: {
           data-host={props.isHost || undefined}
         >
           {props.flash ? (
-            <span className={styles.statusText} role="status">
+            <span key={props.flash} className={styles.statusText} role="status">
               {props.flash}
             </span>
           ) : (
             <>
-              <span className={styles.statusText}>{statusText}</span>
+              <span key={statusText} className={styles.statusText}>
+                {statusText}
+              </span>
               {!winner && phase === 'guess' && clue && (
                 <span className={styles.clueInline}>
                   <strong className={styles.clueWord}>{clue.word}</strong>
@@ -443,7 +481,8 @@ export default function GameScreen(props: {
         <button
           type="button"
           className={styles.hamburger}
-          aria-label="Menu"
+          data-host={props.isHost || undefined}
+          aria-label={props.isHost ? 'Menu (you host this room)' : 'Menu'}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
         >
@@ -532,7 +571,7 @@ export default function GameScreen(props: {
           <DeckPicker
             providers={props.providers}
             onPick={(id) => {
-              props.onNewGame(id)
+              props.onNewGame(id, true)
               pickerDialog.current?.close()
             }}
           />
