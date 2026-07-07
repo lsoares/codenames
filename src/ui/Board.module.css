@@ -317,14 +317,25 @@
   opacity: 0.45;
 }
 
+/* The global button:hover brightens on hover as a "you can act" affordance, so
+   confine it to cards this viewer can actually act on: a card they can't impact
+   (not their turn, wrong role, revealed) stays put under the pointer rather than
+   lighting up as if it were clickable. */
+.card[data-inert]:hover {
+  filter: none;
+}
+
 /* A pick lifts off the board — a deeper shadow and a small rise — so the chosen
    cards read as picked up, not merely the ones that didn't dim. It sits above its
    neighbours so the shadow falls over them cleanly, and its coloured frame
-   thickens by a pixel (padding) as an extra tell. */
+   thickens by a pixel (padding) as an extra tell. A slight brightening lightens
+   the pick a touch; it also outranks the global button:hover brightness, so
+   hovering a pick no longer whitens it further. */
 .card[data-selected] {
   transform: translateY(-5px);
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);
   padding: 6px;
+  filter: brightness(1.06);
   z-index: 1;
 }
 
@@ -335,10 +346,11 @@
   transform: scale(0.96);
 }
 
-/* No fade by default. Once a spymaster picks a card, the picks stay spotlit: every
-   other card fades to an intermediate level and stays there, regardless of the
-   pointer (the picks and the assassin never fade). */
-.board[data-spotlight] .card:not([data-selected]):not([data-color='assassin']) .face {
+/* No fade by default. Once a spymaster picks a card, every unpicked card — theirs,
+   the enemy's, neutrals and the assassin alike — fades to an intermediate level and
+   stays there, so the picks stand out against a veiled board. Applies in Focus mode
+   too, where the picks lead the clustered order. */
+.board[data-spotlight] .card:not([data-selected]) .face {
   opacity: 0.6;
 }
 

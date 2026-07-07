@@ -66,7 +66,7 @@ export default function Board(props: {
     <div
       className={styles.board}
       data-focus={props.focus || undefined}
-      data-spotlight={(spotlight && !props.focus) || undefined}
+      data-spotlight={spotlight || undefined}
       data-over={gameOver || undefined}
     >
       {order.map((index) => {
