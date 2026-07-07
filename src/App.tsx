@@ -315,13 +315,13 @@ export default function App() {
           setStatus(joinFailureMessage(error))
           return
         }
-        setStatus('Getting your room back…')
+        setStatus('Rejoining the room…')
         Host.resume(code, JSON.parse(saved) as GameState)
           .then((session) => {
             wire(session, true)
             setStatus('')
           })
-          .catch(() => setStatus('Could not get your room back.'))
+          .catch(() => setStatus('Could not rejoin the room.'))
       })
   }
 
