@@ -89,7 +89,7 @@
 .players {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 5px;
 }
 
 /* The team that isn't up is held back, so the eye lands on whoever's playing. */
@@ -110,7 +110,7 @@
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  padding: 2px 3px;
+  padding: 0; /* the spymaster slot is a <button>; kill the global button padding */
   border-radius: 999px;
 }
 
