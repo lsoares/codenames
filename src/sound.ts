@@ -2,7 +2,7 @@
 // thing. The samples are CC0 from Kenney (kenney.nl) — see sounds/CREDITS.md.
 // Each is fetched and decoded once, then replayed from the cached buffer.
 import assassin from './sounds/assassin.ogg'
-import clue from './sounds/clue.ogg'
+import clue from './sounds/clue.wav'
 import endTurn from './sounds/endTurn.ogg'
 import gameOver from './sounds/gameOver.ogg'
 import guessRight from './sounds/guessRight.ogg'
