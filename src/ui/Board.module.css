@@ -73,7 +73,7 @@
   line-height: 1;
   cursor: pointer;
   opacity: 0;
-  transform: rotate(-135deg);
+  transform: rotate(45deg);
   transition:
     opacity 0.15s ease,
     transform 0.15s ease;
@@ -87,7 +87,7 @@
 
 .overlayIcon:hover,
 .overlayIcon:focus-visible {
-  transform: scale(1.15) rotate(-90deg);
+  transform: scale(1.15) rotate(0deg);
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
@@ -97,7 +97,7 @@
 
 .overlayIcon[data-on]:hover,
 .overlayIcon[data-on]:focus-visible {
-  transform: scale(1.15) rotate(-90deg);
+  transform: scale(1.15) rotate(0deg);
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
@@ -110,14 +110,21 @@
   transition: opacity 0.2s ease;
 }
 
+/* Default image fit: the whole image (contain) with a hair of zoom, so the card's
+   overflow clip trims a little off the filling axis and shrinks the bands on the
+   other — a middle ground between cover (crops hard) and contain (big bands).
+   Near-square faces end up all but full-bleed; extreme ratios keep a band rather
+   than over-cropping. */
 .image {
-  object-fit: cover;
+  object-fit: contain;
+  transform: scale(1.1);
 }
 
-/* Show the whole image at its own aspect ratio — no crop; the card face shows
-   around it where the ratios differ (e.g. Picbreeder's square art). */
+/* Show the whole image at its own aspect ratio — no crop, no zoom; the card face
+   shows around it where the ratios differ (e.g. Picbreeder's square art). */
 .contain {
   object-fit: contain;
+  transform: none;
 }
 
 /* Official cards are square: fill the card height as a centred square and clip a
