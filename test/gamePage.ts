@@ -247,15 +247,6 @@ export class GamePage {
     await this.page.getByRole('button', { name: 'Copy join link' }).click()
   }
 
-  async openDebugLogs(): Promise<void> {
-    await this.openToolsMenu()
-    await this.page.getByRole('button', { name: 'Show logs' }).click()
-  }
-
-  getDebugLogDialog() {
-    return this.page.getByRole('dialog', { name: 'Connection logs' })
-  }
-
   // The board footer links the deck the board was dealt from to its source.
   getBoardType() {
     return this.page.getByRole('link', { name: /, by / })
