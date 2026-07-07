@@ -76,6 +76,10 @@
   caret-color: transparent;
 }
 
+.count[data-zero] .countInput {
+  color: var(--turn);
+}
+
 .infinityOverlay {
   position: absolute;
   inset: 0;
