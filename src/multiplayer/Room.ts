@@ -41,11 +41,17 @@ export class Room {
   }
 
   // Auto-assign each peer to a team on arrival, then leave it fixed: the smaller
-  // team, or a coin toss when they're even. The first player to land on a side
-  // becomes its spymaster via autoSeat.
-  assignTeam(peerId: string): Room {
+  // team, or — when they're even — the preferred side if one is given, else a coin
+  // toss. The very first player is handed the starting team (passed as preferred)
+  // so they can start planning the opening clue right away. The first player to
+  // land on a side becomes its spymaster via autoSeat.
+  assignTeam(peerId: string, preferred?: Team): Room {
     if (this.teamOf[peerId]) return this
-    return new Room({ ...this.teamOf, [peerId]: this.teamForArrival() }, this.seatOf, this.emojiOf)
+    return new Room(
+      { ...this.teamOf, [peerId]: this.teamForArrival(preferred) },
+      this.seatOf,
+      this.emojiOf,
+    )
   }
 
   // Give an arriving peer the first palette emoji nobody else holds. Keyed by
@@ -57,11 +63,11 @@ export class Room {
     return new Room(this.teamOf, this.seatOf, { ...this.emojiOf, [peerId]: free })
   }
 
-  private teamForArrival(): Team {
+  private teamForArrival(preferred?: Team): Team {
     const red = Object.values(this.teamOf).filter((t) => t === 'red').length
     const blue = Object.values(this.teamOf).filter((t) => t === 'blue').length
     if (red !== blue) return red < blue ? 'red' : 'blue'
-    return Math.random() < 0.5 ? 'red' : 'blue'
+    return preferred ?? (Math.random() < 0.5 ? 'red' : 'blue')
   }
 
   // A player overriding their auto-assigned team, as an operative. Dropping to an

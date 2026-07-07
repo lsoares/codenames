@@ -142,7 +142,11 @@ export class Host implements Session {
       // doesn't silently re-seat them via autoSeat.
       if (!this.opened) {
         this.opened = true
-        this.room = this.room.assignTeam(id).assignEmoji(id)
+        // The host is the room's first player: seat them on the team that starts
+        // (a new game's turn) so they can plan the opening clue at once. On a
+        // resume there's no fresh start to honour, so fall back to the balancer.
+        const preferred = this.mode === 'new' ? this.game.state.turn : undefined
+        this.room = this.room.assignTeam(id, preferred).assignEmoji(id)
         // Seat the host as their team's spymaster too, just like a joiner — but only
         // for a brand-new room, so a reload or FIFO takeover doesn't hand the seat
         // (and the colour key) to whoever happens to re-host mid-game.
