@@ -11,7 +11,7 @@ const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
 
 const isImageFace = (face: string): boolean => /^https?:\/\//.test(face)
 const isSingleGlyph = (face: string): boolean =>
-  Array.from(face).filter((ch) => ch.codePointAt(0) !== 0xfe0f).length === 1
+  [...new Intl.Segmenter().segment(face)].length === 1
 
 export default function Board(props: {
   game: Game
