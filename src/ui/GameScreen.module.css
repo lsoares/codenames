@@ -662,11 +662,18 @@ button.spymasterSlot[data-mine] {
     gap: 10px;
   }
 
-  /* On a phone the three-column header can't stay on one line: let the centre
-     column shrink (minmax 0) and its status/clue pill wrap instead of forcing a
-     nowrap width that shoves the far team's badges off the right edge. */
+  /* A phone is too narrow for the three columns to share one line, so stack the
+     header into three rows instead — red team, the clue/status bar, blue team —
+     following the DOM order, each row centred on its own line. */
   .header {
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 8px;
+  }
+
+  .headerSide[data-side='left'],
+  .headerSide[data-side='right'] {
+    justify-content: center;
   }
 
   .menu {
@@ -677,15 +684,5 @@ button.spymasterSlot[data-mine] {
   .statusPill {
     white-space: normal;
     text-align: center;
-  }
-
-  .clueInline {
-    flex-basis: 100%;
-  }
-
-  /* Reclaim header width on a phone by stacking the operative faces vertically
-     instead of hiding them, so every player still shows without widening the row. */
-  .ops {
-    flex-direction: column;
   }
 }
