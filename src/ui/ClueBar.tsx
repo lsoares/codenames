@@ -63,8 +63,8 @@ export default function ClueBar(props: {
           setCount(event.key === 'ArrowUp' ? stepUp : stepDown)
         }}
       />
-      {/* Number and submit stay paired, so on a narrow phone they wrap together
-          onto the line below the (now full-width) clue word. */}
+      {/* Number and submit stay paired at the end of the row, beside the clue
+          word — on a phone the word shrinks to keep all three on one line. */}
       <div className={styles.fields}>
         <div className={styles.count} data-unlimited={unlimited || undefined} data-zero={count === 0 || undefined}>
           <input

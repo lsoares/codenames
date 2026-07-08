@@ -161,17 +161,20 @@
   white-space: nowrap;
 }
 
-/* On a phone the clue form shares a cramped header row. Give the clue word the
-   full width and let the number + submit wrap onto the line below, rather than
-   squeezing all three onto one row that overflows the screen edge. */
+/* On a phone the clue form gets its own full-width row (the header stacks into
+   three rows there). Keep word + number + submit on that one line: don't wrap,
+   and let the word shrink to fill the space left rather than dropping the number
+   below it. */
 @media (max-width: 640px) {
   .clueForm {
     flex: 1;
     min-width: 0;
+    flex-wrap: nowrap;
   }
 
-  .word {
-    flex: 1 1 100%;
+  .clueForm .word {
+    flex: 1;
+    width: auto;
     min-width: 0;
   }
 }
