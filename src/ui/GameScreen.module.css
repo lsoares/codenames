@@ -507,9 +507,11 @@ button.spymasterSlot[data-mine] {
   padding: 0;
   line-height: 1;
   background: var(--surface);
-  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border: none;
   border-radius: 999px;
-  box-shadow: var(--shadow);
+  /* Firmer than var(--shadow): the 0.55 opacity and the busy board behind it would
+     otherwise swallow the soft theme shadow, so it needs to be darker and tighter. */
+  box-shadow: 0 3px 10px rgba(43, 45, 66, 0.3);
   cursor: pointer;
   opacity: 0.55;
   transition: opacity 0.15s ease;
@@ -535,7 +537,7 @@ button.spymasterSlot[data-mine] {
 /* You host this room: the hamburger wears a subtle accent tint, a quiet badge of
    ownership that pairs with the pill's host shadow. */
 .hamburger[data-host] {
-  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
   opacity: 0.75;
 }
 
