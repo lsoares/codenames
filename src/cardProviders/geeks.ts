@@ -31,19 +31,25 @@ async function stackOverflowTags(): Promise<string[]> {
 
 // A geek board blends programming tags with the general word bank. Alternate
 // between the two sources so it's a genuine mix rather than whichever list came
-// back longer, and stop at a full board of 20 (or fewer if both run dry).
+// back longer, and stop at a full board of 20 (or fewer if both run dry). Each
+// word's ↗ points at the source it actually came from: a Stack Overflow tag page
+// for the tags (DOCKER isn't in a dictionary), a Merriam-Webster entry for the
+// word-bank nouns.
 async function fetch(): Promise<Face[]> {
   const [tagList, dictionary] = await Promise.all([stackOverflowTags(), datamuseWords(20, GEEK_SEEDS)])
-  const tags = shuffle(tagList)
-  const board = new Set<string>()
-  while (board.size < 20 && (tags.length || dictionary.length)) {
-    for (const pool of [tags, dictionary]) {
+  const sources: [string[], (word: string) => string][] = [
+    [shuffle(tagList), (word) => `https://stackoverflow.com/questions/tagged/${word.toLowerCase()}`],
+    [dictionary, dictionaryLink],
+  ]
+  const board = new Map<string, string>()
+  while (board.size < 20 && sources.some(([pool]) => pool.length)) {
+    for (const [pool, linkFor] of sources) {
       if (board.size >= 20) break
       const word = pool.shift()
-      if (word) board.add(word)
+      if (word && !board.has(word)) board.set(word, linkFor(word))
     }
   }
-  return [...board].map((word) => text(word, { link: dictionaryLink(word) }))
+  return [...board].map(([word, link]) => text(word, { link }))
 }
 
 export const geeks: CardProvider = { id: 'geeks', label: 'Words 🤓', icon: '💻', description: 'Programming and tech words', credit: { label: 'Stack Overflow', url: 'https://stackoverflow.com' }, fetch }
