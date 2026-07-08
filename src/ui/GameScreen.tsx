@@ -469,13 +469,6 @@ export default function GameScreen(props: {
                   )}
                 </span>
               )}
-              {!winner && phase === 'guess' && clue && acting === 'operatives' && mineTurn && props.mySeat === null && (
-                // Its own full-width row under the clue token — the same clock the
-                // spymaster gets, keyed on the clue so it restarts each turn.
-                <div className={styles.turnClock}>
-                  <ThinkingBar key={props.game.state.clueHistory.length} team={turn} />
-                </div>
-              )}
             </>
           )}
           {winner && props.mySeat && (
@@ -599,6 +592,15 @@ export default function GameScreen(props: {
           />
         )}
       </dialog>
+
+      {/* While it's my move — composing a clue or weighing a guess — a slim clock
+          rides the bottom edge of the screen, out of the way. Keyed on the acting
+          role and clue count so it restarts each fresh thinking period. */}
+      {myMove && (
+        <div className={styles.thinkingDock}>
+          <ThinkingBar key={`${acting}-${clueHistory.length}`} team={turn} />
+        </div>
+      )}
     </main>
   )
 }
