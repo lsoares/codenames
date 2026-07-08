@@ -12,6 +12,7 @@ import spymaster from './sounds/spymaster.ogg'
 import takeover from './sounds/takeover.ogg'
 import teamSwitch from './sounds/teamSwitch.ogg'
 import victory from './sounds/victory.wav'
+import minute from './sounds/minute.wav'
 
 export type Sound =
   | 'clue'
@@ -25,6 +26,7 @@ export type Sound =
   | 'teamSwitch'
   | 'assassin'
   | 'victory'
+  | 'minute'
 
 const urls: Record<Sound, string> = {
   assassin,
@@ -38,6 +40,7 @@ const urls: Record<Sound, string> = {
   guessWrong,
   teamSwitch,
   victory,
+  minute,
 }
 
 let ctx: AudioContext | null = null

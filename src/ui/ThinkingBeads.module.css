@@ -1,0 +1,47 @@
+.beads {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  vertical-align: middle;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--bead-color);
+  flex: none;
+}
+
+.beads[data-team='red'] {
+  --bead-color: var(--red);
+}
+
+.beads[data-team='blue'] {
+  --bead-color: var(--blue);
+}
+
+/* Ten minutes in: the clock has stopped and nobody's thinking — drain the colour
+   so the frozen row reads as abandoned, not active. */
+.beads[data-capped] {
+  --bead-color: #9aa0a6;
+}
+
+/* The current minute: eased size growth (driven by an inline scale that steps each
+   second) plus a slow blink, so it reads as alive and filling. */
+.growing {
+  transform-origin: center;
+  transition: transform 1s linear;
+  animation: beadBlink 1.6s ease-in-out infinite;
+}
+
+@keyframes beadBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}

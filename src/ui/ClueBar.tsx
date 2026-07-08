@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { INFINITE_CLUE, type Team } from '../Game'
+import ThinkingBeads from './ThinkingBeads'
 import styles from './ClueBar.module.css'
 
 // The spymaster's clue input, docked at the bottom centre while it's their turn.
@@ -37,6 +38,7 @@ export default function ClueBar(props: {
         }
       }}
     >
+      <ThinkingBeads team={props.turn} />
       <button
         type="button"
         className={styles.focusToggle}
@@ -45,7 +47,7 @@ export default function ClueBar(props: {
         title="Focus mode — cluster your cards to plan a clue"
         onClick={props.onToggleFocus}
       >
-        🔎
+        👁️
       </button>
       <input
         className={styles.word}

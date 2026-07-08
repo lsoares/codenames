@@ -5,6 +5,7 @@ import type { Action, Player } from '../multiplayer/Session'
 import type { CardProvider } from '../cardProviders/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
+import ThinkingBeads from './ThinkingBeads'
 import DeckPicker from './DeckPicker'
 import RoomQr from './RoomQr'
 import styles from './GameScreen.module.css'
@@ -465,6 +466,11 @@ export default function GameScreen(props: {
                     >
                       ✕
                     </button>
+                  )}
+                  {/* How long this team's operatives have deliberated — the same clock
+                      the spymaster gets, keyed on the clue so it restarts each turn. */}
+                  {acting === 'operatives' && mineTurn && props.mySeat === null && (
+                    <ThinkingBeads key={props.game.state.clueHistory.length} team={turn} />
                   )}
                 </span>
               )}
