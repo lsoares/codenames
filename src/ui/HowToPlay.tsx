@@ -1,8 +1,17 @@
 import { useRef } from 'react'
 import styles from './HowToPlay.module.css'
 
-// A quiet ⓘ button in the top corner that opens the rules in a modal dialog.
-// Shared by the homepage and the game screen.
+// The 20-card board, colored 8 / 7 / 4 / 1 like a real deal (see Game.ts), in a
+// fixed representative layout for the Setup strip.
+const BOARD = [
+  'red', 'blue', 'neutral', 'red', 'blue',
+  'blue', 'red', 'blue', 'neutral', 'red',
+  'neutral', 'blue', 'red', 'blue', 'assassin',
+  'red', 'blue', 'neutral', 'red', 'red',
+]
+
+// A quiet ⓘ button in the top corner that opens the rules — a four-strip comic —
+// in a modal dialog. Shared by the homepage and the game screen.
 export default function HowToPlay() {
   const dialog = useRef<HTMLDialogElement>(null)
   return (
@@ -28,44 +37,76 @@ export default function HowToPlay() {
           ✕
         </button>
         <h2 className={styles.heading}>How to play</h2>
-        <ul className={styles.list}>
-          <li>
-            Two teams — <span className={styles.red}>red</span> and <span className={styles.blue}>blue</span>. Each has
-            a <strong>spymaster</strong>; the rest are operatives.
-          </li>
-          <li>
-            The board is <strong>20 cards</strong>, and only the spymasters see who owns which:
-            <ul>
-              <li>
-                <span className={styles.red}>8</span> / <span className={styles.blue}>7</span> belong to the teams
-                (the team that goes first gets the extra one)
-              </li>
-              <li>4 are neutral bystanders</li>
-              <li>1 is the assassin</li>
-            </ul>
-          </li>
-          <li>
-            The spymasters take turns giving a <strong>one-word clue</strong> plus a number.
-            <ul>
-              <li>the number is how many cards the clue points to</li>
-              <li>operatives may guess that many, plus one</li>
-            </ul>
-          </li>
-          <li>That team's operatives discuss and guess cards based on the clue.</li>
-          <li>
-            Avoid touching:
-            <ul>
-              <li>the other team's cards</li>
-              <li>the neutral bystanders</li>
-              <li>
-                the <strong>assassin</strong> — touching it loses the game instantly
-              </li>
-            </ul>
-          </li>
-          <li>
-            The first team to find <strong>all of its own agents</strong> wins.
-          </li>
-        </ul>
+
+        <div className={styles.strips}>
+          <div className={styles.strip}>
+            <div className={styles.panel}>
+              <div className={styles.board} aria-hidden="true">
+                {BOARD.map((color, i) => (
+                  <span key={i} className={styles.chip} data-color={color} />
+                ))}
+              </div>
+            </div>
+            <p className={styles.caption}>
+              <span className={styles.label}>Setup</span>20 cards (<span className={styles.red}>8</span> /{' '}
+              <span className={styles.blue}>7</span> to the teams, 4 neutral, 1 assassin). Only the two{' '}
+              <strong>spymasters</strong> see the colors.
+            </p>
+          </div>
+
+          {/* The two beats that loop, turn after turn, until someone wins. */}
+          <div className={styles.cycle}>
+            <span className={styles.cycleTag}>↻ Teams alternate each turn</span>
+            <div className={styles.strip}>
+              <div className={styles.panel}>
+                <span className={styles.spy} aria-hidden="true">
+                  🕵️
+                </span>
+                <span className={styles.arrow} aria-hidden="true">
+                  →
+                </span>
+                <span className={styles.cluePill} aria-hidden="true">
+                  OCEAN <b>2</b>
+                </span>
+              </div>
+              <p className={styles.caption}>
+                <span className={styles.label}>Clue</span>The spymaster gives one <strong>word</strong> + a{' '}
+                <strong>number</strong> — how many cards it points to.
+              </p>
+            </div>
+
+            <div className={styles.strip}>
+              <div className={styles.panel}>
+                <span className={styles.guess} aria-hidden="true">
+                  <span className={styles.chip} data-color="blue" data-tap="" />✓
+                </span>
+                <span className={styles.guess} aria-hidden="true">
+                  <span className={styles.chip} data-color="neutral" data-tap="" />✕
+                </span>
+              </div>
+              <p className={styles.caption}>
+                <span className={styles.label}>Guess</span>Operatives discuss and pick cards (that many, plus one).
+                A right card lets them <strong>keep going</strong>; a wrong one <strong>ends the turn</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.strip}>
+            <div className={styles.panel}>
+              <span className={styles.outcome} aria-hidden="true">
+                🏆
+              </span>
+              <span className={styles.outcome} data-bad="" aria-hidden="true">
+                💀
+              </span>
+            </div>
+            <p className={styles.caption}>
+              <span className={styles.label}>End</span>Find <strong>all your agents</strong> to win — but touch the{' '}
+              <strong>assassin</strong> and you lose instantly.
+            </p>
+          </div>
+        </div>
+
         <a
           className={styles.more}
           href="https://filemanager.czechgames.com/storage/files/codenames-pictures-2016/rules/codenames-pictures-rules-en.pdf"

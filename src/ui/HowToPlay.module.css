@@ -1,8 +1,9 @@
-/* A quiet info button in the top-right corner, matching the menu button's language. */
+/* A quiet info button in the bottom-right corner, mirroring the menu button
+   (bottom-left) and matching its language. */
 .info {
   position: fixed;
-  top: 8px;
   right: 8px;
+  bottom: calc(env(safe-area-inset-bottom) + 8px);
   z-index: 20;
   display: inline-flex;
   align-items: center;
@@ -19,9 +20,10 @@
      button's sepia-to-colour icon, so the two corner tools read the same. */
   color: var(--muted);
   background: var(--surface);
-  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border: none;
   border-radius: 999px;
-  box-shadow: var(--shadow);
+  /* Same firmer shadow as the menu button, so both corner tools sit the same. */
+  box-shadow: 0 3px 10px rgba(43, 45, 66, 0.3);
   cursor: pointer;
   opacity: 0.55;
   transition:
@@ -37,7 +39,7 @@
 /* Modal rules dialog — same surface and backdrop as the deck picker. */
 .dialog {
   position: relative;
-  width: min(440px, 100%);
+  width: min(480px, 100%);
   max-height: 90dvh;
   overflow: auto;
   padding: 24px 28px;
@@ -57,23 +59,194 @@
   font-size: 1.4rem;
 }
 
-.list {
+/* Four numbered strips, each a small diagram (the panel) above a caption. */
+.strips {
   margin: 0;
-  padding-left: 1.3em;
-  line-height: 1.5;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
 }
 
-.list > li {
-  margin-bottom: 8px;
+.strip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.list ul {
-  margin: 6px 0 0;
-  padding-left: 1.2em;
+/* The two looping beats (Clue + Guess), bracketed as one repeating unit. */
+.cycle {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 16px 14px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
-.list ul li {
-  margin-bottom: 4px;
+.cycleTag {
+  position: absolute;
+  top: -9px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--primary);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* The illustrated half — a soft framed stage the mini-diagram sits on. */
+.panel {
+  flex: none;
+  width: 116px;
+  min-height: 84px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.caption {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* A small coloured kicker naming the beat — Setup / Clue / Guess / End. */
+.label {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+}
+
+/* Strip 1 — a 5×4 mini board of the deal's colours. */
+.board {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+}
+
+.chip {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  background: var(--chip);
+}
+
+.chip[data-color='red'] {
+  --chip: var(--red);
+}
+
+.chip[data-color='blue'] {
+  --chip: var(--blue);
+}
+
+.chip[data-color='neutral'] {
+  --chip: color-mix(in srgb, var(--ink) 22%, var(--surface));
+}
+
+.chip[data-color='assassin'] {
+  --chip: #1c1c22;
+}
+
+/* A larger chip used in the guessing strip, with a pointing finger cue. */
+.chip[data-tap] {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  position: relative;
+}
+
+.chip[data-tap]::after {
+  content: '👆';
+  position: absolute;
+  right: -6px;
+  bottom: -10px;
+  font-size: 0.95rem;
+}
+
+/* Strip 2 — spymaster → clue pill. */
+.spy {
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.arrow {
+  color: var(--muted);
+  font-size: 1.2rem;
+}
+
+.cluePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 16%, var(--surface));
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+}
+
+.cluePill b {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Strip 3 — a correct pick (keep going) beside a wrong one (turn ends). */
+.guess {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* Strip 4 — the two endings. */
+.outcome {
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.outcome[data-bad] {
+  filter: grayscale(0.2);
+}
+
+@media (max-width: 460px) {
+  .strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .panel {
+    width: 100%;
+  }
 }
 
 .red {
@@ -87,9 +260,11 @@
 }
 
 .more {
-  display: inline-block;
+  display: block;
   margin-top: 18px;
+  text-align: center;
   color: var(--primary);
+  font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
   opacity: 0.85;
