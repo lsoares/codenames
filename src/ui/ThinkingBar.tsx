@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Team } from '../Game'
-import { playSound } from '../sound'
+import { playTick } from '../sound'
 import styles from './ThinkingBar.module.css'
 
 const CAP_MINUTES = 10 // stop at ten minutes — by then nobody's still at the board
@@ -21,10 +21,13 @@ export default function ThinkingBar(props: { team: Team }) {
   }, [seconds, capped])
 
   const completed = Math.min(Math.floor(seconds / 60), CAP_MINUTES)
-  // A soft cue each time a whole minute lands, so a long think is felt, not watched.
+  // Not every second — that's maddening. A single soft tic at each half-minute, and a
+  // tic-tac at each whole minute, so time is marked without a constant ticking clock.
   useEffect(() => {
-    if (completed > 0) playSound('minute', 0.5) // quieter than the game's other cues
-  }, [completed])
+    if (capped || seconds === 0 || seconds % 30 !== 0) return
+    playTick(0, 0.5)
+    if (seconds % 60 === 0) window.setTimeout(() => playTick(1, 0.5), 160)
+  }, [seconds, capped])
 
   const fraction = (seconds % 60) / 60
   const total = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
