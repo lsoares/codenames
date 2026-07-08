@@ -75,6 +75,41 @@
   gap: 16px;
 }
 
+/* A light frame around a standalone phase (Setup, End), so the help reads as a few
+   clearly separated steps — matching the cycle box, minus its tint. */
+.phase {
+  position: relative;
+  padding: 16px 16px 14px;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+/* A phase's label sits centred on its top border line — the same treatment as the
+   cycle's "One team at a time" tag, so all three boxes read alike. */
+.phaseTag {
+  position: absolute;
+  top: 0;
+  left: 16px;
+  transform: translateY(-50%);
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--primary);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* A beat's heading (Phase 1/2), above its sentence. */
+.title {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
 /* The two looping beats (Spymaster + Operatives), bracketed as one repeating unit:
    a centred header, then the two beats side by side, both aligned to the top. */
 .cycle {
@@ -92,8 +127,8 @@
 .cycleTag {
   position: absolute;
   top: 0;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 16px;
+  transform: translateY(-50%);
   padding: 1px 8px;
   border-radius: 999px;
   background: var(--bg);
@@ -178,10 +213,75 @@
   color: var(--muted);
 }
 
+/* The spymaster above their role label. */
+.roleCol {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.roleLabel {
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+/* The operatives beside a vertical "Operatives" label. */
+.opsGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.vLabel {
+  writing-mode: vertical-rl;
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.opsRow {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.emoji {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* The spymaster with a thought bubble overlapping the top of their head. */
+.thinker {
+  position: relative;
+  display: inline-flex;
+}
+
+.think {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+/* A less-important clause: smaller and muted, on its own line below the key one. */
+.aside {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
 .caption {
   margin: 0;
   font-size: 0.82rem;
   line-height: 1.45;
+  text-align: left;
 }
 
 /* A small coloured kicker naming the beat — Setup / Clue / Guess / End. */

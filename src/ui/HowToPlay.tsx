@@ -51,15 +51,21 @@ export default function HowToPlay() {
         <h2 className={styles.heading}>How to play</h2>
 
         <div className={styles.strips}>
-          <div className={styles.strip}>
+          <div className={`${styles.strip} ${styles.phase}`}>
+            <span className={styles.phaseTag}>Setup</span>
             <div className={styles.scene}>
-              <div className={styles.teamGroup} data-team="red" aria-hidden="true">
-                <div className={styles.team} data-team="red">
+              <div className={styles.team} data-team="red" aria-hidden="true">
+                <div className={styles.roleCol}>
                   <span className={`${styles.person} ${styles.spy}`}>🕵️</span>
-                  <span className={styles.person}>👤</span>
-                  <span className={styles.person}>👤</span>
+                  <span className={styles.roleLabel}>Spymaster</span>
                 </div>
-                <span className={styles.teamLabel}>Team Red</span>
+                <div className={styles.roleCol}>
+                  <div className={styles.opsRow}>
+                    <span className={styles.person}>👤</span>
+                    <span className={styles.person}>👤</span>
+                  </div>
+                  <span className={styles.roleLabel}>Operatives</span>
+                </div>
               </div>
               <div className={styles.boardGroup} aria-hidden="true">
                 <div className={styles.board}>
@@ -72,18 +78,23 @@ export default function HowToPlay() {
                   neutral, 1 assassin)
                 </span>
               </div>
-              <div className={styles.teamGroup} data-team="blue" aria-hidden="true">
-                <div className={styles.team} data-team="blue">
+              <div className={styles.team} data-team="blue" aria-hidden="true">
+                <div className={styles.roleCol}>
                   <span className={`${styles.person} ${styles.spy}`}>🕵️</span>
-                  <span className={styles.person}>👤</span>
-                  <span className={styles.person}>👤</span>
+                  <span className={styles.roleLabel}>Spymaster</span>
                 </div>
-                <span className={styles.teamLabel}>Team Blue</span>
+                <div className={styles.roleCol}>
+                  <div className={styles.opsRow}>
+                    <span className={styles.person}>👤</span>
+                    <span className={styles.person}>👤</span>
+                  </div>
+                  <span className={styles.roleLabel}>Operatives</span>
+                </div>
               </div>
             </div>
             <p className={styles.caption}>
-              <span className={styles.label}>Setup</span>Only the <strong>spymasters see the colors</strong> — their
-              operatives don't.
+Players join <strong>two teams</strong> — <span className={styles.red}>red</span> and{' '}
+              <span className={styles.blue}>blue</span>. Only the <strong>spymasters see the colors</strong>.
             </p>
           </div>
 
@@ -99,16 +110,19 @@ export default function HowToPlay() {
                   ))}
                 </div>
                 <div className={styles.clueSource} aria-hidden="true">
-                  <span className={`${styles.person} ${styles.spy} ${styles.clueSpy}`}>🕵️</span>
+                  <span className={styles.thinker}>
+                    <span className={`${styles.person} ${styles.spy} ${styles.clueSpy}`}>🕵️</span>
+                    <span className={styles.think}>💭</span>
+                  </span>
                   <span className={styles.cluePill}>
                     OCEAN <b>2</b>
                   </span>
                 </div>
               </div>
               <p className={styles.caption}>
-                <span className={styles.label}>1 · Spymaster</span>Gives <strong>one word + a number</strong>,
-                pointing at that many of their cards. The word is the <strong>clue</strong> that links them (never one
-                printed on a card).
+                <span className={styles.title}>Phase 1: Spymaster's clue</span>Gives{' '}
+                <strong>one word + a number</strong>, pointing at that many of their cards.
+                <span className={styles.aside}>The word links the cards.</span>
               </p>
             </div>
 
@@ -116,6 +130,7 @@ export default function HowToPlay() {
               <div className={`${styles.panel} ${styles.wide}`}>
                 <div className={styles.team} data-team="blue" aria-hidden="true">
                   <span className={styles.person}>👤</span>
+                  <span className={styles.emoji}>💬</span>
                   <span className={styles.person}>👤</span>
                 </div>
                 <div className={styles.board} aria-hidden="true">
@@ -133,15 +148,16 @@ export default function HowToPlay() {
                 </div>
               </div>
               <p className={styles.caption}>
-                <span className={styles.label}>2 · Operatives</span>Discuss and <strong>pick cards</strong> (that many,
-                plus one). A <strong>right</strong> card <strong>keeps the turn going</strong>; a{' '}
-                <strong>wrong</strong> one <strong>ends it</strong>.
+                <span className={styles.title}>Phase 2: Operatives' guesses</span>They discuss, then{' '}
+                <strong>pick cards</strong>, which reveals them.
+                <span className={styles.aside}>A right card keeps the turn going; a wrong one ends it.</span>
               </p>
             </div>
             </div>
           </div>
 
-          <div className={styles.strip}>
+          <div className={`${styles.strip} ${styles.phase}`}>
+            <span className={styles.phaseTag}>End</span>
             <div className={styles.scene}>
               <div className={styles.board} aria-hidden="true">
                 {BOARD.map((color, i) =>
@@ -164,8 +180,8 @@ export default function HowToPlay() {
               </span>
             </div>
             <p className={styles.caption}>
-              <span className={styles.label}>End</span>The first team to find <strong>all its agents wins</strong>.
-              Touch the <strong>assassin</strong> (the black card) and you <strong>lose instantly</strong>.
+The first team to find <strong>all its agents wins</strong>.
+              <span className={styles.aside}>Touch the assassin (the black card) and you lose instantly.</span>
             </p>
           </div>
         </div>
