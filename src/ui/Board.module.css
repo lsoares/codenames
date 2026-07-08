@@ -57,7 +57,7 @@
 .overlayIcon {
   position: absolute;
   top: 12px;
-  right: 12px;
+  left: 12px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
@@ -105,11 +105,12 @@
 }
 
 /* An outbound "look it up" link — a subtle corner affordance that opens the card's
-   reference page in a new tab. Bottom-right so it never collides with the mark pin,
-   and hidden until the cell is hovered so it stays out of the way during play. */
+   reference page in a new tab. Top-right, opposite the mark pin (top-left) so the
+   two never collide, and hidden until the cell is hovered so it stays out of the
+   way during play. */
 .linkIcon {
   position: absolute;
-  bottom: 12px;
+  top: 12px;
   right: 12px;
   z-index: 2;
   display: inline-flex;
@@ -322,11 +323,16 @@
   opacity: 1;
 }
 
-/* The guess outcome flashed over the card the instant it's revealed. */
+/* The guess outcome — flashed over the card the instant it's revealed, and kept
+   on every card at game over as the board summary. Sat low-centre (75% down) so it
+   reads over the face without crowding the mark (top-left) or the ↗ link (top-right).
+   The centring translate rides along in every keyframe so the pop composes with it
+   and the resting badge stays put after the animation. */
 .feedback {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   font-size: clamp(1.4rem, 6cqw, 3rem);
   pointer-events: none;
   z-index: 2;
@@ -337,15 +343,15 @@
 @keyframes feedbackPop {
   0% {
     opacity: 0;
-    transform: scale(0.3);
+    transform: translate(-50%, -50%) scale(0.3);
   }
   60% {
     opacity: 1;
-    transform: scale(1.15);
+    transform: translate(-50%, -50%) scale(1.15);
   }
   100% {
     opacity: 1;
-    transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
