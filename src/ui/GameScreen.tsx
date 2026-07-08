@@ -5,7 +5,7 @@ import type { Action, Player } from '../multiplayer/Session'
 import type { CardProvider } from '../cardProviders/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
-import ThinkingBeads from './ThinkingBeads'
+import ThinkingBar from './ThinkingBar'
 import DeckPicker from './DeckPicker'
 import RoomQr from './RoomQr'
 import styles from './GameScreen.module.css'
@@ -467,12 +467,14 @@ export default function GameScreen(props: {
                       ✕
                     </button>
                   )}
-                  {/* How long this team's operatives have deliberated — the same clock
-                      the spymaster gets, keyed on the clue so it restarts each turn. */}
-                  {acting === 'operatives' && mineTurn && props.mySeat === null && (
-                    <ThinkingBeads key={props.game.state.clueHistory.length} team={turn} />
-                  )}
                 </span>
+              )}
+              {!winner && phase === 'guess' && clue && acting === 'operatives' && mineTurn && props.mySeat === null && (
+                // Its own full-width row under the clue token — the same clock the
+                // spymaster gets, keyed on the clue so it restarts each turn.
+                <div className={styles.turnClock}>
+                  <ThinkingBar key={props.game.state.clueHistory.length} team={turn} />
+                </div>
               )}
             </>
           )}

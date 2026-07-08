@@ -319,6 +319,13 @@ button.spymasterSlot[data-mine] {
   background: color-mix(in srgb, var(--ink) 10%, transparent);
 }
 
+/* Drops the thinking clock onto its own line beneath the clue token — the pill
+   already wraps, and a full-basis child forces the break. */
+.turnClock {
+  flex-basis: 100%;
+  display: flex;
+}
+
 /* The clue word + count read as one solid, team-coloured token, so the eye
    separates the actual clue from the quieter status label beside it. */
 .clueInline {
