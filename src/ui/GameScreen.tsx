@@ -53,9 +53,6 @@ export default function GameScreen(props: {
   // can follow them. Cleared when the turn passes or a new game starts, so each
   // clue is planned on a clean board.
   const [selected, setSelected] = useState<Set<number>>(new Set())
-  // A private, throwaway planning view: while on, the board reorders (only on this
-  // client) to cluster the spymaster's own cards. Never synced; see Board.
-  const [focus, setFocus] = useState(false)
   // Run a state change through a view transition so the board's cards visibly glide
   // to their new spots; fall back to an instant change where the API is missing or
   // the user prefers reduced motion.
@@ -65,17 +62,16 @@ export default function GameScreen(props: {
     if (!doc.startViewTransition || reduce) return update()
     doc.startViewTransition(() => flushSync(update))
   }
-  const toggleFocus = () => animate(() => setFocus((on) => !on))
   const toggleSelected = (index: number) => {
-    // In Focus mode a pick jumps the card into the leading group, so glide it there;
-    // out of Focus the order doesn't change, so just toggle instantly.
-    const pick = () =>
+    // Every pick glides: the first one clusters the board into Focus, each further
+    // pick reorders within it, and the last un-pick leaves Focus and restores order.
+    animate(() =>
       setSelected((prev) => {
         const next = new Set(prev)
         next.has(index) ? next.delete(index) : next.add(index)
         return next
-      })
-    focus ? animate(pick) : pick()
+      }),
+    )
   }
   // A stable per-deal identity: only a fresh deal reshuffles the card colours (a
   // guess, clue or turn pass never touch them), so this signature changes exactly
@@ -124,11 +120,11 @@ export default function GameScreen(props: {
     )
 
   const { winner, phase, turn, clue, clueHistory, guessesRemaining } = props.game.state
-  // Focus mode is a throwaway planning aid: switch it off the moment the clue is
-  // given (phase leaves 'clue'), the turn passes, or a fresh board is dealt.
-  useEffect(() => {
-    setFocus(false)
-  }, [phase, dealKey])
+  // Focus mode is automatic and private to this client: the board clusters the
+  // spymaster's own cards the moment they pick one, and drops out of Focus when they
+  // hold none, once the clue is given (phase leaves 'clue'), or on a fresh deal —
+  // selection itself resets on turn pass / first reveal / new deal.
+  const focus = phase === 'clue' && selected.size > 0
   const guessesGiven = clue ? clue.count + 1 : 0
   const guessesUsed = clue ? guessesGiven - guessesRemaining : 0
   // No bonus pip once the clue already covers all the team's cards — they'd have
@@ -404,8 +400,6 @@ export default function GameScreen(props: {
       turn={turn}
       teamCardsLeft={props.game.remaining(turn)}
       selectedCount={selected.size}
-      focus={focus}
-      onToggleFocus={toggleFocus}
       onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
     />
   )

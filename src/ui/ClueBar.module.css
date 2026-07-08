@@ -42,27 +42,6 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--turn) 30%, transparent);
 }
 
-/* Toggle for the private planning view: quiet and team-tinted until on, then a
-   solid fill so it reads as active. */
-.focusToggle {
-  padding: 6px 12px;
-  font-size: 1.2rem;
-  line-height: 1;
-  background: color-mix(in srgb, var(--turn) 12%, transparent);
-  border-radius: 999px;
-  box-shadow: none;
-  cursor: pointer;
-  filter: grayscale(0.4);
-  opacity: 0.75;
-}
-
-/* On: the emoji reads full-strength over a solid team-tinted pill. */
-.focusToggle[aria-pressed='true'] {
-  background: var(--turn);
-  filter: none;
-  opacity: 1;
-}
-
 /* Quiet, team-tinted submit instead of a loud solid button. */
 .submit {
   padding: 8px 14px;
