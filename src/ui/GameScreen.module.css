@@ -493,8 +493,8 @@ button.spymasterSlot[data-mine] {
    in the bottom-left corner; the menu pops up above it. */
 .tools {
   position: fixed;
-  left: 14px;
-  bottom: 14px;
+  left: 8px;
+  bottom: calc(env(safe-area-inset-bottom) + 8px);
   z-index: 20;
 }
 
