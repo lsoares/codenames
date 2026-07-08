@@ -22,11 +22,17 @@ export default function ThinkingBar(props: { team: Team }) {
 
   const completed = Math.min(Math.floor(seconds / 60), CAP_MINUTES)
   // Not every second — that's maddening. A single soft tic at each half-minute, and a
-  // tic-tac at each whole minute, so time is marked without a constant ticking clock.
+  // clear two-click tic-tac at each whole minute, so time is marked without a constant
+  // ticking clock. Both clicks of the minute are scheduled on the audio clock so the
+  // tic is never dropped or masked.
   useEffect(() => {
     if (capped || seconds === 0 || seconds % 30 !== 0) return
-    playTick(0, 0.5)
-    if (seconds % 60 === 0) window.setTimeout(() => playTick(1, 0.5), 160)
+    if (seconds % 60 === 0) {
+      playTick(0, 0.6) // tic
+      playTick(1, 0.6, 0.22) // …tac
+    } else {
+      playTick(0, 0.5) // a lone tic at the half-minute
+    }
   }, [seconds, capped])
 
   const fraction = (seconds % 60) / 60

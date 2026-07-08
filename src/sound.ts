@@ -81,11 +81,12 @@ function resumeCtx(): AudioContext {
 // band-passed noise click whose pitch alternates by beat — a higher "tic" on even
 // counts, a lower "tac" on odd — so a running timer sounds like a real clock.
 // Client-local, like the rest of the timer; `volume` scales it as in playSound.
-export function playTick(beat: number, volume = 1): void {
+export function playTick(beat: number, volume = 1, delay = 0): void {
   const ac = resumeCtx()
   const tic = beat % 2 === 0
-  const decay = tic ? 0.018 : 0.03
-  const now = ac.currentTime
+  // Both clicks are kept audibly long enough to register as a distinct tic and tac.
+  const decay = tic ? 0.026 : 0.034
+  const now = ac.currentTime + delay
   const length = Math.max(1, Math.floor(ac.sampleRate * decay))
   const noise = ac.createBuffer(1, length, ac.sampleRate)
   const data = noise.getChannelData(0)
