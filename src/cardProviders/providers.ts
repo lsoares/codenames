@@ -9,6 +9,7 @@ import { geeks } from './geeks'
 import { games } from './games'
 import { things } from './things'
 import { emojis } from './emojis'
+import { flags } from './flags'
 import { abstract } from './abstract'
 import { abstractArt } from './abstractArt'
 import { picbreeder } from './picbreeder'
@@ -34,7 +35,7 @@ export interface CardProvider {
 
 // The first four are the picker's headline decks; the rest sit behind its "more"
 // reveal, so order matters.
-export const providers: CardProvider[] = [officialWords, official, words, geeks, unsplash, pexels, abstract, abstractArt, picbreeder, dreams, things, icons, tmdb, games, emojis, cats, foodish, pokemon, mix]
+export const providers: CardProvider[] = [officialWords, official, words, geeks, unsplash, pexels, abstract, abstractArt, picbreeder, dreams, things, icons, tmdb, games, emojis, flags, cats, foodish, pokemon, mix]
 
 // Fetches 20 card faces plus the deck's credit. When a provider throws (missing
 // key, network error), fall back to the word board — no key, never fails — so a
