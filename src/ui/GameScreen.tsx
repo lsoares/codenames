@@ -7,6 +7,7 @@ import Board from './Board'
 import ClueBar from './ClueBar'
 import ThinkingBar from './ThinkingBar'
 import DeckPicker from './DeckPicker'
+import HowToPlay from './HowToPlay'
 import RoomQr from './RoomQr'
 import styles from './GameScreen.module.css'
 
@@ -601,6 +602,8 @@ export default function GameScreen(props: {
           <ThinkingBar key={`${acting}-${clueHistory.length}`} team={turn} />
         </div>
       )}
+
+      <HowToPlay />
     </main>
   )
 }

@@ -1,5 +1,6 @@
 import type { CardProvider } from '../cardProviders/providers'
 import DeckPicker from './DeckPicker'
+import HowToPlay from './HowToPlay'
 import styles from './Homepage.module.css'
 
 // The landing screen: pick a card source to start a game.
@@ -18,14 +19,7 @@ export default function Homepage(props: {
         </h1>
       </header>
       <DeckPicker providers={props.providers} onPick={props.onPick} />
-      <a
-        className={styles.rules}
-        href="https://filemanager.czechgames.com/storage/files/codenames-pictures-2016/rules/codenames-pictures-rules-en.pdf"
-        target="_blank"
-        rel="noreferrer"
-      >
-        How to play
-      </a>
+      <HowToPlay />
     </main>
   )
 }
