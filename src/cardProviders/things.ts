@@ -11,6 +11,7 @@ const CATEGORIES = [
 interface PexelsPhoto {
   src: { medium: string }
   alt: string
+  url: string
 }
 
 async function fetch(): Promise<Face[]> {
@@ -39,7 +40,9 @@ async function fetch(): Promise<Face[]> {
     return fresh
   })
   if (photos.length < 20) throw new Error('Pexels returned too few photos')
-  return photos.slice(0, 20).map((photo) => image(photo.src.medium, photo.alt || undefined))
+  return photos
+    .slice(0, 20)
+    .map((photo) => image(photo.src.medium, { tooltip: photo.alt || undefined, link: photo.url }))
 }
 
 export const things: CardProvider = { id: 'things', label: 'Things', icon: '🧩', description: 'Concrete, easily-named everyday objects', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, hidden: true, fetch }

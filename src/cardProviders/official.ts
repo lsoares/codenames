@@ -10,7 +10,7 @@ const BASE =
 async function fetch(): Promise<Face[]> {
   return shuffle(Array.from({ length: 280 }, (_, i) => i))
     .slice(0, 20)
-    .map((n) => image(`${BASE}/card-${n}.jpg`, undefined, 'framed'))
+    .map((n) => image(`${BASE}/card-${n}.jpg`, { fit: 'framed' }))
 }
 
 export const official: CardProvider = {

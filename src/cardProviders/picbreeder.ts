@@ -26,7 +26,7 @@ async function fetch(): Promise<Face[]> {
   }
 
   if (faces.size < 20) throw new Error('Picbreeder returned too few images')
-  return [...faces].slice(0, 20).map((url) => image(url, undefined, 'contain'))
+  return [...faces].slice(0, 20).map((url) => image(url, { fit: 'contain' }))
 }
 
 export const picbreeder: CardProvider = {

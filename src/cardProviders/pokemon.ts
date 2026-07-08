@@ -29,9 +29,12 @@ async function fetch(): Promise<Face[]> {
   })
 
   if (faces.length < 20) throw new Error('PokeAPI returned too few images')
-  return faces
-    .slice(0, 20)
-    .map(({ url, name }) => image(url, name.charAt(0).toUpperCase() + name.slice(1)))
+  return faces.slice(0, 20).map(({ url, name }) =>
+    image(url, {
+      tooltip: name.charAt(0).toUpperCase() + name.slice(1),
+      link: `https://www.pokemon.com/us/pokedex/${name}`,
+    }),
+  )
 }
 
 export const pokemon: CardProvider = {

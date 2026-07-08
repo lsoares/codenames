@@ -164,6 +164,21 @@ export default function Board(props: {
                 📌
               </button>
             )}
+            {card.face.link && !props.loading && (
+              // A subtle reference link (dictionary, TMDB, …). Its own <a>, a sibling
+              // of the card button — never nested — so opening it can't trigger a guess.
+              <a
+                className={styles.linkIcon}
+                href={card.face.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Look up ${name}`}
+                title={`Look up ${name}`}
+                onClick={(event) => event.stopPropagation()}
+              >
+                ↗
+              </a>
+            )}
           </div>
         )
       })}

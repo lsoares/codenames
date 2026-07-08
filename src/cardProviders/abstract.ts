@@ -9,6 +9,7 @@ const LOOKS = [
 
 interface PexelsPhoto {
   src: { medium: string }
+  url: string
 }
 
 async function fetch(): Promise<Face[]> {
@@ -30,9 +31,14 @@ async function fetch(): Promise<Face[]> {
     ),
   )
 
-  const faces = [...new Set(shuffle(bodies.flatMap((body) => body.photos)).map((photo) => photo.src.medium))]
-  if (faces.length < 20) throw new Error('Pexels returned too few photos')
-  return faces.slice(0, 20).map((url) => image(url))
+  const seen = new Set<string>()
+  const photos = shuffle(bodies.flatMap((body) => body.photos)).filter((photo) => {
+    const fresh = !seen.has(photo.src.medium)
+    seen.add(photo.src.medium)
+    return fresh
+  })
+  if (photos.length < 20) throw new Error('Pexels returned too few photos')
+  return photos.slice(0, 20).map((photo) => image(photo.src.medium, { link: photo.url }))
 }
 
 export const abstract: CardProvider = { id: 'abstract', label: 'Abstract photos', icon: '🌀', description: 'Abstract imagery open to interpretation', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }

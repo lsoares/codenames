@@ -1,6 +1,6 @@
 import { text, type Face } from '../Face'
 import type { CardProvider } from './providers'
-import { datamuseWords, shuffle } from './words'
+import { datamuseWords, dictionaryLink, shuffle } from './words'
 
 // Tech-flavoured category seeds: Datamuse's "triggered by" turns these into geeky
 // nouns (software → BROWSER, SERVER, DESKTOP; hacker → PASSWORD, EXPLOIT), so the
@@ -43,7 +43,7 @@ async function fetch(): Promise<Face[]> {
       if (word) board.add(word)
     }
   }
-  return [...board].map((word) => text(word))
+  return [...board].map((word) => text(word, { link: dictionaryLink(word) }))
 }
 
 export const geeks: CardProvider = { id: 'geeks', label: 'Words 🤓', icon: '💻', description: 'Programming and tech words', credit: { label: 'Stack Overflow', url: 'https://stackoverflow.com' }, fetch }

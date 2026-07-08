@@ -111,6 +111,12 @@ function attribution(url: string): string | undefined {
   return `${titleize(match[2])} — ${titleize(match[1])}`
 }
 
+// The same slugs point at the artwork's WikiArt page.
+function wikiartPage(url: string): string | undefined {
+  const match = url.match(/\/images\/([^/]+)\/(.+)\.[a-z]+$/i)
+  return match ? `https://www.wikiart.org/en/${match[1]}/${match[2].replace(/\(\d+\)$/, '')}` : undefined
+}
+
 async function fetch(): Promise<Face[]> {
   const pool = shuffle(PAINTINGS)
   const faces = new Set<string>()
@@ -119,7 +125,9 @@ async function fetch(): Promise<Face[]> {
   }
 
   if (faces.size < 20) throw new Error('WikiArt returned too few images')
-  return [...faces].slice(0, 20).map((url) => image(url, attribution(url), 'contain'))
+  return [...faces]
+    .slice(0, 20)
+    .map((url) => image(url, { tooltip: attribution(url), fit: 'contain', link: wikiartPage(url) }))
 }
 
 export const abstractArt: CardProvider = {

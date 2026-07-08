@@ -4,6 +4,7 @@ import type { CardProvider } from './providers'
 interface UnsplashPhoto {
   urls: { small: string; regular: string }
   alt_description: string | null
+  links?: { html: string }
 }
 
 // Fetches 20 random photo URLs from Unsplash. Throws if no key is configured
@@ -20,7 +21,9 @@ async function fetch(): Promise<Face[]> {
   }
 
   const photos = (await response.json()) as UnsplashPhoto[]
-  return photos.map((photo) => image(photo.urls.small, photo.alt_description ?? undefined))
+  return photos.map((photo) =>
+    image(photo.urls.small, { tooltip: photo.alt_description ?? undefined, link: photo.links?.html }),
+  )
 }
 
 export const unsplash: CardProvider = {

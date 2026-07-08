@@ -17,6 +17,11 @@ interface DatamuseWord {
   tags?: string[]
 }
 
+// A word card's ↗ links to its dictionary entry, for players who don't know it.
+// Phrases and proper nouns (NEW YORK, LOCH NESS) may 404 — an acceptable miss.
+export const dictionaryLink = (word: string): string =>
+  `https://www.merriam-webster.com/dictionary/${encodeURIComponent(word.toLowerCase())}`
+
 export const shuffle = <T>(items: T[]): T[] => {
   const out = [...items]
   for (let i = out.length - 1; i > 0; i--) {
@@ -71,5 +76,6 @@ export const words: CardProvider = {
   icon: '🔤',
   description: 'Fresh everyday nouns generated from Datamuse',
   credit: { label: 'Datamuse', url: 'https://www.datamuse.com/api/' },
-  fetch: (): Promise<Face[]> => datamuseWords().then((words) => words.map((word) => text(word))),
+  fetch: (): Promise<Face[]> =>
+    datamuseWords().then((words) => words.map((word) => text(word, { link: dictionaryLink(word) }))),
 }

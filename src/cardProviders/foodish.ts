@@ -24,7 +24,7 @@ async function fetch(): Promise<Face[]> {
   // Foodish URLs embed the dish as a folder: …/images/biryani/biryani30.jpg
   return faces.slice(0, 20).map((url) => {
     const folder = url.split('/').slice(-2)[0] ?? ''
-    return image(url, folder.charAt(0).toUpperCase() + folder.slice(1))
+    return image(url, { tooltip: folder.charAt(0).toUpperCase() + folder.slice(1) })
   })
 }
 

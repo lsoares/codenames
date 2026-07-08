@@ -14,10 +14,10 @@ async function fetch(): Promise<Face[]> {
   return shuffle(ICONS)
     .slice(0, 20)
     .map((name) =>
-      icon(
-        `https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@6.5.2/svgs/solid/${name}.svg`,
-        name.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()),
-      ),
+      icon(`https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@6.5.2/svgs/solid/${name}.svg`, {
+        tooltip: name.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()),
+        link: `https://fontawesome.com/icons/${name}`,
+      }),
     )
 }
 

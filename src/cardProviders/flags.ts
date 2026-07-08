@@ -25,7 +25,7 @@ const FLAGS: [string, string][] = [
 async function fetch(): Promise<Face[]> {
   return shuffle(FLAGS)
     .slice(0, 20)
-    .map(([flag, country]) => glyph(flag, country))
+    .map(([flag, country]) => glyph(flag, { tooltip: country }))
 }
 
 export const flags: CardProvider = { id: 'flags', label: 'Flags', icon: '🌍', description: 'Country flags from around the world', hidden: true, fetch }
