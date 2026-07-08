@@ -15,18 +15,23 @@
   font-weight: 700;
   font-size: 1.15rem;
   line-height: 1;
-  color: var(--primary);
+  /* Muted at rest, blooming to full colour on hover — the text twin of the menu
+     button's sepia-to-colour icon, so the two corner tools read the same. */
+  color: var(--muted);
   background: var(--surface);
   border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
   border-radius: 999px;
   box-shadow: var(--shadow);
   cursor: pointer;
   opacity: 0.55;
-  transition: opacity 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease;
 }
 
 .info:hover {
   opacity: 1;
+  color: var(--primary);
 }
 
 /* Modal rules dialog — same surface and backdrop as the deck picker. */
