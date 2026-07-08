@@ -39,7 +39,7 @@
 /* Modal rules dialog — same surface and backdrop as the deck picker. */
 .dialog {
   position: relative;
-  width: min(480px, 100%);
+  width: min(600px, 100%);
   max-height: 90dvh;
   overflow: auto;
   padding: 24px 28px;
@@ -75,25 +75,25 @@
   gap: 16px;
 }
 
-/* The two looping beats (Clue + Guess), bracketed as one repeating unit. */
+/* The two looping beats (Spymaster + Operatives), bracketed as one repeating unit:
+   a centred header, then the two beats side by side, both aligned to the top. */
 .cycle {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 18px;
   padding: 16px 14px 14px;
   border-radius: 14px;
   background: color-mix(in srgb, var(--primary) 6%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
+/* Centred on the top border line, its background cutting the line like a fieldset
+   legend. */
 .cycleTag {
   position: absolute;
-  top: -9px;
-  left: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
   padding: 1px 8px;
   border-radius: 999px;
   background: var(--bg);
@@ -104,7 +104,25 @@
   letter-spacing: 0.07em;
 }
 
-/* The illustrated half — a soft framed stage the mini-diagram sits on. */
+.beats {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.beats > .strip {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 520px) {
+  .beats {
+    flex-direction: column;
+  }
+}
+
+/* The illustrated half — a transparent stage the mini-diagram sits on (no card
+   background; it rides the cycle box's own tint). */
 .panel {
   flex: none;
   width: 116px;
@@ -115,14 +133,54 @@
   justify-content: center;
   gap: 10px;
   padding: 10px;
-  border-radius: 12px;
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+/* A transparent, content-width illustration that sits beside its caption — no card
+   background, no white sides — for the compact Setup and End rows. */
+.scene {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* A team (or the board) stacked over its label / composition line. */
+.teamGroup,
+.boardGroup {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.teamGroup[data-team='red'] {
+  --c: var(--red);
+}
+
+.teamGroup[data-team='blue'] {
+  --c: var(--blue);
+}
+
+.teamLabel {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--c);
+}
+
+.compo {
+  max-width: 132px;
+  font-size: 0.62rem;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--muted);
 }
 
 .caption {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   line-height: 1.45;
 }
 
@@ -167,32 +225,107 @@
   --chip: #1c1c22;
 }
 
-/* A larger chip used in the guessing strip, with a pointing finger cue. */
-.chip[data-tap] {
-  width: 26px;
-  height: 26px;
-  border-radius: 5px;
-  position: relative;
+/* The cards the sample clue points at — lifted and ringed in the accent. */
+.chip[data-clued] {
+  box-shadow: 0 0 0 2px var(--primary);
+  transform: scale(1.15);
 }
 
-.chip[data-tap]::after {
-  content: '👆';
-  position: absolute;
-  right: -6px;
-  bottom: -10px;
-  font-size: 0.95rem;
-}
-
-/* Strip 2 — spymaster → clue pill. */
-.spy {
-  font-size: 1.7rem;
+/* The operatives' colourless board: a card face (a stand-in shape) with no team
+   colour, because they can't see who owns what. */
+.faceChip {
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ink) 9%, var(--surface));
+  color: color-mix(in srgb, var(--ink) 45%, transparent);
+  font-size: 8px;
   line-height: 1;
 }
 
-.arrow {
-  color: var(--muted);
-  font-size: 1.2rem;
+/* Strip 1 (Setup) is a taller intro: the two teams over a board that fades off the
+   bottom, with its caption below rather than beside it. */
+/* Caption sits above the illustration (column-reverse keeps the decorative panel
+   last in the DOM, so a screen reader still hits the text first). */
+.intro {
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: 12px;
 }
+
+/* team · board · team on one horizontal row, all centred to the same level. */
+.wide {
+  width: 100%;
+  min-height: 0;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 3vw, 22px);
+  padding: 14px;
+}
+
+/* Each team flanks the board as a vertical stack of three avatars. */
+.team {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  --c: var(--red);
+}
+
+.team[data-team='blue'] {
+  --c: var(--blue);
+}
+
+/* Every member is the same team-ringed avatar, aligned in a row; the spymaster
+   (🕵️, the one who sees) reads a touch larger and deeper-tinted than the two
+   operatives (👤). */
+.person {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  line-height: 1;
+  background: color-mix(in srgb, var(--c) 12%, var(--surface));
+  box-shadow: inset 0 0 0 2px var(--c);
+}
+
+.spy {
+  width: 31px;
+  height: 31px;
+  font-size: 1.05rem;
+  background: color-mix(in srgb, var(--c) 24%, var(--surface));
+}
+
+
+/* A picked card, flipped face-up: its real colour with a ✓ (right) or ✕ (wrong)
+   centred on it — white with a shadow so it reads on any colour. */
+.revealed {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.55);
+}
+
+/* Strip 2 (Clue) — the spymaster points one word at some of the cards. */
+.clueSpy {
+  --c: var(--primary);
+}
+
+.clueSource {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 
 .cluePill {
   display: inline-flex;
@@ -218,23 +351,10 @@
   color: #fff;
 }
 
-/* Strip 3 — a correct pick (keep going) beside a wrong one (turn ends). */
-.guess {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-/* Strip 4 — the two endings. */
-.outcome {
-  font-size: 1.9rem;
+/* Strip 4 (End) — the winning team's trophy beside the fully-revealed board. */
+.trophy {
+  font-size: 2rem;
   line-height: 1;
-}
-
-.outcome[data-bad] {
-  filter: grayscale(0.2);
 }
 
 @media (max-width: 460px) {
