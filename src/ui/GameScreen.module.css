@@ -327,7 +327,7 @@ button.spymasterSlot[data-mine] {
   left: 0;
   right: 0;
   top: 0;
-  padding: 0 8px;
+  padding: 0;
   z-index: 5;
   pointer-events: none;
   opacity: 0.5;

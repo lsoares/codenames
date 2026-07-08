@@ -1,6 +1,6 @@
 .bar {
   display: flex;
-  gap: 0;
+  gap: 1px;
   width: 100%;
   align-items: center;
 }
