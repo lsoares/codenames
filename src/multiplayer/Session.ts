@@ -1,5 +1,5 @@
 import type { Face } from '../Face'
-import type { CardFit, Credit, GameState, Team } from '../Game'
+import type { Credit, GameState, Team } from '../Game'
 import type { Seats } from './Room'
 
 // A wire message: what a player wants to do, sent guest → host as a plain
@@ -9,7 +9,7 @@ export type Action =
   | { type: 'guess'; cardIndex: number }
   | { type: 'toggleMark'; cardIndex: number; team: Team }
   | { type: 'endTurn' }
-  | { type: 'newGame'; faces?: Face[]; credit?: Credit | null; fit?: CardFit; deck?: string | null; rotate?: boolean }
+  | { type: 'newGame'; faces?: Face[]; credit?: Credit | null; deck?: string | null; rotate?: boolean }
 
 // Control frames on the same wire as Action/RoomView. A guest announces its
 // spymaster seat (Presence) or team (TeamClaim); both sides send a Ping so each

@@ -2,6 +2,7 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
 interface Pokemon {
+  name: string
   sprites: { other: { 'official-artwork': { front_default: string | null } } }
 }
 
@@ -24,11 +25,13 @@ async function fetch(): Promise<Face[]> {
 
   const faces = pokemon.flatMap((p) => {
     const url = p?.sprites.other['official-artwork'].front_default
-    return url ? [url] : []
+    return p && url ? [{ url, name: p.name }] : []
   })
 
   if (faces.length < 20) throw new Error('PokeAPI returned too few images')
-  return faces.slice(0, 20).map((url) => image(url))
+  return faces
+    .slice(0, 20)
+    .map(({ url, name }) => image(url, name.charAt(0).toUpperCase() + name.slice(1)))
 }
 
 export const pokemon: CardProvider = {

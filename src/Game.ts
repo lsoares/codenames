@@ -9,11 +9,6 @@ export interface Credit {
   readonly url: string
 }
 
-// How an image face fills its card: plain cover; contain to show the whole image
-// at its own ratio (no crop); or cover with a hair of zoom to crop the scanned
-// black frame off the official picture cards.
-export type CardFit = 'cover' | 'contain' | 'framed'
-
 // GameState (and everything it holds) is deeply readonly: a Game never mutates
 // its state in place — every operation returns a new Game — and `game.state` is
 // shared with the wire/persistence, so callers must treat it as immutable.
@@ -41,7 +36,6 @@ export interface GameState {
   readonly cards: readonly Card[]
   readonly deck: string | null // the picked deck's name, shown as the board type
   readonly credit: Credit | null // attribution for the deck's source, null when local
-  readonly fit: CardFit // how image faces fill their card
   readonly turn: Team
   readonly phase: GamePhase
   readonly clue: Clue | null
@@ -70,7 +64,6 @@ export function createGame(
   faces: readonly Face[],
   startingTeam: Team,
   credit: Credit | null = null,
-  fit: CardFit = 'cover',
   deck: string | null = null,
 ): GameState {
   const otherTeam: Team = startingTeam === 'red' ? 'blue' : 'red'
@@ -90,7 +83,6 @@ export function createGame(
     })),
     deck,
     credit,
-    fit,
     turn: startingTeam,
     phase: 'clue',
     clue: null,
@@ -160,13 +152,12 @@ export class Game {
 
   // A fresh game: new faces when the caller fetched some, else reshuffle the
   // current ones (keeping the deck's credit). Allowed even after a win.
-  newGame(faces?: readonly Face[], credit?: Credit | null, fit?: CardFit, deck?: string | null): Game {
+  newGame(faces?: readonly Face[], credit?: Credit | null, deck?: string | null): Game {
     return new Game(
       createGame(
         faces ?? this.s.cards.map((card) => card.face),
         Math.random() < 0.5 ? 'red' : 'blue',
         credit === undefined ? this.s.credit : credit,
-        fit ?? this.s.fit,
         deck === undefined ? this.s.deck : deck,
       ),
     )

@@ -21,7 +21,11 @@ async function fetch(): Promise<Face[]> {
 
   const faces = [...new Set(responses.flatMap((r) => (r ? [r.image] : [])))]
   if (faces.length < 20) throw new Error('Foodish returned too few images')
-  return faces.slice(0, 20).map((url) => image(url))
+  // Foodish URLs embed the dish as a folder: …/images/biryani/biryani30.jpg
+  return faces.slice(0, 20).map((url) => {
+    const folder = url.split('/').slice(-2)[0] ?? ''
+    return image(url, folder.charAt(0).toUpperCase() + folder.slice(1))
+  })
 }
 
 export const foodish: CardProvider = { id: 'foodish', label: 'Food', icon: '🍔', description: 'Photos of tasty dishes', credit: { label: 'Foodish', url: 'https://foodish-api.com' }, hidden: true, fetch }

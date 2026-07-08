@@ -10,6 +10,7 @@ const CATEGORIES = [
 
 interface PexelsPhoto {
   src: { medium: string }
+  alt: string
 }
 
 async function fetch(): Promise<Face[]> {
@@ -31,9 +32,14 @@ async function fetch(): Promise<Face[]> {
     ),
   )
 
-  const faces = [...new Set(shuffle(bodies.flatMap((body) => body.photos)).map((photo) => photo.src.medium))]
-  if (faces.length < 20) throw new Error('Pexels returned too few photos')
-  return faces.slice(0, 20).map((url) => image(url))
+  const seen = new Set<string>()
+  const photos = shuffle(bodies.flatMap((body) => body.photos)).filter((photo) => {
+    const fresh = !seen.has(photo.src.medium)
+    seen.add(photo.src.medium)
+    return fresh
+  })
+  if (photos.length < 20) throw new Error('Pexels returned too few photos')
+  return photos.slice(0, 20).map((photo) => image(photo.src.medium, photo.alt || undefined))
 }
 
 export const things: CardProvider = { id: 'things', label: 'Things', icon: '🧩', description: 'Concrete, easily-named everyday objects', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, hidden: true, fetch }

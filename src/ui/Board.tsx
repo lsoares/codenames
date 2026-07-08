@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import type { Face } from '../Face'
-import { Game, type Card, type CardFit, type GuessOutcome, type Team } from '../Game'
+import { Game, type Card, type GuessOutcome, type Team } from '../Game'
 import styles from './Board.module.css'
 
 const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
@@ -11,9 +11,9 @@ const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
 }
 
 // Each face kind renders its own way: a glyph big, a word sized to read, a photo
-// full-bleed (per the deck's fit), a pictogram as a recolorable mask. The switch
-// is exhaustive over Face — a new kind won't compile until it's handled here.
-function renderFace(face: Face, fit: CardFit) {
+// full-bleed (per its own fit), a pictogram as a recolorable mask. The switch is
+// exhaustive over Face — a new kind won't compile until it's handled here.
+function renderFace(face: Face) {
   switch (face.kind) {
     case 'glyph':
       return <span className={`${styles.face} ${styles.word} ${styles.big}`}>{face.text}</span>
@@ -24,7 +24,7 @@ function renderFace(face: Face, fit: CardFit) {
         <span className={`${styles.face} ${styles.imageWrap}`}>
           <img
             className={`${styles.image} ${
-              fit === 'framed' ? styles.framed : fit === 'contain' ? styles.contain : ''
+              face.fit === 'framed' ? styles.framed : face.fit === 'contain' ? styles.contain : ''
             }`}
             src={face.url}
             alt=""
@@ -144,7 +144,7 @@ export default function Board(props: {
               {props.loading ? (
                 <span className={`${styles.face} ${styles.loading}`} />
               ) : (
-                renderFace(card.face, props.game.state.fit)
+                renderFace(card.face)
               )}
               {badge && (
                 <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>

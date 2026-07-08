@@ -3,6 +3,7 @@ import type { CardProvider } from './providers'
 
 interface PexelsPhoto {
   src: { medium: string; small: string }
+  alt: string
 }
 
 // Fetches 20 curated photo URLs from Pexels. A random page keeps successive
@@ -22,7 +23,7 @@ async function fetch(): Promise<Face[]> {
   }
 
   const { photos } = (await response.json()) as { photos: PexelsPhoto[] }
-  return photos.map((photo) => image(photo.src.medium))
+  return photos.map((photo) => image(photo.src.medium, photo.alt || undefined))
 }
 
 export const pexels: CardProvider = { id: 'pexels', label: 'Curated', icon: '🖼️', description: 'Curated editorial photos from Pexels', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }

@@ -95,6 +95,22 @@ function loads(src: string): Promise<string | null> {
   })
 }
 
+// WikiArt URLs encode the artist and work: …/images/wassily-kandinsky/white-oval-1919.jpg
+// → "White Oval — Wassily Kandinsky". Best-effort; odd slugs just read a little rough.
+function attribution(url: string): string | undefined {
+  const match = url.match(/\/images\/([^/]+)\/(.+)\.[a-z]+$/i)
+  if (!match) return undefined
+  const titleize = (slug: string): string =>
+    slug
+      .replace(/-web-\d+x\d+$/, '')
+      .replace(/\(\d+\)$/, '')
+      .replace(/-\d+$/, '')
+      .replace(/-/g, ' ')
+      .trim()
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+  return `${titleize(match[2])} — ${titleize(match[1])}`
+}
+
 async function fetch(): Promise<Face[]> {
   const pool = shuffle(PAINTINGS)
   const faces = new Set<string>()
@@ -103,7 +119,7 @@ async function fetch(): Promise<Face[]> {
   }
 
   if (faces.size < 20) throw new Error('WikiArt returned too few images')
-  return [...faces].slice(0, 20).map((url) => image(url))
+  return [...faces].slice(0, 20).map((url) => image(url, attribution(url), 'contain'))
 }
 
 export const abstractArt: CardProvider = {
@@ -112,7 +128,6 @@ export const abstractArt: CardProvider = {
   icon: '🎨',
   description: 'Genuinely abstract painting from WikiArt',
   credit: { label: 'WikiArt', url: 'https://www.wikiart.org' },
-  fit: 'contain',
   hidden: true,
   fetch,
 }

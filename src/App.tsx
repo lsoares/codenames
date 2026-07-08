@@ -142,8 +142,8 @@ export default function App() {
   const newGame = async (id: string, rotate = false) => {
     setLoadingFaces(true)
     try {
-      const { faces, credit, fit, deck } = await getFaces(id)
-      sessionRef.current?.dispatch({ type: 'newGame', faces, credit, fit, deck, rotate })
+      const { faces, credit, deck } = await getFaces(id)
+      sessionRef.current?.dispatch({ type: 'newGame', faces, credit, deck, rotate })
     } finally {
       setLoadingFaces(false)
     }
@@ -197,11 +197,11 @@ export default function App() {
     // No loading screen: hosting is quick, so stay on the homepage until the
     // board is ready rather than flashing an intermediate card. Only a failure
     // surfaces a status (below).
-    const { faces, credit, fit, deck } = await getFaces(id)
+    const { faces, credit, deck } = await getFaces(id)
     // Tests can pin the starting team for determinism; players get a random one.
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
-      wire(await Host.start(faces, start, credit, fit, deck, code), true)
+      wire(await Host.start(faces, start, credit, deck, code), true)
     } catch (error) {
       if (code && (error as { type?: string })?.type === 'unavailable-id') {
         const joined = await Guest.join(code)

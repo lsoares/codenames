@@ -10,7 +10,7 @@ const BASE =
 async function fetch(): Promise<Face[]> {
   return shuffle(Array.from({ length: 280 }, (_, i) => i))
     .slice(0, 20)
-    .map((n) => image(`${BASE}/card-${n}.jpg`))
+    .map((n) => image(`${BASE}/card-${n}.jpg`, undefined, 'framed'))
 }
 
 export const official: CardProvider = {
@@ -19,6 +19,5 @@ export const official: CardProvider = {
   icon: '🕵️',
   description: 'The official Codenames Pictures cards',
   credit: { label: 'Codenames Pictures', url: 'https://czechgames.com/en/codenames-pictures/' },
-  fit: 'framed',
   fetch,
 }

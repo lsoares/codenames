@@ -13,7 +13,12 @@ const ICONS = [
 async function fetch(): Promise<Face[]> {
   return shuffle(ICONS)
     .slice(0, 20)
-    .map((name) => icon(`https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@6.5.2/svgs/solid/${name}.svg`))
+    .map((name) =>
+      icon(
+        `https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@6.5.2/svgs/solid/${name}.svg`,
+        name.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()),
+      ),
+    )
 }
 
 export const icons: CardProvider = { id: 'icons', label: 'Pictograms', icon: '✳️', description: 'Simple Font Awesome pictograms', credit: { label: 'Font Awesome', url: 'https://fontawesome.com' }, fetch }

@@ -4,6 +4,7 @@ import { shuffle } from './words'
 
 interface TmdbMovie {
   backdrop_path: string | null
+  title: string
 }
 
 // Fetches 20 movie backdrops from TMDB — wide film stills that make recognizable
@@ -29,7 +30,7 @@ async function fetch(): Promise<Face[]> {
 
   const faces = shuffle(bodies.flatMap((body) => body.results))
     .filter((movie) => movie.backdrop_path)
-    .map((movie) => image(`https://image.tmdb.org/t/p/w780${movie.backdrop_path}`))
+    .map((movie) => image(`https://image.tmdb.org/t/p/w780${movie.backdrop_path}`, movie.title))
 
   if (faces.length < 20) throw new Error('TMDB returned too few backdrops')
   return faces.slice(0, 20)

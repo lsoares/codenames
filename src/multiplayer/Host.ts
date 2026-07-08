@@ -1,6 +1,6 @@
 import { type DataConnection } from 'peerjs'
 import type { Face } from '../Face'
-import { Game, createGame, type CardFit, type Credit, type GameState } from '../Game'
+import { Game, createGame, type Credit, type GameState } from '../Game'
 import { Room } from './Room'
 import { iceServersReady, logConnection, newPeer, randomRoomCode } from './peer'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
@@ -16,7 +16,7 @@ const apply = (game: Game, action: Action): Game => {
     case 'endTurn':
       return game.endTurn()
     case 'newGame':
-      return game.newGame(action.faces, action.credit, action.fit, action.deck)
+      return game.newGame(action.faces, action.credit, action.deck)
   }
 }
 
@@ -60,11 +60,10 @@ export class Host implements Session {
     faces: Face[],
     startingTeam: 'red' | 'blue',
     credit: Credit | null,
-    fit: CardFit,
     deck: string,
     code?: string,
   ): Promise<Host> {
-    return Host.launch(code ?? randomRoomCode(), createGame(faces, startingTeam, credit, fit, deck), 'new', 4, code != null)
+    return Host.launch(code ?? randomRoomCode(), createGame(faces, startingTeam, credit, deck), 'new', 4, code != null)
   }
 
   // Re-host an existing game under the same room code (host reload or FIFO

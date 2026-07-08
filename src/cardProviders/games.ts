@@ -4,6 +4,7 @@ import { shuffle } from './words'
 
 interface RawgGame {
   background_image: string | null
+  name: string
 }
 
 // Fetches 20 game artworks from RAWG. Orders by Metacritic so the board reads as
@@ -23,10 +24,10 @@ async function fetch(): Promise<Face[]> {
   const body = (await response.json()) as { results: RawgGame[] }
 
   const faces = shuffle(body.results)
-    .flatMap((game) => (game.background_image ? [game.background_image] : []))
+    .flatMap((game) => (game.background_image ? [{ url: game.background_image, name: game.name }] : []))
 
   if (faces.length < 20) throw new Error('RAWG returned too few images')
-  return faces.slice(0, 20).map((url) => image(url))
+  return faces.slice(0, 20).map(({ url, name }) => image(url, name))
 }
 
 export const games: CardProvider = { id: 'games', label: 'Games', icon: '🎮', description: 'Artwork from acclaimed video games', credit: { label: 'RAWG', url: 'https://rawg.io' }, hidden: true, fetch }

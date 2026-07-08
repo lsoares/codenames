@@ -19,7 +19,7 @@ import { icons } from './icons'
 import { official } from './official'
 import { officialWords } from './officialWords'
 import type { Face } from '../Face'
-import type { CardFit, Credit } from '../Game'
+import type { Credit } from '../Game'
 
 // A source of card faces. `fetch` resolves to 20 faces — text, photos, or icons,
 // each declaring its own kind — or throws when it can't (missing key, network
@@ -30,7 +30,6 @@ export interface CardProvider {
   icon: string // emoji shown on the deck-picker tile
   description: string // shown as the tile's hover tooltip
   credit?: Credit // deck-source attribution shown on the board; omitted for local decks
-  fit?: CardFit // how its image faces fill a card; defaults to 'cover'
   hidden?: boolean // a long-tail deck, tucked behind the picker's "+" until opened
   fetch: () => Promise<Face[]>
 }
@@ -44,11 +43,11 @@ export const providers: CardProvider[] = [officialWords, official, words, geeks,
 // game can always start.
 export async function getFaces(
   providerId: string,
-): Promise<{ faces: Face[]; credit: Credit | null; fit: CardFit; deck: string }> {
+): Promise<{ faces: Face[]; credit: Credit | null; deck: string }> {
   const provider = providers.find((p) => p.id === providerId) ?? unsplash
   try {
-    return { faces: await provider.fetch(), credit: provider.credit ?? null, fit: provider.fit ?? 'cover', deck: provider.label }
+    return { faces: await provider.fetch(), credit: provider.credit ?? null, deck: provider.label }
   } catch {
-    return { faces: await officialWords.fetch(), credit: officialWords.credit ?? null, fit: 'cover', deck: officialWords.label }
+    return { faces: await officialWords.fetch(), credit: officialWords.credit ?? null, deck: officialWords.label }
   }
 }
