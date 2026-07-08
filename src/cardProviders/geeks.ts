@@ -1,3 +1,4 @@
+import { text, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { datamuseWords, shuffle } from './words'
 
@@ -31,7 +32,7 @@ async function stackOverflowTags(): Promise<string[]> {
 // A geek board blends programming tags with the general word bank. Alternate
 // between the two sources so it's a genuine mix rather than whichever list came
 // back longer, and stop at a full board of 20 (or fewer if both run dry).
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const [tagList, dictionary] = await Promise.all([stackOverflowTags(), datamuseWords(20, GEEK_SEEDS)])
   const tags = shuffle(tagList)
   const board = new Set<string>()
@@ -42,7 +43,7 @@ async function fetch(): Promise<string[]> {
       if (word) board.add(word)
     }
   }
-  return [...board]
+  return [...board].map((word) => text(word))
 }
 
 export const geeks: CardProvider = { id: 'geeks', label: 'Words 🤓', icon: '💻', description: 'Programming and tech words', credit: { label: 'Stack Overflow', url: 'https://stackoverflow.com' }, fetch }

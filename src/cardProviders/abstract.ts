@@ -1,3 +1,4 @@
+import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -10,7 +11,7 @@ interface PexelsPhoto {
   src: { medium: string }
 }
 
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const key = import.meta.env.VITE_PEXELS_API_KEY
   if (!key) throw new Error('Missing VITE_PEXELS_API_KEY')
 
@@ -31,7 +32,7 @@ async function fetch(): Promise<string[]> {
 
   const faces = [...new Set(shuffle(bodies.flatMap((body) => body.photos)).map((photo) => photo.src.medium))]
   if (faces.length < 20) throw new Error('Pexels returned too few photos')
-  return faces.slice(0, 20)
+  return faces.slice(0, 20).map((url) => image(url))
 }
 
 export const abstract: CardProvider = { id: 'abstract', label: 'Abstract photos', icon: '🌀', description: 'Abstract imagery open to interpretation', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }

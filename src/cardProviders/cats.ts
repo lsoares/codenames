@@ -1,3 +1,4 @@
+import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
 interface CatImage {
@@ -6,7 +7,7 @@ interface CatImage {
 
 // Fetches 20 random cat photos from The Cat API. Throws if no key is configured
 // or the request fails, so the caller can fall back to another provider.
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const key = import.meta.env.VITE_THECATAPI_KEY
   if (!key) throw new Error('Missing VITE_THECATAPI_KEY')
 
@@ -19,7 +20,7 @@ async function fetch(): Promise<string[]> {
   }
 
   const images = (await response.json()) as CatImage[]
-  return images.map((image) => image.url)
+  return images.map((cat) => image(cat.url))
 }
 
 export const cats: CardProvider = { id: 'cats', label: 'Cats', icon: '🐱', description: 'Random cat photos', credit: { label: 'The Cat API', url: 'https://thecatapi.com' }, hidden: true, fetch }

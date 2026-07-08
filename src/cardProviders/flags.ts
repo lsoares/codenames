@@ -1,16 +1,31 @@
+import { glyph, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-const FLAGS = [
-  '🇬🇧', '🇫🇷', '🇩🇪', '🇮🇹', '🇪🇸', '🇵🇹', '🇳🇱', '🇧🇪', '🇨🇭', '🇦🇹', '🇸🇪', '🇳🇴', '🇩🇰', '🇫🇮',
-  '🇮🇪', '🇵🇱', '🇬🇷', '🇨🇿', '🇭🇺', '🇷🇴', '🇺🇦', '🇷🇺', '🇮🇸', '🇭🇷', '🇺🇸', '🇨🇦', '🇲🇽', '🇧🇷',
-  '🇦🇷', '🇨🇱', '🇨🇴', '🇵🇪', '🇺🇾', '🇻🇪', '🇨🇺', '🇯🇲', '🇯🇵', '🇨🇳', '🇰🇷', '🇮🇳', '🇹🇭', '🇻🇳',
-  '🇵🇭', '🇮🇩', '🇲🇾', '🇸🇬', '🇵🇰', '🇧🇩', '🇮🇱', '🇸🇦', '🇦🇪', '🇹🇷', '🇮🇷', '🇮🇶', '🇳🇵', '🇿🇦',
-  '🇪🇬', '🇳🇬', '🇰🇪', '🇲🇦', '🇬🇭', '🇪🇹', '🇹🇳', '🇩🇿', '🇸🇳', '🇦🇺', '🇳🇿', '🇫🇯',
+const FLAGS: [string, string][] = [
+  ['🇬🇧', 'United Kingdom'], ['🇫🇷', 'France'], ['🇩🇪', 'Germany'], ['🇮🇹', 'Italy'],
+  ['🇪🇸', 'Spain'], ['🇵🇹', 'Portugal'], ['🇳🇱', 'Netherlands'], ['🇧🇪', 'Belgium'],
+  ['🇨🇭', 'Switzerland'], ['🇦🇹', 'Austria'], ['🇸🇪', 'Sweden'], ['🇳🇴', 'Norway'],
+  ['🇩🇰', 'Denmark'], ['🇫🇮', 'Finland'], ['🇮🇪', 'Ireland'], ['🇵🇱', 'Poland'],
+  ['🇬🇷', 'Greece'], ['🇨🇿', 'Czechia'], ['🇭🇺', 'Hungary'], ['🇷🇴', 'Romania'],
+  ['🇺🇦', 'Ukraine'], ['🇷🇺', 'Russia'], ['🇮🇸', 'Iceland'], ['🇭🇷', 'Croatia'],
+  ['🇺🇸', 'United States'], ['🇨🇦', 'Canada'], ['🇲🇽', 'Mexico'], ['🇧🇷', 'Brazil'],
+  ['🇦🇷', 'Argentina'], ['🇨🇱', 'Chile'], ['🇨🇴', 'Colombia'], ['🇵🇪', 'Peru'],
+  ['🇺🇾', 'Uruguay'], ['🇻🇪', 'Venezuela'], ['🇨🇺', 'Cuba'], ['🇯🇲', 'Jamaica'],
+  ['🇯🇵', 'Japan'], ['🇨🇳', 'China'], ['🇰🇷', 'South Korea'], ['🇮🇳', 'India'],
+  ['🇹🇭', 'Thailand'], ['🇻🇳', 'Vietnam'], ['🇵🇭', 'Philippines'], ['🇮🇩', 'Indonesia'],
+  ['🇲🇾', 'Malaysia'], ['🇸🇬', 'Singapore'], ['🇵🇰', 'Pakistan'], ['🇧🇩', 'Bangladesh'],
+  ['🇮🇱', 'Israel'], ['🇸🇦', 'Saudi Arabia'], ['🇦🇪', 'United Arab Emirates'], ['🇹🇷', 'Turkey'],
+  ['🇮🇷', 'Iran'], ['🇮🇶', 'Iraq'], ['🇳🇵', 'Nepal'], ['🇿🇦', 'South Africa'],
+  ['🇪🇬', 'Egypt'], ['🇳🇬', 'Nigeria'], ['🇰🇪', 'Kenya'], ['🇲🇦', 'Morocco'],
+  ['🇬🇭', 'Ghana'], ['🇪🇹', 'Ethiopia'], ['🇹🇳', 'Tunisia'], ['🇩🇿', 'Algeria'],
+  ['🇸🇳', 'Senegal'], ['🇦🇺', 'Australia'], ['🇳🇿', 'New Zealand'], ['🇫🇯', 'Fiji'],
 ]
 
-async function fetch(): Promise<string[]> {
-  return shuffle(FLAGS).slice(0, 20)
+async function fetch(): Promise<Face[]> {
+  return shuffle(FLAGS)
+    .slice(0, 20)
+    .map(([flag, country]) => glyph(flag, country))
 }
 
 export const flags: CardProvider = { id: 'flags', label: 'Flags', icon: '🌍', description: 'Country flags from around the world', hidden: true, fetch }

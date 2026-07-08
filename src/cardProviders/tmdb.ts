@@ -1,3 +1,4 @@
+import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -10,7 +11,7 @@ interface TmdbMovie {
 // and acclaimed classics; a random page varies boards between games. Throws if no
 // key is configured or a request fails, so the caller can fall back to another
 // provider.
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const key = import.meta.env.VITE_TMDB_API_KEY
   if (!key) throw new Error('Missing VITE_TMDB_API_KEY')
 
@@ -28,7 +29,7 @@ async function fetch(): Promise<string[]> {
 
   const faces = shuffle(bodies.flatMap((body) => body.results))
     .filter((movie) => movie.backdrop_path)
-    .map((movie) => `https://image.tmdb.org/t/p/w780${movie.backdrop_path}`)
+    .map((movie) => image(`https://image.tmdb.org/t/p/w780${movie.backdrop_path}`))
 
   if (faces.length < 20) throw new Error('TMDB returned too few backdrops')
   return faces.slice(0, 20)

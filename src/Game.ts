@@ -1,3 +1,5 @@
+import type { Face } from './Face'
+
 export type Team = 'red' | 'blue'
 export type CardColor = 'red' | 'blue' | 'neutral' | 'assassin'
 export type GamePhase = 'clue' | 'guess'
@@ -16,7 +18,7 @@ export type CardFit = 'cover' | 'contain' | 'framed'
 // its state in place — every operation returns a new Game — and `game.state` is
 // shared with the wire/persistence, so callers must treat it as immutable.
 export interface Card {
-  readonly face: string // an image URL or a word — the board renders whichever it is
+  readonly face: Face // text, photo, or icon — the deck declares which; the board renders by kind
   readonly color: CardColor
   readonly revealed: boolean
   readonly markedBy: readonly Team[] // operative candidate notes, private to each team
@@ -65,7 +67,7 @@ export interface Transition {
 }
 
 export function createGame(
-  faces: string[],
+  faces: readonly Face[],
   startingTeam: Team,
   credit: Credit | null = null,
   fit: CardFit = 'cover',
@@ -158,7 +160,7 @@ export class Game {
 
   // A fresh game: new faces when the caller fetched some, else reshuffle the
   // current ones (keeping the deck's credit). Allowed even after a win.
-  newGame(faces?: string[], credit?: Credit | null, fit?: CardFit, deck?: string | null): Game {
+  newGame(faces?: readonly Face[], credit?: Credit | null, fit?: CardFit, deck?: string | null): Game {
     return new Game(
       createGame(
         faces ?? this.s.cards.map((card) => card.face),

@@ -1,3 +1,4 @@
+import { text, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
 // Concrete, picturable categories. Datamuse's "triggered by" (rel_trg) returns
@@ -70,5 +71,5 @@ export const words: CardProvider = {
   icon: '🔤',
   description: 'Fresh everyday nouns generated from Datamuse',
   credit: { label: 'Datamuse', url: 'https://www.datamuse.com/api/' },
-  fetch: () => datamuseWords(),
+  fetch: (): Promise<Face[]> => datamuseWords().then((words) => words.map((word) => text(word))),
 }

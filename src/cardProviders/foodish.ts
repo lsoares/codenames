@@ -1,3 +1,4 @@
+import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
 interface FoodishImage {
@@ -8,7 +9,7 @@ interface FoodishImage {
 // so we fire a batch in parallel and dedupe — plated dishes make vivid, easily
 // named card faces. Throws if too few come back (network error) so the caller
 // can fall back to another provider. No key required.
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const responses = await Promise.all(
     Array.from({ length: 30 }, () =>
       window
@@ -20,7 +21,7 @@ async function fetch(): Promise<string[]> {
 
   const faces = [...new Set(responses.flatMap((r) => (r ? [r.image] : [])))]
   if (faces.length < 20) throw new Error('Foodish returned too few images')
-  return faces.slice(0, 20)
+  return faces.slice(0, 20).map((url) => image(url))
 }
 
 export const foodish: CardProvider = { id: 'foodish', label: 'Food', icon: '🍔', description: 'Photos of tasty dishes', credit: { label: 'Foodish', url: 'https://foodish-api.com' }, hidden: true, fetch }

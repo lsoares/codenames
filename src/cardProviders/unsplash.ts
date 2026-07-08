@@ -1,3 +1,4 @@
+import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
 interface UnsplashPhoto {
@@ -6,7 +7,7 @@ interface UnsplashPhoto {
 
 // Fetches 20 random photo URLs from Unsplash. Throws if no key is configured
 // or the request fails, so the caller can fall back to another provider.
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const key = import.meta.env.VITE_UNSPLASH_ACCESS_KEY
   if (!key) throw new Error('Missing VITE_UNSPLASH_ACCESS_KEY')
 
@@ -18,7 +19,7 @@ async function fetch(): Promise<string[]> {
   }
 
   const photos = (await response.json()) as UnsplashPhoto[]
-  return photos.map((photo) => photo.urls.small)
+  return photos.map((photo) => image(photo.urls.small))
 }
 
 export const unsplash: CardProvider = {

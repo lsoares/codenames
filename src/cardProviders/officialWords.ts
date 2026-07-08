@@ -1,3 +1,4 @@
+import { text, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -54,8 +55,10 @@ const WORDS = [
   'WEB', 'WELL', 'WHALE', 'WHIP', 'WIND', 'WITCH', 'WORM', 'YARD',
 ]
 
-async function fetch(): Promise<string[]> {
-  return shuffle(WORDS).slice(0, 20)
+async function fetch(): Promise<Face[]> {
+  return shuffle(WORDS)
+    .slice(0, 20)
+    .map((word) => text(word))
 }
 
 export const officialWords: CardProvider = {

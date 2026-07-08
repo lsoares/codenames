@@ -1,3 +1,4 @@
+import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
 interface Pokemon {
@@ -8,7 +9,7 @@ interface Pokemon {
 // so boards vary between games — the iconic silhouettes and names make strong
 // card faces. Throws if too few have artwork or a request fails, so the caller
 // can fall back to another provider. No key required.
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const ids = new Set<number>()
   while (ids.size < 30) ids.add(Math.floor(Math.random() * 1025) + 1)
 
@@ -27,7 +28,7 @@ async function fetch(): Promise<string[]> {
   })
 
   if (faces.length < 20) throw new Error('PokeAPI returned too few images')
-  return faces.slice(0, 20)
+  return faces.slice(0, 20).map((url) => image(url))
 }
 
 export const pokemon: CardProvider = {

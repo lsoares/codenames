@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
-import { Game, type Card, type GuessOutcome, type Team } from '../Game'
+import type { Face } from '../Face'
+import { Game, type Card, type CardFit, type GuessOutcome, type Team } from '../Game'
 import styles from './Board.module.css'
 
 const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
@@ -9,9 +10,37 @@ const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
   assassin: { emoji: '💀', label: 'assassin' },
 }
 
-const isImageFace = (face: string): boolean => /^https?:\/\//.test(face)
-const isSingleGlyph = (face: string): boolean =>
-  [...new Intl.Segmenter().segment(face)].length === 1
+// Each face kind renders its own way: a glyph big, a word sized to read, a photo
+// full-bleed (per the deck's fit), a pictogram as a recolorable mask. The switch
+// is exhaustive over Face — a new kind won't compile until it's handled here.
+function renderFace(face: Face, fit: CardFit) {
+  switch (face.kind) {
+    case 'glyph':
+      return <span className={`${styles.face} ${styles.word} ${styles.big}`}>{face.text}</span>
+    case 'text':
+      return <span className={`${styles.face} ${styles.word}`}>{face.text}</span>
+    case 'image':
+      return (
+        <span className={`${styles.face} ${styles.imageWrap}`}>
+          <img
+            className={`${styles.image} ${
+              fit === 'framed' ? styles.framed : fit === 'contain' ? styles.contain : ''
+            }`}
+            src={face.url}
+            alt=""
+            draggable={false}
+          />
+        </span>
+      )
+    case 'icon':
+      return (
+        <span
+          className={`${styles.face} ${styles.svgIcon}`}
+          style={{ ['--mask']: `url("${face.url}")` } as CSSProperties}
+        />
+      )
+  }
+}
 
 export default function Board(props: {
   game: Game
@@ -75,8 +104,9 @@ export default function Board(props: {
         // Once the game is won every card reads as revealed — laid face-up, out of
         // play — even the ones nobody guessed.
         const revealed = card.revealed || gameOver
-        // Word/emoji cards are named by their face; picture cards by position.
-        const name = isImageFace(card.face) ? `Card ${index + 1}` : card.face
+        // Word/glyph cards are named by their text; picture cards by position.
+        const name =
+          card.face.kind === 'text' || card.face.kind === 'glyph' ? card.face.text : `Card ${index + 1}`
         // Announce an operative's own-team mark so it's perceivable without sight.
         const marked = !isSpymaster && highlighted(card, index)
         const label = showColor ? `${name}, ${card.color}` : marked ? `${name}, marked` : name
@@ -94,6 +124,7 @@ export default function Board(props: {
             <button
               className={styles.card}
               aria-label={label}
+              title={card.face.tooltip}
               data-color={showColor ? card.color : undefined}
               data-mine={
                 (isSpymaster && !card.revealed && card.color === props.spymasterTeam) ||
@@ -112,34 +143,8 @@ export default function Board(props: {
             >
               {props.loading ? (
                 <span className={`${styles.face} ${styles.loading}`} />
-              ) : card.face.endsWith('.svg') ? (
-                <span
-                  className={`${styles.face} ${styles.svgIcon}`}
-                  style={{ ['--mask']: `url("${card.face}")` } as CSSProperties}
-                />
-              ) : isImageFace(card.face) ? (
-                <span className={`${styles.face} ${styles.imageWrap}`}>
-                  <img
-                    className={`${styles.image} ${
-                      props.game.state.fit === 'framed'
-                        ? styles.framed
-                        : props.game.state.fit === 'contain'
-                          ? styles.contain
-                          : ''
-                    }`}
-                    src={card.face}
-                    alt=""
-                    draggable={false}
-                  />
-                </span>
               ) : (
-                <span
-                  className={`${styles.face} ${styles.word} ${
-                    isSingleGlyph(card.face) ? styles.big : ''
-                  }`}
-                >
-                  {card.face}
-                </span>
+                renderFace(card.face, props.game.state.fit)
               )}
               {badge && (
                 <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>

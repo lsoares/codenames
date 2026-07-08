@@ -1,4 +1,5 @@
 import { type DataConnection } from 'peerjs'
+import type { Face } from '../Face'
 import { Game, createGame, type CardFit, type Credit, type GameState } from '../Game'
 import { Room } from './Room'
 import { iceServersReady, logConnection, newPeer, randomRoomCode } from './peer'
@@ -56,7 +57,7 @@ export class Host implements Session {
   }
 
   static start(
-    faces: string[],
+    faces: Face[],
     startingTeam: 'red' | 'blue',
     credit: Credit | null,
     fit: CardFit,

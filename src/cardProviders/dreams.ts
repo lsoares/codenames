@@ -1,3 +1,4 @@
+import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -14,7 +15,7 @@ function loads(src: string): Promise<string | null> {
   })
 }
 
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const ids = shuffle(Array.from({ length: 305 }, (_, i) => i + 1))
   const faces = new Set<string>()
   for (let i = 0; i < ids.length && faces.size < 20; i += 26) {
@@ -23,7 +24,7 @@ async function fetch(): Promise<string[]> {
   }
 
   if (faces.size < 20) throw new Error('This Image Does Not Exist returned too few images')
-  return [...faces].slice(0, 20)
+  return [...faces].slice(0, 20).map((url) => image(url))
 }
 
 export const dreams: CardProvider = {

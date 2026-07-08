@@ -1,3 +1,4 @@
+import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -10,7 +11,7 @@ interface RawgGame {
 // page over the top few hundred keeps boards varied between games. Throws if no
 // key is configured or a request fails, so the caller can fall back to another
 // provider.
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const key = import.meta.env.VITE_RAWG_API_KEY
   if (!key) throw new Error('Missing VITE_RAWG_API_KEY')
 
@@ -25,7 +26,7 @@ async function fetch(): Promise<string[]> {
     .flatMap((game) => (game.background_image ? [game.background_image] : []))
 
   if (faces.length < 20) throw new Error('RAWG returned too few images')
-  return faces.slice(0, 20)
+  return faces.slice(0, 20).map((url) => image(url))
 }
 
 export const games: CardProvider = { id: 'games', label: 'Games', icon: '🎮', description: 'Artwork from acclaimed video games', credit: { label: 'RAWG', url: 'https://rawg.io' }, hidden: true, fetch }

@@ -1,3 +1,4 @@
+import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
 // Picbreeder has no API. Its CPPN-evolved images are published as pre-rendered
@@ -14,7 +15,7 @@ function loads(src: string): Promise<string | null> {
   })
 }
 
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const faces = new Set<string>()
   for (let round = 0; round < 5 && faces.size < 20; round++) {
     const batch = Array.from(
@@ -25,7 +26,7 @@ async function fetch(): Promise<string[]> {
   }
 
   if (faces.size < 20) throw new Error('Picbreeder returned too few images')
-  return [...faces].slice(0, 20)
+  return [...faces].slice(0, 20).map((url) => image(url))
 }
 
 export const picbreeder: CardProvider = {

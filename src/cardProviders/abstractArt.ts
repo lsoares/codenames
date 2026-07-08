@@ -1,3 +1,4 @@
+import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -94,7 +95,7 @@ function loads(src: string): Promise<string | null> {
   })
 }
 
-async function fetch(): Promise<string[]> {
+async function fetch(): Promise<Face[]> {
   const pool = shuffle(PAINTINGS)
   const faces = new Set<string>()
   for (let i = 0; i < pool.length && faces.size < 20; i += 26) {
@@ -102,7 +103,7 @@ async function fetch(): Promise<string[]> {
   }
 
   if (faces.size < 20) throw new Error('WikiArt returned too few images')
-  return [...faces].slice(0, 20)
+  return [...faces].slice(0, 20).map((url) => image(url))
 }
 
 export const abstractArt: CardProvider = {
