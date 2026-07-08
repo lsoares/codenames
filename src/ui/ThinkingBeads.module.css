@@ -28,20 +28,8 @@
   --bead-color: #9aa0a6;
 }
 
-/* The current minute: eased size growth (driven by an inline scale that steps each
-   second) plus a slow blink, so it reads as alive and filling. */
-.growing {
-  transform-origin: center;
-  transition: transform 1s linear;
-  animation: beadBlink 1.6s ease-in-out infinite;
-}
-
-@keyframes beadBlink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.35;
-  }
+/* The current minute: a full-size dot that fades in from faint to solid over its
+   minute (opacity stepped inline each second), so it reads as quietly filling. */
+.fading {
+  transition: opacity 1s linear;
 }

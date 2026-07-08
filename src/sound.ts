@@ -56,14 +56,16 @@ async function load(sound: Sound): Promise<AudioBuffer | null> {
   return buffer
 }
 
-export function playSound(sound: Sound): void {
+// `volume` scales this cue relative to the others (1 = the standard level), for a
+// cue that should sit quieter than the rest — e.g. the recurring minute tick.
+export function playSound(sound: Sound, volume = 1): void {
   ctx ??= new (window.AudioContext ?? (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
   void ctx.resume()
   void load(sound).then((buffer) => {
     if (!buffer || !ctx) return
     const source = ctx.createBufferSource()
     const gain = ctx.createGain()
-    gain.gain.value = 0.5 // the samples are normalised loud; keep cues in the background
+    gain.gain.value = 0.5 * volume // the samples are normalised loud; keep cues in the background
     source.buffer = buffer
     source.connect(gain).connect(ctx.destination)
     source.start()
