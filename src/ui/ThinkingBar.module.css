@@ -1,0 +1,39 @@
+.bar {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+  align-items: center;
+}
+
+.cell {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  /* An unfilled minute reads as a faint track of the team colour. */
+  background: color-mix(in srgb, var(--cell-color) 18%, transparent);
+}
+
+.cell[data-filled] {
+  background: var(--cell-color);
+}
+
+/* The current minute: full team colour whose opacity is stepped inline each second,
+   so it reads as quietly filling in. */
+.fading {
+  background: var(--cell-color);
+  transition: opacity 1s linear;
+}
+
+.bar[data-team='red'] {
+  --cell-color: var(--red);
+}
+
+.bar[data-team='blue'] {
+  --cell-color: var(--blue);
+}
+
+/* Ten minutes in: the clock has stopped and nobody's thinking — drain the colour
+   so the frozen bar reads as abandoned, not active. */
+.bar[data-capped] {
+  --cell-color: #9aa0a6;
+}
