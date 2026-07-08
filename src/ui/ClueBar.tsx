@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { INFINITE_CLUE, type Team } from '../Game'
-import ThinkingBeads from './ThinkingBeads'
+import ThinkingBar from './ThinkingBar'
 import styles from './ClueBar.module.css'
 
 // The spymaster's clue input, docked at the bottom centre while it's their turn.
@@ -27,79 +27,81 @@ export default function ClueBar(props: {
   const stepDown = (c: number) => Math.max(0, c - 1)
 
   return (
-    <form
-      className={styles.clueForm}
-      data-team={props.turn}
-      onSubmit={(event) => {
-        event.preventDefault()
-        if (word.trim()) {
-          props.onClue(word.trim(), unlimited ? INFINITE_CLUE : count)
-          setWord('')
-        }
-      }}
-    >
-      <ThinkingBeads team={props.turn} />
-      <button
-        type="button"
-        className={styles.focusToggle}
-        aria-pressed={props.focus}
-        aria-label="Focus mode"
-        title="Focus mode — cluster your cards to plan a clue"
-        onClick={props.onToggleFocus}
-      >
-        👁️
-      </button>
-      <input
-        className={styles.word}
-        autoFocus
-        value={word}
-        required
-        pattern="\s*[\p{L}\p{M}]+\s*"
-        maxLength={20}
-        title="One word — letters only, no symbols"
-        placeholder={props.turn === 'red' ? "Red's clue" : "Blue's clue"}
-        onChange={(event) => setWord(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+    <div className={styles.clueBar}>
+      <form
+        className={styles.clueForm}
+        data-team={props.turn}
+        onSubmit={(event) => {
           event.preventDefault()
-          setCount(event.key === 'ArrowUp' ? stepUp : stepDown)
+          if (word.trim()) {
+            props.onClue(word.trim(), unlimited ? INFINITE_CLUE : count)
+            setWord('')
+          }
         }}
-      />
-      {/* Number and submit stay paired at the end of the row, beside the clue
-          word — on a phone the word shrinks to keep all three on one line. */}
-      <div className={styles.fields}>
-        <div className={styles.count} data-unlimited={unlimited || undefined} data-zero={count === 0 || undefined}>
-          <input
-            className={styles.countInput}
-            type="number"
-            min={0}
-            max={props.teamCardsLeft + 1}
-            value={count}
-            aria-label={unlimited ? 'unlimited guesses' : 'number of guesses'}
-            onChange={(event) =>
-              setCount(
-                Number.isNaN(event.target.valueAsNumber)
-                  ? 0
-                  : Math.max(0, Math.min(event.target.valueAsNumber, props.teamCardsLeft + 1)),
-              )
-            }
-          />
-          {unlimited && (
-            <span className={styles.infinityOverlay} aria-hidden="true">
-              ∞
-            </span>
-          )}
-        </div>
+      >
         <button
-          type="submit"
-          className={styles.submit}
-          aria-label="Give clue"
-          title="Give clue"
-          disabled={!word.trim()}
+          type="button"
+          className={styles.focusToggle}
+          aria-pressed={props.focus}
+          aria-label="Focus mode"
+          title="Focus mode — cluster your cards to plan a clue"
+          onClick={props.onToggleFocus}
         >
-          ✓
+          👁️
         </button>
-      </div>
-    </form>
+        <input
+          className={styles.word}
+          autoFocus
+          value={word}
+          required
+          pattern="\s*[\p{L}\p{M}]+\s*"
+          maxLength={20}
+          title="One word — letters only, no symbols"
+          placeholder={props.turn === 'red' ? "Red's clue" : "Blue's clue"}
+          onChange={(event) => setWord(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+            event.preventDefault()
+            setCount(event.key === 'ArrowUp' ? stepUp : stepDown)
+          }}
+        />
+        {/* Number and submit stay paired at the end of the row, beside the clue
+            word — on a phone the word shrinks to keep all three on one line. */}
+        <div className={styles.fields}>
+          <div className={styles.count} data-unlimited={unlimited || undefined} data-zero={count === 0 || undefined}>
+            <input
+              className={styles.countInput}
+              type="number"
+              min={0}
+              max={props.teamCardsLeft + 1}
+              value={count}
+              aria-label={unlimited ? 'unlimited guesses' : 'number of guesses'}
+              onChange={(event) =>
+                setCount(
+                  Number.isNaN(event.target.valueAsNumber)
+                    ? 0
+                    : Math.max(0, Math.min(event.target.valueAsNumber, props.teamCardsLeft + 1)),
+                )
+              }
+            />
+            {unlimited && (
+              <span className={styles.infinityOverlay} aria-hidden="true">
+                ∞
+              </span>
+            )}
+          </div>
+          <button
+            type="submit"
+            className={styles.submit}
+            aria-label="Give clue"
+            title="Give clue"
+            disabled={!word.trim()}
+          >
+            ✓
+          </button>
+        </div>
+      </form>
+      <ThinkingBar team={props.turn} />
+    </div>
   )
 }

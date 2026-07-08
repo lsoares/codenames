@@ -7,6 +7,13 @@
   min-height: 44px;
 }
 
+.clueBar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+
 .clueForm {
   display: flex;
   gap: 6px;
