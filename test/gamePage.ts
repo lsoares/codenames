@@ -81,6 +81,12 @@ export class GamePage {
     await this.getCards().first().waitFor()
   }
 
+  // The homepage box for entering an existing room by its code.
+  async joinRoomByCode(code: string): Promise<void> {
+    await this.page.getByRole('textbox', { name: 'Room code' }).fill(code)
+    await this.page.getByRole('button', { name: 'Join' }).click()
+  }
+
   // Pick a homepage deck without waiting for the board, so a test can observe the
   // dealing state while the deck's faces are still being fetched.
   async pickDeck(label: string): Promise<void> {

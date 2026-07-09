@@ -31,3 +31,13 @@
   color: var(--primary);
 }
 
+.join {
+  display: flex;
+  gap: 8px;
+  margin-top: calc(-1 * clamp(18px, 4vh, 36px));
+}
+
+.joinCode {
+  width: 22ch;
+}
+

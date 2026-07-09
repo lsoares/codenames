@@ -40,6 +40,14 @@ export function randomRoomCode(): string {
   return `${pick(ROOM_ADJECTIVES)}-${pick(ROOM_NOUNS)}`
 }
 
+export function restoreDash(code: string): string {
+  if (code.includes('-')) return code
+  const adjective = ROOM_ADJECTIVES.find(
+    (word) => code.startsWith(word) && ROOM_NOUNS.includes(code.slice(word.length)),
+  )
+  return adjective ? `${adjective}-${code.slice(adjective.length)}` : code
+}
+
 export function tabPeerId(): string {
   const existing = sessionStorage.getItem('codenames:peer-id')
   if (existing) return existing

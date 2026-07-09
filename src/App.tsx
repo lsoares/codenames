@@ -4,6 +4,7 @@ import { getFaces, providers } from './cardProviders/providers'
 import { Host } from './multiplayer/Host'
 import { Guest, JoinError } from './multiplayer/Guest'
 import type { Session, Action, Player } from './multiplayer/Session'
+import { restoreDash } from './multiplayer/peer'
 import { playSound } from './sound'
 import GameScreen from './ui/GameScreen'
 import Homepage from './ui/Homepage'
@@ -260,7 +261,7 @@ export default function App() {
     const code = normalizeCode(window.location.pathname)
     if (!code) return
 
-    setStatus('Entering the room…')
+    setStatus(`Entering ${code}…`)
     const saved = sessionStorage.getItem(hostStateKey(code))
     Guest.join(code, { waitForHost: !saved })
       .then((session) => {
@@ -334,6 +335,12 @@ export default function App() {
         <Homepage
           providers={providers}
           onPick={(id) => void createRoom(id, normalizeCode(window.location.pathname) || undefined)}
+          onJoin={(raw) => {
+            const code = normalizeCode(raw)
+            if (!code) return
+            history.pushState({}, '', '/' + restoreDash(code))
+            attemptJoin()
+          }}
         />
       )}
     </>
