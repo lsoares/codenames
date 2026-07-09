@@ -517,8 +517,17 @@ button.spymasterSlot[data-mine] {
   transition: opacity 0.15s ease;
 }
 
-.hamburger:hover {
-  opacity: 1;
+/* Only real pointers get the hover bloom — on touch, :hover sticks after a tap and
+   would leave the mark lit until you tapped elsewhere. The open state (below, via
+   aria-expanded) covers the "active" look on every device. */
+@media (hover: hover) {
+  .hamburger:hover {
+    opacity: 1;
+  }
+
+  .hamburger:hover .hamburgerIcon {
+    filter: none;
+  }
 }
 
 /* The app mark stands in for a generic menu glyph: sepia-muted at rest so it
@@ -528,10 +537,6 @@ button.spymasterSlot[data-mine] {
   height: 20px;
   filter: sepia(0.85) saturate(0.7);
   transition: filter 0.15s ease;
-}
-
-.hamburger:hover .hamburgerIcon {
-  filter: none;
 }
 
 /* You host this room: the hamburger wears a subtle accent tint, a quiet badge of
