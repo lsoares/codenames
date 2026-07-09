@@ -4,6 +4,7 @@ import { getFaces, providers } from './cardProviders/providers'
 import { Host } from './multiplayer/Host'
 import { Guest, JoinError } from './multiplayer/Guest'
 import { Roster, type Session, type Action, type Player } from './multiplayer/Session'
+import { Takeover } from './multiplayer/Takeover'
 import { RoomCode } from './multiplayer/RoomCode'
 import { playSound } from './sound'
 import GameScreen, { spymasterEmoji } from './ui/GameScreen'
@@ -77,29 +78,21 @@ export default function App() {
 
   const migrate = () => {
     if (isHostRef.current) return
-    const deadHost = peersRef.current[0]
-    const survivors = peersRef.current.filter((id) => id !== deadHost).sort()
-    const rank = survivors.indexOf(selfIdRef.current)
-    const delay = (rank < 0 ? survivors.length : rank) * 1500
+    const takeover = new Takeover(peersRef.current, selfIdRef.current)
     window.setTimeout(async () => {
       const game = gameRef.current
       if (!game || isHostRef.current) return
       sessionRef.current?.close()
       try {
-        wire(await Host.resume(roomCodeRef.current, game.state), true)
+        const { session, asHost } = await takeover.claim(roomCodeRef.current, game.state)
+        wire(session, asHost)
         playSound('takeover')
-        notify('You took over as host')
+        notify(asHost ? 'You took over as host' : "You're back in the room")
       } catch {
-        try {
-          wire(await Guest.join(roomCodeRef.current), false)
-          playSound('takeover')
-          notify("You're back in the room")
-        } catch {
-          setGame(null)
-          setStatus('Lost connection to the room.')
-        }
+        setGame(null)
+        setStatus('Lost connection to the room.')
       }
-    }, delay)
+    }, takeover.myTurnDelayMs())
   }
 
   const roster = new Roster(players, seats)
