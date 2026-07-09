@@ -3,7 +3,7 @@ import { Game, type GameState, type Team } from './Game'
 import { getFaces, providers } from './cardProviders/providers'
 import { Host } from './multiplayer/Host'
 import { Guest, JoinError } from './multiplayer/Guest'
-import type { Session, Action, Player } from './multiplayer/Session'
+import { Roster, type Session, type Action, type Player } from './multiplayer/Session'
 import { restoreDash } from './multiplayer/peer'
 import { playSound } from './sound'
 import GameScreen, { spymasterEmoji } from './ui/GameScreen'
@@ -110,9 +110,9 @@ export default function App() {
     }, delay)
   }
 
-  const mySeat: Team | null =
-    seats.red === selfIdRef.current ? 'red' : seats.blue === selfIdRef.current ? 'blue' : null
-  const myTeam: Team = mySeat ?? players.find((player) => player.id === selfIdRef.current)?.team ?? 'red'
+  const roster = new Roster(players, seats)
+  const mySeat: Team | null = roster.seatOf(selfIdRef.current)
+  const myTeam: Team = mySeat ?? roster.teamOf(selfIdRef.current) ?? 'red'
 
   const newGame = async (id: string, rotate = false) => {
     setLoadingFaces(true)
@@ -304,8 +304,7 @@ export default function App() {
           isHost={isHost}
           mySeat={mySeat}
           myTeam={myTeam}
-          seats={seats}
-          players={players}
+          roster={roster}
           selfId={selfIdRef.current}
           onClaimSeat={claimSeat}
           onJoinTeam={joinTeam}

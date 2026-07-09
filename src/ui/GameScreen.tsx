@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Game, INFINITE_CLUE, type GuessOutcome, type Team } from '../Game'
-import type { Action, Player } from '../multiplayer/Session'
+import { Roster, type Action } from '../multiplayer/Session'
 import type { CardProvider } from '../cardProviders/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
@@ -19,8 +19,7 @@ export default function GameScreen(props: {
   isHost: boolean
   mySeat: Team | null
   myTeam: Team
-  seats: { red: string | null; blue: string | null }
-  players: Player[]
+  roster: Roster
   selfId: string
   onClaimSeat: (team: Team | null) => void
   onJoinTeam: (team: Team) => void
@@ -31,7 +30,7 @@ export default function GameScreen(props: {
 }) {
   const pickerDialog = useRef<HTMLDialogElement>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(props.players.length < 4)
+  const [menuOpen, setMenuOpen] = useState(props.roster.stillGathering())
 
   const currentDeckId = props.providers.find((p) => p.label === props.game.state.deck)?.id
   const dealFreshBoard = () => {
@@ -88,11 +87,6 @@ export default function GameScreen(props: {
   }, [props.game])
   useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
 
-  const operativesOf = (team: Team): Player[] =>
-    props.players.filter(
-      (player) => player.team === team && player.id !== props.seats.red && player.id !== props.seats.blue,
-    )
-
   const { winner, phase, turn, clue, clueHistory, guessesRemaining } = props.game.state
   const focus = phase === 'clue' && selected.size > 0
   const guessesGiven = clue ? clue.count + 1 : 0
@@ -111,18 +105,18 @@ export default function GameScreen(props: {
 
   const requestSpymasterSeat = (team: Team) => {
     if (props.mySeat === team || props.game.inProgress()) return
-    const taken = !!(team === 'red' ? props.seats.red : props.seats.blue)
+    const taken = !!props.roster.spymasterOf(team)
     if (team !== props.myTeam) props.onJoinTeam(team)
     props.onClaimSeat(team)
     if (taken) dealFreshBoard()
   }
 
   const renderTeam = (team: Team) => {
-    const seatId = team === 'red' ? props.seats.red : props.seats.blue
+    const seatId = props.roster.spymasterOf(team)
     const hasSpymaster = !!seatId
     const isMySeat = props.mySeat === team
     const selfFirst = team === 'blue'
-    const opPlayers = operativesOf(team).sort((a, b) => {
+    const opPlayers = props.roster.operativesOf(team).sort((a, b) => {
       if (a.id === props.selfId) return selfFirst ? -1 : 1
       if (b.id === props.selfId) return selfFirst ? 1 : -1
       return 0
@@ -261,8 +255,8 @@ export default function GameScreen(props: {
 
   const winnerName = winner ? winner.charAt(0).toUpperCase() + winner.slice(1) : ''
   const winnerEmojis = winner
-    ? props.players
-        .filter((player) => player.team === winner)
+    ? props.roster
+        .ofTeam(winner)
         .map((player) => player.emoji)
         .join(' ')
     : ''
@@ -523,7 +517,7 @@ export default function GameScreen(props: {
         )}
       </dialog>
 
-      {myMove && !stillGathering(props.players) && (
+      {myMove && !props.roster.stillGathering() && (
         <div className={styles.thinkingDock}>
           <ThinkingBar key={`${acting}-${clueHistory.length}`} team={turn} />
         </div>
