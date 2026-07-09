@@ -110,6 +110,32 @@ export class Game {
     return this.s.phase === 'clue' ? 'spymaster' : 'operatives'
   }
 
+  hasUnlimitedClue(): boolean {
+    return this.s.clue !== null && unlimitedGuesses(this.s.clue.count)
+  }
+
+  meansUnlimited(count: number): boolean {
+    return count > this.remaining(this.s.turn)
+  }
+
+  maxClueCount(): number {
+    return this.remaining(this.s.turn) + 1
+  }
+
+  guessesGiven(): number {
+    return this.s.clue ? this.s.clue.count + 1 : 0
+  }
+
+  guessesUsed(): number {
+    return this.s.clue ? this.guessesGiven() - this.s.guessesRemaining : 0
+  }
+
+  guessesUsable(): number {
+    return this.s.clue
+      ? Math.min(this.guessesGiven(), this.remaining(this.s.turn) + this.guessesUsed())
+      : 0
+  }
+
   showsColor(cardIndex: number, isSpymaster: boolean): boolean {
     return this.s.cards[cardIndex].revealed || isSpymaster || this.s.winner !== null
   }
@@ -160,7 +186,7 @@ export class Game {
       ...this.s,
       phase: 'guess',
       // a big finite number, not Infinity — JSON.stringify would turn Infinity to null
-      guessesRemaining: count === 0 || count === INFINITE_CLUE ? 99 : count + 1,
+      guessesRemaining: unlimitedGuesses(count) ? 99 : count + 1,
       clue: { team: this.s.turn, word, count },
       clueHistory: [...this.s.clueHistory, { team: this.s.turn, word, count }],
       log: [...this.s.log, `${this.s.turn} clue: ${word} ${count}`],
@@ -257,6 +283,8 @@ const shuffle = <T>(items: T[]): T[] => {
 }
 
 const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
+
+const unlimitedGuesses = (count: number): boolean => count === 0 || count === INFINITE_CLUE
 
 const clearMarks = (cards: readonly Card[], team: Team): Card[] =>
   cards.map((card) =>

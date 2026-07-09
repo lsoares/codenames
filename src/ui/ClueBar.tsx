@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { INFINITE_CLUE, type Team } from '../Game'
+import { INFINITE_CLUE, type Game } from '../Game'
 import styles from './ClueBar.module.css'
 
 export default function ClueBar(props: {
-  turn: Team
-  teamCardsLeft: number
+  game: Game
   selectedCount: number
   onClue: (word: string, count: number) => void
 }) {
@@ -16,14 +15,15 @@ export default function ClueBar(props: {
     wordInput.current?.focus()
   }, [props.selectedCount])
 
-  const unlimited = count > props.teamCardsLeft
-  const stepUp = (c: number) => Math.min(c + 1, props.teamCardsLeft + 1)
+  const turn = props.game.state.turn
+  const unlimited = props.game.meansUnlimited(count)
+  const stepUp = (c: number) => Math.min(c + 1, props.game.maxClueCount())
   const stepDown = (c: number) => Math.max(0, c - 1)
 
   return (
     <form
       className={styles.clueForm}
-      data-team={props.turn}
+      data-team={turn}
       onSubmit={(event) => {
         event.preventDefault()
         if (word.trim()) {
@@ -41,7 +41,7 @@ export default function ClueBar(props: {
         pattern="\s*[\p{L}\p{M}]+\s*"
         maxLength={20}
         title="One word — letters only, no symbols"
-        placeholder={props.turn === 'red' ? "Red's clue" : "Blue's clue"}
+        placeholder={turn === 'red' ? "Red's clue" : "Blue's clue"}
         onChange={(event) => setWord(event.target.value)}
         onKeyDown={(event) => {
           if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
@@ -55,14 +55,14 @@ export default function ClueBar(props: {
             className={styles.countInput}
             type="number"
             min={0}
-            max={props.teamCardsLeft + 1}
+            max={props.game.maxClueCount()}
             value={count}
             aria-label={unlimited ? 'unlimited guesses' : 'number of guesses'}
             onChange={(event) =>
               setCount(
                 Number.isNaN(event.target.valueAsNumber)
                   ? 0
-                  : Math.max(0, Math.min(event.target.valueAsNumber, props.teamCardsLeft + 1)),
+                  : Math.max(0, Math.min(event.target.valueAsNumber, props.game.maxClueCount())),
               )
             }
           />

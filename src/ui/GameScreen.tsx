@@ -87,12 +87,11 @@ export default function GameScreen(props: {
   }, [props.game])
   useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
 
-  const { winner, phase, turn, clue, clueHistory, guessesRemaining } = props.game.state
+  const { winner, phase, turn, clue, clueHistory } = props.game.state
   const focus = phase === 'clue' && selected.size > 0
-  const guessesGiven = clue ? clue.count + 1 : 0
-  const guessesUsed = clue ? guessesGiven - guessesRemaining : 0
-  const guessesShown = clue ? Math.min(guessesGiven, props.game.remaining(turn) + guessesUsed) : 0
-  const isUnlimitedClue = clue !== null && (clue.count === 0 || clue.count === INFINITE_CLUE)
+  const guessesUsed = props.game.guessesUsed()
+  const guessesShown = props.game.guessesUsable()
+  const isUnlimitedClue = props.game.hasUnlimitedClue()
   const clueCountLabel = (n: number) => (n === INFINITE_CLUE ? '∞' : String(n))
   const acting = props.game.awaitingRole()
 
@@ -325,8 +324,7 @@ export default function GameScreen(props: {
   const clueForm = !winner && acting === 'spymaster' && activeSpymaster && (
     <ClueBar
       key={dealKey}
-      turn={turn}
-      teamCardsLeft={props.game.remaining(turn)}
+      game={props.game}
       selectedCount={selected.size}
       onClue={(word, count) => props.onAction({ type: 'clue', word, count })}
     />
