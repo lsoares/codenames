@@ -22,7 +22,8 @@ export class MolesHost {
     const active = this.world.thinking() && this.world.whackerIds().length >= 2
     if (active && !this.game) {
       this.game = new MoleGame()
-      this.schedule()
+      // A few quiet seconds before the first critter, so the new phase can breathe.
+      this.schedule(5000)
     } else if (!active && this.game) {
       this.reset()
     }
@@ -43,14 +44,14 @@ export class MolesHost {
     this.lives.clear()
   }
 
-  private schedule(): void {
+  private schedule(delay = 500 + Math.random() * 1000): void {
     clearTimeout(this.spawner)
     this.spawner = setTimeout(() => {
       if (!this.game) return
       const target = Math.min(4, 1 + Math.ceil(this.world.whackerIds().length / 3))
       if (this.game.moles.length < target) this.spawnOne()
       this.schedule()
-    }, 500 + Math.random() * 1000)
+    }, delay)
   }
 
   private spawnOne(): void {
