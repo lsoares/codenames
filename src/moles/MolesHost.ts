@@ -60,7 +60,7 @@ export class MolesHost {
     if (free.length === 0) return
     const from = (['top', 'bottom', 'left', 'right'] as const)[Math.floor(Math.random() * 4)]
     const roll = Math.random()
-    const kind = roll < 0.1 ? 'bonus' : roll < 0.45 ? 'decoy' : 'mole'
+    const kind = roll < 0.1 ? 'bonus' : roll < 0.35 ? 'decoy' : 'mole'
     const id = this.nextId++
     this.game = this.game.spawn(id, free[Math.floor(Math.random() * free.length)], from, kind)
     this.broadcast()
