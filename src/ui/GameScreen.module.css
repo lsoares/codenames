@@ -454,6 +454,7 @@ button.spymasterSlot[data-mine] {
 .toolsBackdrop {
   position: fixed;
   inset: 0;
+  z-index: 1;
   padding: 0;
   border: none;
   border-radius: 0;
@@ -464,6 +465,7 @@ button.spymasterSlot[data-mine] {
 
 .toolsMenu {
   position: absolute;
+  z-index: 2;
   left: 0;
   bottom: calc(100% + 8px);
   display: flex;
