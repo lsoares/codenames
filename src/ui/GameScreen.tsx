@@ -73,6 +73,8 @@ export default function GameScreen(props: {
       }),
     )
   }
+  // Esc drops every pick at once, gliding the board out of Focus back to order.
+  const clearSelected = () => animate(() => setSelected(new Set()))
   // A stable per-deal identity: only a fresh deal reshuffles the card colours (a
   // guess, clue or turn pass never touch them), so this signature changes exactly
   // when the board is re-dealt — even between two fresh deals in a row, which
@@ -507,6 +509,7 @@ export default function GameScreen(props: {
           focus={focus}
           feedback={feedback}
           onToggleSelect={toggleSelected}
+          onClearSelection={clearSelected}
           onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
           onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index, team: props.myTeam })}
         />

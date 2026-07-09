@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import type { Face } from '../Face'
 import { Game, type Card, type GuessOutcome, type Team } from '../Game'
 import ImageLightbox from './ImageLightbox'
@@ -52,6 +52,7 @@ export default function Board(props: {
   focus: boolean
   feedback: Record<number, GuessOutcome>
   onToggleSelect: (index: number) => void
+  onClearSelection: () => void
   onCardClick: (index: number) => void
   onCardMark: (index: number) => void
 }) {
@@ -59,6 +60,17 @@ export default function Board(props: {
   const cards = props.game.state.cards
   const gameOver = props.game.state.winner !== null
   const [zoomed, setZoomed] = useState<string | null>(null)
+
+  // Esc drops the spymaster's picks — but not while a zoomed photo is open, which
+  // owns Esc to close itself first (one press dismisses one layer at a time).
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || zoomed) return
+      if (isSpymaster && props.selected.size > 0) props.onClearSelection()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [zoomed, isSpymaster, props.selected.size, props.onClearSelection])
 
   // Both roles single out cards the same way — the picked card stays lit while the
   // rest of the board dims. A spymaster's picks are private (the selected set, owned
