@@ -6,7 +6,7 @@ import { Guest, JoinError } from './multiplayer/Guest'
 import type { Session, Action, Player } from './multiplayer/Session'
 import { restoreDash } from './multiplayer/peer'
 import { playSound } from './sound'
-import GameScreen from './ui/GameScreen'
+import GameScreen, { spymasterEmoji } from './ui/GameScreen'
 import Homepage from './ui/Homepage'
 import styles from './App.module.css'
 
@@ -245,7 +245,7 @@ export default function App() {
     for (const team of ['red', 'blue'] as const) {
       if (seats[team] && seats[team] !== prev[team] && seats[team] !== selfIdRef.current) {
         playSound('spymaster')
-        notify(`New ${team} spymaster 🕵️`, team)
+        notify(`New ${team} spymaster ${spymasterEmoji[team]}`, team)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

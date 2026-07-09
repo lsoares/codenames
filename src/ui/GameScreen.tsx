@@ -523,7 +523,7 @@ export default function GameScreen(props: {
         )}
       </dialog>
 
-      {myMove && props.players.length >= 4 && (
+      {myMove && !stillGathering(props.players) && (
         <div className={styles.thinkingDock}>
           <ThinkingBar key={`${acting}-${clueHistory.length}`} team={turn} />
         </div>

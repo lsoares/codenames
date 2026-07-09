@@ -81,6 +81,10 @@
   transition: font-size 0.18s ease;
 }
 
+.headerSide[data-side='left'] .spymasterSlot {
+  transform: scaleX(-1);
+}
+
 button.spymasterSlot:not([data-mine]) {
   cursor: pointer;
 }
