@@ -268,8 +268,8 @@ export default function GameScreen(props: {
       ? mineTurn
         ? activeSpymaster
           ? `Your turn (${turn})`
-          : `${spymasterEmoji[turn]} Your spymaster is thinking…`
-        : `${spymasterEmoji[turn]} ${turn.charAt(0).toUpperCase() + turn.slice(1)}'s spymaster is thinking…`
+          : `${spymasterEmoji[turn]}💭 Your spymaster is thinking…`
+        : `${spymasterEmoji[turn]}💭 ${turn.charAt(0).toUpperCase() + turn.slice(1)}'s spymaster is thinking…`
       : mineTurn
         ? props.mySeat
           ? `Your operatives' turn (${turn})`
