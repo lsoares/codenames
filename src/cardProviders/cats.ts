@@ -1,6 +1,8 @@
 import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
+export const cats: CardProvider = { id: 'cats', label: 'Cats', icon: '🐱', description: 'Random cat photos', credit: { label: 'The Cat API', url: 'https://thecatapi.com' }, hidden: true, fetch }
+
 interface CatImage {
   url: string
 }
@@ -20,5 +22,3 @@ async function fetch(): Promise<Face[]> {
   const images = (await response.json()) as CatImage[]
   return images.map((cat) => image(cat.url))
 }
-
-export const cats: CardProvider = { id: 'cats', label: 'Cats', icon: '🐱', description: 'Random cat photos', credit: { label: 'The Cat API', url: 'https://thecatapi.com' }, hidden: true, fetch }

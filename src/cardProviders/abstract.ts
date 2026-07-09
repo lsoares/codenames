@@ -2,6 +2,8 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
+export const abstract: CardProvider = { id: 'abstract', label: 'Abstract photos', icon: '🌀', description: 'Abstract imagery open to interpretation', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }
+
 const LOOKS = [
   'abstract', 'texture', 'pattern', 'paint', 'macro', 'smoke',
   'bokeh', 'ink', 'marble', 'geometric', 'gradient', 'fractal',
@@ -40,5 +42,3 @@ async function fetch(): Promise<Face[]> {
   if (photos.length < 20) throw new Error('Pexels returned too few photos')
   return photos.slice(0, 20).map((photo) => image(photo.src.medium, { link: photo.url }))
 }
-
-export const abstract: CardProvider = { id: 'abstract', label: 'Abstract photos', icon: '🌀', description: 'Abstract imagery open to interpretation', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }

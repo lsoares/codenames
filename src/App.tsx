@@ -11,23 +11,6 @@ import GameScreen, { spymasterEmoji } from './ui/GameScreen'
 import Homepage from './ui/Homepage'
 import styles from './App.module.css'
 
-const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
-
-const teamName = (team: Team): string => (team === 'red' ? 'Red' : 'Blue')
-
-const hostStateKey = (code: string): string => `codenames:host:${code}`
-
-const joinFailureMessage = (error: unknown): string => {
-  switch (error instanceof JoinError ? error.reason : null) {
-    case 'room-not-found':
-      return 'Could not find the room. Check the room code or link, or ask the host for a fresh one.'
-    case 'connection-blocked':
-      return 'Could not connect — the room is there, but your network is blocking it. Another network (like a phone hotspot) usually helps.'
-    default:
-      return 'Could not reach the server. Check your internet and try again.'
-  }
-}
-
 export default function App() {
   const [game, setGame] = useState<Game | null>(null)
   const [roomCode, setRoomCode] = useState('')
@@ -334,4 +317,21 @@ export default function App() {
       )}
     </>
   )
+}
+
+const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
+
+const teamName = (team: Team): string => (team === 'red' ? 'Red' : 'Blue')
+
+const hostStateKey = (code: string): string => `codenames:host:${code}`
+
+const joinFailureMessage = (error: unknown): string => {
+  switch (error instanceof JoinError ? error.reason : null) {
+    case 'room-not-found':
+      return 'Could not find the room. Check the room code or link, or ask the host for a fresh one.'
+    case 'connection-blocked':
+      return 'Could not connect — the room is there, but your network is blocking it. Another network (like a phone hotspot) usually helps.'
+    default:
+      return 'Could not reach the server. Check your internet and try again.'
+  }
 }

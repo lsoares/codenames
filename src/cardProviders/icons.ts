@@ -2,6 +2,8 @@ import { icon, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
+export const icons: CardProvider = { id: 'icons', label: 'Pictograms', icon: '✳️', description: 'The full Font Awesome free collection', credit: { label: 'Font Awesome', url: 'https://fontawesome.com' }, fetch }
+
 const ICONS = [
   'brands/42-group', 'brands/500px', 'brands/accessible-icon', 'brands/accusoft', 'brands/adn', 'brands/adversal', 'brands/affiliatetheme', 'brands/airbnb',
   'brands/algolia', 'brands/alipay', 'brands/amazon', 'brands/amazon-pay', 'brands/amilia', 'brands/android', 'brands/angellist', 'brands/angrycreative',
@@ -256,5 +258,3 @@ async function fetch(): Promise<Face[]> {
       })
     })
 }
-
-export const icons: CardProvider = { id: 'icons', label: 'Pictograms', icon: '✳️', description: 'The full Font Awesome free collection', credit: { label: 'Font Awesome', url: 'https://fontawesome.com' }, fetch }

@@ -1,3 +1,28 @@
+export class RoomCode {
+  private constructor(private readonly code: string) {}
+
+  static fromPath(pathname: string): RoomCode | null {
+    const code = normalize(pathname)
+    return code ? new RoomCode(code) : null
+  }
+
+  // A typed code forgives sloppiness: case, accents and symbols are normalized,
+  // and a generated code pasted without its dash gets it back.
+  static fromTyped(raw: string): RoomCode | null {
+    const code = normalize(raw)
+    return code ? new RoomCode(restoreDash(code)) : null
+  }
+
+  static random(): RoomCode {
+    const pick = (pool: string[]) => pool[Math.floor(Math.random() * pool.length)]
+    return new RoomCode(`${pick(ROOM_ADJECTIVES)}-${pick(ROOM_NOUNS)}`)
+  }
+
+  toString(): string {
+    return this.code
+  }
+}
+
 const ROOM_ADJECTIVES = [
   'pure', 'ideal', 'evil', 'soft', 'strange', 'fresh', 'divine', 'wild',
   'famous', 'warm', 'rare', 'clean', 'bright', 'vast', 'alive', 'silent',
@@ -28,31 +53,6 @@ const ROOM_NOUNS = [
   'palm', 'lotus', 'lily', 'blossom', 'berry', 'cherry', 'lemon', 'peach',
   'plum', 'apple', 'olive', 'grape', 'coconut', 'honey',
 ]
-
-export class RoomCode {
-  private constructor(private readonly code: string) {}
-
-  static fromPath(pathname: string): RoomCode | null {
-    const code = normalize(pathname)
-    return code ? new RoomCode(code) : null
-  }
-
-  // A typed code forgives sloppiness: case, accents and symbols are normalized,
-  // and a generated code pasted without its dash gets it back.
-  static fromTyped(raw: string): RoomCode | null {
-    const code = normalize(raw)
-    return code ? new RoomCode(restoreDash(code)) : null
-  }
-
-  static random(): RoomCode {
-    const pick = (pool: string[]) => pool[Math.floor(Math.random() * pool.length)]
-    return new RoomCode(`${pick(ROOM_ADJECTIVES)}-${pick(ROOM_NOUNS)}`)
-  }
-
-  toString(): string {
-    return this.code
-  }
-}
 
 const normalize = (raw: string): string =>
   raw

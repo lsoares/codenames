@@ -1,6 +1,16 @@
 import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
+export const pokemon: CardProvider = {
+  id: 'pokemon',
+  label: 'Pokémon',
+  icon: '⚡',
+  description: 'Official Pokémon artwork',
+  credit: { label: 'PokéAPI', url: 'https://pokeapi.co' },
+  hidden: true,
+  fetch,
+}
+
 interface Pokemon {
   name: string
   sprites: { other: { 'official-artwork': { front_default: string | null } } }
@@ -31,14 +41,4 @@ async function fetch(): Promise<Face[]> {
       link: `https://www.pokemon.com/us/pokedex/${name}`,
     }),
   )
-}
-
-export const pokemon: CardProvider = {
-  id: 'pokemon',
-  label: 'Pokémon',
-  icon: '⚡',
-  description: 'Official Pokémon artwork',
-  credit: { label: 'PokéAPI', url: 'https://pokeapi.co' },
-  hidden: true,
-  fetch,
 }

@@ -25,6 +25,19 @@ export type Sound =
   | 'victory'
   | 'tictac'
 
+export function playSound(sound: Sound, volume = 1, slice: { duration?: number } = {}): void {
+  const ac = resumeCtx()
+  void load(sound).then((buffer) => {
+    if (!buffer) return
+    const source = ac.createBufferSource()
+    const gain = ac.createGain()
+    gain.gain.value = 0.5 * volume
+    source.buffer = buffer
+    source.connect(gain).connect(ac.destination)
+    source.start(ac.currentTime, 0, slice.duration)
+  })
+}
+
 const urls: Record<Sound, string> = {
   assassin,
   clue,
@@ -51,19 +64,6 @@ async function load(sound: Sound): Promise<AudioBuffer | null> {
   const buffer = await ctx.decodeAudioData(data)
   buffers.set(sound, buffer)
   return buffer
-}
-
-export function playSound(sound: Sound, volume = 1, slice: { duration?: number } = {}): void {
-  const ac = resumeCtx()
-  void load(sound).then((buffer) => {
-    if (!buffer) return
-    const source = ac.createBufferSource()
-    const gain = ac.createGain()
-    gain.gain.value = 0.5 * volume
-    source.buffer = buffer
-    source.connect(gain).connect(ac.destination)
-    source.start(ac.currentTime, 0, slice.duration)
-  })
 }
 
 function resumeCtx(): AudioContext {

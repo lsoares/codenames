@@ -1,19 +1,6 @@
 import { useRef } from 'react'
 import styles from './HowToPlay.module.css'
 
-const BOARD = [
-  'red', 'blue', 'neutral', 'red', 'blue',
-  'blue', 'red', 'blue', 'neutral', 'red',
-  'neutral', 'blue', 'red', 'blue', 'assassin',
-  'red', 'blue', 'neutral', 'red', 'red',
-]
-
-const CLUED = new Set([5, 13])
-
-const FACES = ['●', '■', '▲', '◆', '★', '✚', '◇', '△', '☆', '✦', '❖', '◈', '✜', '⬟', '✱', '◔', '▰', '⬢', '✧', '◑']
-
-const REVEALED: Record<number, string> = { 7: '✓', 10: '✕', 12: '✕' }
-
 export default function HowToPlay() {
   const dialog = useRef<HTMLDialogElement>(null)
   return (
@@ -188,3 +175,16 @@ The first team to find <strong>all its agents wins</strong>.
     </>
   )
 }
+
+const BOARD = [
+  'red', 'blue', 'neutral', 'red', 'blue',
+  'blue', 'red', 'blue', 'neutral', 'red',
+  'neutral', 'blue', 'red', 'blue', 'assassin',
+  'red', 'blue', 'neutral', 'red', 'red',
+]
+
+const CLUED = new Set([5, 13])
+
+const FACES = ['●', '■', '▲', '◆', '★', '✚', '◇', '△', '☆', '✦', '❖', '◈', '✜', '⬟', '✱', '◔', '▰', '⬢', '✧', '◑']
+
+const REVEALED: Record<number, string> = { 7: '✓', 10: '✕', 12: '✕' }

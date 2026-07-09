@@ -2,6 +2,15 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
+export const dreams: CardProvider = {
+  id: 'dreams',
+  label: 'Dreams',
+  icon: '💭',
+  description: 'GAN-dreamed artworks that never existed',
+  credit: { label: 'This Image Does Not Exist', url: 'https://thisimagedoesnotexist.com' },
+  fetch,
+}
+
 function loads(src: string): Promise<string | null> {
   return new Promise((resolve) => {
     const img = new Image()
@@ -21,13 +30,4 @@ async function fetch(): Promise<Face[]> {
 
   if (faces.size < 20) throw new Error('This Image Does Not Exist returned too few images')
   return [...faces].slice(0, 20).map((url) => image(url))
-}
-
-export const dreams: CardProvider = {
-  id: 'dreams',
-  label: 'Dreams',
-  icon: '💭',
-  description: 'GAN-dreamed artworks that never existed',
-  credit: { label: 'This Image Does Not Exist', url: 'https://thisimagedoesnotexist.com' },
-  fetch,
 }

@@ -3,8 +3,6 @@ import type { Team } from '../Game'
 import { playSound } from '../sound'
 import styles from './ThinkingBar.module.css'
 
-const CAP_MINUTES = 10
-
 export default function ThinkingBar(props: { team: Team }) {
   const [seconds, setSeconds] = useState(0)
   const capped = seconds >= CAP_MINUTES * 60
@@ -44,3 +42,5 @@ export default function ThinkingBar(props: { team: Team }) {
     </span>
   )
 }
+
+const CAP_MINUTES = 10

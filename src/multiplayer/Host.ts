@@ -6,21 +6,6 @@ import { iceServersReady, logConnection, newPeer } from './peer'
 import { RoomCode } from './RoomCode'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
 
-const apply = (game: Game, action: Action): Game => {
-  switch (action.type) {
-    case 'clue':
-      return game.giveClue(action.word, action.count)
-    case 'guess':
-      return game.guess(action.cardIndex)
-    case 'toggleMark':
-      return game.mark(action.cardIndex, action.team)
-    case 'endTurn':
-      return game.endTurn()
-    case 'newGame':
-      return game.newGame(action.faces, action.credit, action.deck)
-  }
-}
-
 export class Host implements Session {
   roomCode!: string
   selfId!: string
@@ -222,5 +207,20 @@ export class Host implements Session {
         this.broadcast()
       }
     }, 2000)
+  }
+}
+
+const apply = (game: Game, action: Action): Game => {
+  switch (action.type) {
+    case 'clue':
+      return game.giveClue(action.word, action.count)
+    case 'guess':
+      return game.guess(action.cardIndex)
+    case 'toggleMark':
+      return game.mark(action.cardIndex, action.team)
+    case 'endTurn':
+      return game.endTurn()
+    case 'newGame':
+      return game.newGame(action.faces, action.credit, action.deck)
   }
 }

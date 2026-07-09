@@ -4,42 +4,6 @@ import { Game, type Card, type GuessOutcome, type Team } from '../Game'
 import ImageLightbox from './ImageLightbox'
 import styles from './Board.module.css'
 
-const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
-  correct: { emoji: '🎯', label: 'correct guess' },
-  wrong: { emoji: '❌', label: 'wrong guess' },
-  neutral: { emoji: '🤷', label: 'neutral card' },
-  assassin: { emoji: '💀', label: 'assassin' },
-}
-
-function renderFace(face: Face) {
-  switch (face.kind) {
-    case 'glyph':
-      return <span className={`${styles.face} ${styles.word} ${styles.big}`}>{face.text}</span>
-    case 'text':
-      return <span className={`${styles.face} ${styles.word}`}>{face.text}</span>
-    case 'image':
-      return (
-        <span className={`${styles.face} ${styles.imageWrap}`}>
-          <img
-            className={`${styles.image} ${
-              face.fit === 'framed' ? styles.framed : face.fit === 'contain' ? styles.contain : ''
-            }`}
-            src={face.url}
-            alt=""
-            draggable={false}
-          />
-        </span>
-      )
-    case 'icon':
-      return (
-        <span
-          className={`${styles.face} ${styles.svgIcon}`}
-          style={{ ['--mask']: `url("${face.url}")` } as CSSProperties}
-        />
-      )
-  }
-}
-
 export default function Board(props: {
   game: Game
   loading: boolean
@@ -194,4 +158,40 @@ export default function Board(props: {
     {zoomed && <ImageLightbox url={zoomed} onClose={() => setZoomed(null)} />}
     </>
   )
+}
+
+const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
+  correct: { emoji: '🎯', label: 'correct guess' },
+  wrong: { emoji: '❌', label: 'wrong guess' },
+  neutral: { emoji: '🤷', label: 'neutral card' },
+  assassin: { emoji: '💀', label: 'assassin' },
+}
+
+function renderFace(face: Face) {
+  switch (face.kind) {
+    case 'glyph':
+      return <span className={`${styles.face} ${styles.word} ${styles.big}`}>{face.text}</span>
+    case 'text':
+      return <span className={`${styles.face} ${styles.word}`}>{face.text}</span>
+    case 'image':
+      return (
+        <span className={`${styles.face} ${styles.imageWrap}`}>
+          <img
+            className={`${styles.image} ${
+              face.fit === 'framed' ? styles.framed : face.fit === 'contain' ? styles.contain : ''
+            }`}
+            src={face.url}
+            alt=""
+            draggable={false}
+          />
+        </span>
+      )
+    case 'icon':
+      return (
+        <span
+          className={`${styles.face} ${styles.svgIcon}`}
+          style={{ ['--mask']: `url("${face.url}")` } as CSSProperties}
+        />
+      )
+  }
 }

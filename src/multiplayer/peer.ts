@@ -1,9 +1,5 @@
 import Peer, { type DataConnection, type PeerOptions } from 'peerjs'
 
-function randomCode(): string {
-  return Math.random().toString(36).slice(2, 8)
-}
-
 export function tabPeerId(): string {
   const existing = sessionStorage.getItem('codenames:peer-id')
   if (existing) return existing
@@ -16,27 +12,6 @@ export function resetTabPeerId(): string {
   sessionStorage.removeItem('codenames:peer-id')
   return tabPeerId()
 }
-
-const fallbackIceServers: RTCIceServer[] = [
-  { urls: 'stun:stun.l.google.com:19302' },
-  import.meta.env.VITE_TURN_URL
-    ? {
-        urls: import.meta.env.VITE_TURN_URL,
-        username: import.meta.env.VITE_TURN_USERNAME,
-        credential: import.meta.env.VITE_TURN_CREDENTIAL,
-      }
-    : {
-        urls: [
-          'turn:openrelay.metered.ca:80',
-          'turn:openrelay.metered.ca:443',
-          'turn:openrelay.metered.ca:443?transport=tcp',
-        ],
-        username: 'openrelayproject',
-        credential: 'openrelayproject',
-      },
-]
-
-let iceServers = fallbackIceServers
 
 export const iceServersReady: Promise<void> = import.meta.env.VITE_METERED_TURN_URL
   ? fetch(import.meta.env.VITE_METERED_TURN_URL)
@@ -77,3 +52,28 @@ export function logConnection(connection: DataConnection): void {
     if (pc.connectionState === 'connected') void report()
   })
 }
+
+function randomCode(): string {
+  return Math.random().toString(36).slice(2, 8)
+}
+
+const fallbackIceServers: RTCIceServer[] = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  import.meta.env.VITE_TURN_URL
+    ? {
+        urls: import.meta.env.VITE_TURN_URL,
+        username: import.meta.env.VITE_TURN_USERNAME,
+        credential: import.meta.env.VITE_TURN_CREDENTIAL,
+      }
+    : {
+        urls: [
+          'turn:openrelay.metered.ca:80',
+          'turn:openrelay.metered.ca:443',
+          'turn:openrelay.metered.ca:443?transport=tcp',
+        ],
+        username: 'openrelayproject',
+        credential: 'openrelayproject',
+      },
+]
+
+let iceServers = fallbackIceServers

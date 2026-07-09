@@ -13,12 +13,6 @@ export class JoinError extends Error {
   }
 }
 
-const joinWindowMs = (): number =>
-  Number(localStorage.getItem('codenames:join-window-ms')) || 15000
-
-const hostMissingMs = (): number =>
-  Number(localStorage.getItem('codenames:host-missing-ms')) || 5000
-
 export class Guest implements Session {
   selfId!: string
   private peer!: ReturnType<typeof newPeer>
@@ -181,3 +175,9 @@ export class Guest implements Session {
     this.disconnectHandler()
   }
 }
+
+const joinWindowMs = (): number =>
+  Number(localStorage.getItem('codenames:join-window-ms')) || 15000
+
+const hostMissingMs = (): number =>
+  Number(localStorage.getItem('codenames:host-missing-ms')) || 5000

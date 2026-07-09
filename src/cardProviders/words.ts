@@ -1,19 +1,6 @@
 import { text, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
-const SEEDS = [
-  'animal', 'food', 'kitchen', 'sport', 'vehicle', 'tool', 'fruit', 'house',
-  'ocean', 'space', 'music', 'plant', 'weather', 'building', 'insect', 'bird',
-  'clothes', 'farm', 'forest', 'jungle', 'desert', 'mountain', 'castle', 'pirate',
-  'monster', 'circus', 'garden', 'winter', 'beach', 'dinosaur', 'robot', 'treasure',
-  'candy', 'toy', 'zoo', 'camping', 'bakery', 'city', 'fish', 'holiday',
-]
-
-interface DatamuseWord {
-  word: string
-  tags?: string[]
-}
-
 export const dictionaryLink = (word: string): string =>
   `https://www.merriam-webster.com/dictionary/${encodeURIComponent(word.toLowerCase())}`
 
@@ -24,18 +11,6 @@ export const shuffle = <T>(items: T[]): T[] => {
     ;[out[i], out[j]] = [out[j], out[i]]
   }
   return out
-}
-
-function usable(entry: DatamuseWord, seen: Set<string>): string | null {
-  const tags = entry.tags ?? []
-  const freq = Number(tags.find((t) => t.startsWith('f:'))?.slice(2) ?? 0)
-  const word = entry.word.toUpperCase()
-  if (!tags.includes('n') || tags.includes('prop')) return null
-  if (!/^[A-Z]{3,8}$/.test(word)) return null
-  if (freq < 3) return null
-  if (seen.has(word)) return null
-  if (word.endsWith('S') && seen.has(word.slice(0, -1))) return null
-  return word
 }
 
 export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]> {
@@ -65,4 +40,29 @@ export const words: CardProvider = {
   credit: { label: 'Datamuse', url: 'https://www.datamuse.com/api/' },
   fetch: (): Promise<Face[]> =>
     datamuseWords().then((words) => words.map((word) => text(word, { link: dictionaryLink(word) }))),
+}
+
+const SEEDS = [
+  'animal', 'food', 'kitchen', 'sport', 'vehicle', 'tool', 'fruit', 'house',
+  'ocean', 'space', 'music', 'plant', 'weather', 'building', 'insect', 'bird',
+  'clothes', 'farm', 'forest', 'jungle', 'desert', 'mountain', 'castle', 'pirate',
+  'monster', 'circus', 'garden', 'winter', 'beach', 'dinosaur', 'robot', 'treasure',
+  'candy', 'toy', 'zoo', 'camping', 'bakery', 'city', 'fish', 'holiday',
+]
+
+interface DatamuseWord {
+  word: string
+  tags?: string[]
+}
+
+function usable(entry: DatamuseWord, seen: Set<string>): string | null {
+  const tags = entry.tags ?? []
+  const freq = Number(tags.find((t) => t.startsWith('f:'))?.slice(2) ?? 0)
+  const word = entry.word.toUpperCase()
+  if (!tags.includes('n') || tags.includes('prop')) return null
+  if (!/^[A-Z]{3,8}$/.test(word)) return null
+  if (freq < 3) return null
+  if (seen.has(word)) return null
+  if (word.endsWith('S') && seen.has(word.slice(0, -1))) return null
+  return word
 }

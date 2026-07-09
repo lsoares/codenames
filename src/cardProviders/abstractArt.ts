@@ -2,6 +2,16 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
+export const abstractArt: CardProvider = {
+  id: 'abstractArt',
+  label: 'Abstract Art',
+  icon: '🎨',
+  description: 'Genuinely abstract painting from WikiArt',
+  credit: { label: 'WikiArt', url: 'https://www.wikiart.org' },
+  hidden: true,
+  fetch,
+}
+
 const PAINTINGS = [
   'https://uploads8.wikiart.org/images/marsden-hartley/painting-number-5-1915.jpg', 'https://uploads4.wikiart.org/images/wassily-kandinsky/to-the-unknown-voice-1916.jpg',
   'https://uploads8.wikiart.org/images/theo-van-doesburg/composition-i-still-life-1916.jpg', 'https://uploads5.wikiart.org/images/vladimir-tatlin/composition-the-month-of-may.jpg',
@@ -119,14 +129,4 @@ async function fetch(): Promise<Face[]> {
   return [...faces]
     .slice(0, 20)
     .map((url) => image(url, { tooltip: attribution(url), fit: 'contain', link: wikiartPage(url) }))
-}
-
-export const abstractArt: CardProvider = {
-  id: 'abstractArt',
-  label: 'Abstract Art',
-  icon: '🎨',
-  description: 'Genuinely abstract painting from WikiArt',
-  credit: { label: 'WikiArt', url: 'https://www.wikiart.org' },
-  hidden: true,
-  fetch,
 }

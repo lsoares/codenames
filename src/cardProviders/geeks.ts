@@ -2,6 +2,8 @@ import { text, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { datamuseWords, dictionaryLink, shuffle } from './words'
 
+export const geeks: CardProvider = { id: 'geeks', label: 'Words 🤓', icon: '💻', description: 'Programming and tech words', credit: { label: 'Stack Overflow', url: 'https://stackoverflow.com' }, fetch }
+
 const GEEK_SEEDS = [
   'computer', 'software', 'hardware', 'internet', 'programming', 'network',
   'hacker', 'keyboard', 'gaming', 'science', 'database', 'security',
@@ -37,5 +39,3 @@ async function fetch(): Promise<Face[]> {
   }
   return [...board].map(([word, link]) => text(word, { link }))
 }
-
-export const geeks: CardProvider = { id: 'geeks', label: 'Words 🤓', icon: '💻', description: 'Programming and tech words', credit: { label: 'Stack Overflow', url: 'https://stackoverflow.com' }, fetch }

@@ -2,6 +2,15 @@ import { text, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { dictionaryLink, shuffle } from './words'
 
+export const officialWords: CardProvider = {
+  id: 'official-words',
+  label: 'Words',
+  icon: '📝',
+  description: 'The official Codenames word list',
+  credit: { label: 'Codenames', url: 'https://czechgames.com/en/codenames/' },
+  fetch,
+}
+
 const WORDS = [
   'AFRICA', 'AGENT', 'AIR', 'ALIEN', 'ALPS', 'AMAZON', 'AMBULANCE', 'AMERICA',
   'ANGEL', 'ANTARCTICA', 'APPLE', 'ARM', 'ATLANTIS', 'AUSTRALIA', 'AZTEC', 'BACK',
@@ -59,13 +68,4 @@ async function fetch(): Promise<Face[]> {
   return shuffle(WORDS)
     .slice(0, 20)
     .map((word) => text(word, { link: dictionaryLink(word) }))
-}
-
-export const officialWords: CardProvider = {
-  id: 'official-words',
-  label: 'Words',
-  icon: '📝',
-  description: 'The official Codenames word list',
-  credit: { label: 'Codenames', url: 'https://czechgames.com/en/codenames/' },
-  fetch,
 }

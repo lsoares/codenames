@@ -2,6 +2,8 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
+export const games: CardProvider = { id: 'games', label: 'Games', icon: '🎮', description: 'Artwork from acclaimed video games', credit: { label: 'RAWG', url: 'https://rawg.io' }, hidden: true, fetch }
+
 interface RawgGame {
   background_image: string | null
   name: string
@@ -28,5 +30,3 @@ async function fetch(): Promise<Face[]> {
     .slice(0, 20)
     .map(({ url, name, slug }) => image(url, { tooltip: name, link: `https://rawg.io/games/${slug}` }))
 }
-
-export const games: CardProvider = { id: 'games', label: 'Games', icon: '🎮', description: 'Artwork from acclaimed video games', credit: { label: 'RAWG', url: 'https://rawg.io' }, hidden: true, fetch }

@@ -1,6 +1,8 @@
 import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
+export const foodish: CardProvider = { id: 'foodish', label: 'Food', icon: '🍔', description: 'Photos of tasty dishes', credit: { label: 'Foodish', url: 'https://foodish-api.com' }, hidden: true, fetch }
+
 interface FoodishImage {
   image: string
 }
@@ -22,5 +24,3 @@ async function fetch(): Promise<Face[]> {
     return image(url, { tooltip: folder.charAt(0).toUpperCase() + folder.slice(1) })
   })
 }
-
-export const foodish: CardProvider = { id: 'foodish', label: 'Food', icon: '🍔', description: 'Photos of tasty dishes', credit: { label: 'Foodish', url: 'https://foodish-api.com' }, hidden: true, fetch }

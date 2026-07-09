@@ -1,6 +1,15 @@
 import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
+export const unsplash: CardProvider = {
+  id: 'unsplash',
+  label: 'Random',
+  icon: '📷',
+  description: 'Random photos from Unsplash',
+  credit: { label: 'Unsplash', url: 'https://unsplash.com' },
+  fetch,
+}
+
 interface UnsplashPhoto {
   urls: { small: string; regular: string }
   alt_description: string | null
@@ -22,13 +31,4 @@ async function fetch(): Promise<Face[]> {
   return photos.map((photo) =>
     image(photo.urls.small, { tooltip: photo.alt_description ?? undefined, link: photo.links?.html }),
   )
-}
-
-export const unsplash: CardProvider = {
-  id: 'unsplash',
-  label: 'Random',
-  icon: '📷',
-  description: 'Random photos from Unsplash',
-  credit: { label: 'Unsplash', url: 'https://unsplash.com' },
-  fetch,
 }

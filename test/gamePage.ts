@@ -1,7 +1,5 @@
 import { type Browser, type Page } from '@playwright/test'
 
-type Color = 'red' | 'blue' | 'neutral' | 'assassin'
-
 // Return 20 canned photos so the board is deterministic and offline.
 export async function stubUnsplash(page: Page): Promise<void> {
   await page.route('**/api.unsplash.com/**', (route) =>
@@ -257,3 +255,5 @@ export class GamePage {
     return this.page.getByRole('img', { name: /operative|spymaster/ }).count()
   }
 }
+
+type Color = 'red' | 'blue' | 'neutral' | 'assassin'

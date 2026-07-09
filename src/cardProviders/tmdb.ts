@@ -2,6 +2,8 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
+export const tmdb: CardProvider = { id: 'tmdb', label: 'Movies', icon: '🎬', description: 'Stills from popular and acclaimed films', credit: { label: 'TMDB', url: 'https://www.themoviedb.org' }, hidden: true, fetch }
+
 interface TmdbMovie {
   backdrop_path: string | null
   title: string
@@ -36,5 +38,3 @@ async function fetch(): Promise<Face[]> {
   if (faces.length < 20) throw new Error('TMDB returned too few backdrops')
   return faces.slice(0, 20)
 }
-
-export const tmdb: CardProvider = { id: 'tmdb', label: 'Movies', icon: '🎬', description: 'Stills from popular and acclaimed films', credit: { label: 'TMDB', url: 'https://www.themoviedb.org' }, hidden: true, fetch }

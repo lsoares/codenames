@@ -2,6 +2,8 @@ import { glyph, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
+export const flags: CardProvider = { id: 'flags', label: 'Flags', icon: '🌍', description: 'Country flags from around the world', hidden: true, fetch }
+
 const FLAGS: [string, string][] = [
   ['🇬🇧', 'United Kingdom'], ['🇫🇷', 'France'], ['🇩🇪', 'Germany'], ['🇮🇹', 'Italy'],
   ['🇪🇸', 'Spain'], ['🇵🇹', 'Portugal'], ['🇳🇱', 'Netherlands'], ['🇧🇪', 'Belgium'],
@@ -27,5 +29,3 @@ async function fetch(): Promise<Face[]> {
     .slice(0, 20)
     .map(([flag, country]) => glyph(flag, { tooltip: country }))
 }
-
-export const flags: CardProvider = { id: 'flags', label: 'Flags', icon: '🌍', description: 'Country flags from around the world', hidden: true, fetch }

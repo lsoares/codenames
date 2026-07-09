@@ -1,6 +1,15 @@
 import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
+export const picbreeder: CardProvider = {
+  id: 'picbreeder',
+  label: 'Picbreeder',
+  icon: '🧬',
+  description: 'CPPN-evolved images bred by the Picbreeder community',
+  credit: { label: 'Picbreeder', url: 'https://picbreeder.net' },
+  fetch,
+}
+
 function loads(src: string): Promise<string | null> {
   return new Promise((resolve) => {
     const img = new Image()
@@ -22,13 +31,4 @@ async function fetch(): Promise<Face[]> {
 
   if (faces.size < 20) throw new Error('Picbreeder returned too few images')
   return [...faces].slice(0, 20).map((url) => image(url, { fit: 'contain' }))
-}
-
-export const picbreeder: CardProvider = {
-  id: 'picbreeder',
-  label: 'Picbreeder',
-  icon: '🧬',
-  description: 'CPPN-evolved images bred by the Picbreeder community',
-  credit: { label: 'Picbreeder', url: 'https://picbreeder.net' },
-  fetch,
 }

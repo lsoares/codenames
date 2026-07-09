@@ -2,6 +2,15 @@ import type { Face } from '../Face'
 import { providers, type CardProvider } from './providers'
 import { shuffle } from './words'
 
+export const mix: CardProvider = {
+  id: 'mix',
+  label: 'Mix',
+  icon: '🎲',
+  description: 'A blend of every other deck',
+  hidden: true,
+  fetch,
+}
+
 const keyOf = (face: Face): string =>
   face.kind === 'text' || face.kind === 'glyph' ? face.text : face.url
 
@@ -25,13 +34,4 @@ async function fetch(): Promise<Face[]> {
 
   if (faces.size < 20) throw new Error('Mix returned too few faces')
   return shuffle([...faces.values()])
-}
-
-export const mix: CardProvider = {
-  id: 'mix',
-  label: 'Mix',
-  icon: '🎲',
-  description: 'A blend of every other deck',
-  hidden: true,
-  fetch,
 }

@@ -2,6 +2,8 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
+export const things: CardProvider = { id: 'things', label: 'Things', icon: '🧩', description: 'Concrete, easily-named everyday objects', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, hidden: true, fetch }
+
 const CATEGORIES = [
   'animal', 'fruit', 'vegetable', 'flower', 'tree', 'vehicle', 'tool', 'instrument',
   'furniture', 'kitchen', 'clothing', 'building', 'sport', 'toy', 'insect', 'bird',
@@ -44,5 +46,3 @@ async function fetch(): Promise<Face[]> {
     .slice(0, 20)
     .map((photo) => image(photo.src.medium, { tooltip: photo.alt || undefined, link: photo.url }))
 }
-
-export const things: CardProvider = { id: 'things', label: 'Things', icon: '🧩', description: 'Concrete, easily-named everyday objects', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, hidden: true, fetch }

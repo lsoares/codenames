@@ -2,6 +2,8 @@ import { glyph, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
+export const emojis: CardProvider = { id: 'emojis', label: 'Emojis', icon: '😀', description: 'Random emoji', fetch }
+
 const EMOJIS = [
   '🐶', '🐱', '🦊', '🐼', '🦁', '🐯', '🐸', '🐵', '🐔', '🐧', '🦉', '🦄', '🐝', '🦋',
   '🐢', '🐍', '🐙', '🦀', '🐠', '🐬', '🐳', '🦖', '🌵', '🌲', '🌸', '🍄', '🍁', '⭐',
@@ -48,5 +50,3 @@ async function fetch(): Promise<Face[]> {
     .slice(0, 20)
     .map((emoji) => glyph(emoji))
 }
-
-export const emojis: CardProvider = { id: 'emojis', label: 'Emojis', icon: '😀', description: 'Random emoji', fetch }
