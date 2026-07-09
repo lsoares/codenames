@@ -22,6 +22,11 @@ export default function Board(props: {
   const cards = props.game.state.cards
   const gameOver = props.game.state.winner !== null
   const [zoomed, setZoomed] = useState<string | null>(null)
+  const [smallImages, setSmallImages] = useState<Set<string>>(new Set())
+  const measureImage = (img: HTMLImageElement) => {
+    if (img.naturalWidth < img.clientWidth * 1.5 && img.naturalHeight < img.clientHeight * 1.5)
+      setSmallImages((prev) => new Set(prev).add(img.getAttribute('src') ?? ''))
+  }
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -75,7 +80,10 @@ export default function Board(props: {
         const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
         const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
         const canMark = props.game.canMark(index, isSpymaster)
-        const zoomUrl = card.face.kind === 'image' && !card.face.link ? card.face.url : null
+        const zoomUrl =
+          card.face.kind === 'image' && !card.face.link && !smallImages.has(card.face.url)
+            ? card.face.url
+            : null
         return (
           <div
             key={index}
@@ -105,7 +113,7 @@ export default function Board(props: {
               {props.loading ? (
                 <span className={`${styles.face} ${styles.loading}`} />
               ) : (
-                renderFace(card.face)
+                renderFace(card.face, measureImage)
               )}
               {badge && (
                 <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>
@@ -169,7 +177,7 @@ const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
   assassin: { emoji: '💀', label: 'assassin' },
 }
 
-function renderFace(face: Face) {
+function renderFace(face: Face, onImageLoad?: (img: HTMLImageElement) => void) {
   switch (face.kind) {
     case 'glyph':
       return <span className={`${styles.face} ${styles.word} ${styles.big}`}>{face.text}</span>
@@ -185,6 +193,7 @@ function renderFace(face: Face) {
             src={face.url}
             alt=""
             draggable={false}
+            onLoad={(event) => onImageLoad?.(event.currentTarget)}
           />
         </span>
       )
