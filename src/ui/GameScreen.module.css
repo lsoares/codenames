@@ -546,6 +546,12 @@ button.spymasterSlot[data-mine] {
   filter: sepia(0.4) saturate(0.85);
 }
 
+/* An open menu blooms the mark to full colour, like hover — it reads as active
+   while the menu is out. After the host rule so it wins on equal specificity. */
+.hamburger[aria-expanded='true'] .hamburgerIcon {
+  filter: none;
+}
+
 /* A screen-wide catcher so a click anywhere else dismisses the open menu. */
 .toolsBackdrop {
   position: fixed;
