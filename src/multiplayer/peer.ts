@@ -4,50 +4,6 @@ function randomCode(): string {
   return Math.random().toString(36).slice(2, 8)
 }
 
-const ROOM_ADJECTIVES = [
-  'pure', 'ideal', 'evil', 'soft', 'strange', 'fresh', 'divine', 'wild',
-  'famous', 'warm', 'rare', 'clean', 'bright', 'vast', 'alive', 'silent',
-  'wise', 'hidden', 'sacred', 'cool', 'enormous', 'friendly', 'tiny', 'magic',
-  'noble', 'proud', 'calm', 'curious', 'infinite', 'romantic', 'solar', 'mad',
-  'giant', 'gentle', 'frozen', 'immense', 'bold', 'mighty', 'brave', 'purple',
-  'heroic', 'clever', 'splendid', 'fierce', 'potent', 'wicked', 'epic', 'cosmic',
-  'vivid', 'deadly', 'furious', 'scarlet', 'gigantic', 'fiery', 'mythical', 'sinister',
-  'luminous', 'crimson', 'gallant', 'fabulous', 'winged', 'stormy', 'mythic', 'fearless',
-  'valiant',
-]
-
-const ROOM_NOUNS = [
-  'dragon', 'wolf', 'tiger', 'lion', 'eagle', 'snake', 'owl', 'shark',
-  'monkey', 'elephant', 'deer', 'salmon', 'trout', 'raven', 'serpent', 'spider',
-  'dove', 'lizard', 'parrot', 'tuna', 'beetle', 'moth', 'bee', 'duck',
-  'bat', 'sheep', 'chicken', 'pigeon', 'ant', 'perch', 'cattle', 'fowl',
-  'dog', 'cat', 'bird', 'fish', 'knight', 'magician', 'captain', 'merchant',
-  'baron', 'earl', 'duke', 'princess', 'angel', 'devil', 'demon', 'fairy',
-  'witch', 'ghost', 'alien', 'robot', 'monster', 'beast', 'creature', 'dwarf',
-  'hero', 'villain', 'mutant', 'skeleton', 'hunter', 'warrior', 'clown', 'forest',
-  'ocean', 'mountain', 'valley', 'lake', 'coast', 'beach', 'desert', 'canyon',
-  'glacier', 'plateau', 'grove', 'pond', 'brook', 'creek', 'reef', 'coral',
-  'peak', 'palace', 'fortress', 'mansion', 'tower', 'abbey', 'chapel', 'manor',
-  'monument', 'ruin', 'garden', 'empire', 'planet', 'moon', 'star', 'galaxy',
-  'universe', 'orbit', 'rainbow', 'shadow', 'sword', 'blade', 'armor', 'weapon',
-  'spell', 'quest', 'voyage', 'legend', 'fantasy', 'treasure', 'oak', 'pine',
-  'palm', 'lotus', 'lily', 'blossom', 'berry', 'cherry', 'lemon', 'peach',
-  'plum', 'apple', 'olive', 'grape', 'coconut', 'honey',
-]
-
-export function randomRoomCode(): string {
-  const pick = (pool: string[]) => pool[Math.floor(Math.random() * pool.length)]
-  return `${pick(ROOM_ADJECTIVES)}-${pick(ROOM_NOUNS)}`
-}
-
-export function restoreDash(code: string): string {
-  if (code.includes('-')) return code
-  const adjective = ROOM_ADJECTIVES.find(
-    (word) => code.startsWith(word) && ROOM_NOUNS.includes(code.slice(word.length)),
-  )
-  return adjective ? `${adjective}-${code.slice(adjective.length)}` : code
-}
-
 export function tabPeerId(): string {
   const existing = sessionStorage.getItem('codenames:peer-id')
   if (existing) return existing

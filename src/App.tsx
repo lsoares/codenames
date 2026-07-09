@@ -4,7 +4,7 @@ import { getFaces, providers } from './cardProviders/providers'
 import { Host } from './multiplayer/Host'
 import { Guest, JoinError } from './multiplayer/Guest'
 import { Roster, type Session, type Action, type Player } from './multiplayer/Session'
-import { restoreDash } from './multiplayer/peer'
+import { RoomCode } from './multiplayer/RoomCode'
 import { playSound } from './sound'
 import GameScreen, { spymasterEmoji } from './ui/GameScreen'
 import Homepage from './ui/Homepage'
@@ -13,14 +13,6 @@ import styles from './App.module.css'
 const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
 
 const teamName = (team: Team): string => (team === 'red' ? 'Red' : 'Blue')
-
-const normalizeCode = (raw: string): string =>
-  raw
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 
 const hostStateKey = (code: string): string => `codenames:host:${code}`
 
@@ -157,7 +149,7 @@ export default function App() {
 
   useEffect(() => {
     const onPopState = () => {
-      if (!normalizeCode(window.location.pathname)) goHome()
+      if (!RoomCode.fromPath(window.location.pathname)) goHome()
     }
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
@@ -259,7 +251,7 @@ export default function App() {
 
 
   const attemptJoin = () => {
-    const code = normalizeCode(window.location.pathname)
+    const code = RoomCode.fromPath(window.location.pathname)?.toString()
     if (!code) return
 
     setStatus(`Joining ${code}…`)
@@ -334,14 +326,14 @@ export default function App() {
       ) : (
         <Homepage
           providers={providers}
-          onPick={(id) => void createRoom(id, normalizeCode(window.location.pathname) || undefined)}
+          onPick={(id) => void createRoom(id, RoomCode.fromPath(window.location.pathname)?.toString())}
           onJoin={
-            normalizeCode(window.location.pathname)
+            RoomCode.fromPath(window.location.pathname)
               ? undefined
               : (raw) => {
-                  const code = normalizeCode(raw)
+                  const code = RoomCode.fromTyped(raw)
                   if (!code) return
-                  history.pushState({}, '', '/' + restoreDash(code))
+                  history.pushState({}, '', '/' + code)
                   attemptJoin()
                 }
           }

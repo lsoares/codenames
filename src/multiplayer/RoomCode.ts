@@ -1,0 +1,71 @@
+const ROOM_ADJECTIVES = [
+  'pure', 'ideal', 'evil', 'soft', 'strange', 'fresh', 'divine', 'wild',
+  'famous', 'warm', 'rare', 'clean', 'bright', 'vast', 'alive', 'silent',
+  'wise', 'hidden', 'sacred', 'cool', 'enormous', 'friendly', 'tiny', 'magic',
+  'noble', 'proud', 'calm', 'curious', 'infinite', 'romantic', 'solar', 'mad',
+  'giant', 'gentle', 'frozen', 'immense', 'bold', 'mighty', 'brave', 'purple',
+  'heroic', 'clever', 'splendid', 'fierce', 'potent', 'wicked', 'epic', 'cosmic',
+  'vivid', 'deadly', 'furious', 'scarlet', 'gigantic', 'fiery', 'mythical', 'sinister',
+  'luminous', 'crimson', 'gallant', 'fabulous', 'winged', 'stormy', 'mythic', 'fearless',
+  'valiant',
+]
+
+const ROOM_NOUNS = [
+  'dragon', 'wolf', 'tiger', 'lion', 'eagle', 'snake', 'owl', 'shark',
+  'monkey', 'elephant', 'deer', 'salmon', 'trout', 'raven', 'serpent', 'spider',
+  'dove', 'lizard', 'parrot', 'tuna', 'beetle', 'moth', 'bee', 'duck',
+  'bat', 'sheep', 'chicken', 'pigeon', 'ant', 'perch', 'cattle', 'fowl',
+  'dog', 'cat', 'bird', 'fish', 'knight', 'magician', 'captain', 'merchant',
+  'baron', 'earl', 'duke', 'princess', 'angel', 'devil', 'demon', 'fairy',
+  'witch', 'ghost', 'alien', 'robot', 'monster', 'beast', 'creature', 'dwarf',
+  'hero', 'villain', 'mutant', 'skeleton', 'hunter', 'warrior', 'clown', 'forest',
+  'ocean', 'mountain', 'valley', 'lake', 'coast', 'beach', 'desert', 'canyon',
+  'glacier', 'plateau', 'grove', 'pond', 'brook', 'creek', 'reef', 'coral',
+  'peak', 'palace', 'fortress', 'mansion', 'tower', 'abbey', 'chapel', 'manor',
+  'monument', 'ruin', 'garden', 'empire', 'planet', 'moon', 'star', 'galaxy',
+  'universe', 'orbit', 'rainbow', 'shadow', 'sword', 'blade', 'armor', 'weapon',
+  'spell', 'quest', 'voyage', 'legend', 'fantasy', 'treasure', 'oak', 'pine',
+  'palm', 'lotus', 'lily', 'blossom', 'berry', 'cherry', 'lemon', 'peach',
+  'plum', 'apple', 'olive', 'grape', 'coconut', 'honey',
+]
+
+export class RoomCode {
+  private constructor(private readonly code: string) {}
+
+  static fromPath(pathname: string): RoomCode | null {
+    const code = normalize(pathname)
+    return code ? new RoomCode(code) : null
+  }
+
+  // A typed code forgives sloppiness: case, accents and symbols are normalized,
+  // and a generated code pasted without its dash gets it back.
+  static fromTyped(raw: string): RoomCode | null {
+    const code = normalize(raw)
+    return code ? new RoomCode(restoreDash(code)) : null
+  }
+
+  static random(): RoomCode {
+    const pick = (pool: string[]) => pool[Math.floor(Math.random() * pool.length)]
+    return new RoomCode(`${pick(ROOM_ADJECTIVES)}-${pick(ROOM_NOUNS)}`)
+  }
+
+  toString(): string {
+    return this.code
+  }
+}
+
+const normalize = (raw: string): string =>
+  raw
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+const restoreDash = (code: string): string => {
+  if (code.includes('-')) return code
+  const adjective = ROOM_ADJECTIVES.find(
+    (word) => code.startsWith(word) && ROOM_NOUNS.includes(code.slice(word.length)),
+  )
+  return adjective ? `${adjective}-${code.slice(adjective.length)}` : code
+}

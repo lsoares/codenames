@@ -2,7 +2,8 @@ import { type DataConnection } from 'peerjs'
 import type { Face } from '../Face'
 import { Game, createGame, type Credit, type GameState } from '../Game'
 import { Room } from './Room'
-import { iceServersReady, logConnection, newPeer, randomRoomCode } from './peer'
+import { iceServersReady, logConnection, newPeer } from './peer'
+import { RoomCode } from './RoomCode'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
 
 const apply = (game: Game, action: Action): Game => {
@@ -56,7 +57,7 @@ export class Host implements Session {
     deck: string,
     code?: string,
   ): Promise<Host> {
-    return Host.launch(code ?? randomRoomCode(), createGame(faces, startingTeam, credit, deck), 'new', 4, code != null)
+    return Host.launch(code ?? RoomCode.random().toString(), createGame(faces, startingTeam, credit, deck), 'new', 4, code != null)
   }
 
   static resume(roomCode: string, state: GameState): Promise<Host> {
@@ -166,7 +167,7 @@ export class Host implements Session {
         window.removeEventListener('pagehide', this.releaseOnUnload)
         if (this.heartbeat) clearInterval(this.heartbeat)
         if (this.fixedCode && this.mode === 'new') return reject(error)
-        const nextCode = this.mode === 'new' ? randomRoomCode() : this.code
+        const nextCode = this.mode === 'new' ? RoomCode.random().toString() : this.code
         setTimeout(
           () => Host.launch(nextCode, this.game.state, this.mode, retries - 1, this.fixedCode).then(resolve, reject),
           this.mode === 'resume' ? 800 : 0,
