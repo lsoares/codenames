@@ -1,6 +1,6 @@
 import { type DataConnection } from 'peerjs'
 import { iceServersReady, logConnection, newPeer, resetTabPeerId, tabPeerId } from './peer'
-import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
+import type { Action, Ping, Presence, RoomView, Session, TeamClaim, Whack } from './Session'
 
 export type JoinFailureReason =
   | 'room-not-found'
@@ -36,6 +36,10 @@ export class Guest implements Session {
 
   dispatch(action: Action): void {
     this.connection.send(action)
+  }
+
+  whack(moleId: number, reactionMs: number): void {
+    this.connection.send({ __whack: true, moleId, reactionMs } satisfies Whack)
   }
 
   setSpymaster(team: 'red' | 'blue' | null): void {

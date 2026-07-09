@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Game, INFINITE_CLUE, type GuessOutcome, type Team } from '../Game'
-import { Roster, type Action } from '../multiplayer/Session'
+import { Roster, type Action, type MolesView } from '../multiplayer/Session'
+import { useMoles } from '../moles/useMoles'
 import type { CardProvider } from '../cardProviders/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
@@ -25,6 +26,8 @@ export default function GameScreen(props: {
   onJoinTeam: (team: Team) => void
   onAction: (action: Action) => void
   onNewGame: (providerId: string, rotateSpymaster?: boolean) => void
+  moles: MolesView | null
+  onWhack: (moleId: number, reactionMs: number) => void
   loadingFaces: boolean
   providers: CardProvider[]
 }) {
@@ -252,6 +255,14 @@ export default function GameScreen(props: {
   const activeSpymaster = props.mySeat === turn
   const mineTurn = turn === props.myTeam
 
+  const moles = useMoles(
+    props.moles,
+    acting === 'spymaster' && activeSpymaster,
+    props.roster.players,
+    props.selfId,
+    props.onWhack,
+  )
+
   const winnerName = winner ? winner.charAt(0).toUpperCase() + winner.slice(1) : ''
   const winnerEmojis = winner
     ? props.roster
@@ -332,6 +343,7 @@ export default function GameScreen(props: {
 
   const center = (
     <div className={styles.menu}>
+      {moles.hud}
       {clueForm || (
         <div
           className={styles.statusPill}
@@ -423,7 +435,7 @@ export default function GameScreen(props: {
         </div>
       </header>
 
-      <div className={styles.boardArea}>
+      <div className={`${styles.boardArea} ${moles.cursorClass}`}>
         <Board
           game={props.game}
           loading={props.loadingFaces}
@@ -436,6 +448,8 @@ export default function GameScreen(props: {
           onClearSelection={clearSelected}
           onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
           onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index, team: props.myTeam })}
+          overlay={moles.overlayFor}
+          bare={props.moles !== null && !(acting === 'spymaster' && activeSpymaster)}
         />
       </div>
 

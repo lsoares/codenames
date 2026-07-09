@@ -3,7 +3,7 @@ import { Game, type GameState, type Team } from './Game'
 import { getFaces, providers } from './cardProviders/providers'
 import { Host } from './multiplayer/Host'
 import { Guest, JoinError } from './multiplayer/Guest'
-import { Roster, type Session, type Action, type Player } from './multiplayer/Session'
+import { Roster, type Session, type Action, type Player, type MolesView } from './multiplayer/Session'
 import { Takeover } from './multiplayer/Takeover'
 import { RoomCode } from './multiplayer/RoomCode'
 import { playSound } from './sound'
@@ -19,6 +19,7 @@ export default function App() {
     blue: null,
   })
   const [players, setPlayers] = useState<Player[]>([])
+  const [moles, setMoles] = useState<MolesView | null>(null)
   const [isHost, setIsHost] = useState(false)
   const [loadingFaces, setLoadingFaces] = useState(false)
   const [status, setStatus] = useState('')
@@ -53,6 +54,7 @@ export default function App() {
       setGame(next)
       setSeats(view.seats)
       setPlayers(view.players)
+      setMoles(view.moles ?? null)
     })
     if (!asHost) session.onDisconnect(() => migrate())
     const pinnedTeam = localStorage.getItem('codenames:start-team') as Team | null
@@ -120,6 +122,7 @@ export default function App() {
     setRoomCode('')
     setSeats({ red: null, blue: null })
     setPlayers([])
+    setMoles(null)
     setStatus('')
   }
 
@@ -278,6 +281,8 @@ export default function App() {
           onJoinTeam={joinTeam}
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
           onNewGame={newGame}
+          moles={moles}
+          onWhack={(moleId, reactionMs) => sessionRef.current?.whack(moleId, reactionMs)}
           loadingFaces={loadingFaces}
           providers={providers}
         />

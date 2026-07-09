@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Face } from '../Face'
 import { Game, type Card, type GuessOutcome, type Team } from '../Game'
 import styles from './Board.module.css'
@@ -15,6 +15,8 @@ export default function Board(props: {
   onClearSelection: () => void
   onCardClick: (index: number) => void
   onCardMark: (index: number) => void
+  overlay?: (index: number) => ReactNode
+  bare?: boolean
 }) {
   const isSpymaster = props.spymasterTeam !== null
   const cards = props.game.state.cards
@@ -83,7 +85,7 @@ export default function Board(props: {
             <button
               className={styles.card}
               aria-label={label}
-              title={card.face.tooltip}
+              title={props.bare ? undefined : card.face.tooltip}
               data-color={showColor ? card.color : undefined}
               data-mine={
                 (isSpymaster && !card.revealed && card.color === props.spymasterTeam) ||
@@ -111,7 +113,7 @@ export default function Board(props: {
                 </span>
               )}
             </button>
-            {canMark && (
+            {!props.bare && canMark && (
               <button
                 type="button"
                 className={styles.overlayIcon}
@@ -123,7 +125,7 @@ export default function Board(props: {
                 📌
               </button>
             )}
-            {card.face.link && !props.loading && (
+            {!props.bare && card.face.link && !props.loading && (
               <a
                 className={styles.linkIcon}
                 href={card.face.link}
@@ -136,7 +138,7 @@ export default function Board(props: {
                 ↗
               </a>
             )}
-            {zoomUrl && !props.loading && (
+            {!props.bare && zoomUrl && !props.loading && (
               <button
                 type="button"
                 className={styles.zoomIcon}
@@ -150,6 +152,7 @@ export default function Board(props: {
                 🔍
               </button>
             )}
+            {props.overlay?.(index)}
           </div>
         )
       })}
