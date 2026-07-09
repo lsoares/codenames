@@ -1,7 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import type { Face } from '../Face'
 import { Game, type Card, type GuessOutcome, type Team } from '../Game'
-import ImageLightbox from './ImageLightbox'
 import styles from './Board.module.css'
 
 export default function Board(props: {
@@ -194,4 +193,29 @@ function renderFace(face: Face) {
         />
       )
   }
+}
+
+function ImageLightbox(props: { url: string; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') props.onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [props.onClose])
+
+  return (
+    <div className={styles.lightbox} role="dialog" aria-modal="true" onClick={props.onClose}>
+      <button type="button" className={styles.lightboxClose} aria-label="Close" onClick={props.onClose}>
+        ✕
+      </button>
+      <img
+        className={styles.lightboxImage}
+        src={props.url}
+        alt=""
+        draggable={false}
+        onClick={(event) => event.stopPropagation()}
+      />
+    </div>
+  )
 }

@@ -8,7 +8,7 @@ import ClueBar from './ClueBar'
 import ThinkingBar from './ThinkingBar'
 import DeckPicker from './DeckPicker'
 import HowToPlay from './HowToPlay'
-import RoomQr from './RoomQr'
+import { QRCodeSVG } from 'qrcode.react'
 import styles from './GameScreen.module.css'
 
 export const spymasterEmoji: Record<Team, string> = { red: '🕵️‍♀️', blue: '🕵️‍♂️' }
@@ -530,5 +530,38 @@ export default function GameScreen(props: {
 
       <HowToPlay />
     </main>
+  )
+}
+
+function RoomQr() {
+  const [copied, setCopied] = useState(false)
+  const timer = useRef<number>()
+  const url = `https://codenamesany.pages.dev${window.location.pathname}`
+  const roomName = decodeURIComponent(window.location.pathname).replace(/^\/+|\/+$/g, '')
+  return (
+    <div className={styles.invite}>
+      <div className={styles.roomLine}>
+        <span className={styles.copied} data-show={copied || undefined} role="status" aria-live="polite">
+          {copied ? 'Copied!' : ''}
+        </span>
+        <button
+          type="button"
+          className={styles.roomName}
+          aria-label="Copy join link"
+          title="Copy link"
+          onClick={() => {
+            void navigator.clipboard?.writeText(url)
+            setCopied(true)
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => setCopied(false), 1400)
+          }}
+        >
+          {roomName}
+        </button>
+      </div>
+      <div className={styles.qr}>
+        <QRCodeSVG value={url} size={180} />
+      </div>
+    </div>
   )
 }
