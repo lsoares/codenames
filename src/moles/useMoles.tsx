@@ -42,30 +42,6 @@ export function useMoles(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view])
 
-  const [champs, setChamps] = useState<string | null>(null)
-  const lastScores = useRef<Readonly<Record<string, number>> | null>(null)
-  useEffect(() => {
-    if (view) {
-      lastScores.current = view.scores
-      setChamps(null)
-      return
-    }
-    const scores = lastScores.current
-    lastScores.current = null
-    if (!scores) return
-    const top = Math.max(0, ...Object.values(scores))
-    if (top === 0) return
-    setChamps(
-      players
-        .filter((player) => scores[player.id] === top)
-        .map((player) => player.emoji)
-        .join(' '),
-    )
-    const timer = setTimeout(() => setChamps(null), 6000)
-    return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view])
-
   const whack = (mole: MoleSighting) => {
     if (whackedIds.has(mole.id)) return
     setWhackedIds((prev) => new Set(prev).add(mole.id))
@@ -124,11 +100,6 @@ export function useMoles(
               {players.find((player) => player.id === id)?.emoji ?? '👤'} {score}
             </span>
           ))}
-        </div>
-      )}
-      {champs && (
-        <div className={styles.champs} role="status">
-          👑 {champs}
         </div>
       )}
     </>

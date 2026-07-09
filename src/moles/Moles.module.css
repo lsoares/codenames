@@ -118,23 +118,3 @@
   outline: 2px solid color-mix(in srgb, var(--ink) 35%, transparent);
 }
 
-.champs {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 6;
-  padding: 6px 16px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  font-size: 1.2rem;
-  pointer-events: none;
-  animation: champsPop 0.2s ease-out;
-}
-
-@keyframes champsPop {
-  from {
-    transform: translate(-50%, 60%) scale(0.3);
-    opacity: 0;
-  }
-}
