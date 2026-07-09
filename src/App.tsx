@@ -230,8 +230,9 @@ export default function App() {
     prevPlayersRef.current = players
     if (prev === null) return
     const joined = players.find((player) => !prev.some((was) => was.id === player.id))
+    const gone = prev.find((was) => !players.some((player) => player.id === was.id))
     if (joined) notify(`joined ${teamName(joined.team)} 👋`, joined.team, joined.emoji)
-    else if (players.length < prev.length) notify('A player left')
+    else if (gone) notify('left', gone.team, gone.emoji)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [players, game])
 
