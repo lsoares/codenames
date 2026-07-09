@@ -6,8 +6,12 @@ The Kenney samples below are **CC0 1.0 (public domain)** by
 rising fifth, a triumphant major roll, and a soft minute tick) and likewise
 placed in the public domain.
 
+`tictac.mp3` is a real clock tic-tac from [Freesound](https://freesound.org/s/81751/),
+released **CC0** (credited there as Freesound Community).
+
 | File | Pack | Original |
 |------|------|----------|
+| `tictac.mp3` | [Freesound #81751](https://freesound.org/s/81751/) | clock tic-tac, CC0 |
 | `clue.wav` | — | synthesised (rising fifth chime) |
 | `victory.wav` | — | synthesised (triumphant major roll) |
 | `minute.wav` | — | synthesised (soft minute tick) |

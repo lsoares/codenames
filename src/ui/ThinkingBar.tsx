@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Team } from '../Game'
-import { playTick } from '../sound'
+import { playSound } from '../sound'
 import styles from './ThinkingBar.module.css'
 
 const CAP_MINUTES = 10 // stop at ten minutes — by then nobody's still at the board
@@ -21,21 +21,15 @@ export default function ThinkingBar(props: { team: Team }) {
   }, [seconds, capped])
 
   const completed = Math.min(Math.floor(seconds / 60), CAP_MINUTES)
-  // Not every second — that's maddening. A single soft tic at each half-minute, and a
-  // clear two-click tic-tac at each whole minute, so time is marked without a constant
-  // ticking clock. Both clicks of the minute are scheduled on the audio clock so the
-  // tic is never dropped or masked.
+  // Not every second — that's maddening. A short real clock tic-tac (a recorded
+  // sample) at each whole minute, and just its opening tic at each half-minute, so
+  // time is marked without a constant ticking clock.
   useEffect(() => {
     if (capped || seconds === 0 || seconds % 30 !== 0) return
-    if (seconds % 60 === 0) {
-      playTick(0, 0.6) // tic
-      playTick(1, 0.6, 0.22) // …tac
-    } else {
-      playTick(0, 0.5) // a lone tic at the half-minute
-    }
+    if (seconds % 60 === 0) playSound('tictac')
+    else playSound('tictac', 1, { duration: 0.4 })
   }, [seconds, capped])
 
-  const fraction = (seconds % 60) / 60
   const total = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
 
   return (
@@ -49,10 +43,11 @@ export default function ThinkingBar(props: { team: Team }) {
         <span key={`filled-${i}`} className={styles.cell} data-filled="" />
       ))}
       {!capped && (
-        // Keyed on the minute so each new minute mounts a fresh cell whose fill starts
-        // at zero and grows, rather than the previous fill sliding back to zero.
+        // Keyed on the minute so each new minute mounts a fresh cell; its fill is a
+        // pure 60s CSS animation (0→100%), so it grows smoothly on the GPU rather than
+        // stepping once per second.
         <span key={`current-${completed}`} className={styles.cell}>
-          <span className={styles.fill} style={{ width: `${fraction * 100}%` }} />
+          <span className={styles.fill} />
         </span>
       )}
       {Array.from({ length: capped ? 0 : CAP_MINUTES - completed - 1 }, (_, i) => (

@@ -13,6 +13,7 @@ import takeover from './sounds/takeover.ogg'
 import teamSwitch from './sounds/teamSwitch.ogg'
 import victory from './sounds/victory.wav'
 import minute from './sounds/minute.wav'
+import tictac from './sounds/tictac.mp3'
 
 export type Sound =
   | 'clue'
@@ -27,6 +28,7 @@ export type Sound =
   | 'assassin'
   | 'victory'
   | 'minute'
+  | 'tictac'
 
 const urls: Record<Sound, string> = {
   assassin,
@@ -41,6 +43,7 @@ const urls: Record<Sound, string> = {
   teamSwitch,
   victory,
   minute,
+  tictac,
 }
 
 let ctx: AudioContext | null = null
@@ -56,9 +59,10 @@ async function load(sound: Sound): Promise<AudioBuffer | null> {
   return buffer
 }
 
-// `volume` scales this cue relative to the others (1 = the standard level), for a
-// cue that should sit quieter than the rest — e.g. the recurring minute tick.
-export function playSound(sound: Sound, volume = 1): void {
+// `volume` scales this cue relative to the others (1 = the standard level). `slice`
+// plays only part of the sample — { duration } from the start — so a longer clip
+// (e.g. the tic-tac) can double as a shorter cue (a lone tic).
+export function playSound(sound: Sound, volume = 1, slice: { duration?: number } = {}): void {
   const ac = resumeCtx()
   void load(sound).then((buffer) => {
     if (!buffer) return
@@ -67,7 +71,7 @@ export function playSound(sound: Sound, volume = 1): void {
     gain.gain.value = 0.5 * volume // the samples are normalised loud; keep cues in the background
     source.buffer = buffer
     source.connect(gain).connect(ac.destination)
-    source.start()
+    source.start(ac.currentTime, 0, slice.duration)
   })
 }
 
@@ -77,30 +81,3 @@ function resumeCtx(): AudioContext {
   return ctx
 }
 
-// A wall-clock tic-tac, synthesised on the fly rather than sampled: a short
-// band-passed noise click whose pitch alternates by beat — a higher "tic" on even
-// counts, a lower "tac" on odd — so a running timer sounds like a real clock.
-// Client-local, like the rest of the timer; `volume` scales it as in playSound.
-export function playTick(beat: number, volume = 1, delay = 0): void {
-  const ac = resumeCtx()
-  const tic = beat % 2 === 0
-  // Both clicks are kept audibly long enough to register as a distinct tic and tac.
-  const decay = tic ? 0.026 : 0.034
-  const now = ac.currentTime + delay
-  const length = Math.max(1, Math.floor(ac.sampleRate * decay))
-  const noise = ac.createBuffer(1, length, ac.sampleRate)
-  const data = noise.getChannelData(0)
-  for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1
-  const source = ac.createBufferSource()
-  source.buffer = noise
-  const band = ac.createBiquadFilter()
-  band.type = 'bandpass'
-  band.frequency.value = tic ? 2600 : 1500
-  band.Q.value = 12
-  const gain = ac.createGain()
-  gain.gain.setValueAtTime(0.5 * volume, now)
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + decay)
-  source.connect(band).connect(gain).connect(ac.destination)
-  source.start(now)
-  source.stop(now + decay + 0.02)
-}

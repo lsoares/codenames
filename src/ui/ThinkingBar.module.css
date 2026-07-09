@@ -22,12 +22,20 @@
 }
 
 /* The current minute: a solid team-colour fill that grows left-to-right across the
-   minute (width stepped inline each second), clipped to the cell's pill shape. */
+   minute, clipped to the cell's pill shape. A pure 60s CSS animation, so it fills
+   smoothly on the GPU instead of stepping once per second. */
 .fill {
   display: block;
   height: 100%;
+  width: 0;
   background: var(--cell-color);
-  transition: width 1s linear;
+  animation: fill 60s linear forwards;
+}
+
+@keyframes fill {
+  to {
+    width: 100%;
+  }
 }
 
 .bar[data-team='red'] {
