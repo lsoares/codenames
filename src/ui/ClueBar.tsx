@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { INFINITE_CLUE, type Team } from '../Game'
 import styles from './ClueBar.module.css'
 
@@ -10,8 +10,10 @@ export default function ClueBar(props: {
 }) {
   const [word, setWord] = useState('')
   const [count, setCount] = useState(1)
+  const wordInput = useRef<HTMLInputElement>(null)
   useEffect(() => {
     if (props.selectedCount > 0) setCount(props.selectedCount)
+    wordInput.current?.focus()
   }, [props.selectedCount])
 
   const unlimited = count > props.teamCardsLeft
@@ -31,6 +33,7 @@ export default function ClueBar(props: {
       }}
     >
       <input
+        ref={wordInput}
         className={styles.word}
         autoFocus
         value={word}
