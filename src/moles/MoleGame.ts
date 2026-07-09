@@ -1,5 +1,5 @@
 export type MoleDirection = 'top' | 'bottom' | 'left' | 'right'
-export type MoleKind = 'mole' | 'decoy'
+export type MoleKind = 'mole' | 'decoy' | 'bonus'
 
 export interface MoleSighting {
   readonly id: number
@@ -39,7 +39,10 @@ export class MoleGame {
     const score = this.scores[fastest[0]] ?? 0
     return new MoleGame(remaining, rest, {
       ...this.scores,
-      [fastest[0]]: resolved?.kind === 'decoy' ? Math.max(0, score - 2) : score + 1,
+      [fastest[0]]:
+        resolved?.kind === 'decoy'
+          ? Math.max(0, score - 2)
+          : score + (resolved?.kind === 'bonus' ? 2 : 1),
     })
   }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { MolesView, Player } from '../multiplayer/Session'
-import type { MoleSighting } from './MoleGame'
+import type { MoleKind, MoleSighting } from './MoleGame'
 import { playSound } from '../sound'
 import styles from './Moles.module.css'
 
@@ -83,14 +83,14 @@ export function useMoles(
             type="button"
             className={styles.mole}
             data-from={live.from}
-            aria-label={live.kind === 'decoy' ? 'Mouse' : 'Whack the mole'}
+            aria-label={label[live.kind]}
             disabled={whackedIds.has(live.id)}
             onClick={(event) => {
               event.stopPropagation()
               whack(live)
             }}
           >
-            {whackedIds.has(live.id) ? (live.kind === 'decoy' ? '💢' : '💫') : live.kind === 'decoy' ? '🐭' : '🐹'}
+            {whackedIds.has(live.id) ? whackedFace[live.kind] : face[live.kind]}
           </button>
         </span>
       )
@@ -100,7 +100,7 @@ export function useMoles(
       return (
         <span className={styles.hole} aria-hidden="true">
           <span className={styles.mole} data-from={ghost.from} data-leaving="">
-            {ghost.kind === 'decoy' ? '🐭' : '🐹'}
+            {face[ghost.kind]}
           </span>
         </span>
       )
@@ -136,3 +136,7 @@ export function useMoles(
 
   return { overlayFor, hud, cursorClass: view && !hidden ? styles.armed : '' }
 }
+
+const face: Record<MoleKind, string> = { mole: '🐹', decoy: '🐭', bonus: '🐰' }
+const whackedFace: Record<MoleKind, string> = { mole: '💫', decoy: '💢', bonus: '🌟' }
+const label: Record<MoleKind, string> = { mole: 'Whack the mole', decoy: 'Mouse', bonus: 'Rabbit' }
