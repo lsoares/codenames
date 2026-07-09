@@ -440,7 +440,14 @@ export default function GameScreen(props: {
       </div>
 
       <div className={styles.tools}>
-        {menuOpen && <div className={styles.toolsBackdrop} onClick={() => setMenuOpen(false)} />}
+        {menuOpen && (
+          <button
+            type="button"
+            className={styles.toolsBackdrop}
+            aria-label="Close menu"
+            onClick={() => setMenuOpen(false)}
+          />
+        )}
         <button
           type="button"
           className={styles.hamburger}

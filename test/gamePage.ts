@@ -156,7 +156,7 @@ export class GamePage {
   }
 
   async closeToolsMenu(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Menu', expanded: true }).click()
+    await this.page.getByRole('button', { name: 'Close menu' }).click()
   }
 
   // The tools menu holds the join QR and the room name (click to copy the link).
