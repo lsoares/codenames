@@ -11,6 +11,8 @@ import HowToPlay from './HowToPlay'
 import RoomQr from './RoomQr'
 import styles from './GameScreen.module.css'
 
+export const spymasterEmoji: Record<Team, string> = { red: '🕵️‍♀️', blue: '🕵️‍♂️' }
+
 export default function GameScreen(props: {
   game: Game
   flash: { text: string; team: Team | null; emoji?: string } | null
@@ -133,9 +135,9 @@ export default function GameScreen(props: {
     const editable = !props.game.inProgress()
     const canTakeSeat = !isMySeat && editable
     const spymasterFace = hasSpymaster ? (
-      <span role="img" aria-label={`${team} spymaster`}>🕵️</span>
+      <span role="img" aria-label={`${team} spymaster`}>{spymasterEmoji[team]}</span>
     ) : (
-      <span aria-hidden="true" className={styles.spymasterDim}>🕵️</span>
+      <span aria-hidden="true" className={styles.spymasterDim}>{spymasterEmoji[team]}</span>
     )
     const spymasterLabel = hasSpymaster
       ? `Replace the ${team} spymaster`
@@ -290,7 +292,7 @@ export default function GameScreen(props: {
   useEffect(() => {
     document.title = centerText
 
-    const role = winner === props.myTeam ? '🏆' : props.mySeat ? '🕵️' : ''
+    const role = winner === props.myTeam ? '🏆' : props.mySeat ? spymasterEmoji[props.mySeat] : ''
     const colorVar = props.myTeam === 'red' ? '--red' : '--blue'
     const color = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim() || '#888'
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="${color}"/><text x="16" y="25" font-size="22" text-anchor="middle">${role}</text></svg>`
@@ -521,7 +523,7 @@ export default function GameScreen(props: {
         )}
       </dialog>
 
-      {myMove && (
+      {myMove && props.players.length >= 4 && (
         <div className={styles.thinkingDock}>
           <ThinkingBar key={`${acting}-${clueHistory.length}`} team={turn} />
         </div>
