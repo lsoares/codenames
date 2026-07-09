@@ -1,6 +1,7 @@
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { Face } from '../Face'
 import { Game, type Card, type GuessOutcome, type Team } from '../Game'
+import ImageLightbox from './ImageLightbox'
 import styles from './Board.module.css'
 
 const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
@@ -57,6 +58,7 @@ export default function Board(props: {
   const isSpymaster = props.spymasterTeam !== null
   const cards = props.game.state.cards
   const gameOver = props.game.state.winner !== null
+  const [zoomed, setZoomed] = useState<string | null>(null)
 
   // Both roles single out cards the same way — the picked card stays lit while the
   // rest of the board dims. A spymaster's picks are private (the selected set, owned
@@ -92,6 +94,7 @@ export default function Board(props: {
       : cards.map((_, index) => index)
 
   return (
+    <>
     <div
       className={styles.board}
       data-focus={props.focus || undefined}
@@ -113,6 +116,8 @@ export default function Board(props: {
         const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
         const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
         const canMark = props.game.canMark(index, isSpymaster)
+        // A photo with no reference link offers a zoom instead of the ↗ link.
+        const zoomUrl = card.face.kind === 'image' && !card.face.link ? card.face.url : null
         return (
           // A per-card view-transition name lets the browser glide each card from
           // its old spot to its new one when Focus mode reorders the board.
@@ -179,9 +184,27 @@ export default function Board(props: {
                 ↗
               </a>
             )}
+            {zoomUrl && !props.loading && (
+              // Enlarge the whole, uncropped photo in a lightbox. Its own button, a
+              // sibling of the card — never nested — so it can't trigger a guess.
+              <button
+                type="button"
+                className={styles.zoomIcon}
+                aria-label={`Enlarge ${name}`}
+                title={`Enlarge ${name}`}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setZoomed(zoomUrl)
+                }}
+              >
+                🔍
+              </button>
+            )}
           </div>
         )
       })}
     </div>
+    {zoomed && <ImageLightbox url={zoomed} onClose={() => setZoomed(null)} />}
+    </>
   )
 }
