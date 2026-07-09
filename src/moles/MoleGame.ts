@@ -36,9 +36,10 @@ export class MoleGame {
     const { [moleId]: forMole, ...rest } = this.whacks
     const fastest = Object.entries(forMole ?? {}).sort((a, b) => a[1] - b[1])[0]
     if (!fastest) return new MoleGame(remaining, rest, this.scores)
+    const score = this.scores[fastest[0]] ?? 0
     return new MoleGame(remaining, rest, {
       ...this.scores,
-      [fastest[0]]: resolved?.kind === 'decoy' ? 0 : (this.scores[fastest[0]] ?? 0) + 1,
+      [fastest[0]]: resolved?.kind === 'decoy' ? Math.max(0, score - 2) : score + 1,
     })
   }
 }
