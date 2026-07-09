@@ -47,10 +47,10 @@ export class MolesHost {
     clearTimeout(this.spawner)
     this.spawner = setTimeout(() => {
       if (!this.game) return
-      const target = Math.min(3, Math.ceil(this.world.whackerIds().length / 3))
+      const target = Math.min(4, 1 + Math.ceil(this.world.whackerIds().length / 3))
       if (this.game.moles.length < target) this.spawnOne()
       this.schedule()
-    }, 700 + Math.random() * 1500)
+    }, 500 + Math.random() * 1000)
   }
 
   private spawnOne(): void {
