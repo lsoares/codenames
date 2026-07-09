@@ -42,10 +42,41 @@ export function useMoles(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view])
 
+  // When the game closes, the score spot briefly names the winner instead.
+  const [champs, setChamps] = useState<string | null>(null)
+  const lastScores = useRef<Readonly<Record<string, number>> | null>(null)
+  useEffect(() => {
+    if (view) {
+      lastScores.current = view.scores
+      setChamps(null)
+      return
+    }
+    const scores = lastScores.current
+    lastScores.current = null
+    if (!scores) return
+    const top = Math.max(0, ...Object.values(scores))
+    if (top === 0) return
+    setChamps(
+      players
+        .filter((player) => scores[player.id] === top)
+        .map((player) => player.emoji)
+        .join(' '),
+    )
+    const timer = setTimeout(() => setChamps(null), 4000)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view])
+
+  // Whacking the mouse stuns you: 2.5s without a mallet.
+  const [stunned, setStunned] = useState(false)
   const whack = (mole: MoleSighting) => {
-    if (whackedIds.has(mole.id)) return
+    if (stunned || whackedIds.has(mole.id)) return
     setWhackedIds((prev) => new Set(prev).add(mole.id))
     playSound(mole.kind === 'decoy' ? 'guessWrong' : 'guessRight', 0.6, { duration: 0.3 })
+    if (mole.kind === 'decoy') {
+      setStunned(true)
+      setTimeout(() => setStunned(false), 2500)
+    }
     onWhack(mole.id, Math.round(performance.now() - (shownAt.current.get(mole.id) ?? performance.now())))
   }
 
@@ -60,7 +91,7 @@ export function useMoles(
             className={styles.mole}
             data-from={live.from}
             aria-label={label[live.kind]}
-            disabled={whackedIds.has(live.id)}
+            disabled={whackedIds.has(live.id) || stunned}
             onClick={(event) => {
               event.stopPropagation()
               whack(live)
@@ -92,15 +123,23 @@ export function useMoles(
   ).sort((a, b) => b[1] - a[1])
   const hud = (
     <>
-      {ranking.length > 0 && !hidden && (
-        <div className={styles.scores} role="status" aria-label="Whack-a-mole scores">
-          <span aria-hidden="true">🏓</span>
-          {ranking.map(([id, score]) => (
-            <span key={id} className={styles.score} data-mine={id === selfId || undefined}>
-              {players.find((player) => player.id === id)?.emoji ?? '👤'} {score}
-            </span>
-          ))}
+      {!view && champs ? (
+        <div className={styles.scores} role="status" aria-label="Whack-a-mole winner">
+          👑 {champs}
         </div>
+      ) : (
+        ranking.length > 0 &&
+        !hidden && (
+          <div className={styles.scores} role="status" aria-label="Whack-a-mole scores">
+            <span aria-hidden="true">🏓</span>
+            {ranking.map(([id, score]) => (
+              <span key={id} className={styles.score} data-mine={id === selfId || undefined}>
+                {players.find((player) => player.id === id)?.emoji ?? '👤'} {score}
+                {id === selfId && stunned ? ' 💢' : ''}
+              </span>
+            ))}
+          </div>
+        )
       )}
     </>
   )

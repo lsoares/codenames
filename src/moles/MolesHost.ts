@@ -70,8 +70,8 @@ export class MolesHost {
       if (!this.game) return
       this.game = this.game.resolve(id)
       this.broadcast()
-      // The +2 rabbit is fugitive: catching it takes a genuinely fast reflex.
-    }, kind === 'bonus' ? 1300 : 2200)
+      // The +2 rabbit is fugitive; the mouse leaves early so it clutters less.
+    }, kind === 'bonus' ? 1300 : kind === 'decoy' ? 1500 : 2200)
     this.lives.add(life)
   }
 }
