@@ -116,7 +116,7 @@ export function useMoles(
   ).sort((a, b) => b[1] - a[1])
   const hud = (
     <>
-      {ranking.length > 0 && (
+      {ranking.length > 0 && !hidden && (
         <div className={styles.scores} role="status" aria-label="Whack-a-mole scores">
           <span aria-hidden="true">🏓</span>
           {ranking.map(([id, score]) => (
