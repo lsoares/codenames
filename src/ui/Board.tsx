@@ -11,9 +11,6 @@ const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
   assassin: { emoji: '💀', label: 'assassin' },
 }
 
-// Each face kind renders its own way: a glyph big, a word sized to read, a photo
-// full-bleed (per its own fit), a pictogram as a recolorable mask. The switch is
-// exhaustive over Face — a new kind won't compile until it's handled here.
 function renderFace(face: Face) {
   switch (face.kind) {
     case 'glyph':
@@ -61,8 +58,6 @@ export default function Board(props: {
   const gameOver = props.game.state.winner !== null
   const [zoomed, setZoomed] = useState<string | null>(null)
 
-  // Esc drops the spymaster's picks — but not while a zoomed photo is open, which
-  // owns Esc to close itself first (one press dismisses one layer at a time).
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape' || zoomed) return
@@ -72,21 +67,12 @@ export default function Board(props: {
     return () => window.removeEventListener('keydown', onKey)
   }, [zoomed, isSpymaster, props.selected.size, props.onClearSelection])
 
-  // Both roles single out cards the same way — the picked card stays lit while the
-  // rest of the board dims. A spymaster's picks are private (the selected set, owned
-  // by GameScreen so the clue's proposed number can follow it); an operative sees
-  // their own team's shared marks (`card.markedBy`, toggled by right-click).
   const highlighted = (card: Card, index: number): boolean =>
     !card.revealed &&
     !gameOver &&
     (isSpymaster ? props.selected.has(index) : card.markedBy.includes(props.myTeam))
   const spotlight = isSpymaster && cards.some((card, index) => highlighted(card, index))
 
-  // Focus mode: a private, temporary spymaster view for planning a clue. It drops
-  // the revealed cards and clusters the rest so the cards you can clue sit together
-  // — the ones you've already picked first, then the rest of yours, then the
-  // assassin, enemy and neutral cards you must steer around. The real card order
-  // (GameState.cards) never changes; this only reorders what this client renders.
   const focusRank = (card: Card, index: number): number =>
     props.selected.has(index)
       ? 0
@@ -116,23 +102,16 @@ export default function Board(props: {
       {order.map((index) => {
         const card = cards[index]
         const showColor = props.game.showsColor(index, isSpymaster)
-        // Once the game is won every card reads as revealed — laid face-up, out of
-        // play — even the ones nobody guessed.
         const revealed = card.revealed || gameOver
-        // Word/glyph cards are named by their text; picture cards by position.
         const name =
           card.face.kind === 'text' || card.face.kind === 'glyph' ? card.face.text : `Card ${index + 1}`
-        // Announce an operative's own-team mark so it's perceivable without sight.
         const marked = !isSpymaster && highlighted(card, index)
         const label = showColor ? `${name}, ${card.color}` : marked ? `${name}, marked` : name
         const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
         const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
         const canMark = props.game.canMark(index, isSpymaster)
-        // A photo with no reference link offers a zoom instead of the ↗ link.
         const zoomUrl = card.face.kind === 'image' && !card.face.link ? card.face.url : null
         return (
-          // A per-card view-transition name lets the browser glide each card from
-          // its old spot to its new one when Focus mode reorders the board.
           <div
             key={index}
             className={styles.cell}
@@ -182,8 +161,6 @@ export default function Board(props: {
               </button>
             )}
             {card.face.link && !props.loading && (
-              // A subtle reference link (dictionary, TMDB, …). Its own <a>, a sibling
-              // of the card button — never nested — so opening it can't trigger a guess.
               <a
                 className={styles.linkIcon}
                 href={card.face.link}
@@ -197,8 +174,6 @@ export default function Board(props: {
               </a>
             )}
             {zoomUrl && !props.loading && (
-              // Enlarge the whole, uncropped photo in a lightbox. Its own button, a
-              // sibling of the card — never nested — so it can't trigger a guess.
               <button
                 type="button"
                 className={styles.zoomIcon}

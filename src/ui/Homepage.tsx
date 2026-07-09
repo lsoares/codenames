@@ -3,7 +3,6 @@ import DeckPicker from './DeckPicker'
 import HowToPlay from './HowToPlay'
 import styles from './Homepage.module.css'
 
-// The landing screen: pick a card source to start a game.
 export default function Homepage(props: {
   providers: CardProvider[]
   onPick: (id: string) => void

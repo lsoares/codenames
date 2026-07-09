@@ -9,15 +9,12 @@ export interface Credit {
   readonly url: string
 }
 
-// GameState (and everything it holds) is deeply readonly: a Game never mutates
-// its state in place — every operation returns a new Game — and `game.state` is
-// shared with the wire/persistence, so callers must treat it as immutable.
 export interface Card {
-  readonly face: Face // text, photo, or icon — the deck declares which; the board renders by kind
+  readonly face: Face
   readonly color: CardColor
   readonly revealed: boolean
-  readonly markedBy: readonly Team[] // operative candidate notes, private to each team
-  readonly outcome: GuessOutcome | null // fixed when guessed, from the guesser's view
+  readonly markedBy: readonly Team[]
+  readonly outcome: GuessOutcome | null
 }
 
 export interface Clue {
@@ -26,20 +23,16 @@ export interface Clue {
   readonly count: number
 }
 
-// A clue count sentinel for the "unlimited" (∞) clue, stepped past the max.
-// Both this and a plain 0 (the "avoid" clue) grant unlimited guesses — the
-// official rule — they only read differently. Negative so it never collides
-// with a real 0..cards-left count.
 export const INFINITE_CLUE = -1
 
 export interface GameState {
   readonly cards: readonly Card[]
-  readonly deck: string | null // the picked deck's name, shown as the board type
-  readonly credit: Credit | null // attribution for the deck's source, null when local
+  readonly deck: string | null
+  readonly credit: Credit | null
   readonly turn: Team
   readonly phase: GamePhase
   readonly clue: Clue | null
-  readonly clueHistory: readonly Clue[] // every clue given this game, in order — shown per team at the end
+  readonly clueHistory: readonly Clue[]
   readonly guessesRemaining: number
   readonly winner: Team | null
   readonly log: readonly string[]
@@ -49,9 +42,6 @@ export type GuessOutcome = 'correct' | 'wrong' | 'neutral' | 'assassin'
 
 export type ActingRole = 'spymaster' | 'operatives'
 
-// What changed between two consecutive games, so consumers react to events (a
-// clue, a guess and its outcome, a turn passing, a win, a fresh deal) instead of
-// diffing raw state themselves.
 export interface Transition {
   newGame: boolean
   clueGiven: Clue | null
@@ -93,9 +83,6 @@ export function createGame(
   }
 }
 
-// The rules as an object: query it, or run an operation to get the next Game. It
-// wraps an immutable GameState — every operation returns a new Game rather than
-// mutating this one.
 export class Game {
   constructor(private readonly s: GameState) {}
 
@@ -103,14 +90,10 @@ export class Game {
     return this.s
   }
 
-  // Committed to a line of play — a clue is out or a card is revealed — and not
-  // yet ended.
   inProgress(): boolean {
     return !this.s.winner && (this.s.clue !== null || this.s.cards.some((card) => card.revealed))
   }
 
-  // The complement: a fresh deal or a finished game. A positive name so call
-  // sites read `game.idle()` rather than negating.
   idle(): boolean {
     return !this.inProgress()
   }
@@ -123,35 +106,24 @@ export class Game {
     return unrevealedCount(this.s, team)
   }
 
-  // Whose action the turn team is waiting on: the spymaster clues, then the
-  // operatives guess.
   awaitingRole(): ActingRole {
     return this.s.phase === 'clue' ? 'spymaster' : 'operatives'
   }
 
-  // A card's colour is visible once it's revealed, or to a spymaster — and once
-  // the game is won the whole key is laid bare to everyone.
   showsColor(cardIndex: number, isSpymaster: boolean): boolean {
     return this.s.cards[cardIndex].revealed || isSpymaster || this.s.winner !== null
   }
 
-  // Whether a viewer may act on a card this turn: only the team on turn acts, and
-  // only on live cards; a spymaster picks only their own colour, an operative any
-  // card but only once a clue is out (the guess phase — before that, they wait).
   canAct(cardIndex: number, viewer: { team: Team; isSpymaster: boolean }): boolean {
     const card = this.s.cards[cardIndex]
     if (this.s.winner || card.revealed || this.s.turn !== viewer.team) return false
     return viewer.isSpymaster ? card.color === viewer.team : this.s.phase === 'guess'
   }
 
-  // Operatives mark unrevealed cards — a private note, allowed on any turn until
-  // the game is won.
   canMark(cardIndex: number, isSpymaster: boolean): boolean {
     return !isSpymaster && !this.s.cards[cardIndex].revealed && !this.s.winner
   }
 
-  // A fresh game: new faces when the caller fetched some, else reshuffle the
-  // current ones (keeping the deck's credit). Allowed even after a win.
   newGame(faces?: readonly Face[], credit?: Credit | null, deck?: string | null): Game {
     return new Game(
       createGame(
@@ -163,8 +135,6 @@ export class Game {
     )
   }
 
-  // A team's candidate mark — a private note toggled by right-click, allowed on
-  // any turn so operatives can plan ahead while the opponent plays.
   mark(cardIndex: number, team: Team): Game {
     if (this.s.winner) return this
     const target = this.s.cards[cardIndex]
@@ -189,9 +159,7 @@ export class Game {
     return new Game({
       ...this.s,
       phase: 'guess',
-      // A normal clue grants count + 1 guesses; a 0 (avoid) or ∞ clue is
-      // "unlimited" — a big finite number (not Infinity, which JSON.stringify
-      // would turn to null).
+      // a big finite number, not Infinity — JSON.stringify would turn Infinity to null
       guessesRemaining: count === 0 || count === INFINITE_CLUE ? 99 : count + 1,
       clue: { team: this.s.turn, word, count },
       clueHistory: [...this.s.clueHistory, { team: this.s.turn, word, count }],
@@ -260,11 +228,9 @@ export class Game {
     })
   }
 
-  // What happened between the previous game and this one.
   changesFrom(prev: Game): Transition {
     const before = prev.s
     const after = this.s
-    // The log only ever grows within a game; a shorter one means a fresh deal.
     if (after.log.length < before.log.length) {
       return { newGame: true, clueGiven: null, guessed: null, turnPassed: null, win: null }
     }
@@ -292,8 +258,6 @@ const shuffle = <T>(items: T[]): T[] => {
 
 const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
 
-// Wipe a team's candidate marks when its turn ends (they've had their go),
-// leaving the other team's forward marks intact so they survive the opponent's turn.
 const clearMarks = (cards: readonly Card[], team: Team): Card[] =>
   cards.map((card) =>
     card.markedBy.includes(team)

@@ -8,11 +8,6 @@ interface TmdbMovie {
   id: number
 }
 
-// Fetches 20 movie backdrops from TMDB — wide film stills that make recognizable
-// card faces. Mixes the popular and top-rated lists so a board spans current hits
-// and acclaimed classics; a random page varies boards between games. Throws if no
-// key is configured or a request fails, so the caller can fall back to another
-// provider.
 async function fetch(): Promise<Face[]> {
   const key = import.meta.env.VITE_TMDB_API_KEY
   if (!key) throw new Error('Missing VITE_TMDB_API_KEY')

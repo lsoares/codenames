@@ -1,8 +1,6 @@
 import { useRef } from 'react'
 import styles from './HowToPlay.module.css'
 
-// The 20-card board, colored 8 / 7 / 4 / 1 like a real deal (see Game.ts), in a
-// fixed representative layout for the Setup strip.
 const BOARD = [
   'red', 'blue', 'neutral', 'red', 'blue',
   'blue', 'red', 'blue', 'neutral', 'red',
@@ -10,20 +8,12 @@ const BOARD = [
   'red', 'blue', 'neutral', 'red', 'red',
 ]
 
-// Two of the blue team's cards (indices in BOARD), ringed on the Clue strip as the
-// ones the sample clue "OCEAN, 2" points at.
 const CLUED = new Set([5, 13])
 
-// The operatives' view: the same board but colourless — just the card faces (stand-in
-// shapes), because they can't see who owns what.
 const FACES = ['●', '■', '▲', '◆', '★', '✚', '◇', '△', '☆', '✦', '❖', '◈', '✜', '⬟', '✱', '◔', '▰', '⬢', '✧', '◑']
 
-// A few cards already picked on the operatives' board (index → outcome), flipped to
-// show their real colour: a right one keeps the turn going, a wrong one ends it.
 const REVEALED: Record<number, string> = { 7: '✓', 10: '✕', 12: '✕' }
 
-// A quiet ⓘ button in the top corner that opens the rules — a four-strip comic —
-// in a modal dialog. Shared by the homepage and the game screen.
 export default function HowToPlay() {
   const dialog = useRef<HTMLDialogElement>(null)
   return (
@@ -99,7 +89,6 @@ Players join <strong>two teams</strong> — <span className={styles.red}>red</sp
             </p>
           </div>
 
-          {/* The two beats that loop, turn after turn, until someone wins. */}
           <div className={styles.cycle}>
             <span className={styles.cycleTag}>↻ One team at a time</span>
             <div className={styles.beats}>

@@ -2,9 +2,6 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  /* Fill the whole area so cards are as large as the space allows; a bit more row
-     gap than column gap. min-height:0 lets the 1fr rows honour the area height
-     instead of the cards growing past it. */
   gap: 20px 14px;
   min-height: 0;
   position: relative;
@@ -12,9 +9,6 @@
 
 .cell {
   position: relative;
-  /* Both min-* zeroed so a 1fr grid track can shrink below the card's content
-     (its image's intrinsic size) instead of being propped open by it — otherwise
-     wide source images push the columns past the viewport and clip on mobile. */
   min-width: 0;
   min-height: 0;
 }
@@ -26,10 +20,7 @@
   min-width: 0;
   min-height: 0;
   padding: 5px;
-  /* Drag-to-select sweeps across cards; don't let it select word-tile text. */
   user-select: none;
-  /* Rounder corners open the gaps into rounded pockets at each crossing,
-     which breaks the Hermann-grid illusion (ghost blobs at intersections). */
   border-radius: 20px;
   background-color: var(--card-face);
   background-image: url('../assets/card-texture.png');
@@ -73,8 +64,6 @@
   line-height: 1;
   cursor: pointer;
   opacity: 0;
-  /* A slight lean, already tipped toward where hover straightens it (11.25deg) —
-     not a hard 45deg flat to the left — so hover reads as a small settling nudge. */
   transform: rotate(20deg);
   transition:
     opacity 0.15s ease,
@@ -104,10 +93,6 @@
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
-/* An outbound "look it up" link — a subtle corner affordance that opens the card's
-   reference page in a new tab. Top-right, opposite the mark pin (top-left) so the
-   two never collide, and hidden until the cell is hovered so it stays out of the
-   way during play. */
 .linkIcon {
   position: absolute;
   top: 12px;
@@ -141,9 +126,6 @@
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
-/* Zoom affordance on photo cards that have no reference link — same top-right
-   corner and reveal-on-hover as the link icon (the two never share a card, since
-   a photo either links out or offers the zoom). Opens the full picture. */
 .zoomIcon {
   position: absolute;
   top: 12px;
@@ -179,7 +161,6 @@
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
-/* Shared card face (photo or word tile), inset within the coloured border. */
 .face {
   width: 100%;
   height: 100%;
@@ -188,18 +169,10 @@
   transition: opacity 0.2s ease;
 }
 
-/* The image sits inside this wrapper, which is the face box. Its overflow:hidden
-   clips the zoomed image to the face — so the zoom never bleeds over the card's
-   coloured padding frame, a spymaster's only colour cue on a full-bleed face. */
 .imageWrap {
   overflow: hidden;
 }
 
-/* Default image fit: the whole image (contain) with a hair of zoom, so the
-   wrapper's overflow clip trims a little off the filling axis and shrinks the
-   bands on the other — a middle ground between cover (crops hard) and contain
-   (big bands). Near-square faces end up all but full-bleed; extreme ratios keep
-   a band rather than over-cropping. */
 .image {
   width: 100%;
   height: 100%;
@@ -208,15 +181,11 @@
   transform: scale(1.1);
 }
 
-/* Show the whole image at its own aspect ratio — no crop, no zoom; the card face
-   shows around it where the ratios differ (e.g. Picbreeder's square art). */
 .contain {
   object-fit: contain;
   transform: none;
 }
 
-/* Official cards are square: fill the card height as a centred square and clip a
-   few percent so the scanned black frame goes but the art stays whole. */
 .framed {
   width: auto;
   height: 100%;
@@ -227,8 +196,6 @@
   transform: scale(1.08);
 }
 
-/* Icon on a light tile (like a word), its glyph masked so it can take the card
-   colour for a spymaster or once revealed. */
 .svgIcon {
   background: var(--card-face);
   position: relative;
@@ -259,8 +226,6 @@
   background-color: #2b2d42;
 }
 
-/* Empty face shown while the next board's faces load: a plain tile that gently
-   pulses, so the old images clear immediately instead of lingering. */
 .loading {
   background: var(--card-face);
   animation: facePulse 1.2s ease-in-out infinite;
@@ -272,7 +237,6 @@
   }
 }
 
-/* Word cards: the word on a light tile so the colour border stays readable. */
 .word {
   display: grid;
   place-items: center;
@@ -294,7 +258,6 @@
   font-size: clamp(2.5rem, 12vw, 6rem);
 }
 
-/* The word itself takes the card's colour once it's known (spymaster/revealed). */
 .card[data-color='red'] .word {
   color: var(--red);
 }
@@ -311,7 +274,6 @@
   color: #2b2d42;
 }
 
-/* Emoji glyphs are multicolour and can't be recoloured, so their face tints. */
 .card[data-color='red'] .big {
   background: color-mix(in srgb, var(--red) 25%, var(--card-face));
 }
@@ -344,15 +306,11 @@
   background: #2b2d42;
 }
 
-/* Revealed cards are out of play: fade them almost completely. */
 .card[data-revealed] {
   opacity: 0.15;
   transition: opacity 0.2s ease;
 }
 
-/* While its guess feedback flashes, a just-revealed card stays lit at full
-   colour so the emoji reads clearly; it fades to the dim revealed state once
-   the feedback clears (GameScreen drops [data-feedback] after ~1.3s). */
 .card[data-revealed][data-feedback] {
   opacity: 1;
 }
@@ -361,11 +319,6 @@
   opacity: 1;
 }
 
-/* The guess outcome — flashed over the card the instant it's revealed, and kept
-   on every card at game over as the board summary. Sat low-centre (75% down) so it
-   reads over the face without crowding the mark (top-left) or the ↗ link (top-right).
-   The centring translate rides along in every keyframe so the pop composes with it
-   and the resting badge stays put after the animation. */
 .feedback {
   position: absolute;
   top: 75%;
@@ -393,26 +346,14 @@
   }
 }
 
-/* Hovering a dead card lifts it partway so you can see what it was, but it stays
-   clearly dimmer than a live card — never full opacity, or it'd read as unrevealed. */
 .card[data-revealed]:hover {
   opacity: 0.45;
 }
 
-/* The global button:hover brightens on hover as a "you can act" affordance, so
-   confine it to cards this viewer can actually act on: a card they can't impact
-   (not their turn, wrong role, revealed) stays put under the pointer rather than
-   lighting up as if it were clickable. */
 .card[data-inert]:hover {
   filter: none;
 }
 
-/* A pick lifts off the board — a deeper shadow and a small rise — so the chosen
-   cards read as picked up, not merely the ones that didn't dim. It sits above its
-   neighbours so the shadow falls over them cleanly, and its coloured frame
-   thickens by a pixel (padding) as an extra tell. A slight brightening lightens
-   the pick a touch; it also outranks the global button:hover brightness, so
-   hovering a pick no longer whitens it further. */
 .card[data-selected] {
   transform: translateY(-5px);
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);
@@ -421,22 +362,14 @@
   z-index: 1;
 }
 
-/* A pick lifts (above) and stays lit while the rest of the board dims (below).
-   Pressing any card dips it, so the click reads as a press; this comes after the
-   lift so the dip wins while the button is held. */
 .card:active {
   transform: scale(0.96);
 }
 
-/* No fade by default. Once a spymaster picks a card, every unpicked card — theirs,
-   the enemy's, neutrals and the assassin alike — fades to an intermediate level and
-   stays there, so the picks stand out against a veiled board. Applies in Focus mode
-   too, where the picks lead the clustered order. */
 .board[data-spotlight] .card:not([data-selected]) .face {
   opacity: 0.6;
 }
 
-/* Inert cards (revealed/faded/not yours) take no click: no cursor, no press. */
 .card[data-inert] {
   cursor: default;
 }

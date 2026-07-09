@@ -20,10 +20,6 @@ const apply = (game: Game, action: Action): Game => {
   }
 }
 
-// The authoritative peer: owns the Game and Room, applies actions onto the game,
-// broadcasts the RoomView, and prunes silent guests via heartbeat. Every guest is
-// a client of one Host. Construct via Host.start (a fresh room) or Host.resume
-// (re-host under the same code after a reload or FIFO takeover).
 export class Host implements Session {
   roomCode!: string
   selfId!: string
@@ -38,9 +34,6 @@ export class Host implements Session {
   private opened = false
   private reconnectDelay = 0
 
-  // Release the room id to the broker on a real tab close, so a re-host isn't
-  // blocked waiting for the broker to expire our ghost. Skip a bfcache freeze
-  // (persisted), where the same peer will resume.
   private readonly releaseOnUnload = (event: PageTransitionEvent): void => {
     if (!event.persisted) this.peer.destroy()
   }
@@ -66,9 +59,6 @@ export class Host implements Session {
     return Host.launch(code ?? randomRoomCode(), createGame(faces, startingTeam, credit, deck), 'new', 4, code != null)
   }
 
-  // Re-host an existing game under the same room code (host reload or FIFO
-  // takeover). Generous retries: after a reload the broker holds the old id for a
-  // few seconds.
   static resume(roomCode: string, state: GameState): Promise<Host> {
     return Host.launch(roomCode, state, 'resume', 15, true)
   }
@@ -91,8 +81,6 @@ export class Host implements Session {
     this.broadcast()
   }
 
-  // Apply a game action plus its room side effect: a rotating new game passes each
-  // team's spymaster seat to the next member, so the role goes round over games.
   private applyAction(action: Action): void {
     this.game = apply(this.game, action)
     if (action.type === 'newGame' && action.rotate) this.room = this.room.rotateSpymasters()
@@ -104,8 +92,6 @@ export class Host implements Session {
   }
 
   setTeam(team: 'red' | 'blue'): void {
-    // Joining a team whose spymaster seat is open takes it (autoSeat no-ops when
-    // the seat is already held), so a team's first arrival becomes its spymaster.
     this.room = this.room.setTeam(this.peer.id, team).autoSeat(this.peer.id)
     this.broadcast()
   }
@@ -115,11 +101,8 @@ export class Host implements Session {
     listener(this.view())
   }
 
-  // The host never loses its own connection, so there's nothing to notify.
   onDisconnect(): void {}
 
-  // Step down: stop the heartbeat and drop the peer. Destroying the peer closes
-  // every guest connection, so guests fall into their usual FIFO takeover.
   close(): void {
     if (this.heartbeat) clearInterval(this.heartbeat)
     window.removeEventListener('pagehide', this.releaseOnUnload)
@@ -136,29 +119,16 @@ export class Host implements Session {
     this.peer.on('open', (id) => {
       this.roomCode = id
       this.selfId = id
-      this.reconnectDelay = 0 // a clean (re)connect resets the backoff
-      // The broker re-announces our id on every (re)connect; only seed the room
-      // the first time, so a reconnect after the host stepped down as spymaster
-      // doesn't silently re-seat them via autoSeat.
+      this.reconnectDelay = 0
       if (!this.opened) {
         this.opened = true
-        // The host is the room's first player: seat them on the team that starts
-        // (a new game's turn) so they can plan the opening clue at once. On a
-        // resume there's no fresh start to honour, so fall back to the balancer.
         const preferred = this.mode === 'new' ? this.game.state.turn : undefined
         this.room = this.room.assignTeam(id, preferred).assignEmoji(id)
-        // Seat the host as their team's spymaster too, just like a joiner — but only
-        // for a brand-new room, so a reload or FIFO takeover doesn't hand the seat
-        // (and the colour key) to whoever happens to re-host mid-game.
         if (this.mode === 'new') this.room = this.room.autoSeat(id)
       }
       resolve(this)
     })
 
-    // The broker socket can drop while the tab is idle or asleep, though our
-    // peer-to-peer links live on. Re-register the same id so new guests can still
-    // find us and the room id stays ours — no reload, no ghost to wait out. Back
-    // off (capped) so a broker that keeps dropping us can't become a storm.
     this.peer.on('disconnected', () => {
       if (this.peer.destroyed) return
       this.reconnectDelay = this.reconnectDelay ? Math.min(this.reconnectDelay * 2, 30000) : 500
@@ -177,11 +147,10 @@ export class Host implements Session {
       })
       connection.on('data', (data) => {
         this.lastSeen.set(connection, Date.now())
-        if ((data as Ping).__ping) return // guest keepalive
+        if ((data as Ping).__ping) return
         if ((data as Presence).__presence) {
           this.room = this.room.claimSeat(connection.peer, (data as Presence).spymasterTeam)
         } else if ((data as TeamClaim).__team) {
-          // Auto-take the team's spymaster seat when it's open (see setTeam).
           this.room = this.room.setTeam(connection.peer, (data as TeamClaim).team).autoSeat(connection.peer)
         } else {
           this.applyAction(data as Action)
@@ -195,7 +164,7 @@ export class Host implements Session {
       if (error.type === 'unavailable-id' && retries > 0) {
         this.peer.destroy()
         window.removeEventListener('pagehide', this.releaseOnUnload)
-        if (this.heartbeat) clearInterval(this.heartbeat) // this attempt is dead; a fresh Host starts its own
+        if (this.heartbeat) clearInterval(this.heartbeat)
         if (this.fixedCode && this.mode === 'new') return reject(error)
         const nextCode = this.mode === 'new' ? randomRoomCode() : this.code
         setTimeout(
@@ -234,25 +203,17 @@ export class Host implements Session {
     this.broadcast()
   }
 
-  // Heartbeat both ways: guests detect host loss from these pings, and the host
-  // prunes guests it hasn't heard from (an abrupt tab close never fires 'close').
-  // Iterate a snapshot because dropConnection() splices `connections` — mutating
-  // it mid-forEach would skip the neighbour of each pruned ghost, so a burst of
-  // stale peers would clear only a few per pass and linger in the count.
   private startHeartbeat(): void {
     this.heartbeat = setInterval(() => {
       const now = Date.now()
       for (const connection of [...this.connections]) {
         if (!connection.open) {
-          this.dropConnection(connection) // transport already gone
+          this.dropConnection(connection)
         } else {
           connection.send({ __ping: true } satisfies Ping)
           if (now - (this.lastSeen.get(connection) ?? now) > 6000) this.dropConnection(connection)
         }
       }
-      // Free any spymaster seat whose holder has left, then auto-promote a present
-      // member so a team with players is never leaderless. Room returns itself
-      // unchanged when nothing moved, so we skip a needless broadcast.
       const present = new Set([this.peer.id, ...this.connections.map((connection) => connection.peer)])
       const settled = this.room.freeAbsentSeats(present).fillEmptySeats(present)
       if (settled !== this.room) {

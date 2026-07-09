@@ -31,17 +31,11 @@ export default function GameScreen(props: {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // Fresh cards from the deck already in play, dealt without a prompt — used when
-  // a seat change means a spymaster who has seen the key must not keep the board.
-  // Resolves the deck id from its stored name (labels are unique).
   const currentDeckId = props.providers.find((p) => p.label === props.game.state.deck)?.id
   const dealFreshBoard = () => {
     if (currentDeckId) props.onNewGame(currentDeckId)
   }
 
-  // Switch to another team — only before play starts; once a game is underway
-  // the teams are locked. Leaving your own spymaster seat displaces a spymaster
-  // who has already seen the board, so fresh cards are dealt.
   const requestJoinTeam = (team: Team) => {
     if (team === props.myTeam || props.game.inProgress()) return
     const wasSpymaster = props.mySeat !== null
@@ -49,13 +43,7 @@ export default function GameScreen(props: {
     if (wasSpymaster) dealFreshBoard()
   }
 
-  // The spymaster's private card picks, owned here so the clue's proposed number
-  // can follow them. Cleared when the turn passes or a new game starts, so each
-  // clue is planned on a clean board.
   const [selected, setSelected] = useState<Set<number>>(new Set())
-  // Run a state change through a view transition so the board's cards visibly glide
-  // to their new spots; fall back to an instant change where the API is missing or
-  // the user prefers reduced motion.
   const animate = (update: () => void) => {
     const doc = document as Document & { startViewTransition?: (run: () => void) => void }
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -63,8 +51,6 @@ export default function GameScreen(props: {
     doc.startViewTransition(() => flushSync(update))
   }
   const toggleSelected = (index: number) => {
-    // Every pick glides: the first one clusters the board into Focus, each further
-    // pick reorders within it, and the last un-pick leaves Focus and restores order.
     animate(() =>
       setSelected((prev) => {
         const next = new Set(prev)
@@ -73,26 +59,12 @@ export default function GameScreen(props: {
       }),
     )
   }
-  // Esc drops every pick at once, gliding the board out of Focus back to order.
   const clearSelected = () => animate(() => setSelected(new Set()))
-  // A stable per-deal identity: only a fresh deal reshuffles the card colours (a
-  // guess, clue or turn pass never touch them), so this signature changes exactly
-  // when the board is re-dealt — even between two fresh deals in a row, which
-  // isFresh() alone can't tell apart. Both reshuffle paths (New game, Change deck)
-  // and a seat-change deal all mint a new deal, so all of them reset through it.
   const dealKey = props.game.state.cards.map((card) => card.color).join(',')
-  // Clear the spymaster's picks whenever the turn passes, the first card of the
-  // turn is revealed, or a fresh deal replaces the board — so each clue is planned
-  // on a clean slate.
   useEffect(() => {
     setSelected(new Set())
   }, [props.game.state.turn, props.game.isFresh(), dealKey])
 
-  // Flash the guess outcome over each card the instant it's revealed, so every
-  // viewer gets a beat of feedback (a bullseye / cross / shrug / skull) before
-  // the card recedes. Compared against the previous state so we react to the
-  // reveals in the incoming sync, whoever clicked; the guessing team is whoever
-  // was on turn before the reveal, which tells a hit from a miss.
   const [feedback, setFeedback] = useState<Record<number, GuessOutcome>>({})
   const prevGameRef = useRef(props.game)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
@@ -114,31 +86,20 @@ export default function GameScreen(props: {
   }, [props.game])
   useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
 
-  // Operatives on a team: its members who aren't holding a spymaster seat, so
-  // membership follows real state and shifts the instant someone switches.
   const operativesOf = (team: Team): Player[] =>
     props.players.filter(
       (player) => player.team === team && player.id !== props.seats.red && player.id !== props.seats.blue,
     )
 
   const { winner, phase, turn, clue, clueHistory, guessesRemaining } = props.game.state
-  // Focus mode is automatic and private to this client: the board clusters the
-  // spymaster's own cards the moment they pick one, and drops out of Focus when they
-  // hold none, once the clue is given (phase leaves 'clue'), or on a fresh deal —
-  // selection itself resets on turn pass / first reveal / new deal.
   const focus = phase === 'clue' && selected.size > 0
   const guessesGiven = clue ? clue.count + 1 : 0
   const guessesUsed = clue ? guessesGiven - guessesRemaining : 0
-  // No bonus pip once the clue already covers all the team's cards — they'd have
-  // won before ever using it.
   const guessesShown = clue ? Math.min(guessesGiven, props.game.remaining(turn) + guessesUsed) : 0
-  // A 0 (avoid) or ∞ clue is unlimited, shown as its glyph; only 1…N draw pips.
   const isUnlimitedClue = clue !== null && (clue.count === 0 || clue.count === INFINITE_CLUE)
   const clueCountLabel = (n: number) => (n === INFINITE_CLUE ? '∞' : String(n))
-  // Whose action the turn team awaits: the spymaster clues, the operatives guess.
   const acting = props.game.awaitingRole()
 
-  // Tint the page background to my team so I always know which side I'm on.
   useEffect(() => {
     document.body.dataset.team = props.myTeam
     return () => {
@@ -146,10 +107,6 @@ export default function GameScreen(props: {
     }
   }, [props.myTeam])
 
-  // Take a spymaster seat before play starts — either team's (a fresh board means
-  // no advantage in switching). An open seat is claimed outright; replacing whoever
-  // holds it deals fresh cards, since they have seen the board. Taking the other
-  // team's seat moves you onto that team first.
   const requestSpymasterSeat = (team: Team) => {
     if (props.mySeat === team || props.game.inProgress()) return
     const taken = !!(team === 'red' ? props.seats.red : props.seats.blue)
@@ -162,10 +119,6 @@ export default function GameScreen(props: {
     const seatId = team === 'red' ? props.seats.red : props.seats.blue
     const hasSpymaster = !!seatId
     const isMySeat = props.mySeat === team
-    // Your own face sits on your team's inner edge — nearest the centre — so you
-    // find yourself by position and size rather than a marker beneath it. Red is
-    // the left team, its ops running toward the centre, so you go last; blue
-    // mirrors on the right, so you go first.
     const selfFirst = team === 'blue'
     const opPlayers = operativesOf(team).sort((a, b) => {
       if (a.id === props.selfId) return selfFirst ? -1 : 1
@@ -177,9 +130,6 @@ export default function GameScreen(props: {
     const active = team === props.game.state.turn
     const isMyTeam = team === props.myTeam
     const spymasterActive = (active && acting === 'spymaster') || undefined
-    // Teams and spymasters are only editable before play starts; once a game is
-    // underway everything is display-only. Any seat you don't already hold is a
-    // button to take (or replace) it — either team's, before play.
     const editable = !props.game.inProgress()
     const canTakeSeat = !isMySeat && editable
     const spymasterFace = hasSpymaster ? (
@@ -262,8 +212,6 @@ export default function GameScreen(props: {
     )
   }
 
-  // Re-dealing wipes the current game, so a game in progress confirms first; a
-  // finished or untouched one goes straight through.
   const confirmDiscard = (): boolean =>
     props.game.idle() || window.confirm('The current game will be lost. Continue?')
 
@@ -271,7 +219,6 @@ export default function GameScreen(props: {
     if (currentDeckId && confirmDiscard()) props.onNewGame(currentDeckId, true)
   }
 
-  // Open the picker to re-deal from a chosen deck (same room).
   const pickCards = () => {
     if (confirmDiscard()) {
       setPickerOpen(true)
@@ -279,8 +226,6 @@ export default function GameScreen(props: {
     }
   }
 
-  // Once the game is over, each side swaps its live team badge for the full run
-  // of clues that team gave — a keepsake of how the game was played.
   const renderClues = (team: Team) => {
     const clues = clueHistory.filter((c) => c.team === team)
     return (
@@ -312,8 +257,6 @@ export default function GameScreen(props: {
   const activeSpymaster = props.mySeat === turn
   const mineTurn = turn === props.myTeam
 
-  // The faces of the winning team, shown only when it's your own win to savour;
-  // a loss stays sober, without parading the rivals' roster.
   const winnerName = winner ? winner.charAt(0).toUpperCase() + winner.slice(1) : ''
   const winnerEmojis = winner
     ? props.players
@@ -322,7 +265,6 @@ export default function GameScreen(props: {
         .join(' ')
     : ''
 
-  // One viewer-centric line about the current moment; doubles as the menu button.
   const statusText = winner
     ? winner === props.myTeam
       ? `🏆 ${winnerName} wins! ${winnerEmojis}`.trim()
@@ -339,18 +281,12 @@ export default function GameScreen(props: {
           : `Your turn (${turn})`
         : `Their operatives' turn (${turn})`
 
-  // The tab title mirrors the header-centre pill text exactly, so a glance at the
-  // tab reads the same as the app.
   const centerText = props.flash
     ? `${props.flash.emoji ? `${props.flash.emoji} ` : ''}${props.flash.text}`
     : !winner && phase === 'guess' && clue
       ? `${statusText} — ${clue.word} · ${clueCountLabel(clue.count)}`
       : statusText
 
-  // Keep the browser tab in sync: the title mirrors the header-centre text, and
-  // the favicon carries my team's colour — 🏆 when my team wins, otherwise the 🕵️
-  // glyph while I'm the spymaster — so the tab says what's happening even when the
-  // app isn't focused. A loss never turns the favicon sad; it just drops the crown.
   useEffect(() => {
     document.title = centerText
 
@@ -371,12 +307,8 @@ export default function GameScreen(props: {
     }
   }, [centerText, props.myTeam, props.mySeat, winner])
 
-  // It's my move to make when my team is on turn and the acting role is mine:
-  // the spymaster gives the clue, the operatives do the guessing.
   const myMove = !winner && mineTurn && (acting === 'spymaster' ? activeSpymaster : !activeSpymaster)
 
-  // When it's my move but the tab is in the background, pulse the title so the
-  // tab flashes for attention; the moment the tab is focused again, restore it.
   useEffect(() => {
     if (!myMove) return
     const interval = setInterval(() => {
@@ -395,8 +327,6 @@ export default function GameScreen(props: {
   }, [myMove, centerText])
 
   const clueForm = !winner && acting === 'spymaster' && activeSpymaster && (
-    // Keyed on the deal so a fresh board remounts the bar — clearing any half-typed
-    // clue word and resetting the count.
     <ClueBar
       key={dealKey}
       turn={turn}
@@ -591,9 +521,6 @@ export default function GameScreen(props: {
         )}
       </dialog>
 
-      {/* While it's my move — composing a clue or weighing a guess — a slim, quiet
-          clock rides the top edge of the screen, out of the way. Keyed on the acting
-          role and clue count so it restarts each fresh thinking period. */}
       {myMove && (
         <div className={styles.thinkingDock}>
           <ThinkingBar key={`${acting}-${clueHistory.length}`} team={turn} />

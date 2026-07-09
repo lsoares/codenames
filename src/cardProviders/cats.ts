@@ -5,8 +5,6 @@ interface CatImage {
   url: string
 }
 
-// Fetches 20 random cat photos from The Cat API. Throws if no key is configured
-// or the request fails, so the caller can fall back to another provider.
 async function fetch(): Promise<Face[]> {
   const key = import.meta.env.VITE_THECATAPI_KEY
   if (!key) throw new Error('Missing VITE_THECATAPI_KEY')

@@ -2,9 +2,6 @@ import { useState } from 'react'
 import type { CardProvider } from '../cardProviders/providers'
 import styles from './DeckPicker.module.css'
 
-// The deck tiles in three tiers: two hero decks, four headline, then the rest
-// smaller — largest at the top, shrinking down. Long-tail decks (marked hidden)
-// stay tucked behind a "+" tile until the player opens it.
 export default function DeckPicker(props: {
   providers: CardProvider[]
   onPick: (id: string) => void

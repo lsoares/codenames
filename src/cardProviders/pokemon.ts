@@ -6,10 +6,6 @@ interface Pokemon {
   sprites: { other: { 'official-artwork': { front_default: string | null } } }
 }
 
-// Fetches 20 Pokémon official-artwork images. Picks random dex numbers (1–1025)
-// so boards vary between games — the iconic silhouettes and names make strong
-// card faces. Throws if too few have artwork or a request fails, so the caller
-// can fall back to another provider. No key required.
 async function fetch(): Promise<Face[]> {
   const ids = new Set<number>()
   while (ids.size < 30) ids.add(Math.floor(Math.random() * 1025) + 1)

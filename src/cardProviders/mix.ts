@@ -2,18 +2,10 @@ import type { Face } from '../Face'
 import { providers, type CardProvider } from './providers'
 import { shuffle } from './words'
 
-// A face's identity for de-duping across decks: its text/glyph, or its image/icon url.
 const keyOf = (face: Face): string =>
   face.kind === 'text' || face.kind === 'glyph' ? face.text : face.url
 
-// Blends the other decks onto one board — words, emojis, icons, photos, the lot
-// (bar the geeks and official word banks), at most one deck per source. Draws
-// from all of them at once; a source that fails (missing key, network error) is
-// dropped; throws only when the survivors can't fill a board, so getFaces falls
-// back. No single credit fits a blended board, so it carries none.
 async function fetch(): Promise<Face[]> {
-  // Keep at most one deck per source, so a source behind several decks (Pexels
-  // backs abstract and things too) doesn't get several times the board share.
   const seen = new Set<string>()
   const decks = providers
     .filter((deck) => deck.id !== 'mix' && deck.id !== 'geeks' && deck.id !== 'official-words')
@@ -26,9 +18,6 @@ async function fetch(): Promise<Face[]> {
   const draws = await Promise.allSettled(decks.map((deck) => deck.fetch()))
   const pools = draws.flatMap((draw) => (draw.status === 'fulfilled' ? [draw.value] : []))
 
-  // Round-robin so every surviving deck is represented, rather than letting one
-  // deck's shuffle crowd the board. Keyed by face identity so the same word or
-  // image can't land twice.
   const faces = new Map<string, Face>()
   for (let depth = 0; faces.size < 20 && pools.some((pool) => depth < pool.length); depth++) {
     for (const pool of pools) if (depth < pool.length && faces.size < 20) faces.set(keyOf(pool[depth]), pool[depth])

@@ -23,9 +23,6 @@ const normalizeCode = (raw: string): string =>
 
 const hostStateKey = (code: string): string => `codenames:host:${code}`
 
-// Turn a failed join into advice the player can act on: a missing room, an
-// unreachable broker, and a blocked peer link have different remedies. Every
-// message starts with "Could not" so the status screen offers Retry / New game.
 const joinFailureMessage = (error: unknown): string => {
   switch (error instanceof JoinError ? error.reason : null) {
     case 'room-not-found':
@@ -46,8 +43,6 @@ export default function App() {
   })
   const [players, setPlayers] = useState<Player[]>([])
   const [isHost, setIsHost] = useState(false)
-  // While the next board's faces are being fetched, blank the current cards so
-  // their now-stale images don't linger — the new ones can take a moment.
   const [loadingFaces, setLoadingFaces] = useState(false)
   const [status, setStatus] = useState('')
   const sessionRef = useRef<Session | null>(null)
@@ -57,17 +52,9 @@ export default function App() {
   const peersRef = useRef<string[]>([])
   const selfIdRef = useRef('')
   const roomCodeRef = useRef('')
-  // A transient message shown in the header status pill, then it reverts to the
-  // live status. Replaces separate toast popups — one message zone for both.
-  // The message carries the team it concerns so the pill can tint to that team's
-  // colour — or stay neutral (team null) when the event affects no side. An
-  // optional emoji is rendered oversized ahead of the text (an arriving player).
   const [flash, setFlash] = useState<{ text: string; team: Team | null; emoji?: string } | null>(null)
   const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
-  // A sticky message holds until the next one replaces it — for a terminal state
-  // like a win, whose announcement now lives in this one message zone (no longer
-  // a separate banner) and so must stay put rather than fade after a few seconds.
   const notify = (text: string, team: Team | null = null, emoji?: string, sticky = false) => {
     setFlash({ text, team, emoji })
     clearTimeout(flashTimer.current)
@@ -91,14 +78,10 @@ export default function App() {
       setPlayers(view.players)
     })
     if (!asHost) session.onDisconnect(() => migrate())
-    // Tests pin a peer's team via this key so multi-tab games are deterministic
-    // (host and guests alike); real players leave it unset and are auto-balanced.
     const pinnedTeam = localStorage.getItem('codenames:start-team') as Team | null
     if (pinnedTeam) session.setTeam(pinnedTeam)
   }
 
-  // Host gone: the surviving peer with the smallest id re-hosts the same room
-  // from the state everyone already holds; the others reconnect to it. No UI.
   const migrate = () => {
     if (isHostRef.current) return
     const deadHost = peersRef.current[0]
@@ -108,8 +91,6 @@ export default function App() {
     window.setTimeout(async () => {
       const game = gameRef.current
       if (!game || isHostRef.current) return
-      // Drop our old peer before reconnecting, so we don't linger as a second
-      // live peer — and so a guest can reclaim its (now-freed) tab id.
       sessionRef.current?.close()
       try {
         wire(await Host.resume(roomCodeRef.current, game.state), true)
@@ -121,8 +102,6 @@ export default function App() {
           playSound('takeover')
           notify("You're back in the room")
         } catch {
-          // Couldn't re-host or rejoin: drop to the error screen so the player can
-          // retry the connection (or start over) rather than sit on a dead board.
           setGame(null)
           setStatus('Lost connection to the room.')
         }
@@ -132,13 +111,8 @@ export default function App() {
 
   const mySeat: Team | null =
     seats.red === selfIdRef.current ? 'red' : seats.blue === selfIdRef.current ? 'blue' : null
-  // My team drives the background and who may play: a spymaster follows their
-  // seat, everyone else the auto-assigned team.
   const myTeam: Team = mySeat ?? players.find((player) => player.id === selfIdRef.current)?.team ?? 'red'
 
-  // Re-deal the current room from a chosen deck. A deliberate new game rotates
-  // each team's spymaster to the next member; an auto re-deal leaves seats as they
-  // are.
   const newGame = async (id: string, rotate = false) => {
     setLoadingFaces(true)
     try {
@@ -151,8 +125,6 @@ export default function App() {
 
   const claimSeat = (team: Team | null) => {
     sessionRef.current?.setSpymaster(team)
-    // No toast: taking the seat reveals every card's colour to you (and plays a
-    // sound) — confirmation enough. Joining likewise recolours the whole page.
     if (team) playSound('spymaster')
   }
 
@@ -182,8 +154,6 @@ export default function App() {
     setStatus('')
   }
 
-  // The room code lives in the URL path, so browser Back (path → '/') returns
-  // to the homepage deck picker.
   useEffect(() => {
     const onPopState = () => {
       if (!normalizeCode(window.location.pathname)) goHome()
@@ -194,11 +164,7 @@ export default function App() {
   }, [])
 
   const createRoom = async (id: string, code?: string) => {
-    // No loading screen: hosting is quick, so stay on the homepage until the
-    // board is ready rather than flashing an intermediate card. Only a failure
-    // surfaces a status (below).
     const { faces, credit, deck } = await getFaces(id)
-    // Tests can pin the starting team for determinism; players get a random one.
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
       wire(await Host.start(faces, start, credit, deck, code), true)
@@ -217,8 +183,6 @@ export default function App() {
   }
 
 
-  // Play a cue whenever the shared game crosses a milestone: new game, clue
-  // given, a wrong guess, a turn ending, or a win. Runs on every peer.
   const prevGameRef = useRef<Game | null>(null)
   useEffect(() => {
     const prev = prevGameRef.current
@@ -231,10 +195,6 @@ export default function App() {
       return
     }
     if (change.win) {
-      // Hitting the assassin ends the game as a sudden loss, not a triumph — its
-      // own heavy cue for everyone, never the victory jingle a normal win earns.
-      // Otherwise the cue is viewer-aware: the team that won hears the triumphant
-      // jingle, the team that lost the sombre one — so a win actually sounds like one.
       playSound(
         change.win.byAssassin
           ? 'assassin'
@@ -242,22 +202,14 @@ export default function App() {
             ? 'victory'
             : 'gameOver',
       )
-      // The win itself now rides the persistent status line (viewer-aware, with
-      // your team's faces when you win), so no transient copy duplicates it. Only
-      // the assassin's sudden end still earns a brief call-out.
       if (change.win.byAssassin) notify(`💀 Assassin! ${teamName(change.win.team)} wins`, change.win.team)
     } else if (change.clueGiven) {
       playSound('clue')
     } else if (change.guessed && change.guessed.outcome === 'correct') {
-      // A right guess that keeps the turn alive — a rising cue, heard by everyone.
       playSound('guessRight')
     } else if (change.turnPassed) {
       const wrongGuess = change.guessed && change.guessed.outcome !== 'correct'
-      // A wrong guess gets a falling cue; a clean end of turn keeps the plain blip.
       playSound(wrongGuess ? 'guessWrong' : 'endTurn')
-      // Only a pass caused by a wrong guess needs words — say why, so it doesn't
-      // look like it came from nowhere. A clean pass is already clear from the
-      // persistent turn line, so no transient copy of it.
       if (change.guessed && change.guessed.outcome !== 'correct') {
         const hit =
           change.guessed.outcome === 'neutral' ? 'a neutral' : `${teamName(change.turnPassed.from)}'s card`
@@ -270,10 +222,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game])
 
-  // Announce peers arriving and leaving so the room's size never changes
-  // silently. No sound — connections churn during host recovery. Gate on being
-  // in a room so a joiner's own arrival — the jump from the empty default to the
-  // room's real headcount — is a silent baseline, not a phantom "player joined".
   const prevPlayersRef = useRef<Player[] | null>(null)
   useEffect(() => {
     if (!game) return
@@ -286,11 +234,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [players, game])
 
-  // Announce to everyone else when a team gets a new spymaster. The claimer
-  // already got their own toast in claimSeat, so skip the seat we now hold.
-  // Gate on being in a room so the very first real view is only a baseline:
-  // without it the mount run seeds prev from the default empty seats, and a
-  // joiner would then hear every already-seated spymaster announced as "new".
   const prevSeatsRef = useRef<typeof seats | null>(null)
   useEffect(() => {
     if (!game) return
@@ -313,21 +256,11 @@ export default function App() {
   }, [game, roomCode])
 
 
-  // Join the live room in the URL path if one exists — this also keeps a
-  // duplicated tab (which inherits the host's saved state) from re-hosting. Only
-  // re-host from saved state when nobody answers, so a host's own refresh still
-  // recovers. No room in the path ⇒ start a fresh game. Pulled out of the mount
-  // effect so the failure screen can retry it.
   const attemptJoin = () => {
     const code = normalizeCode(window.location.pathname)
-    if (!code) return // no room in the URL: land on the homepage instead
+    if (!code) return
 
     setStatus('Entering the room…')
-    // Guest.join owns the deadline: it retries transient failures for the whole
-    // join window, then rejects with a JoinError naming what went wrong. The
-    // reloading host's own tab keeps a copy of the room state; there the join
-    // must not wait out the window on a missing room (waitForHost: false) — its
-    // next move is to re-host below, and that path recovers in a beat.
     const saved = sessionStorage.getItem(hostStateKey(code))
     Guest.join(code, { waitForHost: !saved })
       .then((session) => {
@@ -353,7 +286,6 @@ export default function App() {
       })
   }
 
-  // On load: run the join/restore once.
   useEffect(() => {
     if (startedRef.current) return
     startedRef.current = true

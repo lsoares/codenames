@@ -1,4 +1,3 @@
-/* Invite panel folded into the top of the tools menu: QR plus the room name. */
 .invite {
   display: flex;
   flex-direction: column;
@@ -39,7 +38,6 @@
   filter: none;
 }
 
-/* Floats above the name so it never nudges the layout; fades in on copy. */
 .copied {
   position: absolute;
   bottom: 100%;

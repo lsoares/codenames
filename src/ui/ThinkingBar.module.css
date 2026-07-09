@@ -3,8 +3,6 @@
   gap: 1px;
   width: 100%;
   align-items: center;
-  /* The dock is click-through (pointer-events: none); re-enable them on the bar
-     itself so its "Thinking for m:ss" tooltip shows on hover. */
   pointer-events: auto;
 }
 
@@ -13,7 +11,6 @@
   height: 5px;
   border-radius: 999px;
   overflow: hidden;
-  /* An unfilled minute reads as a faint track of the team colour. */
   background: color-mix(in srgb, var(--cell-color) 18%, transparent);
 }
 
@@ -21,9 +18,6 @@
   background: var(--cell-color);
 }
 
-/* The current minute: a solid team-colour fill that grows left-to-right across the
-   minute, clipped to the cell's pill shape. A pure 60s CSS animation, so it fills
-   smoothly on the GPU instead of stepping once per second. */
 .fill {
   display: block;
   height: 100%;
@@ -46,8 +40,6 @@
   --cell-color: var(--blue);
 }
 
-/* Ten minutes in: the clock has stopped and nobody's thinking — drain the colour
-   so the frozen bar reads as abandoned, not active. */
 .bar[data-capped] {
   --cell-color: #9aa0a6;
 }

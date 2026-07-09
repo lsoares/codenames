@@ -9,8 +9,6 @@
   gap: 12px;
 }
 
-/* A size container so the board can measure the real space left (cqw/cqh) and
-   grow to fill whichever of width/height runs out first. */
 .boardArea {
   flex: 1;
   min-height: 0;
@@ -19,9 +17,6 @@
   padding-bottom: 30px;
 }
 
-/* Each team owns a side; the status/menu pill is the centre divider. A reserved
-   min-height keeps the row from growing when the centre swaps its short status
-   pill for the taller clue-input form, so the board never dances up and down. */
 .header {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -45,41 +40,6 @@
   justify-content: flex-end;
 }
 
-/* A team's badge stacked over its live status line. */
-.side {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.headerSide[data-side='left'] .side {
-  align-items: flex-start;
-}
-
-.headerSide[data-side='right'] .side {
-  align-items: flex-end;
-}
-
-/* Plain-language "what's happening" line; reserves a row so nothing jumps when
-   it's empty. Bold + team-coloured on the viewer's own side so it stands out. */
-.sideStatus {
-  min-height: 1.1em;
-  font-size: 0.8rem;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.sideStatus[data-mine][data-team='red'] {
-  color: var(--red);
-  font-weight: 700;
-}
-
-.sideStatus[data-mine][data-team='blue'] {
-  color: var(--blue);
-  font-weight: 700;
-}
-
-/* Count card, then a gap, then the players (spymaster + operatives) grouped. */
 .team {
   display: inline-flex;
   align-items: center;
@@ -92,13 +52,10 @@
   gap: 5px;
 }
 
-/* The team that isn't up is held back, so the eye lands on whoever's playing. */
 .team:not([data-turn]) .players {
   opacity: 0.55;
 }
 
-/* Right side mirrors so each team's count sits at the outer edge, and the
-   spymaster ends up on the inner right, next to the operatives. */
 .headerSide[data-side='right'] .team,
 .headerSide[data-side='right'] .players {
   flex-direction: row-reverse;
@@ -110,12 +67,10 @@
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  padding: 0; /* the spymaster slot is a <button>; kill the global button padding */
+  padding: 0;
   border-radius: 999px;
 }
 
-/* The spymaster reads as one more face in the team's list — same size as an
-   operative — set apart only by the 🕵️ and by sitting at the outer edge. */
 .spymasterSlot {
   background: transparent;
   border: none;
@@ -126,9 +81,6 @@
   transition: font-size 0.18s ease;
 }
 
-/* Only the seat you can actually act on invites a click: your own team's, and
-   not the one you already hold. The other team's is a plain span, never a
-   button, so it never gets here. */
 button.spymasterSlot:not([data-mine]) {
   cursor: pointer;
 }
@@ -137,19 +89,14 @@ button.spymasterSlot:not([data-mine]):hover {
   filter: brightness(1.1);
 }
 
-/* The seat you already hold does nothing when clicked, so override the global
-   button pointer back to the plain cursor. */
 button.spymasterSlot[data-mine] {
   cursor: default;
 }
 
-/* Dim placeholder shown when the seat is empty. */
 .spymasterDim {
   opacity: 0.25;
 }
 
-/* The operatives, shown as a row of faces (display only — joining is its own
-   button now). */
 .ops {
   gap: 5px;
   font-size: 1rem;
@@ -160,8 +107,6 @@ button.spymasterSlot[data-mine] {
   appearance: none;
 }
 
-/* The dedicated "join this team" control: a team-tinted + that fills in on
-   hover, so joining a team is its own affordance rather than clicking a face. */
 .join {
   display: inline-flex;
   align-items: center;
@@ -184,8 +129,6 @@ button.spymasterSlot[data-mine] {
   color: var(--turn);
 }
 
-/* Each operative's identity face. Size is reserved for whose turn it is (see
-   [data-active] below), so it grows/shrinks smoothly as play passes. */
 .op {
   display: inline-block;
   line-height: 1;
@@ -194,7 +137,6 @@ button.spymasterSlot[data-mine] {
   transition: font-size 0.18s ease;
 }
 
-/* Cards-left count: a subtle team-tinted pill, purely informational. */
 .count {
   display: inline-flex;
   align-items: center;
@@ -217,17 +159,12 @@ button.spymasterSlot[data-mine] {
   background: color-mix(in srgb, var(--blue) 14%, transparent);
 }
 
-/* The team on turn wears a solid, glowing badge, so the count that matters right
-   now — how many that team still has to find — is the one the eye lands on. The
-   idle team keeps the quiet tinted pill above. */
 .team[data-turn] .count {
   color: var(--card-face);
   background: var(--turn);
   box-shadow: 0 1px 8px color-mix(in srgb, var(--turn) 45%, transparent);
 }
 
-/* At game end each side lists the clues that team gave, stacked vertically and
-   aligned to that side's outer edge. */
 .clueLog {
   list-style: none;
   margin: 0;
@@ -238,7 +175,6 @@ button.spymasterSlot[data-mine] {
   font-size: 0.9rem;
 }
 
-/* A small celebration above the winning team's clue keepsake. */
 .clueLogWin {
   font-size: 1.1rem;
 }
@@ -272,15 +208,6 @@ button.spymasterSlot[data-mine] {
   color: var(--muted);
 }
 
-/* The clue/status bar sits centred at the bottom, below the board. */
-.clueDock {
-  display: flex;
-  justify-content: center;
-  margin-top: 6px;
-}
-
-/* The shade marks whose action is pending: the spymaster while the clue is
-   still coming, then the operatives once they're guessing. */
 .team[data-team='red'] {
   --turn: var(--red);
 }
@@ -289,8 +216,6 @@ button.spymasterSlot[data-mine] {
   --turn: var(--blue);
 }
 
-/* Size marks who's on the clock: the acting role's faces grow — the spymaster's
-   icon while the clue is coming, then every operative once they guess. */
 .spymasterSlot[data-active],
 .ops[data-active] .op {
   font-size: 2rem;
@@ -304,7 +229,6 @@ button.spymasterSlot[data-mine] {
   justify-self: center;
 }
 
-/* The status/clue pill, team-tinted by whose turn it is. */
 .statusPill {
   display: inline-flex;
   flex-wrap: wrap;
@@ -315,13 +239,9 @@ button.spymasterSlot[data-mine] {
   border-radius: 20px;
   color: var(--ink);
   white-space: nowrap;
-  /* Neutral fill for a teamless message; red/blue below override it. */
   background: color-mix(in srgb, var(--ink) 10%, transparent);
 }
 
-/* The thinking clock rides the very top edge of the screen — a slim, full-width
-   strip, kept quiet (thinned and faded) so it registers only at a glance.
-   pointer-events stay off so it never intercepts a click beneath it. */
 .thinkingDock {
   position: fixed;
   left: 0;
@@ -333,8 +253,6 @@ button.spymasterSlot[data-mine] {
   opacity: 0.5;
 }
 
-/* The clue word + count read as one solid, team-coloured token, so the eye
-   separates the actual clue from the quieter status label beside it. */
 .clueInline {
   display: inline-flex;
   align-items: center;
@@ -354,7 +272,6 @@ button.spymasterSlot[data-mine] {
   background: color-mix(in srgb, var(--blue) 26%, transparent);
 }
 
-/* A whisper-subtle cue that I host this room: a soft drop shadow under the pill. */
 .statusPill[data-host] {
   box-shadow: 0 2px 8px color-mix(in srgb, var(--ink) 16%, transparent);
 }
@@ -366,8 +283,6 @@ button.spymasterSlot[data-mine] {
   text-transform: uppercase;
 }
 
-/* One pip per guess granted (N+1), the last marked as the bonus; they fill as
-   the team spends guesses, so the allowance and progress read at a glance. */
 .pips {
   display: inline-flex;
   align-items: center;
@@ -385,8 +300,6 @@ button.spymasterSlot[data-mine] {
   background: var(--card-face);
 }
 
-/* The bonus (N+1) pip reads as extra: a ring when unspent, a softer fill when
-   spent — never the full solid of a regular guess. */
 .pip[data-bonus] {
   background: transparent;
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--card-face) 50%, transparent);
@@ -403,9 +316,6 @@ button.spymasterSlot[data-mine] {
   color: var(--card-face);
 }
 
-/* An arriving player's identity emoji, blown up so the room notices who joined.
-   line-height:0 keeps the bigger glyph from stretching the pill — it overflows
-   the line box instead of growing it, so nothing below jumps down. */
 .flashEmoji {
   font-size: 1.7em;
   line-height: 0;
@@ -416,8 +326,6 @@ button.spymasterSlot[data-mine] {
 .statusText {
   font-weight: 700;
   font-size: 1.1rem;
-  /* A little pop each time the line changes draws the eye — enough of a cue that
-     the persistent banner doesn't need transient toasts stacked over it. */
   animation: statusChange 0.34s ease;
 }
 
@@ -441,7 +349,6 @@ button.spymasterSlot[data-mine] {
   }
 }
 
-/* The start-over actions tucked into the winner banner. */
 .endActions {
   display: inline-flex;
   align-items: center;
@@ -464,9 +371,6 @@ button.spymasterSlot[data-mine] {
   background: color-mix(in srgb, var(--surface) 85%, var(--ink));
 }
 
-/* The pass ✕ lives inside the clue token, glued to the pips: passing spends
-   away the guesses those pips count. A hairline divider keeps it legible as its
-   own action without floating it off as a separate control. */
 .pass {
   display: inline-flex;
   align-items: center;
@@ -489,8 +393,6 @@ button.spymasterSlot[data-mine] {
   color: var(--card-face);
 }
 
-/* The three corner tools (invite, logs, close game) tucked behind one hamburger
-   in the bottom-left corner; the menu pops up above it. */
 .tools {
   position: fixed;
   left: 8px;
@@ -509,17 +411,12 @@ button.spymasterSlot[data-mine] {
   background: var(--surface);
   border: none;
   border-radius: 999px;
-  /* Firmer than var(--shadow): the 0.55 opacity and the busy board behind it would
-     otherwise swallow the soft theme shadow, so it needs to be darker and tighter. */
   box-shadow: 0 3px 10px rgba(43, 45, 66, 0.3);
   cursor: pointer;
   opacity: 0.55;
   transition: opacity 0.15s ease;
 }
 
-/* Only real pointers get the hover bloom — on touch, :hover sticks after a tap and
-   would leave the mark lit until you tapped elsewhere. The open state (below, via
-   aria-expanded) covers the "active" look on every device. */
 @media (hover: hover) {
   .hamburger:hover {
     opacity: 1;
@@ -530,8 +427,6 @@ button.spymasterSlot[data-mine] {
   }
 }
 
-/* The app mark stands in for a generic menu glyph: sepia-muted at rest so it
-   reads as a quiet corner tool, blooming into full colour on hover. */
 .hamburgerIcon {
   width: 20px;
   height: 20px;
@@ -539,25 +434,19 @@ button.spymasterSlot[data-mine] {
   transition: filter 0.15s ease;
 }
 
-/* You host this room: the hamburger wears a subtle accent tint, a quiet badge of
-   ownership that pairs with the pill's host shadow. */
 .hamburger[data-host] {
   border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
   opacity: 0.75;
 }
 
-/* The host's mark carries more of its true colour, a quiet badge of ownership. */
 .hamburger[data-host] .hamburgerIcon {
   filter: sepia(0.4) saturate(0.85);
 }
 
-/* An open menu blooms the mark to full colour, like hover — it reads as active
-   while the menu is out. After the host rule so it wins on equal specificity. */
 .hamburger[aria-expanded='true'] .hamburgerIcon {
   filter: none;
 }
 
-/* A screen-wide catcher so a click anywhere else dismisses the open menu. */
 .toolsBackdrop {
   position: fixed;
   inset: 0;
@@ -577,7 +466,6 @@ button.spymasterSlot[data-mine] {
   box-shadow: var(--shadow);
 }
 
-/* Bottom zone: deck credit + reshuffle on one row, then New deck below. */
 .toolsFooter {
   display: flex;
   flex-direction: column;
@@ -593,7 +481,6 @@ button.spymasterSlot[data-mine] {
   padding: 2px 12px;
 }
 
-/* The board's source line, folded into the menu so it costs no board space. */
 .toolsCredit {
   margin: 0;
   font-size: 0.8rem;
@@ -642,8 +529,6 @@ button.spymasterSlot[data-mine] {
   background: var(--primary-soft);
 }
 
-/* Native modal <dialog> holding the deck picker; Esc and backdrop clicks close
-   it. Sized to the picker, centred by the dialog's own auto margins. */
 .picker {
   width: min(720px, 100%);
   max-height: 90dvh;
@@ -664,15 +549,11 @@ button.spymasterSlot[data-mine] {
   background: rgba(0, 0, 0, 0.45);
 }
 
-/* Below the 5-column layout, use natural flow (scroll) instead of fit-to-height. */
 @media (max-width: 900px) {
   .screen {
     height: auto;
     min-height: 100dvh;
     display: grid;
-    /* Constrain the single column to the screen's width. A default `auto` column
-       sizes to the board's content and would blow past the viewport (clipping the
-       right-hand cards on mobile); minmax(0, 1fr) lets it shrink to fit instead. */
     grid-template-columns: minmax(0, 1fr);
     padding: 12px 0;
     gap: 14px;
@@ -689,9 +570,6 @@ button.spymasterSlot[data-mine] {
     gap: 10px;
   }
 
-  /* A phone is too narrow for the three columns to share one line, so stack the
-     header into three rows instead — red team, the clue/status bar, blue team —
-     following the DOM order, each row centred on its own line. */
   .header {
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;

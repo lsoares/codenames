@@ -8,11 +8,6 @@ interface RawgGame {
   slug: string
 }
 
-// Fetches 20 game artworks from RAWG. Orders by Metacritic so the board reads as
-// acclaimed classics and landmark titles rather than random releases; a random
-// page over the top few hundred keeps boards varied between games. Throws if no
-// key is configured or a request fails, so the caller can fall back to another
-// provider.
 async function fetch(): Promise<Face[]> {
   const key = import.meta.env.VITE_RAWG_API_KEY
   if (!key) throw new Error('Missing VITE_RAWG_API_KEY')

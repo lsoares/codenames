@@ -7,8 +7,6 @@ interface UnsplashPhoto {
   links?: { html: string }
 }
 
-// Fetches 20 random photo URLs from Unsplash. Throws if no key is configured
-// or the request fails, so the caller can fall back to another provider.
 async function fetch(): Promise<Face[]> {
   const key = import.meta.env.VITE_UNSPLASH_ACCESS_KEY
   if (!key) throw new Error('Missing VITE_UNSPLASH_ACCESS_KEY')

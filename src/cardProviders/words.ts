@@ -1,9 +1,6 @@
 import { text, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
-// Concrete, picturable categories. Datamuse's "triggered by" (rel_trg) returns
-// words statistically associated with these, which yields Codenames-ish nouns
-// (kitchen → stove, sink, oven, knife) far better than random dictionary words.
 const SEEDS = [
   'animal', 'food', 'kitchen', 'sport', 'vehicle', 'tool', 'fruit', 'house',
   'ocean', 'space', 'music', 'plant', 'weather', 'building', 'insect', 'bird',
@@ -17,8 +14,6 @@ interface DatamuseWord {
   tags?: string[]
 }
 
-// A word card's ↗ links to its dictionary entry, for players who don't know it.
-// Phrases and proper nouns (NEW YORK, LOCH NESS) may 404 — an acceptable miss.
 export const dictionaryLink = (word: string): string =>
   `https://www.merriam-webster.com/dictionary/${encodeURIComponent(word.toLowerCase())}`
 
@@ -31,8 +26,6 @@ export const shuffle = <T>(items: T[]): T[] => {
   return out
 }
 
-// Keep common, single, picturable nouns; drop proper nouns, rare words, and
-// plurals whose singular is already in the pool.
 function usable(entry: DatamuseWord, seen: Set<string>): string | null {
   const tags = entry.tags ?? []
   const freq = Number(tags.find((t) => t.startsWith('f:'))?.slice(2) ?? 0)
@@ -45,12 +38,6 @@ function usable(entry: DatamuseWord, seen: Set<string>): string | null {
   return word
 }
 
-// Fetches picturable nouns from Datamuse, triggered by a handful of category
-// seeds, and returns up to `count` distinct board-ready words. Whatever the live
-// source gives back is what a game gets — no curated padding. Each seed request
-// swallows its own failure, so a flaky network yields fewer words rather than
-// throwing. Exported (with a swappable seed pool) so the geek board can trigger
-// tech-flavoured words off the same mechanism.
 export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]> {
   const seen = new Set<string>()
   const seeds = shuffle(pool).slice(0, 6)

@@ -7,9 +7,6 @@ interface PexelsPhoto {
   url: string
 }
 
-// Fetches 20 curated photo URLs from Pexels. A random page keeps successive
-// games from repeating. Throws if no key is configured or the request fails,
-// so the caller can fall back to another provider.
 async function fetch(): Promise<Face[]> {
   const key = import.meta.env.VITE_PEXELS_API_KEY
   if (!key) throw new Error('Missing VITE_PEXELS_API_KEY')

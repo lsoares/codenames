@@ -2,12 +2,6 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-// Genuinely abstract painting — WikiArt's "abstract-art" style, the 20th-century
-// core (Kandinsky, Klee, af Klint, Mondrian, Picabia...). Its JSON list endpoint
-// sends no CORS headers, so it can't be fetched from the browser; the images
-// themselves hotlink fine, so we embed a harvested pool and hotlink each face
-// (as the Picbreeder deck does). Every deal shuffles the pool and keeps the first
-// 20 that actually decode, so no card face breaks even if a work is later moved.
 const PAINTINGS = [
   'https://uploads8.wikiart.org/images/marsden-hartley/painting-number-5-1915.jpg', 'https://uploads4.wikiart.org/images/wassily-kandinsky/to-the-unknown-voice-1916.jpg',
   'https://uploads8.wikiart.org/images/theo-van-doesburg/composition-i-still-life-1916.jpg', 'https://uploads5.wikiart.org/images/vladimir-tatlin/composition-the-month-of-may.jpg',
@@ -95,8 +89,6 @@ function loads(src: string): Promise<string | null> {
   })
 }
 
-// WikiArt URLs encode the artist and work: …/images/wassily-kandinsky/white-oval-1919.jpg
-// → "White Oval — Wassily Kandinsky". Best-effort; odd slugs just read a little rough.
 function attribution(url: string): string | undefined {
   const match = url.match(/\/images\/([^/]+)\/(.+)\.[a-z]+$/i)
   if (!match) return undefined
@@ -111,7 +103,6 @@ function attribution(url: string): string | undefined {
   return `${titleize(match[2])} — ${titleize(match[1])}`
 }
 
-// The same slugs point at the artwork's WikiArt page.
 function wikiartPage(url: string): string | undefined {
   const match = url.match(/\/images\/([^/]+)\/(.+)\.[a-z]+$/i)
   return match ? `https://www.wikiart.org/en/${match[1]}/${match[2].replace(/\(\d+\)$/, '')}` : undefined

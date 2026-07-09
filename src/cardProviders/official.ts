@@ -2,8 +2,6 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-// The 280 official Codenames Pictures cards, hotlinked from a fan repo via
-// jsDelivr and pinned to a commit so the paths can't shift under us.
 const BASE =
   'https://cdn.jsdelivr.net/gh/samdemaeyer/codenames-pictures@a01b650ecc03fb3b9b535659dd046fcc9d4fd167/public/images/cards'
 

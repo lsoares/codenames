@@ -2,10 +2,6 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-// This Image Does Not Exist has no API. Its GAN-dreamed artworks are published as
-// images/<id>.jpeg, with sequential integer ids running 1 to 305 and no holes. We
-// still guard each face on load — a card face must never be broken — walking a
-// shuffled id list and keeping only the ids that actually decode as an image.
 function loads(src: string): Promise<string | null> {
   return new Promise((resolve) => {
     const img = new Image()

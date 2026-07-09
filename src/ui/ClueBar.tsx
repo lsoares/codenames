@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { INFINITE_CLUE, type Team } from '../Game'
 import styles from './ClueBar.module.css'
 
-// The spymaster's clue input, docked at the bottom centre while it's their turn.
 export default function ClueBar(props: {
   turn: Team
   teamCardsLeft: number
@@ -10,15 +9,11 @@ export default function ClueBar(props: {
   onClue: (word: string, count: number) => void
 }) {
   const [word, setWord] = useState('')
-  // Default to a clue for one card. Once the spymaster starts picking cards the
-  // number follows the selection, and the spinner stays freely editable either
-  // way (e.g. clue fewer than picked, or 0 for unlimited).
   const [count, setCount] = useState(1)
   useEffect(() => {
     if (props.selectedCount > 0) setCount(props.selectedCount)
   }, [props.selectedCount])
 
-  // One step past the max reads as unlimited (∞); onSubmit converts it.
   const unlimited = count > props.teamCardsLeft
   const stepUp = (c: number) => Math.min(c + 1, props.teamCardsLeft + 1)
   const stepDown = (c: number) => Math.max(0, c - 1)
@@ -51,8 +46,6 @@ export default function ClueBar(props: {
           setCount(event.key === 'ArrowUp' ? stepUp : stepDown)
         }}
       />
-      {/* Number and submit stay paired at the end of the row, beside the clue
-          word — on a phone the word shrinks to keep all three on one line. */}
       <div className={styles.fields}>
         <div className={styles.count} data-unlimited={unlimited || undefined} data-zero={count === 0 || undefined}>
           <input

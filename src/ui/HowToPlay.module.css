@@ -1,5 +1,3 @@
-/* A quiet info button in the bottom-right corner, mirroring the menu button
-   (bottom-left) and matching its language. */
 .info {
   position: fixed;
   right: 8px;
@@ -16,13 +14,10 @@
   font-weight: 700;
   font-size: 1.15rem;
   line-height: 1;
-  /* Muted at rest, blooming to full colour on hover — the text twin of the menu
-     button's sepia-to-colour icon, so the two corner tools read the same. */
   color: var(--muted);
   background: var(--surface);
   border: none;
   border-radius: 999px;
-  /* Same firmer shadow as the menu button, so both corner tools sit the same. */
   box-shadow: 0 3px 10px rgba(43, 45, 66, 0.3);
   cursor: pointer;
   opacity: 0.55;
@@ -36,7 +31,6 @@
   color: var(--primary);
 }
 
-/* Modal rules dialog — same surface and backdrop as the deck picker. */
 .dialog {
   position: relative;
   width: min(600px, 100%);
@@ -59,7 +53,6 @@
   font-size: 1.4rem;
 }
 
-/* Four numbered strips, each a small diagram (the panel) above a caption. */
 .strips {
   margin: 0;
   padding: 0;
@@ -75,8 +68,6 @@
   gap: 16px;
 }
 
-/* A light frame around a standalone phase (Setup, End), so the help reads as a few
-   clearly separated steps — matching the cycle box, minus its tint. */
 .phase {
   position: relative;
   padding: 16px 16px 14px;
@@ -84,8 +75,6 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent);
 }
 
-/* A phase's label sits centred on its top border line — the same treatment as the
-   cycle's "One team at a time" tag, so all three boxes read alike. */
 .phaseTag {
   position: absolute;
   top: 0;
@@ -101,7 +90,6 @@
   letter-spacing: 0.07em;
 }
 
-/* A beat's heading (Phase 1/2), above its sentence. */
 .title {
   display: block;
   margin-bottom: 4px;
@@ -110,8 +98,6 @@
   color: var(--ink);
 }
 
-/* The two looping beats (Spymaster + Operatives), bracketed as one repeating unit:
-   a centred header, then the two beats side by side, both aligned to the top. */
 .cycle {
   position: relative;
   display: flex;
@@ -122,8 +108,6 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
-/* Centred on the top border line, its background cutting the line like a fieldset
-   legend. */
 .cycleTag {
   position: absolute;
   top: 0;
@@ -156,8 +140,6 @@
   }
 }
 
-/* The illustrated half — a transparent stage the mini-diagram sits on (no card
-   background; it rides the cycle box's own tint). */
 .panel {
   flex: none;
   width: 116px;
@@ -170,8 +152,6 @@
   padding: 10px;
 }
 
-/* A transparent, content-width illustration that sits beside its caption — no card
-   background, no white sides — for the compact Setup and End rows. */
 .scene {
   flex: none;
   display: inline-flex;
@@ -180,29 +160,12 @@
   gap: 12px;
 }
 
-/* A team (or the board) stacked over its label / composition line. */
 .teamGroup,
 .boardGroup {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   gap: 7px;
-}
-
-.teamGroup[data-team='red'] {
-  --c: var(--red);
-}
-
-.teamGroup[data-team='blue'] {
-  --c: var(--blue);
-}
-
-.teamLabel {
-  font-size: 0.62rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--c);
 }
 
 .compo {
@@ -213,7 +176,6 @@
   color: var(--muted);
 }
 
-/* The spymaster above their role label. */
 .roleCol {
   display: inline-flex;
   flex-direction: column;
@@ -222,22 +184,6 @@
 }
 
 .roleLabel {
-  font-size: 0.55rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--muted);
-}
-
-/* The operatives beside a vertical "Operatives" label. */
-.opsGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.vLabel {
-  writing-mode: vertical-rl;
   font-size: 0.55rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -255,7 +201,6 @@
   line-height: 1;
 }
 
-/* The spymaster with a thought bubble overlapping the top of their head. */
 .thinker {
   position: relative;
   display: inline-flex;
@@ -269,7 +214,6 @@
   line-height: 1;
 }
 
-/* A less-important clause: smaller and muted, on its own line below the key one. */
 .aside {
   display: block;
   margin-top: 5px;
@@ -284,18 +228,6 @@
   text-align: left;
 }
 
-/* A small coloured kicker naming the beat — Setup / Clue / Guess / End. */
-.label {
-  display: block;
-  margin-bottom: 3px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--primary);
-}
-
-/* Strip 1 — a 5×4 mini board of the deal's colours. */
 .board {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -325,14 +257,11 @@
   --chip: #1c1c22;
 }
 
-/* The cards the sample clue points at — lifted and ringed in the accent. */
 .chip[data-clued] {
   box-shadow: 0 0 0 2px var(--primary);
   transform: scale(1.15);
 }
 
-/* The operatives' colourless board: a card face (a stand-in shape) with no team
-   colour, because they can't see who owns what. */
 .faceChip {
   display: grid;
   place-items: center;
@@ -345,17 +274,12 @@
   line-height: 1;
 }
 
-/* Strip 1 (Setup) is a taller intro: the two teams over a board that fades off the
-   bottom, with its caption below rather than beside it. */
-/* Caption sits above the illustration (column-reverse keeps the decorative panel
-   last in the DOM, so a screen reader still hits the text first). */
 .intro {
   flex-direction: column-reverse;
   align-items: stretch;
   gap: 12px;
 }
 
-/* team · board · team on one horizontal row, all centred to the same level. */
 .wide {
   width: 100%;
   min-height: 0;
@@ -367,7 +291,6 @@
   padding: 14px;
 }
 
-/* Each team flanks the board as a vertical stack of three avatars. */
 .team {
   display: inline-flex;
   flex-direction: column;
@@ -380,9 +303,6 @@
   --c: var(--blue);
 }
 
-/* Every member is the same team-ringed avatar, aligned in a row; the spymaster
-   (🕵️, the one who sees) reads a touch larger and deeper-tinted than the two
-   operatives (👤). */
 .person {
   display: inline-grid;
   place-items: center;
@@ -403,8 +323,6 @@
 }
 
 
-/* A picked card, flipped face-up: its real colour with a ✓ (right) or ✕ (wrong)
-   centred on it — white with a shadow so it reads on any colour. */
 .revealed {
   display: grid;
   place-items: center;
@@ -415,7 +333,6 @@
   text-shadow: 0 0 2px rgba(0, 0, 0, 0.55);
 }
 
-/* Strip 2 (Clue) — the spymaster points one word at some of the cards. */
 .clueSpy {
   --c: var(--primary);
 }
@@ -451,7 +368,6 @@
   color: #fff;
 }
 
-/* Strip 4 (End) — the winning team's trophy beside the fully-revealed board. */
 .trophy {
   font-size: 2rem;
   line-height: 1;

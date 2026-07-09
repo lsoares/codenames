@@ -10,8 +10,6 @@ export default function ImageLightbox(props: { url: string; onClose: () => void 
     return () => window.removeEventListener('keydown', onKey)
   }, [props.onClose])
 
-  // The backdrop closes on click; the image stops the click so only the surround
-  // dismisses. The whole photo shows uncropped, unlike the board's zoomed-in face.
   return (
     <div className={styles.backdrop} role="dialog" aria-modal="true" onClick={props.onClose}>
       <button type="button" className={styles.close} aria-label="Close" onClick={props.onClose}>

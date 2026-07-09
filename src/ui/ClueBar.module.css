@@ -1,12 +1,3 @@
-.bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-}
-
 .clueForm {
   display: flex;
   gap: 6px;
@@ -42,7 +33,6 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--turn) 30%, transparent);
 }
 
-/* Quiet, team-tinted submit instead of a loud solid button. */
 .submit {
   padding: 8px 14px;
   background: color-mix(in srgb, var(--turn) 12%, transparent);
@@ -51,15 +41,6 @@
   box-shadow: none;
 }
 
-/* Compact pass button so it doesn't inflate the header row. */
-.pass {
-  padding: 8px 12px;
-  font-size: 1.1rem;
-  line-height: 1;
-}
-
-/* A plain native number spinner (type, tab, arrows all free). Its max is one
-   past the cards left, and that extra step reads as ∞ via the overlay. */
 .count {
   position: relative;
   display: inline-flex;
@@ -70,7 +51,6 @@
   text-align: center;
 }
 
-/* Past the max: hide the held number (and caret) and float ∞ over the field. */
 .count[data-unlimited] .countInput {
   color: transparent;
   caret-color: transparent;
@@ -98,52 +78,6 @@
   text-transform: uppercase;
 }
 
-/* The pill is also the menu button — click it to open the options dropdown. */
-.cluePill {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 26px;
-  border-radius: 999px;
-  color: var(--ink);
-  box-shadow: none;
-  cursor: pointer;
-}
-
-.clueWord {
-  font-size: 2rem;
-  line-height: 1.1;
-}
-
-.clueDot {
-  font-size: 0.55rem;
-  color: var(--muted);
-}
-
-.clueValue {
-  font-size: 1.3rem;
-  color: var(--muted);
-}
-
-.cluePill[data-team='red'] {
-  background: color-mix(in srgb, var(--red) 26%, transparent);
-}
-
-.cluePill[data-team='blue'] {
-  background: color-mix(in srgb, var(--blue) 26%, transparent);
-}
-
-.statusText {
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-/* On a phone the clue form gets its own full-width row (the header stacks into
-   three rows there). Keep word + number + submit on that one line: don't wrap,
-   and let the word shrink to fill the space left rather than dropping the number
-   below it. */
 @media (max-width: 640px) {
   .clueForm {
     flex: 1;

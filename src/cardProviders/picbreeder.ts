@@ -1,11 +1,6 @@
 import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
-// Picbreeder has no API. Its CPPN-evolved images are published as pre-rendered
-// thumbnails at thumbnails/<id>.jpg, with sequential integer ids running 48 to
-// 12730. There are rare holes (deleted genomes) that answer with a tiny
-// non-decodable body, so we over-pick random ids and keep only the ones that
-// actually load as an image — a card face must never be broken.
 function loads(src: string): Promise<string | null> {
   return new Promise((resolve) => {
     const img = new Image()

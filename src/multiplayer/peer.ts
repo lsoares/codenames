@@ -4,14 +4,6 @@ function randomCode(): string {
   return Math.random().toString(36).slice(2, 8)
 }
 
-// Friendly, shareable room codes: an adjective and a noun, lowercased and
-// hyphen-joined (e.g. "mighty-dragon"), so a host can read one aloud to whoever
-// is next to them. The two pools were harvested once from Datamuse — adjectives
-// describing evocative seeds (rel_jjb) and nouns triggered by concrete,
-// picturable seeds (rel_trg), frequency-banded to drop function words — then
-// kept here beside the id generator so a room is minted instantly and offline,
-// never blocking on a live word source. ~60×120 pairs make a clash unlikely, and
-// the host retries with a fresh pair on the rare collision.
 const ROOM_ADJECTIVES = [
   'pure', 'ideal', 'evil', 'soft', 'strange', 'fresh', 'divine', 'wild',
   'famous', 'warm', 'rare', 'clean', 'bright', 'vast', 'alive', 'silent',
@@ -48,11 +40,6 @@ export function randomRoomCode(): string {
   return `${pick(ROOM_ADJECTIVES)}-${pick(ROOM_NOUNS)}`
 }
 
-// A stable id for this browser tab, kept in sessionStorage so a reload or a
-// reconnect comes back as the *same* peer instead of a fresh one — otherwise the
-// host keeps the old id's seat/team around as a ghost. Per-tab (sessionStorage,
-// not localStorage) so two tabs of the same browser never collide on one id.
-// Longer than a room code, so a guest id can never look like a host's.
 export function tabPeerId(): string {
   const existing = sessionStorage.getItem('codenames:peer-id')
   if (existing) return existing
@@ -61,17 +48,11 @@ export function tabPeerId(): string {
   return id
 }
 
-// Abandon this tab's stored id and mint a new one. Used when the broker reports
-// the id is taken — by a ghost of a prior socket the server hasn't expired, or by
-// a duplicated tab that copied our sessionStorage — so retrying the same id would
-// loop forever on ID-TAKEN.
 export function resetTabPeerId(): string {
   sessionStorage.removeItem('codenames:peer-id')
   return tabPeerId()
 }
 
-// STUN + free TURN so peers behind restrictive NATs still connect. Defaults to
-// Metered's OpenRelay static credentials; override with VITE_TURN_* for your own.
 const fallbackIceServers: RTCIceServer[] = [
   { urls: 'stun:stun.l.google.com:19302' },
   import.meta.env.VITE_TURN_URL
@@ -102,8 +83,6 @@ export const iceServersReady: Promise<void> = import.meta.env.VITE_METERED_TURN_
       .catch(() => {})
   : Promise.resolve()
 
-// Our own PeerServer when VITE_PEER_HOST is set (dev and prod point at it), else
-// the public PeerJS broker. Either way peers get the TURN config above.
 export function newPeer(id?: string): Peer {
   const brokerHost = import.meta.env.VITE_PEER_HOST
   const options: PeerOptions = { config: { iceServers } }

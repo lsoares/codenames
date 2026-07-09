@@ -2,12 +2,10 @@ import { type DataConnection } from 'peerjs'
 import { iceServersReady, logConnection, newPeer, resetTabPeerId, tabPeerId } from './peer'
 import type { Action, Ping, Presence, RoomView, Session, TeamClaim } from './Session'
 
-// What a failed join concluded, so the UI can give the right advice instead of
-// blaming the room code for every failure.
 export type JoinFailureReason =
-  | 'room-not-found' // the broker answered, but no host holds that code
-  | 'broker-unreachable' // never (stably) reached the signaling broker
-  | 'connection-blocked' // host found, but the peer link never opened (NAT/firewall)
+  | 'room-not-found'
+  | 'broker-unreachable'
+  | 'connection-blocked'
 
 export class JoinError extends Error {
   constructor(readonly reason: JoinFailureReason) {
@@ -15,25 +13,12 @@ export class JoinError extends Error {
   }
 }
 
-// How long a join keeps trying before rejecting with a JoinError. Generous: a
-// cross-network guest gathers STUN/TURN candidates and completes ICE over the
-// internet, which routinely takes several seconds — and a host mid-reload or
-// mid-takeover needs a few more to reclaim the room id. Tests shrink it via
-// localStorage to exercise the failure paths quickly.
 const joinWindowMs = (): number =>
   Number(localStorage.getItem('codenames:join-window-ms')) || 15000
 
-// Once the broker says the room isn't registered, keep trying only this long —
-// a host may be mid-setup or mid-takeover — before giving up with room-not-found.
-// Far shorter than the connect window: a missing room is a near-verdict, so we
-// mustn't sit on "Connecting…" for the full window waiting out slow ICE that will
-// never happen (there's no host to reach). Tests shrink it via localStorage.
 const hostMissingMs = (): number =>
   Number(localStorage.getItem('codenames:host-missing-ms')) || 5000
 
-// A client peer: connects to a Host by room code, forwards the player's actions
-// onto the wire, renders the RoomView the host broadcasts back, and watches the
-// heartbeat so it can report the host going silent. Construct via Guest.join.
 export class Guest implements Session {
   selfId!: string
   private peer!: ReturnType<typeof newPeer>
@@ -45,18 +30,12 @@ export class Guest implements Session {
   private watchdog?: ReturnType<typeof setInterval>
   private lost = false
 
-  // Free our tab id on a real tab close so a reconnect can reclaim it without
-  // fighting a broker ghost. Skip a bfcache freeze (persisted), which resumes.
   private readonly releaseOnUnload = (event: PageTransitionEvent): void => {
     if (!event.persisted) this.peer?.destroy()
   }
 
   private constructor(readonly roomCode: string) {}
 
-  // Join a room, retrying transient failures — a broker hiccup or rate limit, a
-  // host mid-reload or mid-takeover — until the join window closes, then reject
-  // with a JoinError saying why. waitForHost=false fails fast on a missing room
-  // instead: for the reloading host's own tab, whose next move is to re-host.
   static join(roomCode: string, { waitForHost = true } = {}): Promise<Guest> {
     return new Guest(roomCode).open(waitForHost)
   }
@@ -82,9 +61,6 @@ export class Guest implements Session {
     this.disconnectHandler = listener
   }
 
-  // Leave for good: stop the watchdog, suppress the disconnect handler (we're
-  // going on purpose), and drop the peer — freeing our tab id so a reconnect can
-  // reclaim it.
   close(): void {
     this.lost = true
     window.removeEventListener('pagehide', this.releaseOnUnload)
@@ -96,12 +72,8 @@ export class Guest implements Session {
     await iceServersReady
     window.addEventListener('pagehide', this.releaseOnUnload)
     return new Promise((resolve, reject) => {
-      // What the timeout should report if the window closes now — updated as the
-      // join progresses, so the last thing we were stuck on names the failure.
       let phase: JoinFailureReason = 'broker-unreachable'
       let settled = false
-      // Armed the moment the broker first reports the room missing, so we give up
-      // on a dead room well before the (much longer) connect window would.
       let missingTimer: ReturnType<typeof setTimeout> | undefined
 
       const timer = setTimeout(() => fail(phase), joinWindowMs())
@@ -128,10 +100,6 @@ export class Guest implements Session {
 
       const dial = (peer: ReturnType<typeof newPeer>) => {
         if (settled || peer.destroyed) return
-        // Once the broker has said the room isn't registered, that stays the
-        // verdict: the broker only reports it after its own multi-second grace,
-        // so a redial rarely hears back again before the window closes — and a
-        // dead room is far likelier than a host appearing mid-join.
         if (phase !== 'room-not-found') phase = 'connection-blocked'
         const connection = peer.connect(this.roomCode, { reliable: true })
         this.connection = connection
@@ -139,7 +107,6 @@ export class Guest implements Session {
           logConnection(connection)
           this.lastSeen = Date.now()
           this.watchdog = setInterval(() => {
-            // Keepalive so the host knows we're still here, and detect host loss.
             if (this.connection.open) this.connection.send({ __ping: true } satisfies Ping)
             if (Date.now() - this.lastSeen > 6000) this.markLost()
           }, 2000)
@@ -151,8 +118,6 @@ export class Guest implements Session {
           this.latest = data as RoomView
           this.listeners.forEach((listener) => listener(this.latest as RoomView))
         })
-        // A superseded dial's connection must not speak for the live one; while
-        // still joining, a dropped attempt just means dial again.
         const gone = () => {
           if (connection !== this.connection) return
           if (settled) this.markLost()
@@ -162,8 +127,6 @@ export class Guest implements Session {
         connection.on('error', gone)
       }
 
-      // Try the same room again in a moment — but only if no other path (a
-      // fresh peer, a competing redial) has replaced this attempt meanwhile.
       const redial = (stale: DataConnection | null) => {
         const peer = this.peer
         setTimeout(() => {
@@ -173,24 +136,17 @@ export class Guest implements Session {
 
       const attempt = () => {
         if (settled) return
-        // Reuse this tab's stable id so a reload/reconnect returns as the same
-        // peer, not a ghost.
         const peer = newPeer(tabPeerId())
         this.peer = peer
         let dialed = false
         let reconnectDelay = 0
         peer.on('open', (selfId) => {
           this.selfId = selfId
-          reconnectDelay = 0 // a clean (re)connect resets the backoff
-          // The broker re-fires 'open' on every reconnect; the data link to the
-          // host is separate and already up, so only dial the first time.
+          reconnectDelay = 0
           if (dialed) return
           dialed = true
           dial(peer)
         })
-        // A dropped broker socket (idle/sleep/blip) leaves our peer alive: reclaim
-        // the same id so the host can still reach us, rather than reloading. Back
-        // off (capped) so a flapping broker can't turn into a reconnect storm.
         peer.on('disconnected', () => {
           if (this.peer !== peer || peer.destroyed) return
           reconnectDelay = reconnectDelay ? Math.min(reconnectDelay * 2, 30000) : 500
@@ -201,20 +157,11 @@ export class Guest implements Session {
         peer.on('error', (error: { type?: string }) => {
           if (settled) return
           if (error.type === 'peer-unavailable') {
-            // The room id isn't registered right now. The host may be mid-reload
-            // or mid-takeover, so keep dialing on the same peer — unless the
-            // caller wants the verdict immediately (waitForHost=false). Either
-            // way, don't wait the whole connect window: give up shortly if no
-            // host shows up.
             phase = 'room-not-found'
             if (!waitForHost) return fail('room-not-found')
             if (!missingTimer) missingTimer = setTimeout(() => fail('room-not-found'), hostMissingMs())
             redial(this.connection)
           } else {
-            // Anything else — a rate limit, a dropped socket, or the broker still
-            // holding our tab id ('unavailable-id') from a ghost socket or a
-            // duplicated tab — gets a fresh peer until the window closes. On a
-            // taken id, reusing it just loops on ID-TAKEN, so mint a new one first.
             if (error.type === 'unavailable-id') resetTabPeerId()
             phase = 'broker-unreachable'
             peer.destroy()
