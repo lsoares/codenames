@@ -3,6 +3,9 @@
   gap: 1px;
   width: 100%;
   align-items: center;
+  /* The dock is click-through (pointer-events: none); re-enable them on the bar
+     itself so its "Thinking for m:ss" tooltip shows on hover. */
+  pointer-events: auto;
 }
 
 .cell {
