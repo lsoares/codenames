@@ -19,6 +19,7 @@ test('a joiner is not told existing spymasters are new', async ({ browser }) => 
   const code = await host.getRoomCode()
 
   await guest.openRoom(code)
+  await guest.closeToolsMenu()
 
   // Seated (blue colours visible) yet no toast — the pre-existing red spymaster
   // and the guest's own auto-seat were a silent baseline, not a "New spymaster".

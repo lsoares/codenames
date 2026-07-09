@@ -4,6 +4,7 @@ import { hostRoom, joinRoom } from './gamePage'
 test('host refresh restores the room and its revealed cards', async ({ browser }) => {
   const { game: host, code } = await hostRoom(browser, 'red')
   const operative = await joinRoom(browser, code, 'red')
+  await operative.closeToolsMenu()
 
   const target = await host.getCardNumber('red')
   await host.giveClue('anchor', 1)

@@ -29,7 +29,7 @@ export default function GameScreen(props: {
 }) {
   const pickerDialog = useRef<HTMLDialogElement>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(props.players.length < 4)
 
   const currentDeckId = props.providers.find((p) => p.label === props.game.state.deck)?.id
   const dealFreshBoard = () => {

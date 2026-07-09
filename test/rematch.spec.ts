@@ -6,6 +6,7 @@ import { hostRoom, joinRoom } from './gamePage'
 test('after a win, changing deck deals a fresh board in the same room', async ({ browser }) => {
   const { game: host, code } = await hostRoom(browser, 'red')
   const operative = await joinRoom(browser, code, 'red')
+  await operative.closeToolsMenu()
   const target = await host.getCardNumber('assassin')
   await host.giveClue('trap', 1)
   await operative.guessNumber(target)

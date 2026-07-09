@@ -76,9 +76,12 @@ export class GamePage {
 
   // The homepage lists decks; picking one hosts a room. Random is the default
   // (image) deck the suite plays on, so start there and wait for the board.
+  // A room with fewer than 4 players greets you with the tools menu open (to
+  // invite); dismiss it so tests start from a clean board.
   async createRoom(): Promise<void> {
     await this.page.getByRole('button', { name: 'Random', exact: true }).click()
     await this.getCards().first().waitFor()
+    await this.closeToolsMenu()
   }
 
   // The homepage box for entering an existing room by its code.
@@ -150,6 +153,10 @@ export class GamePage {
   // The corner hamburger groups the invite, logs, and close-game tools.
   async openToolsMenu(): Promise<void> {
     await this.page.getByRole('button', { name: 'Menu' }).click()
+  }
+
+  async closeToolsMenu(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Menu', expanded: true }).click()
   }
 
   // The tools menu holds the join QR and the room name (click to copy the link).
