@@ -335,12 +335,16 @@ export default function App() {
         <Homepage
           providers={providers}
           onPick={(id) => void createRoom(id, normalizeCode(window.location.pathname) || undefined)}
-          onJoin={(raw) => {
-            const code = normalizeCode(raw)
-            if (!code) return
-            history.pushState({}, '', '/' + restoreDash(code))
-            attemptJoin()
-          }}
+          onJoin={
+            normalizeCode(window.location.pathname)
+              ? undefined
+              : (raw) => {
+                  const code = normalizeCode(raw)
+                  if (!code) return
+                  history.pushState({}, '', '/' + restoreDash(code))
+                  attemptJoin()
+                }
+          }
         />
       )}
     </>

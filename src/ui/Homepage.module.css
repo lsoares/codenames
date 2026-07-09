@@ -9,6 +9,15 @@
   padding-top: 6vh;
 }
 
+.top {
+  width: min(720px, 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -34,10 +43,9 @@
 .join {
   display: flex;
   gap: 8px;
-  margin-top: calc(-1 * clamp(18px, 4vh, 36px));
 }
 
 .joinCode {
-  width: 22ch;
+  width: 16ch;
 }
 
