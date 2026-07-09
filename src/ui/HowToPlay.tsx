@@ -74,8 +74,8 @@ export default function HowToPlay() {
                   ))}
                 </div>
                 <span className={styles.compo}>
-                  20 cards (<span className={styles.blue}>7 blue</span>, <span className={styles.red}>8 red</span>, 4
-                  neutral, 1 assassin)
+                  20 agent cards (<span className={styles.blue}>7 blue</span>, <span className={styles.red}>8 red</span>,
+                  4 neutral, 1 assassin)
                 </span>
               </div>
               <div className={styles.team} data-team="blue" aria-hidden="true">
@@ -94,7 +94,8 @@ export default function HowToPlay() {
             </div>
             <p className={styles.caption}>
 Players join <strong>two teams</strong> — <span className={styles.red}>red</span> and{' '}
-              <span className={styles.blue}>blue</span>. Only the <strong>spymasters see the colors</strong>.
+              <span className={styles.blue}>blue</span> (<strong>4+ players</strong>). Only the{' '}
+              <strong>spymasters see the colors</strong>.
             </p>
           </div>
 
