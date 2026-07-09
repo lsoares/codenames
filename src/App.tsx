@@ -261,7 +261,7 @@ export default function App() {
     const code = normalizeCode(window.location.pathname)
     if (!code) return
 
-    setStatus(`Entering ${code}…`)
+    setStatus(`Joining ${code}…`)
     const saved = sessionStorage.getItem(hostStateKey(code))
     Guest.join(code, { waitForHost: !saved })
       .then((session) => {
