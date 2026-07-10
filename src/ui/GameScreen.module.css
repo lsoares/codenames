@@ -162,6 +162,13 @@ button.spymasterSlot[data-mine] {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--turn);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.op[data-mine]:hover::after,
+.spymasterSlot[data-mine]:hover::after {
+  opacity: 1;
 }
 
 /* The left-side spymaster is mirrored; re-flip the label so it reads normally. */

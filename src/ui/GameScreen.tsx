@@ -177,7 +177,6 @@ export default function GameScreen(props: {
               data-team={team}
               data-mine={isMySeat || undefined}
               data-active={spymasterActive}
-              title={isMySeat ? 'You' : undefined}
             >
               {spymasterFace}
             </span>
@@ -190,7 +189,6 @@ export default function GameScreen(props: {
                 className={styles.op}
                 data-team={team}
                 data-mine={player.id === props.selfId || undefined}
-                title={player.id === props.selfId ? 'You' : undefined}
                 aria-label={player.id === props.selfId ? `${team} operative (you)` : `${team} operative`}
               >
                 {player.emoji}
