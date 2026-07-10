@@ -23,7 +23,7 @@ async function fetch(): Promise<Face[]> {
   const bodies = await Promise.all(
     looks.map((look) =>
       window
-        .fetch(`https://api.pexels.com/v1/search?query=${look}&per_page=4&page=${page}`, {
+        .fetch(`https://api.pexels.com/v1/search?query=${look}&orientation=landscape&per_page=4&page=${page}`, {
           headers: { Authorization: key },
         })
         .then((response) => {

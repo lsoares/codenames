@@ -21,7 +21,7 @@ async function fetch(): Promise<Face[]> {
   if (!key) throw new Error('Missing VITE_UNSPLASH_ACCESS_KEY')
 
   const response = await window.fetch(
-    `https://api.unsplash.com/photos/random?count=20&client_id=${key}`,
+    `https://api.unsplash.com/photos/random?count=20&orientation=landscape&client_id=${key}`,
   )
   if (!response.ok) {
     throw new Error(`Unsplash request failed: ${response.status}`)
