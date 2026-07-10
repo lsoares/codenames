@@ -2,7 +2,7 @@ import { text, type Face } from '../Face'
 import type { CardProvider } from './providers'
 
 export const dictionaryLink = (word: string): string =>
-  `https://www.merriam-webster.com/dictionary/${encodeURIComponent(word.toLowerCase())}`
+  `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
 
 export const shuffle = <T>(items: T[]): T[] => {
   const out = [...items]
