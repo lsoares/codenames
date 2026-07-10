@@ -256,6 +256,8 @@ export default function GameScreen(props: {
 
   const activeSpymaster = props.mySeat === turn
   const mineTurn = turn === props.myTeam
+  const guessingNow = acting === 'operatives' && mineTurn && props.mySeat === null
+  const onBonus = clue !== null && guessesUsed >= clue.count
 
   const moles = useMoles(
     props.moles,
@@ -374,32 +376,41 @@ export default function GameScreen(props: {
                     >
                       {clueCountLabel(clue.count)}
                     </span>
-                  ) : (
-                    <span
-                      className={styles.pips}
-                      role="img"
-                      aria-label={`${guessesUsed} used out of ${guessesShown}`}
-                      title={`${guessesUsed} used out of ${guessesShown}`}
-                    >
-                      {Array.from({ length: guessesShown }, (_, i) => (
-                        <span
-                          key={i}
-                          className={styles.pip}
-                          data-spent={i < guessesUsed || undefined}
-                          data-bonus={i === clue.count || undefined}
-                        />
-                      ))}
+                  ) : onBonus && guessingNow ? (
+                    <span className={styles.oneMore} role="status">
+                      One more guess?
                     </span>
+                  ) : (
+                    (() => {
+                      const pipTotal = guessingNow ? clue.count : guessesShown
+                      return (
+                        <span
+                          className={styles.pips}
+                          role="img"
+                          aria-label={`${guessesUsed} used out of ${pipTotal}`}
+                          title={`${guessesUsed} used out of ${pipTotal}`}
+                        >
+                          {Array.from({ length: pipTotal }, (_, i) => (
+                            <span
+                              key={i}
+                              className={styles.pip}
+                              data-spent={i < guessesUsed || undefined}
+                              data-bonus={(!guessingNow && i === clue.count) || undefined}
+                            />
+                          ))}
+                        </span>
+                      )
+                    })()
                   )}
                   {acting === 'operatives' && mineTurn && props.mySeat === null && (
                     <button
                       type="button"
-                      className={styles.pass}
+                      className={onBonus ? styles.noMore : styles.pass}
                       onClick={() => props.onAction({ type: 'endTurn' })}
                       aria-label="Pass"
                       title="Pass"
                     >
-                      ✕
+                      {onBonus ? 'No' : '✕'}
                     </button>
                   )}
                 </span>
