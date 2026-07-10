@@ -84,6 +84,7 @@ export default function Board(props: {
           card.face.kind === 'image' && !card.face.link && !smallImages.has(card.face.url)
             ? card.face.url
             : null
+        const showCaption = !props.bare && !props.loading && !(props.focus && isSpymaster)
         return (
           <div
             key={index}
@@ -114,9 +115,6 @@ export default function Board(props: {
               ) : (
                 renderFace(card.face, measureImage)
               )}
-              {!props.bare && !props.loading && card.face.tooltip && (
-                <span className={styles.caption}>{card.face.tooltip}</span>
-              )}
               {badge && (
                 <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>
                   {feedbackBadge[badge].emoji}
@@ -135,18 +133,20 @@ export default function Board(props: {
                 📌
               </button>
             )}
-            {!props.bare && card.face.link && !props.loading && (
+            {showCaption && card.face.link && (
               <a
-                className={styles.linkIcon}
+                className={styles.caption}
                 href={card.face.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Look up ${name}`}
-                title={`Look up ${name}`}
                 onClick={(event) => event.stopPropagation()}
               >
-                ↗
+                {card.face.tooltip ?? '?'}
               </a>
+            )}
+            {showCaption && !card.face.link && card.face.tooltip && (
+              <span className={styles.caption}>{card.face.tooltip}</span>
             )}
             {!props.bare && zoomUrl && !props.loading && (
               <button

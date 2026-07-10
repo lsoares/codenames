@@ -93,37 +93,43 @@
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
-.linkIcon {
+.caption {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin-inline: auto;
+  width: fit-content;
   z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
-  color: var(--ink);
+  max-width: 100%;
+  padding: 5px 12px;
+  border-radius: 14px 14px 20px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: clamp(0.72rem, 1.05vw, 0.9rem);
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
   text-decoration: none;
-  font-size: 1.15rem;
-  line-height: 1;
+  pointer-events: none;
   opacity: 0;
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
+  transition: opacity 0.3s ease;
 }
 
-.cell:hover .linkIcon,
-.linkIcon:focus-visible {
+a.caption {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+a.caption:hover,
+a.caption:focus-visible {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.cell:hover .caption,
+.card:focus-visible ~ .caption,
+.caption:focus-visible {
   opacity: 1;
-}
-
-.linkIcon:hover,
-.linkIcon:focus-visible {
-  transform: scale(1.15);
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
 .zoomIcon {
@@ -185,28 +191,6 @@
 .contain {
   object-fit: contain;
   transform: none;
-}
-
-.caption {
-  position: absolute;
-  left: 5px;
-  right: 5px;
-  bottom: 5px;
-  padding: 4px 8px;
-  border-radius: 0 0 16px 16px;
-  background: rgba(0, 0, 0, 0.4);
-  color: #fff;
-  font-size: 0.72rem;
-  line-height: 1.2;
-  text-align: center;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.cell:hover .caption,
-.card:focus-visible .caption {
-  opacity: 1;
 }
 
 .framed {
