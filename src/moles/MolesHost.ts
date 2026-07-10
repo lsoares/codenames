@@ -3,6 +3,7 @@ import { MoleGame } from './MoleGame'
 
 export interface MolesWorld {
   thinking(): boolean
+  playerCount(): number
   whackerIds(): string[]
   hiddenCardIndices(): number[]
 }
@@ -19,7 +20,9 @@ export class MolesHost {
   ) {}
 
   sync(): void {
-    const active = this.world.thinking() && this.world.whackerIds().length >= 2
+    // The whack break is a crowd filler: it only livens up a full room (4+), so
+    // small games stay a plain "spymaster is thinking" wait.
+    const active = this.world.thinking() && this.world.playerCount() >= 4
     if (active && !this.game) {
       this.game = new MoleGame()
       // A few quiet seconds before the first critter, so the new phase can breathe.

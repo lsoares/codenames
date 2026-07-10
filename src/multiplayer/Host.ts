@@ -21,6 +21,7 @@ export class Host implements Session {
   private readonly moles = new MolesHost(
     {
       thinking: () => !this.game.state.winner && this.game.state.phase === 'clue',
+      playerCount: () => 1 + this.connections.length,
       whackerIds: () =>
         [this.peer.id, ...this.connections.map((connection) => connection.peer)].filter(
           (id) => id !== this.room.seats[this.game.state.turn],
