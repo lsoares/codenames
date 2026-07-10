@@ -76,7 +76,11 @@ export default function Board(props: {
         const name =
           card.face.kind === 'text' || card.face.kind === 'glyph' ? card.face.text : `Card ${index + 1}`
         const marked = !isSpymaster && highlighted(card, index)
-        const label = showColor ? `${name}, ${card.color}` : marked ? `${name}, marked` : name
+        const label = showColor
+          ? `${name}, ${card.color === 'neutral' ? 'bystander' : card.color}`
+          : marked
+            ? `${name}, marked`
+            : name
         const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
         const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
         const canMark = props.game.canMark(index, isSpymaster)
@@ -175,7 +179,7 @@ export default function Board(props: {
 const feedbackBadge: Record<GuessOutcome, { emoji: string; label: string }> = {
   correct: { emoji: '🎯', label: 'correct guess' },
   wrong: { emoji: '❌', label: 'wrong guess' },
-  neutral: { emoji: '🤷', label: 'neutral card' },
+  neutral: { emoji: '🤷', label: 'bystander card' },
   assassin: { emoji: '💀', label: 'assassin' },
 }
 

@@ -52,7 +52,7 @@ export default function HowToPlay() {
                 </div>
                 <span className={styles.compo}>
                   20 agent cards (<span className={styles.blue}>7 blue</span>, <span className={styles.red}>8 red</span>,
-                  4 neutral, 1 assassin)
+                  4 bystanders, 1 assassin)
                 </span>
               </div>
               <div className={styles.team} data-team="blue" aria-hidden="true">
