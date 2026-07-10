@@ -6,6 +6,7 @@ import { useMoles } from '../moles/useMoles'
 import type { CardProvider } from '../cardProviders/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
+import Confetti from './Confetti'
 import ThinkingBar from './ThinkingBar'
 import DeckPicker from './DeckPicker'
 import HowToPlay from './HowToPlay'
@@ -541,6 +542,8 @@ export default function GameScreen(props: {
           <ThinkingBar key={`${acting}-${clueHistory.length}`} team={turn} />
         </div>
       )}
+
+      {winner === props.myTeam && <Confetti />}
 
       <HowToPlay />
     </main>

@@ -95,29 +95,6 @@
   }
 }
 
-.confetti {
-  position: fixed;
-  inset: 0;
-  z-index: 9;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.confetti span {
-  position: absolute;
-  top: -4vh;
-  width: 9px;
-  height: 14px;
-  border-radius: 2px;
-  animation: confettiFall linear forwards;
-}
-
-@keyframes confettiFall {
-  to {
-    transform: translateY(110vh) rotate(720deg);
-  }
-}
-
 /* Rides in the header, beside the status banner. */
 .scores {
   display: inline-flex;
