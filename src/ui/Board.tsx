@@ -93,7 +93,6 @@ export default function Board(props: {
             <button
               className={styles.card}
               aria-label={label}
-              title={props.bare ? undefined : card.face.tooltip}
               data-color={showColor ? card.color : undefined}
               data-mine={
                 (isSpymaster && !card.revealed && card.color === props.spymasterTeam) ||
@@ -114,6 +113,9 @@ export default function Board(props: {
                 <span className={`${styles.face} ${styles.loading}`} />
               ) : (
                 renderFace(card.face, measureImage)
+              )}
+              {!props.bare && !props.loading && card.face.tooltip && (
+                <span className={styles.caption}>{card.face.tooltip}</span>
               )}
               {badge && (
                 <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>

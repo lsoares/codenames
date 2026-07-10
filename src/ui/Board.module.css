@@ -187,6 +187,28 @@
   transform: none;
 }
 
+.caption {
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  padding: 4px 8px;
+  border-radius: 0 0 16px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.cell:hover .caption,
+.card:focus-visible .caption {
+  opacity: 1;
+}
+
 .framed {
   position: absolute;
   inset: 0;
