@@ -42,13 +42,16 @@ export function useMoles(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view])
 
-  // When the game closes, the score spot briefly names the winner instead.
+  // When the game closes, the score spot briefly names the winner instead —
+  // and the winner's own screen gets a confetti shower.
   const [champs, setChamps] = useState<string | null>(null)
+  const [celebrate, setCelebrate] = useState(false)
   const lastScores = useRef<Readonly<Record<string, number>> | null>(null)
   useEffect(() => {
     if (view) {
       lastScores.current = view.scores
       setChamps(null)
+      setCelebrate(false)
       return
     }
     const scores = lastScores.current
@@ -62,7 +65,11 @@ export function useMoles(
         .map((player) => player.emoji)
         .join(' '),
     )
-    const timer = setTimeout(() => setChamps(null), 4000)
+    setCelebrate(scores[selfId] === top)
+    const timer = setTimeout(() => {
+      setChamps(null)
+      setCelebrate(false)
+    }, 4000)
     return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view])
@@ -140,6 +147,21 @@ export function useMoles(
             ))}
           </div>
         )
+      )}
+      {celebrate && (
+        <div className={styles.confetti} aria-hidden="true">
+          {Array.from({ length: 80 }, (_, i) => (
+            <span
+              key={i}
+              style={{
+                left: `${Math.random() * 100}%`,
+                background: ['#e63946', '#f4a261', '#2a9d8f', '#457b9d', '#ffd166', '#b56576'][i % 6],
+                animationDuration: `${1.4 + Math.random() * 1.2}s`,
+                animationDelay: `${Math.random() * 0.6}s`,
+              }}
+            />
+          ))}
+        </div>
       )}
     </>
   )
