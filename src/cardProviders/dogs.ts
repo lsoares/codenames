@@ -2,7 +2,7 @@ import { image, type Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const cats: CardProvider = { id: 'cats', label: 'Cats', icon: '🐱', description: 'Cats acting out HTTP status codes', credit: { label: 'HTTP Cats', url: 'https://http.cat' }, hidden: true, fetch }
+export const dogs: CardProvider = { id: 'dogs', label: 'Dogs', icon: '🐶', description: 'Dogs acting out HTTP status codes', credit: { label: 'HTTP Dogs', url: 'https://http.dog' }, hidden: true, fetch }
 
 const CODES = [
   100, 101, 102, 200, 201, 202, 203, 204, 206, 207, 300, 301, 302, 303, 304,
@@ -14,5 +14,5 @@ const CODES = [
 async function fetch(): Promise<Face[]> {
   return shuffle(CODES)
     .slice(0, 20)
-    .map((code) => image(`https://http.cat/${code}.jpg`, { fit: 'contain' }))
+    .map((code) => image(`https://http.dog/${code}.jpg`, { fit: 'contain' }))
 }

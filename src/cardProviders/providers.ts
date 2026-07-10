@@ -3,6 +3,7 @@ import { pexels } from './pexels'
 import { words } from './words'
 import { tmdb } from './tmdb'
 import { cats } from './cats'
+import { dogs } from './dogs'
 import { foodish } from './foodish'
 import { pokemon } from './pokemon'
 import { geeks } from './geeks'
@@ -32,7 +33,7 @@ export interface CardProvider {
   fetch: () => Promise<Face[]>
 }
 
-export const providers: CardProvider[] = [officialWords, official, words, geeks, unsplash, pexels, abstract, abstractArt, picbreeder, dreams, memes, things, icons, tmdb, games, emojis, flags, cats, foodish, pokemon, mix]
+export const providers: CardProvider[] = [officialWords, official, words, geeks, unsplash, pexels, abstract, abstractArt, picbreeder, dreams, memes, things, icons, tmdb, games, emojis, flags, cats, dogs, foodish, pokemon, mix]
 
 export async function getFaces(
   providerId: string,
