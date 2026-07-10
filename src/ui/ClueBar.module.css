@@ -74,7 +74,9 @@
 }
 
 .clueForm .word {
-  width: 12rem;
+  field-sizing: content;
+  min-width: 12rem;
+  max-width: min(18rem, 60vw);
   text-transform: uppercase;
 }
 

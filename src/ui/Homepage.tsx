@@ -37,8 +37,14 @@ export default function Homepage(props: {
               placeholder="Room code"
               onChange={(event) => setCode(event.target.value)}
             />
-            <button type="submit" className="secondary" disabled={!code.trim()}>
-              Join
+            <button
+              type="submit"
+              className={`secondary ${styles.joinGo}`}
+              aria-label="Join"
+              title="Join"
+              disabled={!code.trim()}
+            >
+              →
             </button>
           </form>
         )}

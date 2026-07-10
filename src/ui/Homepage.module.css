@@ -41,11 +41,32 @@
 }
 
 .join {
+  position: relative;
   display: flex;
-  gap: 8px;
 }
 
 .joinCode {
-  width: 16ch;
+  width: 20ch;
+  padding-right: 52px;
+}
+
+.joinGo {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 12px;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.joinGo:active {
+  transform: translateY(-50%) scale(0.94);
 }
 
