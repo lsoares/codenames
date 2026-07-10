@@ -1,4 +1,4 @@
-import { text, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 
 export const dictionaryLink = (word: string): string =>
@@ -39,7 +39,7 @@ export const words: CardProvider = {
   description: 'Fresh everyday nouns generated from Datamuse',
   credit: { label: 'Datamuse', url: 'https://www.datamuse.com/api/' },
   fetch: (): Promise<Face[]> =>
-    datamuseWords().then((words) => words.map((word) => text(word, { link: dictionaryLink(word) }))),
+    datamuseWords().then((words) => words.map((word) => ({ kind: 'text', text: word, link: dictionaryLink(word) }))),
 }
 
 const SEEDS = [

@@ -1,4 +1,4 @@
-import { text, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { datamuseWords, dictionaryLink, shuffle } from './words'
 
@@ -37,5 +37,5 @@ async function fetch(): Promise<Face[]> {
       if (word && !board.has(word)) board.set(word, linkFor(word))
     }
   }
-  return [...board].map(([word, link]) => text(word, { link }))
+  return [...board].map(([word, link]) => ({ kind: 'text', text: word, link }))
 }

@@ -1,4 +1,4 @@
-import { image, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -40,5 +40,5 @@ async function fetch(): Promise<Face[]> {
     return fresh
   })
   if (photos.length < 20) throw new Error('Pexels returned too few photos')
-  return photos.slice(0, 20).map((photo) => image(photo.src.medium, { link: photo.url }))
+  return photos.slice(0, 20).map((photo) => ({ kind: 'image', url: photo.src.medium, link: photo.url }))
 }

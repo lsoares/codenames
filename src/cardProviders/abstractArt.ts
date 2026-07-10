@@ -1,4 +1,4 @@
-import { image, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -128,5 +128,5 @@ async function fetch(): Promise<Face[]> {
   if (faces.size < 20) throw new Error('WikiArt returned too few images')
   return [...faces]
     .slice(0, 20)
-    .map((url) => image(url, { tooltip: attribution(url), fit: 'contain', link: wikiartPage(url) }))
+    .map((url) => ({ kind: 'image', url, tooltip: attribution(url), fit: 'contain', link: wikiartPage(url) }))
 }

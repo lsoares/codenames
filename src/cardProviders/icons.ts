@@ -1,4 +1,4 @@
-import { icon, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -252,9 +252,11 @@ async function fetch(): Promise<Face[]> {
     .slice(0, 20)
     .map((entry) => {
       const name = entry.split('/')[1]
-      return icon(`https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@7.1.0/svgs/${entry}.svg`, {
+      return {
+        kind: 'icon',
+        url: `https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@7.1.0/svgs/${entry}.svg`,
         tooltip: name.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()),
         link: `https://fontawesome.com/icons/${name}`,
-      })
+      }
     })
 }

@@ -1,4 +1,4 @@
-import { image, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -14,5 +14,5 @@ const CODES = [
 async function fetch(): Promise<Face[]> {
   return shuffle(CODES)
     .slice(0, 20)
-    .map((code) => image(`https://http.dog/${code}.jpg`, { fit: 'contain' }))
+    .map((code) => ({ kind: 'image', url: `https://http.dog/${code}.jpg`, fit: 'contain' }))
 }

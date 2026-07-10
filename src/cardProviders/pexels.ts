@@ -1,4 +1,4 @@
-import { image, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 
 export const pexels: CardProvider = { id: 'pexels', label: 'Curated', icon: '🖼️', description: 'Curated editorial photos from Pexels', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }
@@ -23,5 +23,5 @@ async function fetch(): Promise<Face[]> {
   }
 
   const { photos } = (await response.json()) as { photos: PexelsPhoto[] }
-  return photos.map((photo) => image(photo.src.landscape, { tooltip: photo.alt || undefined, link: photo.url }))
+  return photos.map((photo) => ({ kind: 'image', url: photo.src.landscape, tooltip: photo.alt || undefined, link: photo.url }))
 }

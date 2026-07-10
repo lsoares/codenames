@@ -1,4 +1,4 @@
-import { image, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 
 export const pokemon: CardProvider = {
@@ -35,10 +35,10 @@ async function fetch(): Promise<Face[]> {
   })
 
   if (faces.length < 20) throw new Error('PokeAPI returned too few images')
-  return faces.slice(0, 20).map(({ url, name }) =>
-    image(url, {
-      tooltip: name.charAt(0).toUpperCase() + name.slice(1),
-      link: `https://www.pokemon.com/us/pokedex/${name}`,
-    }),
-  )
+  return faces.slice(0, 20).map(({ url, name }) => ({
+    kind: 'image',
+    url,
+    tooltip: name.charAt(0).toUpperCase() + name.slice(1),
+    link: `https://www.pokemon.com/us/pokedex/${name}`,
+  }))
 }

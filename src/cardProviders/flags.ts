@@ -1,4 +1,4 @@
-import { glyph, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -27,5 +27,5 @@ const FLAGS: [string, string][] = [
 async function fetch(): Promise<Face[]> {
   return shuffle(FLAGS)
     .slice(0, 20)
-    .map(([flag, country]) => glyph(flag, { tooltip: country }))
+    .map(([flag, country]) => ({ kind: 'glyph', text: flag, tooltip: country }))
 }

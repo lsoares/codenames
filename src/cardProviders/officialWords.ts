@@ -1,4 +1,4 @@
-import { text, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { dictionaryLink, shuffle } from './words'
 
@@ -67,5 +67,5 @@ const WORDS = [
 async function fetch(): Promise<Face[]> {
   return shuffle(WORDS)
     .slice(0, 20)
-    .map((word) => text(word, { link: dictionaryLink(word) }))
+    .map((word) => ({ kind: 'text', text: word, link: dictionaryLink(word) }))
 }

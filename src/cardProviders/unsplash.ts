@@ -1,4 +1,4 @@
-import { image, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 
 export const unsplash: CardProvider = {
@@ -28,7 +28,10 @@ async function fetch(): Promise<Face[]> {
   }
 
   const photos = (await response.json()) as UnsplashPhoto[]
-  return photos.map((photo) =>
-    image(photo.urls.small, { tooltip: photo.alt_description ?? undefined, link: photo.links?.html }),
-  )
+  return photos.map((photo) => ({
+    kind: 'image',
+    url: photo.urls.small,
+    tooltip: photo.alt_description ?? undefined,
+    link: photo.links?.html,
+  }))
 }

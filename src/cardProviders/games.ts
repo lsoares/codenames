@@ -1,4 +1,4 @@
-import { image, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -28,5 +28,5 @@ async function fetch(): Promise<Face[]> {
   if (faces.length < 20) throw new Error('RAWG returned too few images')
   return faces
     .slice(0, 20)
-    .map(({ url, name, slug }) => image(url, { tooltip: name, link: `https://rawg.io/games/${slug}` }))
+    .map(({ url, name, slug }) => ({ kind: 'image', url, tooltip: name, link: `https://rawg.io/games/${slug}` }))
 }

@@ -1,4 +1,4 @@
-import { image, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -28,12 +28,12 @@ async function fetch(): Promise<Face[]> {
 
   const faces = shuffle(bodies.flatMap((body) => body.results))
     .filter((movie) => movie.backdrop_path)
-    .map((movie) =>
-      image(`https://image.tmdb.org/t/p/w780${movie.backdrop_path}`, {
-        tooltip: movie.title,
-        link: `https://www.themoviedb.org/movie/${movie.id}`,
-      }),
-    )
+    .map((movie): Face => ({
+      kind: 'image',
+      url: `https://image.tmdb.org/t/p/w780${movie.backdrop_path}`,
+      tooltip: movie.title,
+      link: `https://www.themoviedb.org/movie/${movie.id}`,
+    }))
 
   if (faces.length < 20) throw new Error('TMDB returned too few backdrops')
   return faces.slice(0, 20)

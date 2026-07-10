@@ -1,4 +1,4 @@
-import { image, type Face } from '../Face'
+import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
@@ -29,5 +29,5 @@ async function fetch(): Promise<Face[]> {
   }
 
   if (faces.size < 20) throw new Error('This Image Does Not Exist returned too few images')
-  return [...faces].slice(0, 20).map((url) => image(url))
+  return [...faces].slice(0, 20).map((url) => ({ kind: 'image', url }))
 }
