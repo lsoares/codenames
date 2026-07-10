@@ -210,8 +210,9 @@ export class GamePage {
   }
 
   getCard(color: Color, options: { revealed?: boolean } = {}) {
+    const label = color === 'neutral' ? 'bystander' : color
     return this.page.getByRole('button', {
-      name: new RegExp(`^Card \\d+, ${color}$`),
+      name: new RegExp(`^Card \\d+, ${label}$`),
       disabled: options.revealed ?? false,
     })
   }
@@ -243,7 +244,7 @@ export class GamePage {
     const label = {
       correct: 'correct guess',
       wrong: 'wrong guess',
-      neutral: 'neutral card',
+      neutral: 'bystander card',
       assassin: 'assassin',
     }[outcome]
     return this.page.getByRole('img', { name: label })
