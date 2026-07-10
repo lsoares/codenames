@@ -157,6 +157,15 @@ export class GamePage {
     await this.page.getByRole('button', { name: 'Close menu' }).click()
   }
 
+  // The re-deal controls tucked in the tools menu, reserved for spymasters.
+  findReshuffleButton() {
+    return this.page.getByRole('button', { name: 'New game' })
+  }
+
+  findChangeDeckButton() {
+    return this.page.getByRole('button', { name: 'Change deck' })
+  }
+
   // The tools menu holds the join QR and the room name (click to copy the link).
   getJoinLinkButton() {
     return this.page.getByRole('button', { name: 'Copy join link' })

@@ -501,29 +501,33 @@ export default function GameScreen(props: {
                     )}
                   </p>
                 )}
+                {props.mySeat && (
+                  <button
+                    type="button"
+                    className={styles.reshuffle}
+                    aria-label="New game"
+                    title="New game"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      dealNewCards()
+                    }}
+                  >
+                    🔀
+                  </button>
+                )}
+              </div>
+              {props.mySeat && (
                 <button
                   type="button"
-                  className={styles.reshuffle}
-                  aria-label="New game"
-                  title="New game"
+                  className={styles.toolItem}
                   onClick={() => {
                     setMenuOpen(false)
-                    dealNewCards()
+                    pickCards()
                   }}
                 >
-                  🔀
+                  Change deck
                 </button>
-              </div>
-              <button
-                type="button"
-                className={styles.toolItem}
-                onClick={() => {
-                  setMenuOpen(false)
-                  pickCards()
-                }}
-              >
-                Change deck
-              </button>
+              )}
             </div>
           </div>
         )}
