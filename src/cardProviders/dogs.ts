@@ -14,5 +14,5 @@ const CODES = [
 async function fetch(): Promise<Face[]> {
   return shuffle(CODES)
     .slice(0, 20)
-    .map((code) => ({ kind: 'image', url: `https://http.dog/${code}.jpg`, fit: 'contain' }))
+    .map((code) => ({ kind: 'image', url: `https://http.dog/${code}.jpg`, fit: 'contain', link: `https://http.dog/${code}` }))
 }
