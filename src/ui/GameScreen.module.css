@@ -52,7 +52,8 @@
   gap: 5px;
 }
 
-.team:not([data-turn]) .players {
+/* Dim the off-turn team face by face, so your own face can stay full strength. */
+.team:not([data-turn]) .players :is(.spymasterSlot, .op, .join):not([data-mine]) {
   opacity: 0.55;
 }
 
@@ -144,7 +145,7 @@ button.spymasterSlot[data-mine] {
 .op[data-mine],
 .spymasterSlot[data-mine] {
   position: relative;
-  outline: 2px solid var(--turn);
+  outline: 2px dashed color-mix(in srgb, var(--turn) 45%, transparent);
   outline-offset: 1px;
 }
 
