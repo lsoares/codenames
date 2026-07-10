@@ -141,6 +141,33 @@ button.spymasterSlot[data-mine] {
   transition: font-size 0.18s ease;
 }
 
+.op[data-mine],
+.spymasterSlot[data-mine] {
+  position: relative;
+  outline: 2px solid var(--turn);
+  outline-offset: 1px;
+}
+
+.op[data-mine]::after,
+.spymasterSlot[data-mine]::after {
+  content: 'you';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--turn);
+}
+
+/* The left-side spymaster is mirrored; re-flip the label so it reads normally. */
+.headerSide[data-side='left'] .spymasterSlot[data-mine]::after {
+  transform: translateX(-50%) scaleX(-1);
+}
+
 .count {
   display: inline-flex;
   align-items: center;

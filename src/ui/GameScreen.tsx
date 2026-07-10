@@ -132,7 +132,9 @@ export default function GameScreen(props: {
     const editable = !props.game.inProgress()
     const canTakeSeat = !isMySeat && editable
     const spymasterFace = hasSpymaster ? (
-      <span role="img" aria-label={`${team} spymaster`}>{spymasterEmoji[team]}</span>
+      <span role="img" aria-label={isMySeat ? `${team} spymaster (you)` : `${team} spymaster`}>
+        {spymasterEmoji[team]}
+      </span>
     ) : (
       <span aria-hidden="true" className={styles.spymasterDim}>{spymasterEmoji[team]}</span>
     )
@@ -175,6 +177,7 @@ export default function GameScreen(props: {
               data-team={team}
               data-mine={isMySeat || undefined}
               data-active={spymasterActive}
+              title={isMySeat ? 'You' : undefined}
             >
               {spymasterFace}
             </span>
