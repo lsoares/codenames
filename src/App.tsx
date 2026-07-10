@@ -89,6 +89,8 @@ export default function App() {
     try {
       const { faces, credit, deck } = await getFaces(id)
       sessionRef.current?.dispatch({ type: 'newGame', faces, credit, deck, rotate })
+    } catch (error) {
+      notify(`Couldn't deal that deck (${(error as Error)?.message ?? 'unknown error'})`, null, '😕')
     } finally {
       setLoadingFaces(false)
     }
@@ -136,9 +138,9 @@ export default function App() {
   }, [])
 
   const createRoom = async (id: string, code?: string) => {
-    const { faces, credit, deck } = await getFaces(id)
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
+      const { faces, credit, deck } = await getFaces(id)
       wire(await Host.start(faces, start, credit, deck, code), true)
     } catch (error) {
       if (code && (error as { type?: string })?.type === 'unavailable-id') {

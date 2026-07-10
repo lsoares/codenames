@@ -38,9 +38,5 @@ export async function getFaces(
   providerId: string,
 ): Promise<{ faces: Face[]; credit: Credit | null; deck: string }> {
   const provider = providers.find((p) => p.id === providerId) ?? unsplash
-  try {
-    return { faces: await provider.fetch(), credit: provider.credit ?? null, deck: provider.label }
-  } catch {
-    return { faces: await officialWords.fetch(), credit: officialWords.credit ?? null, deck: officialWords.label }
-  }
+  return { faces: await provider.fetch(), credit: provider.credit ?? null, deck: provider.label }
 }
