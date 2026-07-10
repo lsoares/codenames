@@ -5,5 +5,5 @@ export type Face = FaceContent & { readonly tooltip?: string; readonly link?: st
 type FaceContent =
   | { readonly kind: 'glyph'; readonly text: string }
   | { readonly kind: 'text'; readonly text: string }
-  | { readonly kind: 'image'; readonly url: string; readonly fit?: CardFit }
+  | { readonly kind: 'image'; readonly url: string; readonly fit?: CardFit; readonly trim?: number }
   | { readonly kind: 'icon'; readonly url: string }

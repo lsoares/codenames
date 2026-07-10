@@ -190,6 +190,7 @@ function renderFace(face: Face, onImageLoad?: (img: HTMLImageElement) => void) {
             className={`${styles.image} ${
               face.fit === 'framed' ? styles.framed : face.fit === 'contain' ? styles.contain : ''
             }`}
+            style={face.fit === 'framed' ? ({ '--trim': face.trim ?? 3.5 } as CSSProperties) : undefined}
             src={face.url}
             alt=""
             draggable={false}
