@@ -9,8 +9,8 @@ export default function Confetti() {
           style={{
             left: `${Math.random() * 100}%`,
             background: ['#e63946', '#f4a261', '#2a9d8f', '#457b9d', '#ffd166', '#b56576'][i % 6],
-            animationDuration: `${1.4 + Math.random() * 1.2}s`,
-            animationDelay: `${Math.random() * 0.6}s`,
+            animationDuration: `${2 + Math.random() * 1.6}s`,
+            animationDelay: `${Math.random() * 1}s`,
           }}
         />
       ))}
