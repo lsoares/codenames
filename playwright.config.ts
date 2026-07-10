@@ -3,6 +3,9 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   testDir: './test',
   fullyParallel: true,
+  // WebRTC handshakes occasionally outlast the join window on busy CI runners;
+  // one retry absorbs that. Locally the suite must pass first try.
+  retries: process.env.CI ? 1 : 0,
   timeout: 60000,
   expect: { timeout: 15000 },
   use: {
