@@ -42,7 +42,14 @@ export default function ClueBar(props: {
         maxLength={20}
         title="One word — letters only, no symbols"
         placeholder={turn === 'red' ? "Red's clue" : "Blue's clue"}
-        onChange={(event) => setWord(event.target.value)}
+        onChange={(event) => {
+          // A clue is letters only, so a typed digit means the count — route it
+          // to the number field and keep it out of the word, saving a tab.
+          const raw = event.target.value
+          const digits = raw.replace(/\D/g, '')
+          setWord(raw.replace(/\d/g, ''))
+          if (digits) setCount(Math.max(0, Math.min(Number(digits), props.game.maxClueCount())))
+        }}
         onKeyDown={(event) => {
           if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
           event.preventDefault()

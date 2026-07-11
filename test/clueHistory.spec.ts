@@ -35,3 +35,17 @@ test('a clue in a non-Latin script is accepted', async ({ page }) => {
 
   await expect(game.findActiveClue('日本')).toBeVisible()
 })
+
+// A clue is letters only, so a digit typed after the word belongs to the count —
+// it jumps to the number field instead of the word, no tab needed.
+test('a digit typed after the clue word sets the count', async ({ page }) => {
+  await stubUnsplash(page)
+  const game = new GamePage(page)
+  await game.open('red')
+  await game.createRoom()
+
+  await game.typeClueWord('apple4')
+
+  await expect(game.getClueInput()).toHaveValue('apple')
+  await expect(game.getClueCount()).toHaveValue('4')
+})

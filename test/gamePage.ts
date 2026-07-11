@@ -136,6 +136,10 @@ export class GamePage {
     return this.page.getByRole('textbox')
   }
 
+  getClueCount() {
+    return this.page.getByRole('spinbutton')
+  }
+
   // The clue in play, shown to operatives once the spymaster commits it. It's a
   // plain emphasised word with no accessible role, so it's read by its text.
   findActiveClue(word: string) {
