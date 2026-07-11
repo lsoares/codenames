@@ -32,31 +32,31 @@ export default function ClueBar(props: {
         }
       }}
     >
-      <input
-        ref={wordInput}
-        className={styles.word}
-        autoFocus
-        value={word}
-        required
-        pattern="\s*[\p{L}\p{M}]+\s*"
-        maxLength={20}
-        title="One word — letters only, no symbols"
-        placeholder={turn === 'red' ? "Red's clue" : "Blue's clue"}
-        onChange={(event) => {
-          // A clue is letters only, so a typed digit means the count — route it
-          // to the number field and keep it out of the word, saving a tab.
-          const raw = event.target.value
-          const digits = raw.replace(/\D/g, '')
-          setWord(raw.replace(/\d/g, ''))
-          if (digits) setCount(Math.max(0, Math.min(Number(digits), props.game.maxClueCount())))
-        }}
-        onKeyDown={(event) => {
-          if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
-          event.preventDefault()
-          setCount(event.key === 'ArrowUp' ? stepUp : stepDown)
-        }}
-      />
-      <div className={styles.fields}>
+      <div className={styles.combo}>
+        <input
+          ref={wordInput}
+          className={styles.word}
+          autoFocus
+          value={word}
+          required
+          pattern="\s*[\p{L}\p{M}]+\s*"
+          maxLength={20}
+          title="One word — letters only, no symbols"
+          placeholder={turn === 'red' ? "Red's clue" : "Blue's clue"}
+          onChange={(event) => {
+            // A clue is letters only, so a typed digit means the count — route it
+            // to the number field and keep it out of the word, saving a tab.
+            const raw = event.target.value
+            const digits = raw.replace(/\D/g, '')
+            setWord(raw.replace(/\d/g, ''))
+            if (digits) setCount(Math.max(0, Math.min(Number(digits), props.game.maxClueCount())))
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+            event.preventDefault()
+            setCount(event.key === 'ArrowUp' ? stepUp : stepDown)
+          }}
+        />
         <div className={styles.count} data-unlimited={unlimited || undefined} data-zero={count === 0 || undefined}>
           <input
             className={styles.countInput}
@@ -79,16 +79,16 @@ export default function ClueBar(props: {
             </span>
           )}
         </div>
-        <button
-          type="submit"
-          className={styles.submit}
-          aria-label="Give clue"
-          title="Give clue"
-          disabled={!word.trim()}
-        >
-          ✓
-        </button>
       </div>
+      <button
+        type="submit"
+        className={styles.submit}
+        aria-label="Give clue"
+        title="Give clue"
+        disabled={!word.trim()}
+      >
+        ✓
+      </button>
     </form>
   )
 }

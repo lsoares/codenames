@@ -3,6 +3,12 @@
   gap: 6px;
   align-items: center;
   flex-wrap: wrap;
+  accent-color: var(--turn);
+}
+
+/* Text selection and native controls follow the team, not the browser blue. */
+.clueForm ::selection {
+  background: color-mix(in srgb, var(--turn) 30%, transparent);
 }
 
 .clueForm[data-team='red'] {
@@ -13,11 +19,15 @@
   --turn: var(--blue);
 }
 
-.fields {
+.combo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-left: -6px;
+  border-radius: 999px;
+}
+
+/* The word and count are one fused pill, so the focus ring wraps the pair. */
+.combo:focus-within {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--turn) 30%, transparent);
 }
 
 .clueForm input {
@@ -30,8 +40,9 @@
 }
 
 .clueForm input:focus {
+  /* Override the global focus border (--primary), which reads blue on red. */
   border-color: var(--turn);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--turn) 30%, transparent);
+  outline: none;
 }
 
 .submit {
@@ -94,6 +105,11 @@
     flex: 1;
     min-width: 0;
     flex-wrap: nowrap;
+  }
+
+  .combo {
+    flex: 1;
+    min-width: 0;
   }
 
   .clueForm .word {
