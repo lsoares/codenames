@@ -213,10 +213,10 @@ a.caption:focus-visible {
 .svgIcon::before {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: 27%;
   background-color: var(--ink);
-  mask: var(--mask) center / 46% no-repeat;
-  -webkit-mask: var(--mask) center / 46% no-repeat;
+  mask: var(--mask) center / contain no-repeat;
+  -webkit-mask: var(--mask) center / contain no-repeat;
 }
 
 .card[data-color='red'] .svgIcon::before {
