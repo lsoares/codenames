@@ -166,6 +166,16 @@ export class GamePage {
     return this.page.getByRole('button', { name: 'Change deck' })
   }
 
+  // The whack-a-mole scoreboard shows while a spymaster thinks; it's the marker
+  // that this player is in the mole break.
+  findMoleScores() {
+    return this.page.getByRole('status', { name: 'Whack-a-mole scores' })
+  }
+
+  async leaveMoleGame(): Promise<void> {
+    await this.page.keyboard.press('Escape')
+  }
+
   // The tools menu holds the join QR and the room name (click to copy the link).
   getJoinLinkButton() {
     return this.page.getByRole('button', { name: 'Copy join link' })

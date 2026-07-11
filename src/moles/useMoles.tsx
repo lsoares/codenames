@@ -67,6 +67,23 @@ export function useMoles(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view])
 
+  // A player can bow out of the current round with Esc; a fresh round (a new
+  // view after the game resets) opts them back in.
+  const [optedOut, setOptedOut] = useState(false)
+  const playing = !!view && !hidden
+  useEffect(() => {
+    if (!view) setOptedOut(false)
+  }, [view])
+  useEffect(() => {
+    if (!playing || optedOut) return
+    const leave = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOptedOut(true)
+    }
+    window.addEventListener('keydown', leave)
+    return () => window.removeEventListener('keydown', leave)
+  }, [playing, optedOut])
+  const out = hidden || optedOut
+
   // Whacking the mouse stuns you: 2.5s without a mallet.
   const [stunned, setStunned] = useState(false)
   const whack = (mole: MoleSighting) => {
@@ -81,7 +98,7 @@ export function useMoles(
   }
 
   const overlayFor = (cardIndex: number): ReactNode => {
-    if (hidden) return null
+    if (out) return null
     const live = moles.find((mole) => mole.cardIndex === cardIndex)
     if (live) {
       return (
@@ -119,7 +136,7 @@ export function useMoles(
   // emoji is theirs from the first mole.
   const scored = view ? Object.entries(view.scores) : []
   const ranking = (
-    view && !hidden && view.scores[selfId] === undefined ? [...scored, [selfId, 0] as const] : scored
+    view && !out && view.scores[selfId] === undefined ? [...scored, [selfId, 0] as const] : scored
   ).sort((a, b) => b[1] - a[1])
   const hud = (
     <>
@@ -129,7 +146,7 @@ export function useMoles(
         </div>
       ) : (
         ranking.length > 0 &&
-        !hidden && (
+        !out && (
           <div className={styles.scores} role="status" aria-label="Whack-a-mole scores">
             <span aria-hidden="true">🏓</span>
             {ranking.map(([id, score]) => (
@@ -144,7 +161,7 @@ export function useMoles(
     </>
   )
 
-  return { overlayFor, hud, cursorClass: view && !hidden ? styles.armed : '' }
+  return { overlayFor, hud, cursorClass: view && !out ? styles.armed : '' }
 }
 
 const face: Record<MoleKind, string> = { mole: '🐹', decoy: '🐭', bonus: '🐰' }
