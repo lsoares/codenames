@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Face } from '../Face'
 import { Game, type Card, type GuessOutcome, type Team } from '../Game'
 import styles from './Board.module.css'
@@ -53,12 +53,20 @@ export default function Board(props: {
           : card.color === 'neutral'
             ? 4
             : 3
+  // Set iteration keeps insertion order, so this is the order the cards were picked.
+  const pickOrder = [...props.selected]
   const order =
     props.focus && isSpymaster
       ? cards
           .map((_, index) => index)
           .filter((index) => !cards[index].revealed)
-          .sort((a, b) => focusRank(cards[a], a) - focusRank(cards[b], b))
+          .sort((a, b) => {
+            const byRank = focusRank(cards[a], a) - focusRank(cards[b], b)
+            if (byRank !== 0) return byRank
+            // Within the selected group, follow selection order rather than board order.
+            if (props.selected.has(a)) return pickOrder.indexOf(a) - pickOrder.indexOf(b)
+            return 0
+          })
       : cards.map((_, index) => index)
 
   return (
@@ -215,17 +223,25 @@ function renderFace(face: Face, onImageLoad?: (img: HTMLImageElement) => void) {
 }
 
 function ImageLightbox(props: { url: string; onClose: () => void }) {
+  const dialog = useRef<HTMLDialogElement>(null)
+  // A native modal dialog gets Escape (and the Android back button) dismissal for free.
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') props.onClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [props.onClose])
+    dialog.current?.showModal()
+  }, [])
 
   return (
-    <div className={styles.lightbox} role="dialog" aria-modal="true" onClick={props.onClose}>
-      <button type="button" className={styles.lightboxClose} aria-label="Close" onClick={props.onClose}>
+    <dialog
+      ref={dialog}
+      className={styles.lightbox}
+      onClose={props.onClose}
+      onClick={() => dialog.current?.close()}
+    >
+      <button
+        type="button"
+        className={styles.lightboxClose}
+        aria-label="Close"
+        onClick={() => dialog.current?.close()}
+      >
         ✕
       </button>
       <img
@@ -235,6 +251,6 @@ function ImageLightbox(props: { url: string; onClose: () => void }) {
         draggable={false}
         onClick={(event) => event.stopPropagation()}
       />
-    </div>
+    </dialog>
   )
 }

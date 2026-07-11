@@ -10,7 +10,6 @@ import Confetti from './Confetti'
 import ThinkingBar from './ThinkingBar'
 import DeckPicker from './DeckPicker'
 import HowToPlay from './HowToPlay'
-import { QRCodeSVG } from 'qrcode.react'
 import styles from './GameScreen.module.css'
 
 export const spymasterEmoji: Record<Team, string> = { red: '🕵️‍♀️', blue: '🕵️‍♂️' }
@@ -69,6 +68,23 @@ export default function GameScreen(props: {
   useEffect(() => {
     setSelected(new Set())
   }, [props.game.state.turn, props.game.isFresh(), dealKey])
+
+  // While cards are selected, hold a history entry so the Android back button (and
+  // browser back) cancels the selection instead of leaving the room.
+  const hasSelection = selected.size > 0
+  useEffect(() => {
+    if (!hasSelection) return
+    window.history.pushState({ codenamesSelection: true }, '')
+    const onPopState = () => clearSelected()
+    window.addEventListener('popstate', onPopState)
+    return () => {
+      window.removeEventListener('popstate', onPopState)
+      // Selection was cleared some other way (guess, Escape, new deal); drop our entry.
+      if ((window.history.state as { codenamesSelection?: boolean } | null)?.codenamesSelection)
+        window.history.back()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasSelection])
 
   const [feedback, setFeedback] = useState<Record<number, GuessOutcome>>({})
   const prevGameRef = useRef(props.game)
@@ -487,7 +503,7 @@ export default function GameScreen(props: {
         </button>
         {menuOpen && (
           <div className={styles.toolsMenu}>
-            <RoomQr />
+            <RoomInvite />
             <div className={styles.toolsFooter}>
               <div className={styles.toolsCreditRow}>
                 {props.game.state.deck && (
@@ -566,7 +582,7 @@ export default function GameScreen(props: {
   )
 }
 
-function RoomQr() {
+function RoomInvite() {
   const [copied, setCopied] = useState(false)
   const timer = useRef<number>()
   const url = `https://codenamesany.pages.dev${window.location.pathname}`
@@ -591,9 +607,6 @@ function RoomQr() {
         >
           {roomName}
         </button>
-      </div>
-      <div className={styles.qr}>
-        <QRCodeSVG value={url} size={180} />
       </div>
     </div>
   )

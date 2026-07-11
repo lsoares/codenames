@@ -422,11 +422,21 @@ a.caption:focus-visible {
   position: fixed;
   inset: 0;
   z-index: 100;
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: 0;
+  border: none;
   display: grid;
   place-items: center;
   padding: 4vmin;
   background: rgba(0, 0, 0, 0.82);
   animation: fade 0.15s ease;
+}
+
+.lightbox::backdrop {
+  background: transparent;
 }
 
 .lightboxImage {

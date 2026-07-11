@@ -674,16 +674,6 @@ button.spymasterSlot[data-mine] {
   padding: 4px 4px 8px;
 }
 
-.qr {
-  line-height: 0;
-}
-
-.qr svg {
-  display: block;
-  width: 180px;
-  height: auto;
-}
-
 .roomLine {
   position: relative;
 }
