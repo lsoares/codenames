@@ -14,6 +14,7 @@ import styles from './App.module.css'
 
 export default function App() {
   const [game, setGame] = useState<Game | null>(null)
+  const [repicking, setRepicking] = useState(false)
   const [roomCode, setRoomCode] = useState('')
   const [seats, setSeats] = useState<{ red: string | null; blue: string | null }>({
     red: null,
@@ -274,7 +275,7 @@ export default function App() {
 
   return (
     <>
-      {game ? (
+      {game && !repicking ? (
         <GameScreen
           game={game}
           flash={flash}
@@ -287,6 +288,7 @@ export default function App() {
           onJoinTeam={joinTeam}
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
           onNewGame={newGame}
+          onRepick={() => setRepicking(true)}
           moles={moles}
           onWhack={(moleId, reactionMs) => sessionRef.current?.whack(moleId, reactionMs)}
           loadingFaces={loadingFaces}
@@ -313,9 +315,16 @@ export default function App() {
       ) : (
         <Homepage
           providers={deckProviders}
-          onPick={(id) => void createRoom(id, RoomCode.fromPath(window.location.pathname)?.toString())}
+          onPick={(id) => {
+            if (game) {
+              void newGame(id, true)
+              setRepicking(false)
+            } else {
+              void createRoom(id, RoomCode.fromPath(window.location.pathname)?.toString())
+            }
+          }}
           onJoin={
-            RoomCode.fromPath(window.location.pathname)
+            game || RoomCode.fromPath(window.location.pathname)
               ? undefined
               : (raw) => {
                   const code = RoomCode.fromTyped(raw)

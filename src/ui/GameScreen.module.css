@@ -626,30 +626,6 @@ button.spymasterSlot[data-mine] {
   background: var(--primary-soft);
 }
 
-.picker {
-  /* ~3.5 tiles wide: tiles are sized off the dialog height (88dvh), so tying the
-     width to dvh keeps that 3.5 ratio steady across screens; the half tile peeking
-     hints the sideways scroll. */
-  width: min(calc(43dvh + 80px), 100%);
-  height: 88dvh;
-  overflow: hidden;
-  padding: 20px;
-  border: none;
-  background: var(--bg);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
-.picker[open] {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.picker::backdrop {
-  background: rgba(0, 0, 0, 0.45);
-}
-
 @media (max-width: 900px) {
   .screen {
     height: auto;

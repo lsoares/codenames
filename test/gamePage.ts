@@ -109,15 +109,11 @@ export class GamePage {
     await this.page.reload()
   }
 
-  getDeckPicker() {
-    return this.page.getByRole('dialog', { name: 'Pick a deck' })
-  }
-
-  // At game end the re-deal actions (New game / Change deck) sit in the header
-  // itself, not behind the tools menu — pick a deck straight from there.
-  async changeDeckAtEnd(label: string): Promise<void> {
-    await this.page.getByRole('button', { name: 'Change deck' }).click()
-    await this.getDeckPicker().getByRole('button', { name: label, exact: true }).click()
+  // At game end, New game returns to the deck grid (in the same room); picking a
+  // deck there re-deals the board for everyone.
+  async startNewGameAtEnd(label: string): Promise<void> {
+    await this.page.getByRole('button', { name: 'New game' }).click()
+    await this.page.getByRole('button', { name: label, exact: true }).click()
   }
 
   async giveClue(word: string, count: number): Promise<void> {
@@ -161,13 +157,9 @@ export class GamePage {
     await this.page.getByRole('button', { name: 'Close menu' }).click()
   }
 
-  // The re-deal controls tucked in the tools menu, reserved for spymasters.
+  // The New game control tucked in the tools menu, reserved for spymasters.
   findReshuffleButton() {
     return this.page.getByRole('button', { name: 'New game' })
-  }
-
-  findChangeDeckButton() {
-    return this.page.getByRole('button', { name: 'Change deck' })
   }
 
   // The whack-a-mole scoreboard shows while a spymaster thinks; it's the marker

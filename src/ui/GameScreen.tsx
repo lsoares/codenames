@@ -8,7 +8,6 @@ import Board from './Board'
 import ClueBar from './ClueBar'
 import Confetti from './Confetti'
 import ThinkingBar from './ThinkingBar'
-import DeckPicker from './DeckPicker'
 import HowToPlay from './HowToPlay'
 import styles from './GameScreen.module.css'
 
@@ -26,13 +25,12 @@ export default function GameScreen(props: {
   onJoinTeam: (team: Team) => void
   onAction: (action: Action) => void
   onNewGame: (providerId: string, rotateSpymaster?: boolean) => void
+  onRepick: () => void
   moles: MolesView | null
   onWhack: (moleId: number, reactionMs: number) => void
   loadingFaces: boolean
   providers: CardProvider[]
 }) {
-  const pickerDialog = useRef<HTMLDialogElement>(null)
-  const [pickerOpen, setPickerOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(props.roster.stillGathering())
 
   const currentDeck = props.providers.find((p) => p.label === props.game.state.deck)
@@ -232,15 +230,8 @@ export default function GameScreen(props: {
   const confirmDiscard = (): boolean =>
     props.game.idle() || window.confirm('The current game will be lost. Continue?')
 
-  const dealNewCards = () => {
-    if (currentDeckId && confirmDiscard()) props.onNewGame(currentDeckId, true)
-  }
-
-  const pickCards = () => {
-    if (confirmDiscard()) {
-      setPickerOpen(true)
-      pickerDialog.current?.showModal()
-    }
+  const startNewGame = () => {
+    if (confirmDiscard()) props.onRepick()
   }
 
   const renderClues = (team: Team) => {
@@ -434,20 +425,11 @@ export default function GameScreen(props: {
               )}
             </>
           )}
-          {winner && props.mySeat && (
+          {winner && (
             <>
               <span className={styles.endActions}>
-                <button
-                  type="button"
-                  className={styles.endAction}
-                  onClick={dealNewCards}
-                  aria-label="New game"
-                  title="New game"
-                >
-                  🔀
-                </button>
-                <button type="button" className={styles.endAction} onClick={pickCards}>
-                  Change deck
+                <button type="button" className={styles.endAction} onClick={startNewGame}>
+                  🔀 New game
                 </button>
               </span>
               <span className={styles.endLinks}>
@@ -547,49 +529,17 @@ export default function GameScreen(props: {
                     title="New game"
                     onClick={() => {
                       setMenuOpen(false)
-                      dealNewCards()
+                      startNewGame()
                     }}
                   >
                     🔀
                   </button>
                 )}
               </div>
-              {props.mySeat && (
-                <button
-                  type="button"
-                  className={styles.toolItem}
-                  onClick={() => {
-                    setMenuOpen(false)
-                    pickCards()
-                  }}
-                >
-                  Change deck
-                </button>
-              )}
             </div>
           </div>
         )}
       </div>
-
-      <dialog
-        ref={pickerDialog}
-        className={styles.picker}
-        aria-label="Pick a deck"
-        onClose={() => setPickerOpen(false)}
-        onClick={(event) => {
-          if (event.target === pickerDialog.current) pickerDialog.current.close()
-        }}
-      >
-        {pickerOpen && (
-          <DeckPicker
-            providers={props.providers}
-            onPick={(id) => {
-              props.onNewGame(id, true)
-              pickerDialog.current?.close()
-            }}
-          />
-        )}
-      </dialog>
 
       {myMove && !props.roster.stillGathering() && (
         <div className={styles.thinkingDock}>
