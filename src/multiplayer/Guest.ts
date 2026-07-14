@@ -1,6 +1,6 @@
 import { type DataConnection } from 'peerjs'
 import { iceServersReady, logConnection, newPeer, resetTabPeerId, tabPeerId } from './peer'
-import type { Action, Ping, Presence, RoomView, Session, TeamClaim, Whack } from './Session'
+import type { Action, Ping, Presence, Repick, RoomView, Session, TeamClaim, Whack } from './Session'
 
 export type JoinFailureReason =
   | 'room-not-found'
@@ -15,6 +15,11 @@ export class JoinError extends Error {
 
 export class Guest implements Session {
   selfId!: string
+
+  get selfEmoji(): string {
+    return this.latest?.players.find((player) => player.id === this.selfId)?.emoji ?? ''
+  }
+
   private peer!: ReturnType<typeof newPeer>
   private connection!: DataConnection
   private readonly listeners: Array<(view: RoomView) => void> = []
@@ -48,6 +53,10 @@ export class Guest implements Session {
 
   setTeam(team: 'red' | 'blue'): void {
     this.connection.send({ __team: true, team } satisfies TeamClaim)
+  }
+
+  setRepicking(team: 'red' | 'blue' | null): void {
+    this.connection.send({ __repick: true, team } satisfies Repick)
   }
 
   subscribe(listener: (view: RoomView) => void): void {

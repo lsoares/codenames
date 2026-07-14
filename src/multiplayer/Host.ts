@@ -5,11 +5,15 @@ import { MolesHost } from '../moles/MolesHost'
 import { Room } from './Room'
 import { iceServersReady, logConnection, newPeer } from './peer'
 import { RoomCode } from './RoomCode'
-import type { Action, Ping, Presence, RoomView, Session, TeamClaim, Whack } from './Session'
+import type { Action, Ping, Presence, Repick, RoomView, Session, TeamClaim, Whack } from './Session'
 
 export class Host implements Session {
   roomCode!: string
   selfId!: string
+
+  get selfEmoji(): string {
+    return this.room.emojis[this.selfId] ?? ''
+  }
 
   private readonly peer: ReturnType<typeof newPeer>
   private game: Game
@@ -35,6 +39,7 @@ export class Host implements Session {
   )
   private opened = false
   private reconnectDelay = 0
+  private repicking: 'red' | 'blue' | null = null
 
   private readonly releaseOnUnload = (event: PageTransitionEvent): void => {
     if (!event.persisted) this.peer.destroy()
@@ -87,6 +92,7 @@ export class Host implements Session {
     this.game = apply(this.game, action)
     if (action.type === 'newGame') {
       this.moles.reset()
+      this.repicking = null
       if (action.rotate) this.room = this.room.rotateSpymasters()
     }
   }
@@ -102,6 +108,11 @@ export class Host implements Session {
 
   setTeam(team: 'red' | 'blue'): void {
     this.room = this.room.setTeam(this.peer.id, team).autoSeat(this.peer.id)
+    this.broadcast()
+  }
+
+  setRepicking(team: 'red' | 'blue' | null): void {
+    this.repicking = team
     this.broadcast()
   }
 
@@ -163,6 +174,11 @@ export class Host implements Session {
           this.moles.whack(connection.peer, moleId, reactionMs)
           return
         }
+        if ((data as Repick).__repick) {
+          this.repicking = (data as Repick).team
+          this.broadcast()
+          return
+        }
         if ((data as Presence).__presence) {
           this.room = this.room.claimSeat(connection.peer, (data as Presence).spymasterTeam)
         } else if ((data as TeamClaim).__team) {
@@ -201,6 +217,7 @@ export class Host implements Session {
       seats: this.room.seats,
       players: ids.map((id) => ({ id, team: teams[id], emoji: emojis[id] })),
       moles: this.moles.view(),
+      repicking: this.repicking,
     }
   }
 
@@ -215,6 +232,7 @@ export class Host implements Session {
     const index = this.connections.indexOf(connection)
     if (index < 0) return
     this.connections.splice(index, 1)
+    if (this.repicking && this.room.seats[this.repicking] === connection.peer) this.repicking = null
     this.room = this.room.drop(connection.peer)
     this.lastSeen.delete(connection)
     this.broadcast()

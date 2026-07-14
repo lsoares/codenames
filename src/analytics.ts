@@ -11,6 +11,10 @@ if (enabled) {
   })
 }
 
+export function identify(roomCode: string, emoji: string): void {
+  if (enabled) posthog.identify(`${roomCode} ${emoji}`)
+}
+
 export function track(event: string, props?: Record<string, unknown>): void {
   if (enabled) posthog.capture(event, props)
 }

@@ -8,7 +8,6 @@ import Board from './Board'
 import ClueBar from './ClueBar'
 import Confetti from './Confetti'
 import ThinkingBar from './ThinkingBar'
-import HowToPlay from './HowToPlay'
 import styles from './GameScreen.module.css'
 
 export const spymasterEmoji: Record<Team, string> = { red: '🕵️‍♀️', blue: '🕵️‍♂️' }
@@ -26,13 +25,12 @@ export default function GameScreen(props: {
   onAction: (action: Action) => void
   onNewGame: (providerId: string, rotateSpymaster?: boolean) => void
   onRepick: () => void
+  repicking: Team | null
   moles: MolesView | null
   onWhack: (moleId: number, reactionMs: number) => void
   loadingFaces: boolean
   providers: CardProvider[]
 }) {
-  const [menuOpen, setMenuOpen] = useState(props.roster.stillGathering())
-
   const currentDeck = props.providers.find((p) => p.label === props.game.state.deck)
   const currentDeckId = currentDeck?.id
   const dealFreshBoard = () => {
@@ -357,10 +355,16 @@ export default function GameScreen(props: {
     />
   )
 
-  const center = (
-    <div className={styles.menu}>
-      {moles.hud}
-      {clueForm || (
+  const repickBanner = props.repicking && (
+    <div className={styles.statusPill} data-team={props.repicking}>
+      <span className={styles.statusText}>
+        {spymasterEmoji[props.repicking]} {props.repicking.charAt(0).toUpperCase() + props.repicking.slice(1)}
+        's spymaster is choosing a new deck…
+      </span>
+    </div>
+  )
+
+  const statusPill = (
         <div
           className={styles.statusPill}
           data-team={props.flash ? (props.flash.team ?? undefined) : (winner ?? turn)}
@@ -466,7 +470,18 @@ export default function GameScreen(props: {
             </span>
           )}
         </div>
-      )}
+  )
+
+  // While gathering, the turn/"thinking" status is just noise next to the
+  // invite — only keep the pill when it actually carries something.
+  const showStatus =
+    !props.roster.stillGathering() || !!props.flash || !!winner || (phase === 'guess' && !!clue)
+
+  const center = (
+    <div className={styles.menu}>
+      {moles.hud}
+      {props.roster.stillGathering() && <RoomInvite />}
+      {clueForm || repickBanner || (showStatus ? statusPill : null)}
     </div>
   )
 
@@ -499,72 +514,34 @@ export default function GameScreen(props: {
         />
       </div>
 
-      <div className={styles.tools}>
-        {menuOpen && (
-          <button
-            type="button"
-            className={styles.toolsBackdrop}
-            aria-label="Close menu"
-            onClick={() => setMenuOpen(false)}
-          />
-        )}
+      {props.game.state.deck && (
+        <footer className={styles.footer}>
+          {props.game.state.credit ? (
+            <a
+              className={styles.deckCredit}
+              href={props.game.state.credit.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {props.game.state.deck}, by {props.game.state.credit.label}
+            </a>
+          ) : (
+            <span className={styles.deckCredit}>{props.game.state.deck}</span>
+          )}
+        </footer>
+      )}
+
+      {props.mySeat && (
         <button
           type="button"
-          className={styles.hamburger}
-          data-host={props.isHost || undefined}
-          aria-label={props.isHost ? 'Menu (you host this room)' : 'Menu'}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((open) => !open)}
+          className={styles.repick}
+          aria-label="New game — pick a deck"
+          title="New game — pick a deck"
+          onClick={changeDeck}
         >
-          <img src="/favicon.svg" alt="" className={styles.hamburgerIcon} />
+          <img src="/favicon.svg" alt="" className={styles.repickIcon} />
         </button>
-        {menuOpen && (
-          <div className={styles.toolsMenu}>
-            <RoomInvite />
-            <div className={styles.toolsFooter}>
-              <div className={styles.toolsCreditRow}>
-                {props.game.state.deck && (
-                  <p className={styles.toolsCredit}>
-                    {props.game.state.credit ? (
-                      <a href={props.game.state.credit.url} target="_blank" rel="noreferrer">
-                        {props.game.state.deck}, by {props.game.state.credit.label}
-                      </a>
-                    ) : (
-                      props.game.state.deck
-                    )}
-                  </p>
-                )}
-                {props.mySeat && (
-                  <button
-                    type="button"
-                    className={styles.reshuffle}
-                    aria-label="New game"
-                    title="New game"
-                    onClick={() => {
-                      setMenuOpen(false)
-                      dealNewCards(false)
-                    }}
-                  >
-                    🔀
-                  </button>
-                )}
-              </div>
-              {props.mySeat && (
-                <button
-                  type="button"
-                  className={styles.toolItem}
-                  onClick={() => {
-                    setMenuOpen(false)
-                    changeDeck()
-                  }}
-                >
-                  Change deck
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+      )}
 
       {myMove && !props.roster.stillGathering() && (
         <div className={styles.thinkingDock}>
@@ -573,8 +550,6 @@ export default function GameScreen(props: {
       )}
 
       {winner === props.myTeam && <Confetti />}
-
-      <HowToPlay />
     </main>
   )
 }
@@ -586,8 +561,9 @@ function RoomInvite() {
   const roomName = decodeURIComponent(window.location.pathname).replace(/^\/+|\/+$/g, '')
   return (
     <div className={styles.invite}>
+      <span className={styles.invitePrompt}>Invite more players</span>
       <div className={styles.roomLine}>
-        <span className={styles.copied} data-show={copied || undefined} role="status" aria-live="polite">
+        <span className={styles.copied} data-show={copied || undefined} aria-live="polite">
           {copied ? 'Copied!' : ''}
         </span>
         <button

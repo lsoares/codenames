@@ -4,7 +4,6 @@ import { hostRoom, joinRoom } from './gamePage'
 test('revealing the assassin ends the game and lays the whole board face-up', async ({ browser }) => {
   const { game: spymaster, code } = await hostRoom(browser, 'red')
   const operative = await joinRoom(browser, code, 'red')
-  await operative.closeToolsMenu()
 
   const target = await spymaster.getCardNumber('assassin')
   await spymaster.giveClue('trap', 1)
@@ -23,9 +22,7 @@ test('a full game — cap runs out, misses on neutral and enemy, red then wins',
   // played by its own tabs, no mid-game switching. The red spymaster sees every
   // colour, so note the cards up front.
   const redOp = await joinRoom(browser, code, 'red')
-  await redOp.closeToolsMenu()
   const blueSpy = await joinRoom(browser, code, 'blue')
-  await blueSpy.closeToolsMenu()
   const blueOp = await joinRoom(browser, code, 'blue')
   const reds = await redSpy.getCardNumbers('red')
   const blues = await redSpy.getCardNumbers('blue')

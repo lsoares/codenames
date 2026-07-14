@@ -6,9 +6,7 @@ import { hostRoom, joinRoom } from './gamePage'
 test('pressing Escape leaves the whack-a-mole for the round', async ({ browser }) => {
   const { code } = await hostRoom(browser, 'red')
   const redOp = await joinRoom(browser, code, 'red')
-  await redOp.closeToolsMenu()
   const blueSpy = await joinRoom(browser, code, 'blue')
-  await blueSpy.closeToolsMenu()
   await joinRoom(browser, code, 'blue')
   await expect(redOp.findMoleScores()).toBeVisible()
 

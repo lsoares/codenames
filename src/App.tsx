@@ -7,7 +7,7 @@ import { Roster, type Session, type Action, type Player, type MolesView } from '
 import { Takeover } from './multiplayer/Takeover'
 import { RoomCode } from './multiplayer/RoomCode'
 import { playSound } from './sound'
-import { track } from './analytics'
+import { identify, track } from './analytics'
 import GameScreen, { spymasterEmoji } from './ui/GameScreen'
 import Homepage from './ui/Homepage'
 import styles from './App.module.css'
@@ -22,6 +22,7 @@ export default function App() {
   })
   const [players, setPlayers] = useState<Player[]>([])
   const [moles, setMoles] = useState<MolesView | null>(null)
+  const [repickingTeam, setRepickingTeam] = useState<Team | null>(null)
   const [isHost, setIsHost] = useState(false)
   const [loadingFaces, setLoadingFaces] = useState(false)
   const [status, setStatus] = useState('')
@@ -32,6 +33,7 @@ export default function App() {
   const peersRef = useRef<string[]>([])
   const selfIdRef = useRef('')
   const roomCodeRef = useRef('')
+  const identifiedRef = useRef(false)
   const [flash, setFlash] = useState<{ text: string; team: Team | null; emoji?: string } | null>(null)
   const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
@@ -47,6 +49,7 @@ export default function App() {
     setIsHost(asHost)
     selfIdRef.current = session.selfId
     roomCodeRef.current = session.roomCode
+    identifiedRef.current = false
     setRoomCode(session.roomCode)
     history.pushState({}, '', '/' + session.roomCode)
     session.subscribe((view) => {
@@ -57,6 +60,11 @@ export default function App() {
       setSeats(view.seats)
       setPlayers(view.players)
       setMoles(view.moles ?? null)
+      setRepickingTeam(view.repicking ?? null)
+      if (session.selfEmoji && !identifiedRef.current) {
+        identifiedRef.current = true
+        identify(session.roomCode, session.selfEmoji)
+      }
     })
     if (!asHost) session.onDisconnect(() => migrate())
     const pinnedTeam = localStorage.getItem('codenames:start-team') as Team | null
@@ -115,6 +123,7 @@ export default function App() {
     isHostRef.current = false
     selfIdRef.current = ''
     roomCodeRef.current = ''
+    identifiedRef.current = false
     gameRef.current = null
     peersRef.current = []
     prevGameRef.current = null
@@ -128,6 +137,7 @@ export default function App() {
     setSeats({ red: null, blue: null })
     setPlayers([])
     setMoles(null)
+    setRepickingTeam(null)
     setStatus('')
   }
 
@@ -288,7 +298,11 @@ export default function App() {
           onJoinTeam={joinTeam}
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
           onNewGame={newGame}
-          onRepick={() => setRepicking(true)}
+          onRepick={() => {
+            setRepicking(true)
+            sessionRef.current?.setRepicking(myTeam)
+          }}
+          repicking={repickingTeam}
           moles={moles}
           onWhack={(moleId, reactionMs) => sessionRef.current?.whack(moleId, reactionMs)}
           loadingFaces={loadingFaces}
@@ -317,6 +331,7 @@ export default function App() {
           providers={deckProviders}
           onPick={(id) => {
             if (game) {
+              sessionRef.current?.setRepicking(null)
               void newGame(id, true)
               setRepicking(false)
             } else {

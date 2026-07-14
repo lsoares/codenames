@@ -19,6 +19,7 @@ export type Action =
 export type Presence = { __presence: true; spymasterTeam: Team | null };
 export type TeamClaim = { __team: true; team: Team };
 export type Whack = { __whack: true; moleId: number; reactionMs: number };
+export type Repick = { __repick: true; team: Team | null };
 export type Ping = { __ping: true };
 
 export interface MolesView {
@@ -37,6 +38,7 @@ export interface RoomView {
   seats: Seats;
   players: Player[];
   moles: MolesView | null;
+  repicking: Team | null;
 }
 
 export class Roster {
@@ -75,10 +77,12 @@ export class Roster {
 export interface Session {
   roomCode: string;
   selfId: string;
+  readonly selfEmoji: string;
   dispatch: (action: Action) => void;
   whack: (moleId: number, reactionMs: number) => void;
   setSpymaster: (team: Team | null) => void;
   setTeam: (team: Team) => void;
+  setRepicking: (team: Team | null) => void;
   subscribe: (listener: (view: RoomView) => void) => void;
   onDisconnect: (listener: () => void) => void;
   close: () => void;

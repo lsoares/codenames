@@ -74,12 +74,9 @@ export class GamePage {
 
   // The homepage lists decks; picking one hosts a room. Random is the default
   // (image) deck the suite plays on, so start there and wait for the board.
-  // A room with fewer than 4 players greets you with the tools menu open (to
-  // invite); dismiss it so tests start from a clean board.
   async createRoom(): Promise<void> {
     await this.page.getByRole('button', { name: 'Random', exact: true }).click()
     await this.getCards().first().waitFor()
-    await this.closeToolsMenu()
   }
 
   // The homepage box for entering an existing room by its code.
@@ -148,22 +145,20 @@ export class GamePage {
     return this.page.getByRole('list', { name: `${team} clues` }).getByRole('listitem')
   }
 
-  // The corner hamburger groups the invite, logs, and close-game tools.
-  async openToolsMenu(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Menu' }).click()
+  // The bottom-left button, reserved for spymasters, that leaves for the deck
+  // grid (keeping the room) to start a new game on a freshly chosen deck.
+  findDeckPickerButton() {
+    return this.page.getByRole('button', { name: 'New game — pick a deck' })
   }
 
-  async closeToolsMenu(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Close menu' }).click()
+  async openDeckPicker(): Promise<void> {
+    await this.findDeckPickerButton().click()
   }
 
-  // The re-deal controls tucked in the tools menu, reserved for spymasters.
-  findReshuffleButton() {
-    return this.page.getByRole('button', { name: 'New game' })
-  }
-
-  findChangeDeckButton() {
-    return this.page.getByRole('button', { name: 'Change deck' })
+  // The banner other players see while a spymaster is over on the deck grid
+  // choosing the next deck.
+  findRepickNotice() {
+    return this.page.getByText(/choosing a new deck/i)
   }
 
   // The whack-a-mole scoreboard shows while a spymaster thinks; it's the marker
@@ -176,7 +171,8 @@ export class GamePage {
     await this.page.keyboard.press('Escape')
   }
 
-  // The tools menu holds the join QR and the room name (click to copy the link).
+  // The banner invite shown while the room still needs players holds the room
+  // name (click to copy the link).
   getJoinLinkButton() {
     return this.page.getByRole('button', { name: 'Copy join link' })
   }
