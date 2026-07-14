@@ -24,16 +24,16 @@
   gap: 16px;
 }
 
-.brand {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.titleBlock {
+.headGroup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .subtitle {

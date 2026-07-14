@@ -15,21 +15,21 @@ export default function Homepage(props: {
     <main className={styles.home}>
       <div className={styles.hero}>
       <header className={styles.top}>
-        <div className={styles.brand}>
-          <img src="/favicon.svg" alt="" className={styles.logo} />
-          <div className={styles.titleBlock}>
+        <div className={styles.headGroup}>
+          <div className={styles.brand}>
+            <img src="/favicon.svg" alt="" className={styles.logo} />
             <h1 className={styles.title}>
               Codenames
               <br />
               <span className={styles.titleAccent}>Anything</span>
             </h1>
-            <p className={styles.subtitle}>
-              Based on Codenames by Vlaada Chvátil ·{' '}
-              <a href="https://czechgames.com" target="_blank" rel="noreferrer">
-                Czech Games Edition
-              </a>
-            </p>
           </div>
+          <p className={styles.subtitle}>
+            Based on Codenames by Vlaada Chvátil ·{' '}
+            <a href="https://czechgames.com" target="_blank" rel="noreferrer">
+              Czech Games Edition
+            </a>
+          </p>
         </div>
         {onJoin && (
           <form
