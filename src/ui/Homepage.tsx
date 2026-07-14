@@ -17,11 +17,19 @@ export default function Homepage(props: {
       <header className={styles.top}>
         <div className={styles.brand}>
           <img src="/favicon.svg" alt="" className={styles.logo} />
-          <h1 className={styles.title}>
-            Codenames
-            <br />
-            <span className={styles.titleAccent}>Anything</span>
-          </h1>
+          <div className={styles.titleBlock}>
+            <h1 className={styles.title}>
+              Codenames
+              <br />
+              <span className={styles.titleAccent}>Anything</span>
+            </h1>
+            <p className={styles.subtitle}>
+              Based on Codenames by Vlaada Chvátil ·{' '}
+              <a href="https://czechgames.com" target="_blank" rel="noreferrer">
+                Czech Games Edition
+              </a>
+            </p>
+          </div>
         </div>
         {onJoin && (
           <form
@@ -61,13 +69,6 @@ export default function Homepage(props: {
       >
         ☕ Buy me a coffee
       </a>
-      <footer className={styles.credit}>
-        Based on Codenames, created by Vlaada Chvátil and published by{' '}
-        <a href="https://czechgames.com" target="_blank" rel="noreferrer">
-          Czech Games Edition
-        </a>
-        .
-      </footer>
     </main>
   )
 }

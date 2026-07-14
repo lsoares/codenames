@@ -30,6 +30,28 @@
   gap: 16px;
 }
 
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 32ch;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.subtitle a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.subtitle a:hover {
+  color: var(--primary);
+}
+
 .logo {
   width: 72px;
   height: 72px;
@@ -96,19 +118,4 @@
   filter: brightness(1.05);
 }
 
-.credit {
-  color: var(--muted);
-  font-size: 0.85rem;
-  text-align: center;
-  padding-top: 8px;
-}
-
-.credit a {
-  color: inherit;
-  text-decoration: underline;
-}
-
-.credit a:hover {
-  color: var(--primary);
-}
 
