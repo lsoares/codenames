@@ -109,10 +109,10 @@ export class GamePage {
     await this.page.reload()
   }
 
-  // At game end, New game returns to the deck grid (in the same room); picking a
-  // deck there re-deals the board for everyone.
-  async startNewGameAtEnd(label: string): Promise<void> {
-    await this.page.getByRole('button', { name: 'New game' }).click()
+  // At game end, Change deck returns to the deck grid (in the same room); picking
+  // a deck there re-deals the board for everyone.
+  async changeDeckAtEnd(label: string): Promise<void> {
+    await this.page.getByRole('button', { name: 'Change deck' }).click()
     await this.page.getByRole('button', { name: label, exact: true }).click()
   }
 
@@ -157,9 +157,13 @@ export class GamePage {
     await this.page.getByRole('button', { name: 'Close menu' }).click()
   }
 
-  // The New game control tucked in the tools menu, reserved for spymasters.
+  // The re-deal controls tucked in the tools menu, reserved for spymasters.
   findReshuffleButton() {
     return this.page.getByRole('button', { name: 'New game' })
+  }
+
+  findChangeDeckButton() {
+    return this.page.getByRole('button', { name: 'Change deck' })
   }
 
   // The whack-a-mole scoreboard shows while a spymaster thinks; it's the marker

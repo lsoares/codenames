@@ -230,7 +230,11 @@ export default function GameScreen(props: {
   const confirmDiscard = (): boolean =>
     props.game.idle() || window.confirm('The current game will be lost. Continue?')
 
-  const startNewGame = () => {
+  const dealNewCards = () => {
+    if (currentDeckId && confirmDiscard()) props.onNewGame(currentDeckId, true)
+  }
+
+  const changeDeck = () => {
     if (confirmDiscard()) props.onRepick()
   }
 
@@ -428,8 +432,17 @@ export default function GameScreen(props: {
           {winner && (
             <>
               <span className={styles.endActions}>
-                <button type="button" className={styles.endAction} onClick={startNewGame}>
-                  🔀 New game
+                <button
+                  type="button"
+                  className={styles.endAction}
+                  onClick={dealNewCards}
+                  aria-label="New game"
+                  title="New game"
+                >
+                  🔀
+                </button>
+                <button type="button" className={styles.endAction} onClick={changeDeck}>
+                  Change deck
                 </button>
               </span>
               <span className={styles.endLinks}>
@@ -529,13 +542,25 @@ export default function GameScreen(props: {
                     title="New game"
                     onClick={() => {
                       setMenuOpen(false)
-                      startNewGame()
+                      dealNewCards()
                     }}
                   >
                     🔀
                   </button>
                 )}
               </div>
+              {props.mySeat && (
+                <button
+                  type="button"
+                  className={styles.toolItem}
+                  onClick={() => {
+                    setMenuOpen(false)
+                    changeDeck()
+                  }}
+                >
+                  Change deck
+                </button>
+              )}
             </div>
           </div>
         )}
