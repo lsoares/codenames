@@ -5,7 +5,6 @@ export const pexels: CardProvider = { id: 'pexels', label: 'Curated', group: 'ph
 
 interface PexelsPhoto {
   src: { landscape: string }
-  alt: string
   url: string
 }
 
@@ -23,5 +22,12 @@ async function fetch(): Promise<Face[]> {
   }
 
   const { photos } = (await response.json()) as { photos: PexelsPhoto[] }
-  return photos.map((photo) => ({ kind: 'image', url: photo.src.landscape, tooltip: photo.alt || undefined, link: photo.url }))
+  return photos.map((photo) => ({ kind: 'image', url: photo.src.landscape, tooltip: titleFromUrl(photo.url), link: photo.url }))
+}
+
+function titleFromUrl(url: string): string | undefined {
+  const slug = url.replace(/\/$/, '').split('/').pop()?.replace(/-\d+$/, '')
+  if (!slug) return undefined
+  const words = slug.replace(/-/g, ' ')
+  return words.charAt(0).toUpperCase() + words.slice(1)
 }
