@@ -10,10 +10,10 @@ export default function DeckPicker(props: { providers: CardProvider[]; onPick: (
     props.onPick(id)
   }
 
-  const tile = (provider: CardProvider, startsGroup: boolean) => {
+  const tile = (provider: CardProvider) => {
     const loading = pickedId === provider.id
     return (
-      <li key={provider.id} className={startsGroup ? styles.groupStart : undefined}>
+      <li key={provider.id}>
         <button
           type="button"
           className={`${styles.tile}${pickedId && !loading ? ` ${styles.dimmed}` : ''}`}
@@ -32,14 +32,10 @@ export default function DeckPicker(props: { providers: CardProvider[]; onPick: (
     )
   }
 
-  const ordered = GROUP_ORDER.flatMap((group) =>
-    props.providers
-      .filter((provider) => provider.group === group)
-      .map((provider, index) => ({ provider, startsGroup: index === 0 })),
-  )
+  const ordered = GROUP_ORDER.flatMap((group) => props.providers.filter((provider) => provider.group === group))
   return (
     <ul className={styles.grid} role="list">
-      {ordered.map(({ provider, startsGroup }) => tile(provider, startsGroup))}
+      {ordered.map(tile)}
     </ul>
   )
 }
