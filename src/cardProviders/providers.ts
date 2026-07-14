@@ -19,6 +19,7 @@ import { memes } from './memes'
 import { mix } from './mix'
 import { icons } from './icons'
 import { gcpIcons } from './gcpIcons'
+import { carLogos } from './carLogos'
 import { official } from './official'
 import { officialWords } from './officialWords'
 import type { Face } from '../Face'
@@ -34,7 +35,7 @@ export interface CardProvider {
   fetch: () => Promise<Face[]>
 }
 
-export const providers: CardProvider[] = [officialWords, official, words, geeks, unsplash, pexels, abstract, abstractArt, picbreeder, dreams, memes, things, icons, gcpIcons, games, emojis, flags, cats, dogs, foodish, tmdb, pokemon, mix]
+export const providers: CardProvider[] = [officialWords, official, words, geeks, unsplash, pexels, abstract, abstractArt, picbreeder, dreams, memes, things, icons, gcpIcons, carLogos, games, emojis, flags, cats, dogs, foodish, tmdb, pokemon, mix]
 
 export async function getFaces(
   providerId: string,
