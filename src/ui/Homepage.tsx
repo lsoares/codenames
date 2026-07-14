@@ -50,7 +50,7 @@ export default function Homepage(props: {
           </form>
         )}
       </header>
-      <DeckPicker providers={props.providers} onPick={props.onPick} fill />
+      <DeckPicker providers={props.providers} onPick={props.onPick} />
       </div>
       <HowToPlay />
       <a

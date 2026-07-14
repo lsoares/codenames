@@ -2,11 +2,7 @@ import { useState } from 'react'
 import type { CardProvider, DeckGroup } from '../cardProviders/providers'
 import styles from './DeckPicker.module.css'
 
-export default function DeckPicker(props: {
-  providers: CardProvider[]
-  onPick: (id: string) => void
-  fill?: boolean
-}) {
+export default function DeckPicker(props: { providers: CardProvider[]; onPick: (id: string) => void }) {
   const [pickedId, setPickedId] = useState<string | null>(null)
   const pick = (id: string) => {
     if (pickedId) return
@@ -14,10 +10,10 @@ export default function DeckPicker(props: {
     props.onPick(id)
   }
 
-  const tile = (provider: CardProvider) => {
+  const tile = (provider: CardProvider, startsGroup: boolean) => {
     const loading = pickedId === provider.id
     return (
-      <li key={provider.id}>
+      <li key={provider.id} className={startsGroup ? styles.groupStart : undefined}>
         <button
           type="button"
           className={`${styles.tile}${pickedId && !loading ? ` ${styles.dimmed}` : ''}`}
@@ -36,27 +32,16 @@ export default function DeckPicker(props: {
     )
   }
 
+  const ordered = GROUP_ORDER.flatMap((group) =>
+    props.providers
+      .filter((provider) => provider.group === group)
+      .map((provider, index) => ({ provider, startsGroup: index === 0 })),
+  )
   return (
-    <div className={`${styles.decks}${props.fill ? ` ${styles.fill}` : ''}`}>
-      {GROUPS.map(({ id, title }) => {
-        const inGroup = props.providers.filter((provider) => provider.group === id)
-        if (inGroup.length === 0) return null
-        return (
-          <section key={id} className={styles.cluster} aria-label={title}>
-            <ul className={styles.row} role="list">
-              {inGroup.map(tile)}
-            </ul>
-          </section>
-        )
-      })}
-    </div>
+    <ul className={styles.grid} role="list">
+      {ordered.map(({ provider, startsGroup }) => tile(provider, startsGroup))}
+    </ul>
   )
 }
 
-const GROUPS: { id: DeckGroup; title: string }[] = [
-  { id: 'words', title: 'Words' },
-  { id: 'abstract', title: 'Abstract' },
-  { id: 'photos', title: 'Photos' },
-  { id: 'icons', title: 'Symbols' },
-  { id: 'culture', title: 'Culture' },
-]
+const GROUP_ORDER: DeckGroup[] = ['words', 'abstract', 'photos', 'icons', 'culture']

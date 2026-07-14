@@ -563,7 +563,6 @@ export default function GameScreen(props: {
         {pickerOpen && (
           <DeckPicker
             providers={props.providers}
-            fill
             onPick={(id) => {
               props.onNewGame(id, true)
               pickerDialog.current?.close()
