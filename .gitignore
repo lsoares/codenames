@@ -7,3 +7,5 @@ playwright-report/
 docs/
 .claude/.DS_Store
 generated-cards/_orig/
+.claude/
+.DS_Store
