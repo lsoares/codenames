@@ -444,6 +444,8 @@ a.caption:focus-visible {
   max-height: 92vh;
   object-fit: contain;
   border-radius: 12px;
+  padding: 4vmin;
+  background: #fff;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
 
