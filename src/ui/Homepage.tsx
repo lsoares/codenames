@@ -53,6 +53,13 @@ export default function Homepage(props: {
       <DeckPicker providers={props.providers} onPick={props.onPick} fill />
       </div>
       <HowToPlay />
+      <footer className={styles.credit}>
+        Based on Codenames, created by Vlaada Chvátil and published by{' '}
+        <a href="https://czechgames.com" target="_blank" rel="noreferrer">
+          Czech Games Edition
+        </a>
+        .
+      </footer>
     </main>
   )
 }

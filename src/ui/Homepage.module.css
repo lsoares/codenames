@@ -78,3 +78,19 @@
   transform: translateY(-50%) scale(0.94);
 }
 
+.credit {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding-top: 8px;
+}
+
+.credit a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.credit a:hover {
+  color: var(--primary);
+}
+
