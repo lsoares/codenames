@@ -230,8 +230,8 @@ export default function GameScreen(props: {
   const confirmDiscard = (): boolean =>
     props.game.idle() || window.confirm('The current game will be lost. Continue?')
 
-  const dealNewCards = () => {
-    if (currentDeckId && confirmDiscard()) props.onNewGame(currentDeckId, true)
+  const dealNewCards = (rotateSpymaster: boolean) => {
+    if (currentDeckId && confirmDiscard()) props.onNewGame(currentDeckId, rotateSpymaster)
   }
 
   const changeDeck = () => {
@@ -434,7 +434,7 @@ export default function GameScreen(props: {
               <button
                 type="button"
                 className={styles.endAction}
-                onClick={dealNewCards}
+                onClick={() => dealNewCards(true)}
                 aria-label="New game"
                 title="New game"
               >
@@ -542,7 +542,7 @@ export default function GameScreen(props: {
                     title="New game"
                     onClick={() => {
                       setMenuOpen(false)
-                      dealNewCards()
+                      dealNewCards(false)
                     }}
                   >
                     🔀
