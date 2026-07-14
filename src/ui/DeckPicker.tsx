@@ -43,7 +43,6 @@ export default function DeckPicker(props: {
         if (inGroup.length === 0) return null
         return (
           <section key={id} className={styles.cluster} aria-label={title}>
-            <h3 className={styles.clusterTitle}>{title}</h3>
             <ul className={styles.row} role="list">
               {inGroup.map(tile)}
             </ul>
