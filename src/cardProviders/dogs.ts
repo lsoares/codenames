@@ -8,7 +8,6 @@ export const dogs: CardProvider = {
   icon: "🐶",
   description: "Dogs acting out HTTP status codes",
   credit: { label: "HTTP Dogs", url: "https://http.dog" },
-  hidden: true,
   fetch,
 };
 

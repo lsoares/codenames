@@ -53,6 +53,14 @@ export default function Homepage(props: {
       <DeckPicker providers={props.providers} onPick={props.onPick} fill />
       </div>
       <HowToPlay />
+      <a
+        className={styles.coffee}
+        href="https://www.buymeacoffee.com/lsoares"
+        target="_blank"
+        rel="noreferrer"
+      >
+        ☕ Buy me a coffee
+      </a>
       <footer className={styles.credit}>
         Based on Codenames, created by Vlaada Chvátil and published by{' '}
         <a href="https://czechgames.com" target="_blank" rel="noreferrer">

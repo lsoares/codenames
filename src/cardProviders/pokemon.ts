@@ -7,7 +7,6 @@ export const pokemon: CardProvider = {
   icon: '⚡',
   description: 'Official Pokémon artwork',
   credit: { label: 'PokéAPI', url: 'https://pokeapi.co' },
-  hidden: true,
   fetch,
 }
 

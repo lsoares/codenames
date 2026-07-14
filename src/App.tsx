@@ -7,6 +7,7 @@ import { Roster, type Session, type Action, type Player, type MolesView } from '
 import { Takeover } from './multiplayer/Takeover'
 import { RoomCode } from './multiplayer/RoomCode'
 import { playSound } from './sound'
+import { track } from './analytics'
 import GameScreen, { spymasterEmoji } from './ui/GameScreen'
 import Homepage from './ui/Homepage'
 import styles from './App.module.css'
@@ -89,6 +90,7 @@ export default function App() {
     try {
       const { faces, credit, deck } = await getFaces(id)
       sessionRef.current?.dispatch({ type: 'newGame', faces, credit, deck, rotate })
+      track('game started', { deck })
     } catch (error) {
       notify(`Couldn't deal that deck (${(error as Error)?.message ?? 'unknown error'})`, null, '😕')
     } finally {
@@ -142,6 +144,7 @@ export default function App() {
     try {
       const { faces, credit, deck } = await getFaces(id)
       wire(await Host.start(faces, start, credit, deck, code), true)
+      track('room created', { deck })
     } catch (error) {
       if (code && (error as { type?: string })?.type === 'unavailable-id') {
         const joined = await Guest.join(code)
@@ -240,6 +243,7 @@ export default function App() {
     Guest.join(code, { waitForHost: !saved })
       .then((session) => {
         wire(session, false)
+        track('room joined')
         setStatus('')
       })
       .catch((error) => {
@@ -286,7 +290,7 @@ export default function App() {
           moles={moles}
           onWhack={(moleId, reactionMs) => sessionRef.current?.whack(moleId, reactionMs)}
           loadingFaces={loadingFaces}
-          providers={providers}
+          providers={deckProviders}
         />
       ) : status ? (
         <div className={styles.status} role="status">
@@ -308,7 +312,7 @@ export default function App() {
         </div>
       ) : (
         <Homepage
-          providers={providers}
+          providers={deckProviders}
           onPick={(id) => void createRoom(id, RoomCode.fromPath(window.location.pathname)?.toString())}
           onJoin={
             RoomCode.fromPath(window.location.pathname)
@@ -325,6 +329,10 @@ export default function App() {
     </>
   )
 }
+
+const deckProviders = new URLSearchParams(window.location.search).has('official')
+  ? providers
+  : providers.filter((provider) => provider.id !== 'official')
 
 const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
 

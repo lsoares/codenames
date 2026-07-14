@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const tmdb: CardProvider = { id: 'tmdb', label: 'Movies', group: 'culture', icon: '🎬', description: 'Stills from popular and acclaimed films', credit: { label: 'TMDB', url: 'https://www.themoviedb.org' }, hidden: true, fetch }
+export const tmdb: CardProvider = { id: 'tmdb', label: 'Movies', group: 'culture', icon: '🎬', description: 'Stills from popular and acclaimed films', credit: { label: 'TMDB', url: 'https://www.themoviedb.org' }, fetch }
 
 interface TmdbMovie {
   backdrop_path: string | null

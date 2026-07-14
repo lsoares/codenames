@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const games: CardProvider = { id: 'games', label: 'Games', group: 'culture', icon: '🎮', description: 'Artwork from acclaimed video games', credit: { label: 'RAWG', url: 'https://rawg.io' }, hidden: true, fetch }
+export const games: CardProvider = { id: 'games', label: 'Games', group: 'culture', icon: '🎮', description: 'Artwork from acclaimed video games', credit: { label: 'RAWG', url: 'https://rawg.io' }, fetch }
 
 interface RawgGame {
   background_image: string | null

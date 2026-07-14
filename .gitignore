@@ -5,4 +5,5 @@ dist/
 test-results/
 playwright-report/
 docs/
-.claude/
+.claude/.DS_Store
+generated-cards/_orig/

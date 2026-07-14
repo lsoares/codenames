@@ -8,7 +8,6 @@ export const gcpIcons: CardProvider = {
   icon: '☁️',
   description: 'Google Cloud product icons in full colour',
   credit: { label: 'GCP Icons', url: 'https://gcpicons.com' },
-  hidden: true,
   fetch,
 }
 

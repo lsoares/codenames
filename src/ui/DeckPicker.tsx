@@ -38,21 +38,14 @@ export default function DeckPicker(props: {
 
   return (
     <div className={`${styles.decks}${props.fill ? ` ${styles.fill}` : ''}`}>
-      {GROUPS.map(({ id, title, icon }) => {
+      {GROUPS.map(({ id, title }) => {
         const inGroup = props.providers.filter((provider) => provider.group === id)
         if (inGroup.length === 0) return null
-        // Everyday decks first, niche ones after — the row scrolls sideways to reach them.
-        const ordered = [
-          ...inGroup.filter((provider) => !provider.hidden),
-          ...inGroup.filter((provider) => provider.hidden),
-        ]
         return (
           <section key={id} className={styles.cluster} aria-label={title}>
-            <h3 className={styles.clusterTitle}>
-              <span aria-hidden="true">{icon}</span> {title}
-            </h3>
+            <h3 className={styles.clusterTitle}>{title}</h3>
             <ul className={styles.row} role="list">
-              {ordered.map(tile)}
+              {inGroup.map(tile)}
             </ul>
           </section>
         )
@@ -61,10 +54,10 @@ export default function DeckPicker(props: {
   )
 }
 
-const GROUPS: { id: DeckGroup; title: string; icon: string }[] = [
-  { id: 'words', title: 'Words', icon: '📝' },
-  { id: 'abstract', title: 'Abstract', icon: '🌀' },
-  { id: 'photos', title: 'Photos', icon: '📷' },
-  { id: 'icons', title: 'Icons', icon: '✳️' },
-  { id: 'culture', title: 'Culture', icon: '🎬' },
+const GROUPS: { id: DeckGroup; title: string }[] = [
+  { id: 'words', title: 'Words' },
+  { id: 'abstract', title: 'Abstract' },
+  { id: 'photos', title: 'Photos' },
+  { id: 'icons', title: 'Symbols' },
+  { id: 'culture', title: 'Culture' },
 ]

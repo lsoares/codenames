@@ -35,12 +35,11 @@ export interface CardProvider {
   description: string
   group: DeckGroup
   credit?: Credit
-  hidden?: boolean
   portrait?: boolean
   fetch: () => Promise<Face[]>
 }
 
-export const providers: CardProvider[] = [officialWords, official, generated, words, geeks, unsplash, pexels, abstract, abstractArt, picbreeder, dreams, memes, things, icons, gcpIcons, carLogos, tarot, games, emojis, flags, cats, dogs, foodish, tmdb, pokemon]
+export const providers: CardProvider[] = [officialWords, official, generated, words, geeks, unsplash, pexels, abstract, picbreeder, dreams, abstractArt, memes, things, icons, gcpIcons, carLogos, games, emojis, flags, cats, dogs, foodish, tmdb, pokemon, tarot]
 
 export async function getFaces(
   providerId: string,

@@ -8,7 +8,6 @@ export const abstractArt: CardProvider = {
   icon: '🎨',
   description: 'Genuinely abstract painting from WikiArt',
   credit: { label: 'WikiArt', url: 'https://www.wikiart.org' },
-  hidden: true,
   fetch,
 }
 

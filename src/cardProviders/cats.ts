@@ -8,7 +8,6 @@ export const cats: CardProvider = {
   icon: "🐱",
   description: "Cats acting out HTTP status codes",
   credit: { label: "HTTP Cats", url: "https://http.cat" },
-  hidden: true,
   fetch,
 };
 

@@ -78,6 +78,26 @@
   transform: translateY(-50%) scale(0.94);
 }
 
+.coffee {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #ffdd00;
+  color: #1a1a1a;
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.coffee:hover {
+  filter: brightness(1.05);
+}
+
 .credit {
   color: var(--muted);
   font-size: 0.85rem;
