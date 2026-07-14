@@ -429,23 +429,24 @@ export default function GameScreen(props: {
               )}
             </>
           )}
+          {winner && props.mySeat && (
+            <span className={styles.endActions}>
+              <button
+                type="button"
+                className={styles.endAction}
+                onClick={dealNewCards}
+                aria-label="New game"
+                title="New game"
+              >
+                🔀
+              </button>
+              <button type="button" className={styles.endAction} onClick={changeDeck}>
+                Change deck
+              </button>
+            </span>
+          )}
           {winner && (
-            <>
-              <span className={styles.endActions}>
-                <button
-                  type="button"
-                  className={styles.endAction}
-                  onClick={dealNewCards}
-                  aria-label="New game"
-                  title="New game"
-                >
-                  🔀
-                </button>
-                <button type="button" className={styles.endAction} onClick={changeDeck}>
-                  Change deck
-                </button>
-              </span>
-              <span className={styles.endLinks}>
+            <span className={styles.endLinks}>
                 <a
                   className={styles.endLink}
                   href="https://czechgames.com/en/codenames-pictures/"
@@ -462,8 +463,7 @@ export default function GameScreen(props: {
                 >
                   ☕ Buy me a coffee
                 </a>
-              </span>
-            </>
+            </span>
           )}
         </div>
       )}
