@@ -435,20 +435,40 @@ export default function GameScreen(props: {
             </>
           )}
           {winner && props.mySeat && (
-            <span className={styles.endActions}>
-              <button
-                type="button"
-                className={styles.endAction}
-                onClick={dealNewCards}
-                aria-label="New game"
-                title="New game"
-              >
-                🔀
-              </button>
-              <button type="button" className={styles.endAction} onClick={pickCards}>
-                Change deck
-              </button>
-            </span>
+            <>
+              <span className={styles.endActions}>
+                <button
+                  type="button"
+                  className={styles.endAction}
+                  onClick={dealNewCards}
+                  aria-label="New game"
+                  title="New game"
+                >
+                  🔀
+                </button>
+                <button type="button" className={styles.endAction} onClick={pickCards}>
+                  Change deck
+                </button>
+              </span>
+              <span className={styles.endLinks}>
+                <a
+                  className={styles.endLink}
+                  href="https://czechgames.com/en/codenames-pictures/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  🛒 Buy the game
+                </a>
+                <a
+                  className={styles.endLink}
+                  href="https://www.buymeacoffee.com/lsoares"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  ☕ Buy me a coffee
+                </a>
+              </span>
+            </>
           )}
         </div>
       )}

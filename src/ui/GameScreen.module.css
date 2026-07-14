@@ -398,6 +398,8 @@ button.spymasterSlot[data-mine] {
 
 .endActions {
   display: inline-flex;
+  flex-basis: 100%;
+  justify-content: center;
   align-items: center;
   gap: 8px;
 }
@@ -412,6 +414,27 @@ button.spymasterSlot[data-mine] {
   font-size: 0.95rem;
   line-height: 1;
   cursor: pointer;
+}
+
+.endLinks {
+  display: inline-flex;
+  flex-basis: 100%;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.endLink {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.endLink:hover {
+  color: var(--ink);
+  text-decoration: underline;
 }
 
 .endAction:hover {
