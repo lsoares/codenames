@@ -37,6 +37,25 @@
   cursor: default;
 }
 
+/* Portrait decks (e.g. tarot) render each card as a tall card-shaped rectangle
+   driven by the cell height and centred in its cell. On wide screens the board
+   is laid out 7 wide × 3 tall (last row 6) so the taller cells maximise how
+   readable each card is; the mobile breakpoints below keep their own columns. */
+.board[data-portrait] .card {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  aspect-ratio: 4 / 7;
+}
+
+@media (min-width: 901px) {
+  .board[data-portrait] {
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+}
+
 .card:not([data-color]) {
   padding: 0;
 }
@@ -397,6 +416,12 @@ a.caption:focus-visible {
 
   .card {
     aspect-ratio: 4 / 3;
+  }
+
+  /* Auto-height rows on mobile: drive the portrait card by column width instead. */
+  .board[data-portrait] .card {
+    width: 100%;
+    height: auto;
   }
 }
 

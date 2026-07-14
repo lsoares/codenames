@@ -34,6 +34,7 @@ export interface CardProvider {
   description: string
   credit?: Credit
   hidden?: boolean
+  portrait?: boolean
   fetch: () => Promise<Face[]>
 }
 

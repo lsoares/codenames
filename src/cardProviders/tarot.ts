@@ -9,6 +9,7 @@ export const tarot: CardProvider = {
   description: 'The 78-card Rider–Waite tarot deck',
   credit: { label: 'tarotcardapi', url: 'https://github.com/krates98/tarotcardapi' },
   hidden: true,
+  portrait: true,
   fetch,
 }
 

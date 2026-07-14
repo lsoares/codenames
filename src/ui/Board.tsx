@@ -10,6 +10,7 @@ export default function Board(props: {
   myTeam: Team
   selected: Set<number>
   focus: boolean
+  portrait?: boolean
   feedback: Record<number, GuessOutcome>
   onToggleSelect: (index: number) => void
   onClearSelection: () => void
@@ -76,6 +77,7 @@ export default function Board(props: {
       data-focus={props.focus || undefined}
       data-spotlight={spotlight || undefined}
       data-over={gameOver || undefined}
+      data-portrait={props.portrait || undefined}
     >
       {order.map((index) => {
         const card = cards[index]

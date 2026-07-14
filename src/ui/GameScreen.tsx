@@ -35,7 +35,8 @@ export default function GameScreen(props: {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(props.roster.stillGathering())
 
-  const currentDeckId = props.providers.find((p) => p.label === props.game.state.deck)?.id
+  const currentDeck = props.providers.find((p) => p.label === props.game.state.deck)
+  const currentDeckId = currentDeck?.id
   const dealFreshBoard = () => {
     if (currentDeckId) props.onNewGame(currentDeckId)
   }
@@ -472,6 +473,7 @@ export default function GameScreen(props: {
           myTeam={props.myTeam}
           selected={selected}
           focus={focus}
+          portrait={currentDeck?.portrait ?? false}
           feedback={feedback}
           onToggleSelect={toggleSelected}
           onClearSelection={clearSelected}
