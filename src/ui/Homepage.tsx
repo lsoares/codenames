@@ -13,6 +13,7 @@ export default function Homepage(props: {
   const onJoin = props.onJoin
   return (
     <main className={styles.home}>
+      <div className={styles.hero}>
       <header className={styles.top}>
         <div className={styles.brand}>
           <img src="/favicon.svg" alt="" className={styles.logo} />
@@ -49,7 +50,8 @@ export default function Homepage(props: {
           </form>
         )}
       </header>
-      <DeckPicker providers={props.providers} onPick={props.onPick} />
+      <DeckPicker providers={props.providers} onPick={props.onPick} fill />
+      </div>
       <HowToPlay />
     </main>
   )

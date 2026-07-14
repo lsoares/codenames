@@ -1,48 +1,115 @@
 .decks {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 16px;
+  align-items: stretch;
+  gap: 22px;
   width: min(720px, 100%);
 }
 
-.grid {
+.cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Fill mode: the picker fills its container's height and the five clusters
+   share it, so every row stays on screen and only scrolls sideways. */
+.fill {
+  flex: 1 1 0;
+  min-height: 0;
+  gap: clamp(4px, 1vh, 14px);
+  overflow: hidden;
+}
+
+.fill .cluster {
+  flex: 1 1 0;
+  min-height: 0;
+  gap: 3px;
+}
+
+.fill .clusterTitle {
+  font-size: 0.85rem;
+}
+
+.fill .row {
+  flex: 1 1 0;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.fill .tile {
+  width: auto;
+  height: 100%;
+  aspect-ratio: 1;
+  gap: 3px;
+  padding: 4px;
+}
+
+.fill .icon {
+  font-size: clamp(1.2rem, 3vh, 2.1rem);
+}
+
+.fill .label {
+  font-size: clamp(0.6rem, 1.35vh, 0.88rem);
+}
+
+.clusterTitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--ink) 60%, transparent);
+}
+
+.row {
   list-style: none;
   margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
+  padding: 2px 0 8px;
+  display: flex;
+  gap: 14px;
   width: 100%;
+  /* A row shows ~4-5 decks and scrolls sideways for the rest, so everyday decks
+     lead and niche ones stay tucked off the edge until you look for them. */
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
 }
 
-.gridBig {
-  composes: grid;
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.gridSmall {
-  composes: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: 10px;
+.row > li {
+  flex: 0 0 auto;
 }
 
 .tile {
-  width: 100%;
+  width: 140px;
   aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
+  padding: 6px;
   background: var(--surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   cursor: pointer;
+  overflow: hidden;
+  scroll-snap-align: start;
 }
 
 .tile:hover {
   filter: brightness(1.05);
+}
+
+.tile:disabled {
+  cursor: default;
+}
+
+.tile:disabled:hover {
+  filter: none;
 }
 
 .dimmed {
@@ -73,14 +140,6 @@
   color: color-mix(in srgb, var(--ink) 15%, transparent);
 }
 
-.tile:disabled {
-  cursor: default;
-}
-
-.tile:disabled:hover {
-  filter: none;
-}
-
 .spinner {
   width: 2.4rem;
   height: 2.4rem;
@@ -90,57 +149,25 @@
   animation: spin 0.7s linear infinite;
 }
 
-.big .spinner {
-  width: 3.2rem;
-  height: 3.2rem;
-}
-
-.small .spinner {
-  width: 1.6rem;
-  height: 1.6rem;
-  border-width: 3px;
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-.big {
-  composes: tile;
-  aspect-ratio: 3 / 2;
-  gap: 16px;
-}
-
-.big .icon {
-  font-size: 4rem;
-}
-
-.big .label {
-  font-size: 1.6rem;
-}
-
-.small {
-  composes: tile;
-  gap: 6px;
-}
-
-.small .icon {
-  font-size: 1.8rem;
-}
-
-.small .label {
-  font-size: 0.85rem;
-}
-
 .icon {
-  font-size: 3rem;
+  font-size: 2.6rem;
   line-height: 1;
 }
 
 .label {
-  font-size: 1.3rem;
+  font-size: 0.95rem;
   font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
   color: var(--ink);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }

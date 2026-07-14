@@ -4,7 +4,7 @@ import { shuffle } from './words'
 
 export const generated: CardProvider = {
   id: 'generated',
-  label: 'Dreamed',
+  label: 'Dreamed', group: 'abstract',
   icon: '🔮',
   description: 'AI-dreamed cards that each blend unrelated things into one scene',
   credit: { label: 'Generated with gpt-image-1', url: 'https://platform.openai.com/docs/guides/image-generation' },

@@ -4,7 +4,7 @@ import { dictionaryLink, shuffle } from './words'
 
 export const officialWords: CardProvider = {
   id: 'official-words',
-  label: 'Words',
+  label: 'Words', group: 'words',
   icon: '📝',
   description: 'The official Codenames word list',
   credit: { label: 'Codenames', url: 'https://czechgames.com/en/codenames/' },

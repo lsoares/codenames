@@ -4,7 +4,7 @@ import { shuffle } from './words'
 
 export const official: CardProvider = {
   id: 'official',
-  label: 'Images',
+  label: 'Images', group: 'abstract',
   icon: '🕵️',
   description: 'The official Codenames Pictures cards',
   credit: { label: 'Codenames Pictures', url: 'https://czechgames.com/en/codenames-pictures/' },

@@ -16,7 +16,6 @@ import { abstractArt } from './abstractArt'
 import { picbreeder } from './picbreeder'
 import { dreams } from './dreams'
 import { memes } from './memes'
-import { mix } from './mix'
 import { icons } from './icons'
 import { gcpIcons } from './gcpIcons'
 import { carLogos } from './carLogos'
@@ -27,18 +26,21 @@ import { officialWords } from './officialWords'
 import type { Face } from '../Face'
 import type { Credit } from '../Game'
 
+export type DeckGroup = 'words' | 'photos' | 'abstract' | 'icons' | 'culture'
+
 export interface CardProvider {
   id: string
   label: string
   icon: string
   description: string
+  group: DeckGroup
   credit?: Credit
   hidden?: boolean
   portrait?: boolean
   fetch: () => Promise<Face[]>
 }
 
-export const providers: CardProvider[] = [officialWords, official, generated, words, geeks, unsplash, pexels, abstract, abstractArt, picbreeder, dreams, memes, things, icons, gcpIcons, carLogos, tarot, games, emojis, flags, cats, dogs, foodish, tmdb, pokemon, mix]
+export const providers: CardProvider[] = [officialWords, official, generated, words, geeks, unsplash, pexels, abstract, abstractArt, picbreeder, dreams, memes, things, icons, gcpIcons, carLogos, tarot, games, emojis, flags, cats, dogs, foodish, tmdb, pokemon]
 
 export async function getFaces(
   providerId: string,

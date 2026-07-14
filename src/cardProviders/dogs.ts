@@ -4,7 +4,7 @@ import { shuffle } from "./words";
 
 export const dogs: CardProvider = {
   id: "dogs",
-  label: "Dogs",
+  label: "Dogs", group: 'photos',
   icon: "🐶",
   description: "Dogs acting out HTTP status codes",
   credit: { label: "HTTP Dogs", url: "https://http.dog" },

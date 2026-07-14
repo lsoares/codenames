@@ -4,7 +4,7 @@ import { shuffle } from './words'
 
 export const dreams: CardProvider = {
   id: 'dreams',
-  label: 'Dreams',
+  label: 'Dreams', group: 'abstract',
   icon: '💭',
   description: 'GAN-dreamed artworks that never existed',
   credit: { label: 'This Image Does Not Exist', url: 'https://thisimagedoesnotexist.com' },

@@ -34,7 +34,7 @@ export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]>
 
 export const words: CardProvider = {
   id: 'words',
-  label: 'Words+',
+  label: 'Words+', group: 'words',
   icon: '🔤',
   description: 'Fresh everyday nouns generated from Datamuse',
   credit: { label: 'Datamuse', url: 'https://www.datamuse.com/api/' },

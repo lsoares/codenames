@@ -3,7 +3,7 @@ import type { CardProvider } from './providers'
 
 export const carLogos: CardProvider = {
   id: 'car-logos',
-  label: 'Car Logos',
+  label: 'Car Logos', group: 'icons',
   icon: '🚗',
   description: 'Automobile brand logos from around the world',
   credit: { label: 'car-logos-dataset', url: 'https://github.com/filippofilip95/car-logos-dataset' },

@@ -4,7 +4,7 @@ import { shuffle } from './words'
 
 export const abstractArt: CardProvider = {
   id: 'abstractArt',
-  label: 'Abstract Art',
+  label: 'Art', group: 'abstract',
   icon: '🎨',
   description: 'Genuinely abstract painting from WikiArt',
   credit: { label: 'WikiArt', url: 'https://www.wikiart.org' },

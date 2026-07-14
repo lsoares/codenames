@@ -3,7 +3,7 @@ import type { CardProvider } from './providers'
 
 export const picbreeder: CardProvider = {
   id: 'picbreeder',
-  label: 'Picbreeder',
+  label: 'Picbreeder', group: 'abstract',
   icon: '🧬',
   description: 'CPPN-evolved images bred by the Picbreeder community',
   credit: { label: 'Picbreeder', url: 'https://picbreeder.net' },

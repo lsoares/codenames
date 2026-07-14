@@ -3,7 +3,7 @@ import type { CardProvider } from './providers'
 
 export const unsplash: CardProvider = {
   id: 'unsplash',
-  label: 'Random',
+  label: 'Random', group: 'photos',
   icon: '📷',
   description: 'Random photos from Unsplash',
   credit: { label: 'Unsplash', url: 'https://unsplash.com' },

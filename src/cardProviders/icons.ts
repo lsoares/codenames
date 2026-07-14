@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const icons: CardProvider = { id: 'icons', label: 'Pictograms', icon: '✳️', description: 'The full Font Awesome free collection', credit: { label: 'Font Awesome', url: 'https://fontawesome.com' }, fetch }
+export const icons: CardProvider = { id: 'icons', label: 'Pictograms', group: 'icons', icon: '✳️', description: 'The full Font Awesome free collection', credit: { label: 'Font Awesome', url: 'https://fontawesome.com' }, fetch }
 
 const ICONS = [
   'brands/42-group', 'brands/500px', 'brands/accessible-icon', 'brands/accusoft', 'brands/adn', 'brands/adversal', 'brands/affiliatetheme', 'brands/airbnb',

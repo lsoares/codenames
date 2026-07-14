@@ -3,7 +3,7 @@ import type { CardProvider } from './providers'
 
 export const pokemon: CardProvider = {
   id: 'pokemon',
-  label: 'Pokémon',
+  label: 'Pokémon', group: 'culture',
   icon: '⚡',
   description: 'Official Pokémon artwork',
   credit: { label: 'PokéAPI', url: 'https://pokeapi.co' },
