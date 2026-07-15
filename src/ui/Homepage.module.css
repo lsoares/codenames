@@ -141,3 +141,21 @@
 .coffee:hover {
   filter: brightness(1.05);
 }
+
+.feedback {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.feedback:hover {
+  filter: brightness(1.05);
+}

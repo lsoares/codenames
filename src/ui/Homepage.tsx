@@ -73,6 +73,12 @@ export default function Homepage(props: {
         >
           ☕ Buy me a coffee
         </a>
+        <a
+          className={styles.feedback}
+          href="mailto:lsoares@gmail.com?subject=Codenames%20Anything%20feedback"
+        >
+          💬 Feedback
+        </a>
       </div>
       <p className={styles.tagline}>
         Based on Codenames by Vlaada Chvátil ·{' '}
