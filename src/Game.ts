@@ -133,6 +133,16 @@ export class Game {
     return unrevealedCount(this.s, team)
   }
 
+  // A clue may not repeat a word still shown on the table.
+  isVisible(word: string): boolean {
+    const target = word.trim().toLowerCase()
+    if (!target) return false
+    return this.s.cards.some(
+      (card) =>
+        !card.revealed && card.face.kind === 'text' && card.face.text.toLowerCase() === target,
+    )
+  }
+
   awaitingRole(): ActingRole {
     return this.s.phase === 'clue' ? 'spymaster' : 'operatives'
   }

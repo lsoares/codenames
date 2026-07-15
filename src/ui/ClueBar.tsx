@@ -10,10 +10,16 @@ export default function ClueBar(props: {
   const [word, setWord] = useState('')
   const [count, setCount] = useState(1)
   const wordInput = useRef<HTMLInputElement>(null)
+  const onTable = props.game.isVisible(word)
   useEffect(() => {
     if (props.selectedCount > 0) setCount(props.selectedCount)
     wordInput.current?.focus()
   }, [props.selectedCount])
+  // Reuse the browser's own validation bubble (like the letters-only pattern) to
+  // report a clue that repeats a word on the table.
+  useEffect(() => {
+    wordInput.current?.setCustomValidity(onTable ? 'That word is on the table' : '')
+  }, [onTable])
 
   const turn = props.game.state.turn
   const unlimited = props.game.meansUnlimited(count)
@@ -26,7 +32,7 @@ export default function ClueBar(props: {
       data-team={turn}
       onSubmit={(event) => {
         event.preventDefault()
-        if (word.trim()) {
+        if (word.trim() && !onTable) {
           props.onClue(word.trim(), unlimited ? UNLIMITED_CLUE : count)
           setWord('')
         }

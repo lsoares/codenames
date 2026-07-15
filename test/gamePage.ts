@@ -154,6 +154,16 @@ export class GamePage {
     return this.page.getByRole('textbox')
   }
 
+  findGiveClueButton() {
+    return this.page.getByRole('button', { name: /give clue/i })
+  }
+
+  // A word currently shown on the board (spymaster reads it off the first card).
+  async readAVisibleWord(): Promise<string> {
+    const label = await this.findBoardCards().first().getAttribute('aria-label')
+    return (label ?? '').split(',')[0]
+  }
+
   getClueCount() {
     return this.page.getByRole('spinbutton')
   }
