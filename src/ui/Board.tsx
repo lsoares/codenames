@@ -94,13 +94,17 @@ export default function Board(props: {
               ? `${name}, marked`
               : name
           const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
+          const forbidden = isSpymaster
+            ? !revealed && card.color !== props.spymasterTeam
+            : card.revealed
           const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
           const canMark = props.game.canMark(index, isSpymaster)
           const zoomUrl =
             card.face.kind === 'image' && !card.face.link && !smallImages.has(card.face.url)
               ? card.face.url
               : null
-          const showCaption = !props.bare && !props.loading && !(props.focus && isSpymaster)
+          const showCaption =
+            !props.bare && !props.loading && !revealed && !(props.focus && isSpymaster)
           return (
             <div
               key={index}
@@ -118,6 +122,7 @@ export default function Board(props: {
                 data-feedback={props.feedback[index] || undefined}
                 data-selected={(isSpymaster && highlighted(card, index)) || undefined}
                 data-inert={!actionable || undefined}
+                data-forbidden={forbidden || undefined}
                 disabled={revealed}
                 onClick={() => {
                   if (!actionable) return
@@ -167,7 +172,7 @@ export default function Board(props: {
               {showCaption && !card.face.link && card.face.tooltip && (
                 <span className={styles.caption}>{card.face.tooltip}</span>
               )}
-              {!props.bare && zoomUrl && !props.loading && (
+              {!props.bare && zoomUrl && !props.loading && !revealed && (
                 <button
                   type="button"
                   className={styles.zoomIcon}

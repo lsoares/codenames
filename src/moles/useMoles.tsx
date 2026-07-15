@@ -10,7 +10,12 @@ export function useMoles(
   players: readonly Player[],
   selfId: string,
   onWhack: (moleId: number, reactionMs: number) => void,
-): { overlayFor: (cardIndex: number) => ReactNode; hud: ReactNode; cursorClass: string } {
+): {
+  overlayFor: (cardIndex: number) => ReactNode
+  hud: ReactNode
+  cursorClass: string
+  armed: boolean
+} {
   const moles = view?.moles ?? []
   const shownAt = useRef(new Map<number, number>())
   const [whackedIds, setWhackedIds] = useState<ReadonlySet<number>>(new Set())
@@ -164,7 +169,8 @@ export function useMoles(
     </>
   )
 
-  return { overlayFor, hud, cursorClass: view && !out ? styles.armed : '' }
+  const armed = !!view && !out
+  return { overlayFor, hud, cursorClass: armed ? styles.armed : '', armed }
 }
 
 const face: Record<MoleKind, string> = { mole: '🐹', decoy: '🐭', bonus: '🐰' }

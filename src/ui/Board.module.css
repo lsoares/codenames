@@ -401,6 +401,11 @@ a.caption:focus-visible {
   cursor: default;
 }
 
+.card[data-forbidden],
+.card[data-forbidden]:disabled {
+  cursor: not-allowed;
+}
+
 .card[data-inert]:active,
 .card[data-revealed]:active {
   transform: none;

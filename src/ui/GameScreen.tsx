@@ -523,7 +523,7 @@ export default function GameScreen(props: {
             props.onAction({ type: 'toggleMark', cardIndex: index, team: props.myTeam })
           }
           overlay={moles.overlayFor}
-          bare={props.moles !== null && !(acting === 'spymaster' && activeSpymaster)}
+          bare={moles.armed}
         />
       </div>
 
