@@ -24,6 +24,7 @@ import { albums } from './albums'
 import { official } from './official'
 import { generated } from './generated'
 import { officialWords } from './officialWords'
+import { wordsImages, wordsImagesXl } from './wordsAndImages'
 import type { Credit } from '../Game'
 import type { Deck } from './deck'
 
@@ -33,6 +34,8 @@ export const decks: Deck[] = [
   officialWords,
   official,
   generated,
+  wordsImages,
+  wordsImagesXl,
   words,
   geeks,
   unsplash,
