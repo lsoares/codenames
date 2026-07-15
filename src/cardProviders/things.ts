@@ -12,7 +12,6 @@ const CATEGORIES = [
 
 interface PexelsPhoto {
   src: { medium: string }
-  alt: string
   url: string
 }
 
@@ -44,5 +43,12 @@ async function fetch(): Promise<Face[]> {
   if (photos.length < 20) throw new Error('Pexels returned too few photos')
   return photos
     .slice(0, 20)
-    .map((photo) => ({ kind: 'image', url: photo.src.medium, tooltip: photo.alt || undefined, link: photo.url }))
+    .map((photo) => ({ kind: 'image', url: photo.src.medium, tooltip: titleFromUrl(photo.url), link: photo.url }))
+}
+
+function titleFromUrl(url: string): string | undefined {
+  const slug = url.replace(/\/$/, '').split('/').pop()?.replace(/-\d+$/, '')
+  if (!slug) return undefined
+  const words = slug.replace(/-/g, ' ')
+  return words.charAt(0).toUpperCase() + words.slice(1)
 }

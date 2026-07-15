@@ -1,287 +1,354 @@
-import { useEffect, useRef, useState } from 'react'
-import { Game, type GameState, type Team } from './Game'
-import { getFaces, providers } from './cardProviders/providers'
-import { Host } from './multiplayer/Host'
-import { Guest, JoinError } from './multiplayer/Guest'
-import { Roster, type Session, type Action, type Player, type MolesView } from './multiplayer/Session'
-import { Takeover } from './multiplayer/Takeover'
-import { RoomCode } from './multiplayer/RoomCode'
-import { playSound } from './sound'
-import { identify, track } from './analytics'
-import GameScreen, { spymasterEmoji } from './ui/GameScreen'
-import Homepage from './ui/Homepage'
-import styles from './App.module.css'
+import { useEffect, useRef, useState } from "react";
+import styles from "./App.module.css";
+import { Game, type GameState, type Team } from "./Game";
+import { identify, track } from "./analytics";
+import { getFaces, providers } from "./cardProviders/providers";
+import { Guest, JoinError } from "./multiplayer/Guest";
+import { Host } from "./multiplayer/Host";
+import { RoomCode } from "./multiplayer/RoomCode";
+import {
+  Roster,
+  type Action,
+  type MolesView,
+  type Player,
+  type Session,
+} from "./multiplayer/Session";
+import { Takeover } from "./multiplayer/Takeover";
+import { playSound } from "./sound";
+import GameScreen, { spymasterEmoji } from "./ui/GameScreen";
+import Homepage from "./ui/Homepage";
 
 export default function App() {
-  const [game, setGame] = useState<Game | null>(null)
-  const [repicking, setRepicking] = useState(false)
-  const [roomCode, setRoomCode] = useState('')
-  const [seats, setSeats] = useState<{ red: string | null; blue: string | null }>({
+  const [game, setGame] = useState<Game | null>(null);
+  const [repicking, setRepicking] = useState(false);
+  const [roomCode, setRoomCode] = useState("");
+  const [seats, setSeats] = useState<{
+    red: string | null;
+    blue: string | null;
+  }>({
     red: null,
     blue: null,
-  })
-  const [players, setPlayers] = useState<Player[]>([])
-  const [moles, setMoles] = useState<MolesView | null>(null)
-  const [repickingTeam, setRepickingTeam] = useState<Team | null>(null)
-  const [isHost, setIsHost] = useState(false)
-  const [loadingFaces, setLoadingFaces] = useState(false)
-  const [status, setStatus] = useState('')
-  const sessionRef = useRef<Session | null>(null)
-  const isHostRef = useRef(false)
-  const startedRef = useRef(false)
-  const gameRef = useRef<Game | null>(null)
-  const peersRef = useRef<string[]>([])
-  const selfIdRef = useRef('')
-  const roomCodeRef = useRef('')
-  const identifiedRef = useRef(false)
-  const [flash, setFlash] = useState<{ text: string; team: Team | null; emoji?: string } | null>(null)
-  const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  });
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [moles, setMoles] = useState<MolesView | null>(null);
+  const [repickingTeam, setRepickingTeam] = useState<Team | null>(null);
+  const [isHost, setIsHost] = useState(false);
+  const [loadingFaces, setLoadingFaces] = useState(false);
+  const [status, setStatus] = useState("");
+  const sessionRef = useRef<Session | null>(null);
+  const isHostRef = useRef(false);
+  const startedRef = useRef(false);
+  const gameRef = useRef<Game | null>(null);
+  const peersRef = useRef<string[]>([]);
+  const selfIdRef = useRef("");
+  const roomCodeRef = useRef("");
+  const repickingRef = useRef(false);
+  const identifiedRef = useRef(false);
+  const [flash, setFlash] = useState<{
+    text: string;
+    team: Team | null;
+    emoji?: string;
+  } | null>(null);
+  const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const notify = (text: string, team: Team | null = null, emoji?: string, sticky = false) => {
-    setFlash({ text, team, emoji })
-    clearTimeout(flashTimer.current)
-    if (!sticky) flashTimer.current = setTimeout(() => setFlash(null), 3000)
-  }
+  const notify = (
+    text: string,
+    team: Team | null = null,
+    emoji?: string,
+    sticky = false,
+  ) => {
+    setFlash({ text, team, emoji });
+    clearTimeout(flashTimer.current);
+    if (!sticky) flashTimer.current = setTimeout(() => setFlash(null), 3000);
+  };
 
   const wire = (session: Session, asHost: boolean) => {
-    sessionRef.current = session
-    isHostRef.current = asHost
-    setIsHost(asHost)
-    selfIdRef.current = session.selfId
-    roomCodeRef.current = session.roomCode
-    identifiedRef.current = false
-    setRoomCode(session.roomCode)
-    history.pushState({}, '', '/' + session.roomCode)
+    sessionRef.current = session;
+    isHostRef.current = asHost;
+    setIsHost(asHost);
+    selfIdRef.current = session.selfId;
+    roomCodeRef.current = session.roomCode;
+    identifiedRef.current = false;
+    setRoomCode(session.roomCode);
+    history.pushState({}, "", "/" + session.roomCode);
     session.subscribe((view) => {
-      const next = new Game(view.state)
-      gameRef.current = next
-      peersRef.current = view.players.map((player) => player.id)
-      setGame(next)
-      setSeats(view.seats)
-      setPlayers(view.players)
-      setMoles(view.moles ?? null)
-      setRepickingTeam(view.repicking ?? null)
+      const next = new Game(view.state);
+      gameRef.current = next;
+      peersRef.current = view.players.map((player) => player.id);
+      setGame(next);
+      setSeats(view.seats);
+      setPlayers(view.players);
+      setMoles(view.moles ?? null);
+      setRepickingTeam(view.repicking ?? null);
       if (session.selfEmoji && !identifiedRef.current) {
-        identifiedRef.current = true
-        identify(session.roomCode, session.selfEmoji)
+        identifiedRef.current = true;
+        identify(session.roomCode, session.selfEmoji);
       }
-    })
-    if (!asHost) session.onDisconnect(() => migrate())
-    const pinnedTeam = localStorage.getItem('codenames:start-team') as Team | null
-    if (pinnedTeam) session.setTeam(pinnedTeam)
-  }
+    });
+    if (!asHost) session.onDisconnect(() => migrate());
+    const pinnedTeam = localStorage.getItem(
+      "codenames:start-team",
+    ) as Team | null;
+    if (pinnedTeam) session.setTeam(pinnedTeam);
+  };
 
   const migrate = () => {
-    if (isHostRef.current) return
-    const takeover = new Takeover(peersRef.current, selfIdRef.current)
+    if (isHostRef.current) return;
+    const takeover = new Takeover(peersRef.current, selfIdRef.current);
     window.setTimeout(async () => {
-      const game = gameRef.current
-      if (!game || isHostRef.current) return
-      sessionRef.current?.close()
+      const game = gameRef.current;
+      if (!game || isHostRef.current) return;
+      sessionRef.current?.close();
       try {
-        const { session, asHost } = await takeover.claim(roomCodeRef.current, game.state)
-        wire(session, asHost)
-        playSound('takeover')
-        notify(asHost ? 'You took over as host' : "You're back in the room")
+        const { session, asHost } = await takeover.claim(
+          roomCodeRef.current,
+          game.state,
+        );
+        wire(session, asHost);
+        playSound("takeover");
+        notify(asHost ? "You took over as host" : "You're back in the room");
       } catch {
-        setGame(null)
-        setStatus('Lost connection to the room.')
+        setGame(null);
+        setStatus("Lost connection to the room.");
       }
-    }, takeover.myTurnDelayMs())
-  }
+    }, takeover.myTurnDelayMs());
+  };
 
-  const roster = new Roster(players, seats)
-  const mySeat: Team | null = roster.seatOf(selfIdRef.current)
-  const myTeam: Team = mySeat ?? roster.teamOf(selfIdRef.current) ?? 'red'
+  repickingRef.current = repicking;
+
+  const roster = new Roster(players, seats);
+  const mySeat: Team | null = roster.seatOf(selfIdRef.current);
+  const myTeam: Team = mySeat ?? roster.teamOf(selfIdRef.current) ?? "red";
 
   const newGame = async (id: string, rotate = false) => {
-    setLoadingFaces(true)
+    setLoadingFaces(true);
     try {
-      const { faces, credit, deck } = await getFaces(id)
-      sessionRef.current?.dispatch({ type: 'newGame', faces, credit, deck, rotate })
-      track('game started', { deck })
+      const { faces, credit, deck } = await getFaces(id);
+      sessionRef.current?.dispatch({
+        type: "newGame",
+        faces,
+        credit,
+        deck,
+        rotate,
+      });
+      track("game started", { deck });
     } catch (error) {
-      notify(`Couldn't deal that deck (${(error as Error)?.message ?? 'unknown error'})`, null, '😕')
+      notify(
+        `Couldn't deal that deck (${(error as Error)?.message ?? "unknown error"})`,
+        null,
+        "😕",
+      );
     } finally {
-      setLoadingFaces(false)
+      setLoadingFaces(false);
     }
-  }
+  };
 
   const claimSeat = (team: Team | null) => {
-    sessionRef.current?.setSpymaster(team)
-    if (team) playSound('spymaster')
-  }
+    sessionRef.current?.setSpymaster(team);
+    if (team) playSound("spymaster");
+  };
 
   const joinTeam = (team: Team) => {
-    sessionRef.current?.setTeam(team)
-    playSound('teamSwitch')
-  }
+    sessionRef.current?.setTeam(team);
+    playSound("teamSwitch");
+  };
 
   const goHome = () => {
-    sessionRef.current?.close()
-    sessionRef.current = null
-    isHostRef.current = false
-    selfIdRef.current = ''
-    roomCodeRef.current = ''
-    identifiedRef.current = false
-    gameRef.current = null
-    peersRef.current = []
-    prevGameRef.current = null
-    prevPlayersRef.current = null
-    prevSeatsRef.current = null
-    clearTimeout(flashTimer.current)
-    setFlash(null)
-    setIsHost(false)
-    setGame(null)
-    setRoomCode('')
-    setSeats({ red: null, blue: null })
-    setPlayers([])
-    setMoles(null)
-    setRepickingTeam(null)
-    setStatus('')
-  }
+    sessionRef.current?.close();
+    sessionRef.current = null;
+    isHostRef.current = false;
+    selfIdRef.current = "";
+    roomCodeRef.current = "";
+    identifiedRef.current = false;
+    gameRef.current = null;
+    peersRef.current = [];
+    prevGameRef.current = null;
+    prevPlayersRef.current = null;
+    prevSeatsRef.current = null;
+    clearTimeout(flashTimer.current);
+    setFlash(null);
+    setIsHost(false);
+    setGame(null);
+    setRoomCode("");
+    setSeats({ red: null, blue: null });
+    setPlayers([]);
+    setMoles(null);
+    setRepickingTeam(null);
+    setStatus("");
+  };
 
   useEffect(() => {
     const onPopState = () => {
-      if (!RoomCode.fromPath(window.location.pathname)) goHome()
-    }
-    window.addEventListener('popstate', onPopState)
-    return () => window.removeEventListener('popstate', onPopState)
+      if (RoomCode.fromPath(window.location.pathname)) return;
+      // The deck picker opened over a room is a sub-screen, not a fresh page:
+      // backing out of it cancels the repick and keeps the room, rather than
+      // tearing the session down and leaving for the homepage.
+      if (repickingRef.current && roomCodeRef.current) {
+        setRepicking(false);
+        sessionRef.current?.setRepicking(null);
+        history.pushState({}, "", "/" + roomCodeRef.current);
+        return;
+      }
+      goHome();
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const createRoom = async (id: string, code?: string) => {
-    const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
+    const start =
+      (localStorage.getItem("codenames:start-team") as Team | null) ??
+      randomTeam();
     try {
-      const { faces, credit, deck } = await getFaces(id)
-      wire(await Host.start(faces, start, credit, deck, code), true)
-      track('room created', { deck })
+      const { faces, credit, deck } = await getFaces(id);
+      wire(await Host.start(faces, start, credit, deck, code), true);
+      track("room created", { deck });
     } catch (error) {
-      if (code && (error as { type?: string })?.type === 'unavailable-id') {
+      if (code && (error as { type?: string })?.type === "unavailable-id") {
         const joined = await Guest.join(code)
           .then((session) => (wire(session, false), true))
-          .catch(() => false)
-        if (joined) return
+          .catch(() => false);
+        if (joined) return;
       }
-      console.error('createRoom failed:', error)
+      console.error("createRoom failed:", error);
       setStatus(
-        `Could not create room (${(error as { type?: string })?.type ?? (error as Error)?.message ?? 'unknown'}). Try again.`,
-      )
+        `Could not create room (${(error as { type?: string })?.type ?? (error as Error)?.message ?? "unknown"}). Try again.`,
+      );
     }
-  }
+  };
 
-
-  const prevGameRef = useRef<Game | null>(null)
+  const prevGameRef = useRef<Game | null>(null);
   useEffect(() => {
-    const prev = prevGameRef.current
-    prevGameRef.current = game
-    if (!game || !prev) return
-    const change = game.changesFrom(prev)
+    const prev = prevGameRef.current;
+    prevGameRef.current = game;
+    if (!game || !prev) return;
+    const change = game.changesFrom(prev);
     if (change.newGame) {
-      playSound('newGame')
-      notify(`New game — ${teamName(game.state.turn)} starts 🔀`, game.state.turn)
-      return
+      playSound("newGame");
+      notify(
+        `New game — ${teamName(game.state.turn)} starts 🔀`,
+        game.state.turn,
+      );
+      return;
     }
     if (change.win) {
       playSound(
         change.win.byAssassin
-          ? 'assassin'
+          ? "assassin"
           : change.win.team === myTeam
-            ? 'victory'
-            : 'gameOver',
-      )
-      if (change.win.byAssassin) notify(`💀 Assassin! ${teamName(change.win.team)} wins`, change.win.team)
+            ? "victory"
+            : "gameOver",
+      );
+      if (change.win.byAssassin)
+        notify(
+          `💀 Assassin! ${teamName(change.win.team)} wins`,
+          change.win.team,
+        );
     } else if (change.clueGiven) {
-      playSound('clue')
-    } else if (change.guessed && change.guessed.outcome === 'correct') {
-      playSound('guessRight')
+      playSound("clue");
+    } else if (change.guessed && change.guessed.outcome === "correct") {
+      playSound("guessRight");
     } else if (change.turnPassed) {
-      const wrongGuess = change.guessed && change.guessed.outcome !== 'correct'
-      playSound(wrongGuess ? 'guessWrong' : 'endTurn')
-      if (change.guessed && change.guessed.outcome !== 'correct') {
+      const wrongGuess = change.guessed && change.guessed.outcome !== "correct";
+      playSound(wrongGuess ? "guessWrong" : "endTurn");
+      if (change.guessed && change.guessed.outcome !== "correct") {
         const hit =
-          change.guessed.outcome === 'neutral' ? 'a neutral' : `${teamName(change.turnPassed.from)}'s card`
+          change.guessed.outcome === "neutral"
+            ? "a neutral"
+            : `${teamName(change.turnPassed.from)}'s card`;
         notify(
           `${teamName(change.turnPassed.from)} hit ${hit} — ${teamName(change.turnPassed.to)}'s turn`,
           change.turnPassed.to,
-        )
+        );
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game])
+  }, [game]);
 
-  const prevPlayersRef = useRef<Player[] | null>(null)
+  const prevPlayersRef = useRef<Player[] | null>(null);
   useEffect(() => {
-    if (!game) return
-    const prev = prevPlayersRef.current
-    prevPlayersRef.current = players
-    if (prev === null) return
-    const joined = players.find((player) => !prev.some((was) => was.id === player.id))
-    const gone = prev.find((was) => !players.some((player) => player.id === was.id))
-    if (joined) notify(`joined ${teamName(joined.team)} 👋`, joined.team, joined.emoji)
-    else if (gone) notify('left', gone.team, gone.emoji)
+    if (!game) return;
+    const prev = prevPlayersRef.current;
+    prevPlayersRef.current = players;
+    if (prev === null) return;
+    const joined = players.find(
+      (player) => !prev.some((was) => was.id === player.id),
+    );
+    const gone = prev.find(
+      (was) => !players.some((player) => player.id === was.id),
+    );
+    if (joined)
+      notify(`joined ${teamName(joined.team)} 👋`, joined.team, joined.emoji);
+    else if (gone) notify("left", gone.team, gone.emoji);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [players, game])
+  }, [players, game]);
 
-  const prevSeatsRef = useRef<typeof seats | null>(null)
+  const prevSeatsRef = useRef<typeof seats | null>(null);
   useEffect(() => {
-    if (!game) return
-    const prev = prevSeatsRef.current
-    prevSeatsRef.current = seats
-    if (!prev) return
-    for (const team of ['red', 'blue'] as const) {
-      if (seats[team] && seats[team] !== prev[team] && seats[team] !== selfIdRef.current) {
-        playSound('spymaster')
-        notify(`New ${team} spymaster ${spymasterEmoji[team]}`, team)
+    if (!game) return;
+    const prev = prevSeatsRef.current;
+    prevSeatsRef.current = seats;
+    if (!prev) return;
+    for (const team of ["red", "blue"] as const) {
+      if (
+        seats[team] &&
+        seats[team] !== prev[team] &&
+        seats[team] !== selfIdRef.current
+      ) {
+        playSound("spymaster");
+        notify(`New ${team} spymaster ${spymasterEmoji[team]}`, team);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seats, game])
+  }, [seats, game]);
 
   useEffect(() => {
     if (isHostRef.current && roomCode && game) {
-      sessionStorage.setItem(hostStateKey(roomCode), JSON.stringify(game.state))
+      sessionStorage.setItem(
+        hostStateKey(roomCode),
+        JSON.stringify(game.state),
+      );
     }
-  }, [game, roomCode])
-
+  }, [game, roomCode]);
 
   const attemptJoin = () => {
-    const code = RoomCode.fromPath(window.location.pathname)?.toString()
-    if (!code) return
+    const code = RoomCode.fromPath(window.location.pathname)?.toString();
+    if (!code) return;
 
-    setStatus(`Joining ${code}…`)
-    const saved = sessionStorage.getItem(hostStateKey(code))
+    setStatus(`Joining ${code}…`);
+    const saved = sessionStorage.getItem(hostStateKey(code));
     Guest.join(code, { waitForHost: !saved })
       .then((session) => {
-        wire(session, false)
-        track('room joined')
-        setStatus('')
+        wire(session, false);
+        track("room joined");
+        setStatus("");
       })
       .catch((error) => {
         if (!saved) {
-          if (error instanceof JoinError && error.reason === 'room-not-found') {
-            setStatus('')
-            return
+          if (error instanceof JoinError && error.reason === "room-not-found") {
+            setStatus("");
+            return;
           }
-          setStatus(joinFailureMessage(error))
-          return
+          setStatus(joinFailureMessage(error));
+          return;
         }
-        setStatus('Rejoining the room…')
+        setStatus("Rejoining the room…");
         Host.resume(code, JSON.parse(saved) as GameState)
           .then((session) => {
-            wire(session, true)
-            setStatus('')
+            wire(session, true);
+            setStatus("");
           })
-          .catch(() => setStatus('Could not rejoin the room.'))
-      })
-  }
+          .catch(() => setStatus("Could not rejoin the room."));
+      });
+  };
 
   useEffect(() => {
-    if (startedRef.current) return
-    startedRef.current = true
-    attemptJoin()
+    if (startedRef.current) return;
+    startedRef.current = true;
+    attemptJoin();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   return (
     <>
@@ -299,12 +366,14 @@ export default function App() {
           onAction={(action: Action) => sessionRef.current?.dispatch(action)}
           onNewGame={newGame}
           onRepick={() => {
-            setRepicking(true)
-            sessionRef.current?.setRepicking(myTeam)
+            setRepicking(true);
+            sessionRef.current?.setRepicking(myTeam);
           }}
           repicking={repickingTeam}
           moles={moles}
-          onWhack={(moleId, reactionMs) => sessionRef.current?.whack(moleId, reactionMs)}
+          onWhack={(moleId, reactionMs) =>
+            sessionRef.current?.whack(moleId, reactionMs)
+          }
           loadingFaces={loadingFaces}
           providers={deckProviders}
         />
@@ -317,8 +386,8 @@ export default function App() {
               <button
                 className="secondary"
                 onClick={() => {
-                  history.pushState({}, '', '/')
-                  goHome()
+                  history.pushState({}, "", "/");
+                  goHome();
                 }}
               >
                 New game
@@ -331,46 +400,51 @@ export default function App() {
           providers={deckProviders}
           onPick={(id) => {
             if (game) {
-              sessionRef.current?.setRepicking(null)
-              void newGame(id, true)
-              setRepicking(false)
+              sessionRef.current?.setRepicking(null);
+              void newGame(id, true);
+              setRepicking(false);
             } else {
-              void createRoom(id, RoomCode.fromPath(window.location.pathname)?.toString())
+              void createRoom(
+                id,
+                RoomCode.fromPath(window.location.pathname)?.toString(),
+              );
             }
           }}
           onJoin={
             game || RoomCode.fromPath(window.location.pathname)
               ? undefined
               : (raw) => {
-                  const code = RoomCode.fromTyped(raw)
-                  if (!code) return
-                  history.pushState({}, '', '/' + code)
-                  attemptJoin()
+                  const code = RoomCode.fromTyped(raw);
+                  if (!code) return;
+                  history.pushState({}, "", "/" + code);
+                  attemptJoin();
                 }
           }
         />
       )}
     </>
-  )
+  );
 }
 
-const deckProviders = new URLSearchParams(window.location.search).has('official')
+const deckProviders = new URLSearchParams(window.location.search).has(
+  "official",
+)
   ? providers
-  : providers.filter((provider) => provider.id !== 'official')
+  : providers.filter((provider) => provider.id !== "official");
 
-const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
+const randomTeam = (): Team => (Math.random() < 0.5 ? "red" : "blue");
 
-const teamName = (team: Team): string => (team === 'red' ? 'Red' : 'Blue')
+const teamName = (team: Team): string => (team === "red" ? "Red" : "Blue");
 
-const hostStateKey = (code: string): string => `codenames:host:${code}`
+const hostStateKey = (code: string): string => `codenames:host:${code}`;
 
 const joinFailureMessage = (error: unknown): string => {
   switch (error instanceof JoinError ? error.reason : null) {
-    case 'room-not-found':
-      return 'Could not find the room. Check the room code or link, or ask the host for a fresh one.'
-    case 'connection-blocked':
-      return 'Could not connect — the room is there, but your network is blocking it. Another network (like a phone hotspot) usually helps.'
+    case "room-not-found":
+      return "Could not find the room. Check the room code or link, or ask the host for a fresh one.";
+    case "connection-blocked":
+      return "Could not connect — the room is there, but your network is blocking it. Another network (like a phone hotspot) usually helps.";
     default:
-      return 'Could not reach the server. Check your internet and try again.'
+      return "Could not reach the server. Check your internet and try again.";
   }
-}
+};
