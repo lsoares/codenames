@@ -6,7 +6,7 @@ import HowToPlay from './HowToPlay'
 import styles from './Homepage.module.css'
 
 export default function Homepage(props: {
-  providers: Deck[]
+  decks: Deck[]
   onPick: (id: string) => void
   onJoin?: (code: string) => void
 }) {
@@ -53,7 +53,7 @@ export default function Homepage(props: {
           )}
         </header>
         <DeckFilters value={filter} onChange={setFilter} />
-        <DeckPicker providers={props.providers} filter={filter} onPick={props.onPick} />
+        <DeckPicker decks={props.decks} filter={filter} onPick={props.onPick} />
       </div>
       <div className={styles.actions}>
         <HowToPlay />

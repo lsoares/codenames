@@ -23,15 +23,15 @@ export default function GameScreen(props: {
   onClaimSeat: (team: Team | null) => void
   onJoinTeam: (team: Team) => void
   onAction: (action: Action) => void
-  onNewGame: (providerId: string, rotateSpymaster?: boolean) => void
+  onNewGame: (deckId: string, rotateSpymaster?: boolean) => void
   onRepick: () => void
   repicking: Team | null
   moles: MolesView | null
   onWhack: (moleId: number, reactionMs: number) => void
   loadingFaces: boolean
-  providers: Deck[]
+  decks: Deck[]
 }) {
-  const currentDeck = props.providers.find((p) => p.label === props.game.state.deck)
+  const currentDeck = props.decks.find((deck) => deck.label === props.game.state.deck)
   const currentDeckId = currentDeck?.id
   const dealFreshBoard = () => {
     if (currentDeckId) props.onNewGame(currentDeckId)

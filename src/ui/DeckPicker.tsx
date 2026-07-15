@@ -4,7 +4,7 @@ import type { DeckFilter } from './DeckFilters'
 import styles from './DeckPicker.module.css'
 
 export default function DeckPicker(props: {
-  providers: Deck[]
+  decks: Deck[]
   filter: DeckFilter
   onPick: (id: string) => void
 }) {
@@ -15,39 +15,39 @@ export default function DeckPicker(props: {
     props.onPick(id)
   }
 
-  const tile = (provider: Deck) => {
-    const loading = pickedId === provider.id
+  const tile = (deck: Deck) => {
+    const loading = pickedId === deck.id
     return (
-      <li key={provider.id}>
+      <li key={deck.id}>
         <button
           type="button"
           className={`${styles.tile}${pickedId && !loading ? ` ${styles.dimmed}` : ''}`}
-          title={provider.description}
+          title={deck.description}
           disabled={pickedId !== null}
-          onClick={() => pick(provider.id)}
+          onClick={() => pick(deck.id)}
         >
           {loading ? (
             <span
               className={styles.spinner}
               role="progressbar"
-              aria-label={`Dealing ${provider.label}`}
+              aria-label={`Dealing ${deck.label}`}
             />
           ) : (
             <span className={styles.icon} aria-hidden="true">
-              {provider.icon}
+              {deck.icon}
             </span>
           )}
-          <span className={styles.label}>{provider.label}</span>
+          <span className={styles.label}>{deck.label}</span>
         </button>
       </li>
     )
   }
 
-  const matches = (provider: Deck) =>
-    (!props.filter.group || provider.group === props.filter.group) &&
-    (!props.filter.difficulty || provider.difficulty === props.filter.difficulty)
+  const matches = (deck: Deck) =>
+    (!props.filter.group || deck.group === props.filter.group) &&
+    (!props.filter.difficulty || deck.difficulty === props.filter.difficulty)
   const ordered = GROUP_ORDER.flatMap((group) =>
-    props.providers.filter((provider) => provider.group === group && matches(provider)),
+    props.decks.filter((deck) => deck.group === group && matches(deck)),
   )
   if (ordered.length === 0) {
     return <p className={styles.empty}>No decks match. Pick another filter.</p>

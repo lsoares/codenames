@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import styles from './App.module.css'
 import { Game, type GameState, type Team } from './Game'
 import { identify, track } from './analytics'
-import { providers, findDeck } from './cardProviders/providers'
+import { decks, findDeck } from './cardProviders/providers'
 import { Guest, JoinError } from './multiplayer/Guest'
 import { Host } from './multiplayer/Host'
 import { RoomCode } from './multiplayer/RoomCode'
@@ -335,7 +335,7 @@ export default function App() {
           moles={moles}
           onWhack={(moleId, reactionMs) => sessionRef.current?.whack(moleId, reactionMs)}
           loadingFaces={loadingFaces}
-          providers={providers}
+          decks={decks}
         />
       ) : status ? (
         <div className={styles.status} role="status">
@@ -357,7 +357,7 @@ export default function App() {
         </div>
       ) : (
         <Homepage
-          providers={providers}
+          decks={decks}
           onPick={(id) => {
             if (game) {
               sessionRef.current?.setRepicking(null)

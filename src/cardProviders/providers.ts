@@ -40,7 +40,7 @@ export interface Deck {
   fetch: () => Promise<Face[]>
 }
 
-export const providers: Deck[] = [
+export const decks: Deck[] = [
   officialWords,
   official,
   generated,
@@ -69,8 +69,7 @@ export const providers: Deck[] = [
   pokemon,
 ]
 
-export const findDeck = (id: string): Deck =>
-  providers.find((provider) => provider.id === id) ?? unsplash
+export const findDeck = (id: string): Deck => decks.find((deck) => deck.id === id) ?? unsplash
 
 export const creditOf = (deck: Deck): Credit | null =>
   deck.source ? { label: deck.source, url: deck.sourceUrl ?? '' } : null
