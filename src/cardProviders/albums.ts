@@ -5,7 +5,7 @@ import { shuffle } from './words'
 export const albums: CardProvider = {
   id: 'albums',
   label: 'Album Art',
-  group: 'culture',
+  group: 'culture', difficulty: 'brutal',
   icon: '💿',
   description: 'Cover art from electronic, jazz and experimental records',
   credit: { label: 'iTunes', url: 'https://www.apple.com/itunes' },

@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const abstract: CardProvider = { id: 'abstract', label: 'Abstract photos', group: 'abstract', icon: '🌀', description: 'Abstract imagery open to interpretation', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }
+export const abstract: CardProvider = { id: 'abstract', label: 'Photos', group: 'abstract', difficulty: 'brutal', icon: '🌀', description: 'Abstract imagery open to interpretation', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }
 
 const LOOKS = [
   'abstract', 'texture', 'pattern', 'paint', 'macro', 'smoke',

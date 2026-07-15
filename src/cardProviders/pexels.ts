@@ -1,7 +1,7 @@
 import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 
-export const pexels: CardProvider = { id: 'pexels', label: 'Curated', group: 'photos', icon: '🖼️', description: 'Curated editorial photos from Pexels', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }
+export const pexels: CardProvider = { id: 'pexels', label: 'Curated', group: 'photos', difficulty: 'tough', icon: '🖼️', description: 'Curated editorial photos from Pexels', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }
 
 interface PexelsPhoto {
   src: { landscape: string }

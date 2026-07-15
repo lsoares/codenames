@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const emojis: CardProvider = { id: 'emojis', label: 'Emojis', group: 'icons', icon: '😀', description: 'Random emoji', fetch }
+export const emojis: CardProvider = { id: 'emojis', label: 'Emojis', group: 'symbols', difficulty: 'tough', icon: '😀', description: 'Random emoji', fetch }
 
 const EMOJIS = [
   '🐶', '🐱', '🦊', '🐼', '🦁', '🐯', '🐸', '🐵', '🐔', '🐧', '🦉', '🦄', '🐝', '🦋',

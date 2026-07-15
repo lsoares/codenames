@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import type { CardProvider, DeckGroup } from '../cardProviders/providers'
+import type { CardProvider } from '../cardProviders/providers'
+import type { DeckFilter } from './DeckFilters'
 import styles from './DeckPicker.module.css'
 
-export default function DeckPicker(props: { providers: CardProvider[]; onPick: (id: string) => void }) {
+export default function DeckPicker(props: { providers: CardProvider[]; filter: DeckFilter; onPick: (id: string) => void }) {
   const [pickedId, setPickedId] = useState<string | null>(null)
   const pick = (id: string) => {
     if (pickedId) return
@@ -32,7 +33,15 @@ export default function DeckPicker(props: { providers: CardProvider[]; onPick: (
     )
   }
 
-  const ordered = GROUP_ORDER.flatMap((group) => props.providers.filter((provider) => provider.group === group))
+  const matches = (provider: CardProvider) =>
+    (!props.filter.group || provider.group === props.filter.group) &&
+    (!props.filter.difficulty || provider.difficulty === props.filter.difficulty)
+  const ordered = GROUP_ORDER.flatMap((group) =>
+    props.providers.filter((provider) => provider.group === group && matches(provider)),
+  )
+  if (ordered.length === 0) {
+    return <p className={styles.empty}>No decks match. Pick another filter.</p>
+  }
   return (
     <ul className={styles.grid} role="list">
       {ordered.map(tile)}
@@ -40,4 +49,4 @@ export default function DeckPicker(props: { providers: CardProvider[]; onPick: (
   )
 }
 
-const GROUP_ORDER: DeckGroup[] = ['words', 'abstract', 'photos', 'icons', 'culture']
+const GROUP_ORDER: CardProvider['group'][] = ['words', 'abstract', 'photos', 'symbols', 'culture']

@@ -566,7 +566,7 @@ function RoomInvite() {
       <span className={styles.invitePrompt}>Invite more players</span>
       <div className={styles.roomLine}>
         <span className={styles.copied} data-show={copied || undefined} aria-live="polite">
-          {copied ? 'Copied!' : ''}
+          {copied ? 'Invite link copied!' : ''}
         </span>
         <button
           type="button"

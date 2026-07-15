@@ -8,6 +8,14 @@
   padding: 0;
 }
 
+.empty {
+  margin: 0;
+  padding: clamp(24px, 6vh, 56px) 0;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .tile {
   width: 100%;
   aspect-ratio: 1;

@@ -4,7 +4,7 @@ import { shuffle } from './words'
 
 export const tarot: CardProvider = {
   id: 'tarot',
-  label: 'Tarot', group: 'culture',
+  label: 'Tarot', group: 'culture', difficulty: 'brutal',
   icon: '🔮',
   description: 'The 78-card Rider–Waite tarot deck',
   credit: { label: 'tarotcardapi', url: 'https://github.com/krates98/tarotcardapi' },

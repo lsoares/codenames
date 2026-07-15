@@ -27,14 +27,13 @@ import { officialWords } from './officialWords'
 import type { Face } from '../Face'
 import type { Credit } from '../Game'
 
-export type DeckGroup = 'words' | 'photos' | 'abstract' | 'icons' | 'culture'
-
 export interface CardProvider {
   id: string
   label: string
   icon: string
   description: string
-  group: DeckGroup
+  group: 'words' | 'photos' | 'abstract' | 'symbols' | 'culture'
+  difficulty: 'casual' | 'tough' | 'brutal'
   credit?: Credit
   portrait?: boolean
   fetch: () => Promise<Face[]>

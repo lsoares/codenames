@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { CardProvider } from '../cardProviders/providers'
 import DeckPicker from './DeckPicker'
+import DeckFilters, { type DeckFilter } from './DeckFilters'
 import HowToPlay from './HowToPlay'
 import styles from './Homepage.module.css'
 
@@ -10,26 +11,19 @@ export default function Homepage(props: {
   onJoin?: (code: string) => void
 }) {
   const [code, setCode] = useState('')
+  const [filter, setFilter] = useState<DeckFilter>({ group: null, difficulty: 'casual' })
   const onJoin = props.onJoin
   return (
     <main className={styles.home}>
       <div className={styles.hero}>
       <header className={styles.top}>
-        <div className={styles.headGroup}>
-          <div className={styles.brand}>
-            <img src="/favicon.svg" alt="" className={styles.logo} />
-            <h1 className={styles.title}>
-              Codenames
-              <br />
-              <span className={styles.titleAccent}>Anything</span>
-            </h1>
-          </div>
-          <p className={styles.subtitle}>
-            Based on Codenames by Vlaada Chvátil ·{' '}
-            <a href="https://czechgames.com" target="_blank" rel="noreferrer">
-              Czech Games Edition
-            </a>
-          </p>
+        <div className={styles.brand}>
+          <img src="/favicon.svg" alt="" className={styles.logo} />
+          <h1 className={styles.title}>
+            Codenames
+            <br />
+            <span className={styles.titleAccent}>Anything</span>
+          </h1>
         </div>
         {onJoin && (
           <form
@@ -58,7 +52,8 @@ export default function Homepage(props: {
           </form>
         )}
       </header>
-      <DeckPicker providers={props.providers} onPick={props.onPick} />
+      <DeckFilters value={filter} onChange={setFilter} />
+      <DeckPicker providers={props.providers} filter={filter} onPick={props.onPick} />
       </div>
       <div className={styles.actions}>
         <HowToPlay />
@@ -79,6 +74,12 @@ export default function Homepage(props: {
           ☕ Buy me a coffee
         </a>
       </div>
+      <p className={styles.tagline}>
+        Based on Codenames by Vlaada Chvátil ·{' '}
+        <a href="https://czechgames.com" target="_blank" rel="noreferrer">
+          Czech Games Edition
+        </a>
+      </p>
     </main>
   )
 }

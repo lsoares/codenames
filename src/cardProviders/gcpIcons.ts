@@ -4,7 +4,7 @@ import { shuffle } from './words'
 
 export const gcpIcons: CardProvider = {
   id: 'gcp-icons',
-  label: 'GCP Icons', group: 'icons',
+  label: 'GCP Icons', group: 'symbols', difficulty: 'tough',
   icon: '☁️',
   description: 'Google Cloud product icons in full colour',
   credit: { label: 'GCP Icons', url: 'https://gcpicons.com' },

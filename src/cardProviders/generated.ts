@@ -4,7 +4,7 @@ import { shuffle } from './words'
 
 export const generated: CardProvider = {
   id: 'generated',
-  label: 'Images+', group: 'abstract',
+  label: 'Pictures+', group: 'abstract', difficulty: 'casual',
   icon: '🗿',
   description: 'AI-drawn cards that fuse two unrelated things into one picture',
   credit: { label: 'Stable Diffusion XL', url: 'https://stability.ai/stable-diffusion' },

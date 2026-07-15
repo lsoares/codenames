@@ -2,15 +2,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(36px, 8vh, 72px);
+  gap: clamp(18px, 4vh, 36px);
   padding: 0 32px 48px;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .hero {
   width: min(720px, 100%);
   display: flex;
   flex-direction: column;
-  gap: clamp(12px, 2.4vh, 28px);
+  gap: clamp(14px, 2.8vh, 26px);
   padding-top: clamp(16px, 3vh, 40px);
   box-sizing: border-box;
 }
@@ -22,12 +24,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
-}
-
-.headGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-bottom: clamp(10px, 2.2vh, 22px);
 }
 
 .brand {
@@ -36,18 +33,19 @@
   gap: 16px;
 }
 
-.subtitle {
+.tagline {
   margin: 0;
+  text-align: center;
   font-size: 0.8rem;
   color: var(--muted);
 }
 
-.subtitle a {
+.tagline a {
   color: inherit;
   text-decoration: underline;
 }
 
-.subtitle a:hover {
+.tagline a:hover {
   color: var(--primary);
 }
 
@@ -103,6 +101,9 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
+  /* Sticky footer: pushed to the bottom when decks are few, flows normally when
+     the grid overflows the viewport. */
+  margin-top: auto;
 }
 
 .buyGame {

@@ -1,0 +1,45 @@
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+/* One cream panel, the same family as the page, sitting a touch proud of it.
+   Inactive keys lie flush; only the selected key is carved in. */
+.set {
+  display: inline-flex;
+  border-radius: 12px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ink) 3%, var(--bg));
+  box-shadow: 0 1px 2px rgba(43, 45, 66, 0.1);
+}
+
+.chip {
+  border: none;
+  border-radius: 0;
+  padding: 8px 15px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+}
+
+.chip + .chip {
+  border-left: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.chip:hover {
+  color: var(--ink);
+  filter: none;
+}
+
+/* The pressed-in key: darker cream, sunk below the panel, dark bold label. */
+.active,
+.active:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 9%, var(--bg));
+  box-shadow: inset 0 2px 4px rgba(43, 45, 66, 0.18);
+}

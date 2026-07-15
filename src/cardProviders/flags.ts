@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const flags: CardProvider = { id: 'flags', label: 'Flags', group: 'icons', icon: '🌍', description: 'Country flags from around the world', fetch }
+export const flags: CardProvider = { id: 'flags', label: 'Flags', group: 'symbols', difficulty: 'brutal', icon: '🌍', description: 'Country flags from around the world', fetch }
 
 const FLAGS: [string, string][] = [
   ['🇬🇧', 'United Kingdom'], ['🇫🇷', 'France'], ['🇩🇪', 'Germany'], ['🇮🇹', 'Italy'],
