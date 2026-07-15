@@ -6,7 +6,7 @@ export const things: CardProvider = {
   id: 'things',
   label: 'Things',
   group: 'photos',
-  difficulty: 'casual',
+  difficulty: 'tough',
   icon: '🧩',
   description: 'Concrete, easily-named everyday objects',
   source: 'Pexels',

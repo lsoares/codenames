@@ -62,6 +62,7 @@ async function fetch(): Promise<Face[]> {
     url: `https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@${version}/color/618x618/${entry.hexcode}.png`,
     fit: 'contain',
     tooltip: entry.annotation,
+    link: `https://openmoji.org/library/emoji-${entry.hexcode}/`,
   }))
 }
 
