@@ -11,7 +11,7 @@ const COMPOSITION: Composition = { startingAgents: 9, otherAgents: 8, neutrals: 
 
 export const geeks: Deck = {
   id: 'geeks',
-  label: 'Words 🤓',
+  label: 'Tech Words',
   group: 'words',
   difficulty: 'tough',
   icon: '💻',
