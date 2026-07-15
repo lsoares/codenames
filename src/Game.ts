@@ -27,7 +27,7 @@ export const UNLIMITED_CLUE = -1
 
 export const unlimitedClueHint = (zero: boolean): string =>
   zero
-    ? 'Zero: none of these cards match the clue, so your team may keep guessing until they miss.'
+    ? 'Zero: the clue points to cards to avoid. None of yours match, so keep guessing the others until you miss.'
     : 'Unlimited: your team may guess as many cards as they like, until they miss.'
 
 export interface GameState {
