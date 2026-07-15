@@ -8,7 +8,7 @@ export const albums: CardProvider = {
   group: 'culture', difficulty: 'brutal',
   icon: '💿',
   description: 'Cover art from electronic, jazz and experimental records',
-  credit: { label: 'iTunes', url: 'https://www.apple.com/itunes' },
+  source: 'iTunes', sourceUrl: 'https://www.apple.com/itunes',
   fetch,
 }
 

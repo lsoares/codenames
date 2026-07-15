@@ -7,7 +7,7 @@ export const tarot: CardProvider = {
   label: 'Tarot', group: 'culture', difficulty: 'brutal',
   icon: '🔮',
   description: 'The 78-card Rider–Waite tarot deck',
-  credit: { label: 'tarotcardapi', url: 'https://github.com/krates98/tarotcardapi' },
+  source: 'tarotcardapi', sourceUrl: 'https://github.com/krates98/tarotcardapi',
   portrait: true,
   fetch,
 }

@@ -7,7 +7,7 @@ export const dreams: CardProvider = {
   label: 'Dreams', group: 'abstract', difficulty: 'tough',
   icon: '💭',
   description: 'GAN-dreamed artworks that never existed',
-  credit: { label: 'This Image Does Not Exist', url: 'https://thisimagedoesnotexist.com' },
+  source: 'This Image Does Not Exist', sourceUrl: 'https://thisimagedoesnotexist.com',
   fetch,
 }
 

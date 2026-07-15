@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { datamuseWords, dictionaryLink, shuffle } from './words'
 
-export const geeks: CardProvider = { id: 'geeks', label: 'Words 🤓', group: 'words', difficulty: 'tough', icon: '💻', description: 'Programming and tech words', credit: { label: 'Stack Overflow', url: 'https://stackoverflow.com' }, fetch }
+export const geeks: CardProvider = { id: 'geeks', label: 'Words 🤓', group: 'words', difficulty: 'tough', icon: '💻', description: 'Programming and tech words', source: 'Stack Overflow', sourceUrl: 'https://stackoverflow.com', fetch }
 
 const GEEK_SEEDS = [
   'computer', 'software', 'hardware', 'internet', 'programming', 'network',

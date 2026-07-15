@@ -7,7 +7,7 @@ export const generated: CardProvider = {
   label: 'Pictures+', group: 'abstract', difficulty: 'casual',
   icon: '🗿',
   description: 'AI-drawn cards that fuse two unrelated things into one picture',
-  credit: { label: 'Stable Diffusion XL', url: 'https://stability.ai/stable-diffusion' },
+  source: 'Stable Diffusion XL', sourceUrl: 'https://stability.ai/stable-diffusion',
   fetch,
 }
 

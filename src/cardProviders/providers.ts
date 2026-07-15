@@ -10,6 +10,7 @@ import { geeks } from './geeks'
 import { games } from './games'
 import { things } from './things'
 import { emojis } from './emojis'
+import { doodles } from './doodles'
 import { flags } from './flags'
 import { abstract } from './abstract'
 import { abstractArt } from './abstractArt'
@@ -34,16 +35,18 @@ export interface CardProvider {
   description: string
   group: 'words' | 'photos' | 'abstract' | 'symbols' | 'culture'
   difficulty: 'casual' | 'tough' | 'brutal'
-  credit?: Credit
+  source?: string
+  sourceUrl?: string
   portrait?: boolean
   fetch: () => Promise<Face[]>
 }
 
-export const providers: CardProvider[] = [officialWords, official, generated, words, geeks, unsplash, pexels, abstract, picbreeder, dreams, abstractArt, memes, things, icons, gcpIcons, carLogos, games, emojis, flags, cats, dogs, foodish, albums, tmdb, pokemon, tarot]
+export const providers: CardProvider[] = [officialWords, official, generated, words, geeks, unsplash, pexels, abstract, picbreeder, dreams, abstractArt, memes, things, icons, gcpIcons, carLogos, games, emojis, doodles, flags, cats, dogs, foodish, albums, tmdb, pokemon, tarot]
 
 export async function getFaces(
   providerId: string,
 ): Promise<{ faces: Face[]; credit: Credit | null; deck: string }> {
   const provider = providers.find((p) => p.id === providerId) ?? unsplash
-  return { faces: await provider.fetch(), credit: provider.credit ?? null, deck: provider.label }
+  const credit = provider.source ? { label: provider.source, url: provider.sourceUrl ?? '' } : null
+  return { faces: await provider.fetch(), credit, deck: provider.label }
 }

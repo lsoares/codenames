@@ -7,7 +7,7 @@ export const official: CardProvider = {
   label: 'Pictures', group: 'abstract', difficulty: 'casual',
   icon: '🕵️',
   description: 'The official Codenames Pictures cards',
-  credit: { label: 'Codenames Pictures', url: 'https://czechgames.com/en/codenames-pictures/' },
+  source: 'Codenames Pictures', sourceUrl: 'https://czechgames.com/en/codenames-pictures/',
   fetch,
 }
 

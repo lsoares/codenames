@@ -6,7 +6,7 @@ export const pokemon: CardProvider = {
   label: 'Pokémon', group: 'culture', difficulty: 'tough',
   icon: '⚡',
   description: 'Official Pokémon artwork',
-  credit: { label: 'PokéAPI', url: 'https://pokeapi.co' },
+  source: 'PokéAPI', sourceUrl: 'https://pokeapi.co',
   fetch,
 }
 

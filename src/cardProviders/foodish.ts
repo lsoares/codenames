@@ -1,7 +1,7 @@
 import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 
-export const foodish: CardProvider = { id: 'foodish', label: 'Food', group: 'photos', difficulty: 'brutal', icon: '🍔', description: 'Photos of tasty dishes', credit: { label: 'Foodish', url: 'https://foodish-api.com' }, fetch }
+export const foodish: CardProvider = { id: 'foodish', label: 'Food', group: 'photos', difficulty: 'brutal', icon: '🍔', description: 'Photos of tasty dishes', source: 'Foodish', sourceUrl: 'https://foodish-api.com', fetch }
 
 interface FoodishImage {
   image: string

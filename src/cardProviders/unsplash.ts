@@ -6,7 +6,7 @@ export const unsplash: CardProvider = {
   label: 'Random', group: 'photos', difficulty: 'tough',
   icon: '📷',
   description: 'Random photos from Unsplash',
-  credit: { label: 'Unsplash', url: 'https://unsplash.com' },
+  source: 'Unsplash', sourceUrl: 'https://unsplash.com',
   fetch,
 }
 

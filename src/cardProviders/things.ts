@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const things: CardProvider = { id: 'things', label: 'Things', group: 'photos', difficulty: 'casual', icon: '🧩', description: 'Concrete, easily-named everyday objects', credit: { label: 'Pexels', url: 'https://www.pexels.com' }, fetch }
+export const things: CardProvider = { id: 'things', label: 'Things', group: 'photos', difficulty: 'casual', icon: '🧩', description: 'Concrete, easily-named everyday objects', source: 'Pexels', sourceUrl: 'https://www.pexels.com', fetch }
 
 const CATEGORIES = [
   'animal', 'fruit', 'vegetable', 'flower', 'tree', 'vehicle', 'tool', 'instrument',

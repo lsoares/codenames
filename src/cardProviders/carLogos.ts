@@ -6,7 +6,7 @@ export const carLogos: CardProvider = {
   label: 'Car Logos', group: 'symbols', difficulty: 'brutal',
   icon: '🚗',
   description: 'Automobile brand logos from around the world',
-  credit: { label: 'car-logos-dataset', url: 'https://github.com/filippofilip95/car-logos-dataset' },
+  source: 'car-logos-dataset', sourceUrl: 'https://github.com/filippofilip95/car-logos-dataset',
   fetch,
 }
 

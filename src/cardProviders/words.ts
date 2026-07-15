@@ -37,7 +37,7 @@ export const words: CardProvider = {
   label: 'Words+', group: 'words', difficulty: 'casual',
   icon: '🔤',
   description: 'Fresh everyday nouns generated from Datamuse',
-  credit: { label: 'Datamuse', url: 'https://www.datamuse.com/api/' },
+  source: 'Datamuse', sourceUrl: 'https://www.datamuse.com/api/',
   fetch: (): Promise<Face[]> =>
     datamuseWords().then((words) => words.map((word) => ({ kind: 'text', text: word, link: dictionaryLink(word) }))),
 }

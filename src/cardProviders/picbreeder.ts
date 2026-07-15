@@ -6,7 +6,7 @@ export const picbreeder: CardProvider = {
   label: 'Picbreeder', group: 'abstract', difficulty: 'brutal',
   icon: '🧬',
   description: 'CPPN-evolved images bred by the Picbreeder community',
-  credit: { label: 'Picbreeder', url: 'https://picbreeder.net' },
+  source: 'Picbreeder', sourceUrl: 'https://picbreeder.net',
   fetch,
 }
 

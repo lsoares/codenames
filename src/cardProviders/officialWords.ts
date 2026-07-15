@@ -7,7 +7,7 @@ export const officialWords: CardProvider = {
   label: 'Words', group: 'words', difficulty: 'casual',
   icon: '📝',
   description: 'The official Codenames word list',
-  credit: { label: 'Codenames', url: 'https://czechgames.com/en/codenames/' },
+  source: 'Codenames', sourceUrl: 'https://czechgames.com/en/codenames/',
   fetch,
 }
 

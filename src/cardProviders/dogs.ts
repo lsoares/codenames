@@ -7,7 +7,7 @@ export const dogs: CardProvider = {
   label: "Dogs", group: 'photos', difficulty: 'brutal',
   icon: "🐶",
   description: "Dogs acting out HTTP status codes",
-  credit: { label: "HTTP Dogs", url: "https://http.dog" },
+  source: "HTTP Dogs", sourceUrl: "https://http.dog",
   fetch,
 };
 

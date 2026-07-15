@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const memes: CardProvider = { id: 'memes', label: 'Memes', group: 'culture', difficulty: 'tough', icon: '😂', description: 'Popular meme templates', credit: { label: 'Imgflip', url: 'https://imgflip.com' }, fetch }
+export const memes: CardProvider = { id: 'memes', label: 'Memes', group: 'culture', difficulty: 'tough', icon: '😂', description: 'Popular meme templates', source: 'Imgflip', sourceUrl: 'https://imgflip.com', fetch }
 
 interface Meme {
   name: string
