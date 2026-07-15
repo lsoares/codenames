@@ -339,7 +339,7 @@ export default function App() {
           moles={moles}
           onWhack={(moleId, reactionMs) => sessionRef.current?.whack(moleId, reactionMs)}
           loadingFaces={loadingFaces}
-          providers={deckProviders}
+          providers={providers}
         />
       ) : status ? (
         <div className={styles.status} role="status">
@@ -361,7 +361,7 @@ export default function App() {
         </div>
       ) : (
         <Homepage
-          providers={deckProviders}
+          providers={providers}
           onPick={(id) => {
             if (game) {
               sessionRef.current?.setRepicking(null)
@@ -386,10 +386,6 @@ export default function App() {
     </>
   )
 }
-
-const deckProviders = new URLSearchParams(window.location.search).has('official')
-  ? providers
-  : providers.filter((provider) => provider.id !== 'official')
 
 const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
 
