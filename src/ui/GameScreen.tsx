@@ -302,7 +302,9 @@ export default function GameScreen(props: {
       : mineTurn
         ? props.mySeat
           ? `Your operatives' turn (${turn})`
-          : `Your turn (${turn})`
+          : onBonus && !isUnlimitedClue
+            ? 'One more guess?'
+            : `Your turn (${turn})`
         : `Their operatives' turn (${turn})`
 
   const centerText = props.flash
@@ -399,10 +401,6 @@ export default function GameScreen(props: {
                 >
                   {clueCountLabel(clue.count)}
                 </span>
-              ) : onBonus && guessingNow ? (
-                <span className={styles.oneMore} role="status">
-                  One more guess?
-                </span>
               ) : (
                 (() => {
                   const pipTotal = guessingNow ? clue.count : guessesShown
@@ -425,18 +423,18 @@ export default function GameScreen(props: {
                   )
                 })()
               )}
-              {acting === 'operatives' && mineTurn && props.mySeat === null && (
-                <button
-                  type="button"
-                  className={onBonus ? styles.noMore : styles.pass}
-                  onClick={() => props.onAction({ type: 'endTurn' })}
-                  aria-label="Pass"
-                  title="Pass"
-                >
-                  {onBonus ? 'No' : '✕'}
-                </button>
-              )}
             </span>
+          )}
+          {acting === 'operatives' && mineTurn && props.mySeat === null && (
+            <button
+              type="button"
+              className={styles.pass}
+              onClick={() => props.onAction({ type: 'endTurn' })}
+              aria-label="Pass"
+              title="Pass"
+            >
+              Pass
+            </button>
           )}
         </>
       )}
