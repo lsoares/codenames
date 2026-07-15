@@ -269,6 +269,12 @@ button.spymasterSlot[data-mine] {
   justify-self: center;
 }
 
+.menuRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .statusPill {
   display: inline-flex;
   flex-wrap: wrap;

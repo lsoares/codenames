@@ -479,9 +479,11 @@ export default function GameScreen(props: {
 
   const center = (
     <div className={styles.menu}>
-      {moles.hud}
       {props.roster.stillGathering() && <RoomInvite />}
-      {clueForm || repickBanner || (showStatus ? statusPill : null)}
+      <div className={styles.menuRow}>
+        {moles.hud}
+        {clueForm || repickBanner || (showStatus ? statusPill : null)}
+      </div>
     </div>
   )
 
