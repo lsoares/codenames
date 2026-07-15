@@ -1,4 +1,4 @@
-import type { Deck } from '../cardProviders/providers'
+import type { Deck } from '../decks'
 import styles from './DeckFilters.module.css'
 
 export interface DeckFilter {

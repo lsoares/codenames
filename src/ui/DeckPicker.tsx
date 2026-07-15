@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Deck } from '../cardProviders/providers'
+import type { Deck } from '../decks'
 import type { DeckFilter } from './DeckFilters'
 import styles from './DeckPicker.module.css'
 

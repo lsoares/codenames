@@ -1,7 +1,7 @@
 import { type DataConnection } from 'peerjs'
 import type { Face } from '../Face'
 import { Game, createGame, type GameState } from '../Game'
-import { findDeck, creditOf, type Deck } from '../cardProviders/providers'
+import { findDeck, creditOf, type Deck } from '../decks'
 import { MolesHost } from '../moles/MolesHost'
 import { Room } from './Room'
 import { iceServersReady, logConnection, newPeer } from './peer'

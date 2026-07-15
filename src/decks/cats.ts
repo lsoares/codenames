@@ -1,16 +1,16 @@
 import type { Face } from '../Face'
-import type { Deck } from './providers'
+import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
-export const dogs: Deck = {
-  id: 'dogs',
-  label: 'Dogs',
+export const cats: Deck = {
+  id: 'cats',
+  label: 'Cats',
   group: 'photos',
   difficulty: 'brutal',
-  icon: '🐶',
-  description: 'Dogs acting out HTTP status codes',
-  source: 'HTTP Dogs',
-  sourceUrl: 'https://http.dog',
+  icon: '🐱',
+  description: 'Cats acting out HTTP status codes',
+  source: 'HTTP Cats',
+  sourceUrl: 'https://http.cat',
   fetch,
 }
 
@@ -82,10 +82,10 @@ async function fetch(): Promise<Face[]> {
     .slice(0, 20)
     .map(([code, title]) => ({
       kind: 'image',
-      url: `https://http.dog/${code}.jpg`,
+      url: `https://http.cat/${code}.jpg`,
       fit: 'framed',
-      trim: 5,
+      trim: 8,
       tooltip: title,
-      link: `https://http.dog/${code}`,
+      link: `https://http.cat/status/${code}`,
     }))
 }

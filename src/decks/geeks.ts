@@ -1,8 +1,11 @@
 import type { Face } from '../Face'
-import type { Deck } from './providers'
+import type { Deck } from './deck'
 import { boardSize, type Composition } from '../Game'
-import { datamuseWords, dictionaryLink } from './words'
+import { datamuseWords } from './words'
 import { shuffle } from '../shuffle'
+
+const dictionaryLink = (word: string): string =>
+  `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
 
 const COMPOSITION: Composition = { startingAgents: 9, otherAgents: 8, neutrals: 7, assassins: 1 }
 

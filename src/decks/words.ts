@@ -1,9 +1,9 @@
 import type { Face } from '../Face'
-import type { Deck } from './providers'
+import type { Deck } from './deck'
 import { boardSize, type Composition } from '../Game'
 import { shuffle } from '../shuffle'
 
-export const dictionaryLink = (word: string): string =>
+const dictionaryLink = (word: string): string =>
   `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
 
 export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]> {

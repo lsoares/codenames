@@ -1,5 +1,5 @@
 import type { Face } from '../Face'
-import type { Deck } from './providers'
+import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
 export const official: Deck = {

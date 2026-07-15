@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Deck } from '../cardProviders/providers'
+import type { Deck } from '../decks'
 import DeckPicker from './DeckPicker'
 import DeckFilters, { type DeckFilter } from './DeckFilters'
 import HowToPlay from './HowToPlay'

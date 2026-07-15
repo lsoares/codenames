@@ -24,21 +24,10 @@ import { albums } from './albums'
 import { official } from './official'
 import { generated } from './generated'
 import { officialWords } from './officialWords'
-import type { Face } from '../Face'
-import type { Composition, Credit } from '../Game'
+import type { Credit } from '../Game'
+import type { Deck } from './deck'
 
-export interface Deck {
-  id: string
-  label: string
-  icon: string
-  description: string
-  group: 'words' | 'photos' | 'abstract' | 'symbols' | 'culture'
-  difficulty: 'casual' | 'tough' | 'brutal'
-  source?: string
-  sourceUrl?: string
-  composition?: Composition
-  fetch: () => Promise<Face[]>
-}
+export type { Deck }
 
 export const decks: Deck[] = [
   officialWords,
