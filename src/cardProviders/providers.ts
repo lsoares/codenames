@@ -41,7 +41,35 @@ export interface CardProvider {
   fetch: () => Promise<Face[]>
 }
 
-export const providers: CardProvider[] = [officialWords, official, generated, words, geeks, unsplash, pexels, abstract, picbreeder, dreams, abstractArt, memes, things, icons, gcpIcons, carLogos, games, emojis, doodles, flags, cats, dogs, foodish, albums, tmdb, pokemon, tarot]
+export const providers: CardProvider[] = [
+  officialWords,
+  official,
+  generated,
+  words,
+  geeks,
+  unsplash,
+  pexels,
+  abstract,
+  picbreeder,
+  dreams,
+  abstractArt,
+  memes,
+  things,
+  icons,
+  gcpIcons,
+  carLogos,
+  games,
+  emojis,
+  doodles,
+  flags,
+  cats,
+  dogs,
+  foodish,
+  albums,
+  tmdb,
+  pokemon,
+  tarot,
+]
 
 export async function getFaces(
   providerId: string,

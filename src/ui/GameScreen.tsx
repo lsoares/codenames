@@ -149,7 +149,9 @@ export default function GameScreen(props: {
         {spymasterEmoji[team]}
       </span>
     ) : (
-      <span aria-hidden="true" className={styles.spymasterDim}>{spymasterEmoji[team]}</span>
+      <span aria-hidden="true" className={styles.spymasterDim}>
+        {spymasterEmoji[team]}
+      </span>
     )
     const spymasterLabel = hasSpymaster
       ? `Replace the ${team} spymaster`
@@ -161,11 +163,7 @@ export default function GameScreen(props: {
         data-turn={active || undefined}
         title={active ? `${team}'s turn` : undefined}
       >
-        <span
-          className={styles.count}
-          data-team={team}
-          title={`${team} cards left to guess`}
-        >
+        <span className={styles.count} data-team={team} title={`${team} cards left to guess`}>
           {props.game.remaining(team)}
         </span>
         <span
@@ -194,7 +192,11 @@ export default function GameScreen(props: {
               {spymasterFace}
             </span>
           )}
-          <span className={styles.ops} data-team={team} data-active={(active && acting === 'operatives') || undefined}>
+          <span
+            className={styles.ops}
+            data-team={team}
+            data-active={(active && acting === 'operatives') || undefined}
+          >
             {opPlayers.map((player) => (
               <span
                 key={player.id}
@@ -202,7 +204,9 @@ export default function GameScreen(props: {
                 className={styles.op}
                 data-team={team}
                 data-mine={player.id === props.selfId || undefined}
-                aria-label={player.id === props.selfId ? `${team} operative (you)` : `${team} operative`}
+                aria-label={
+                  player.id === props.selfId ? `${team} operative (you)` : `${team} operative`
+                }
               >
                 {player.emoji}
               </span>
@@ -312,7 +316,8 @@ export default function GameScreen(props: {
 
     const role = winner === props.myTeam ? '🏆' : props.mySeat ? spymasterEmoji[props.mySeat] : ''
     const colorVar = props.myTeam === 'red' ? '--red' : '--blue'
-    const color = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim() || '#888'
+    const color =
+      getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim() || '#888'
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="${color}"/><text x="16" y="25" font-size="22" text-anchor="middle">${role}</text></svg>`
     let icon = document.querySelector('link[rel="icon"]')
     if (!icon) {
@@ -327,7 +332,8 @@ export default function GameScreen(props: {
     }
   }, [centerText, props.myTeam, props.mySeat, winner])
 
-  const myMove = !winner && mineTurn && (acting === 'spymaster' ? activeSpymaster : !activeSpymaster)
+  const myMove =
+    !winner && mineTurn && (acting === 'spymaster' ? activeSpymaster : !activeSpymaster)
 
   useEffect(() => {
     if (!myMove) return
@@ -358,118 +364,119 @@ export default function GameScreen(props: {
   const repickBanner = props.repicking && (
     <div className={styles.statusPill} data-team={props.repicking}>
       <span className={styles.statusText}>
-        {spymasterEmoji[props.repicking]} {props.repicking.charAt(0).toUpperCase() + props.repicking.slice(1)}
+        {spymasterEmoji[props.repicking]}{' '}
+        {props.repicking.charAt(0).toUpperCase() + props.repicking.slice(1)}
         's spymaster is choosing a new deck…
       </span>
     </div>
   )
 
   const statusPill = (
-        <div
-          className={styles.statusPill}
-          data-team={props.flash ? (props.flash.team ?? undefined) : (winner ?? turn)}
-          data-host={props.isHost || undefined}
-        >
-          {props.flash ? (
-            <span key={props.flash.text} className={styles.statusText} role="status">
-              {props.flash.emoji && <span className={styles.flashEmoji}>{props.flash.emoji}</span>}
-              {props.flash.text}
-            </span>
-          ) : (
-            <>
-              <span key={statusText} className={styles.statusText}>
-                {statusText}
-              </span>
-              {!winner && phase === 'guess' && clue && (
-                <span className={styles.clueInline}>
-                  <strong className={styles.clueWord}>{clue.word}</strong>
-                  {isUnlimitedClue ? (
-                    <span
-                      className={styles.clueInfinity}
-                      role="img"
-                      aria-label={clue.count === 0 ? 'zero — unlimited guesses' : 'unlimited guesses'}
-                      title={clueCountLabel(clue.count)}
-                    >
-                      {clueCountLabel(clue.count)}
-                    </span>
-                  ) : onBonus && guessingNow ? (
-                    <span className={styles.oneMore} role="status">
-                      One more guess?
-                    </span>
-                  ) : (
-                    (() => {
-                      const pipTotal = guessingNow ? clue.count : guessesShown
-                      return (
-                        <span
-                          className={styles.pips}
-                          role="img"
-                          aria-label={`${guessesUsed} used out of ${pipTotal}`}
-                          title={`${guessesUsed} used out of ${pipTotal}`}
-                        >
-                          {Array.from({ length: pipTotal }, (_, i) => (
-                            <span
-                              key={i}
-                              className={styles.pip}
-                              data-spent={i < guessesUsed || undefined}
-                              data-bonus={(!guessingNow && i === clue.count) || undefined}
-                            />
-                          ))}
-                        </span>
-                      )
-                    })()
-                  )}
-                  {acting === 'operatives' && mineTurn && props.mySeat === null && (
-                    <button
-                      type="button"
-                      className={onBonus ? styles.noMore : styles.pass}
-                      onClick={() => props.onAction({ type: 'endTurn' })}
-                      aria-label="Pass"
-                      title="Pass"
-                    >
-                      {onBonus ? 'No' : '✕'}
-                    </button>
-                  )}
+    <div
+      className={styles.statusPill}
+      data-team={props.flash ? (props.flash.team ?? undefined) : (winner ?? turn)}
+      data-host={props.isHost || undefined}
+    >
+      {props.flash ? (
+        <span key={props.flash.text} className={styles.statusText} role="status">
+          {props.flash.emoji && <span className={styles.flashEmoji}>{props.flash.emoji}</span>}
+          {props.flash.text}
+        </span>
+      ) : (
+        <>
+          <span key={statusText} className={styles.statusText}>
+            {statusText}
+          </span>
+          {!winner && phase === 'guess' && clue && (
+            <span className={styles.clueInline}>
+              <strong className={styles.clueWord}>{clue.word}</strong>
+              {isUnlimitedClue ? (
+                <span
+                  className={styles.clueInfinity}
+                  role="img"
+                  aria-label={clue.count === 0 ? 'zero — unlimited guesses' : 'unlimited guesses'}
+                  title={clueCountLabel(clue.count)}
+                >
+                  {clueCountLabel(clue.count)}
                 </span>
+              ) : onBonus && guessingNow ? (
+                <span className={styles.oneMore} role="status">
+                  One more guess?
+                </span>
+              ) : (
+                (() => {
+                  const pipTotal = guessingNow ? clue.count : guessesShown
+                  return (
+                    <span
+                      className={styles.pips}
+                      role="img"
+                      aria-label={`${guessesUsed} used out of ${pipTotal}`}
+                      title={`${guessesUsed} used out of ${pipTotal}`}
+                    >
+                      {Array.from({ length: pipTotal }, (_, i) => (
+                        <span
+                          key={i}
+                          className={styles.pip}
+                          data-spent={i < guessesUsed || undefined}
+                          data-bonus={(!guessingNow && i === clue.count) || undefined}
+                        />
+                      ))}
+                    </span>
+                  )
+                })()
               )}
-            </>
-          )}
-          {winner && props.mySeat && (
-            <span className={styles.endActions}>
-              <button
-                type="button"
-                className={styles.endAction}
-                onClick={() => dealNewCards(true)}
-                aria-label="New game"
-                title="New game"
-              >
-                🔀
-              </button>
-              <button type="button" className={styles.endAction} onClick={changeDeck}>
-                Change deck
-              </button>
+              {acting === 'operatives' && mineTurn && props.mySeat === null && (
+                <button
+                  type="button"
+                  className={onBonus ? styles.noMore : styles.pass}
+                  onClick={() => props.onAction({ type: 'endTurn' })}
+                  aria-label="Pass"
+                  title="Pass"
+                >
+                  {onBonus ? 'No' : '✕'}
+                </button>
+              )}
             </span>
           )}
-          {winner && (
-            <span className={styles.endLinks}>
-                <a
-                  className={styles.endLink}
-                  href="https://czechgames.com/en/codenames-pictures/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  🛒 Buy the game
-                </a>
-                <a
-                  className={styles.endLink}
-                  href="https://www.buymeacoffee.com/lsoares"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  ☕ Buy me a coffee
-                </a>
-            </span>
-          )}
-        </div>
+        </>
+      )}
+      {winner && props.mySeat && (
+        <span className={styles.endActions}>
+          <button
+            type="button"
+            className={styles.endAction}
+            onClick={() => dealNewCards(true)}
+            aria-label="New game"
+            title="New game"
+          >
+            🔀
+          </button>
+          <button type="button" className={styles.endAction} onClick={changeDeck}>
+            Change deck
+          </button>
+        </span>
+      )}
+      {winner && (
+        <span className={styles.endLinks}>
+          <a
+            className={styles.endLink}
+            href="https://czechgames.com/en/codenames-pictures/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            🛒 Buy the game
+          </a>
+          <a
+            className={styles.endLink}
+            href="https://www.buymeacoffee.com/lsoares"
+            target="_blank"
+            rel="noreferrer"
+          >
+            ☕ Buy me a coffee
+          </a>
+        </span>
+      )}
+    </div>
   )
 
   // While gathering, the turn/"thinking" status is just noise next to the
@@ -490,7 +497,9 @@ export default function GameScreen(props: {
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
-        <div className={styles.headerSide} data-side="left">{renderSide('red')}</div>
+        <div className={styles.headerSide} data-side="left">
+          {renderSide('red')}
+        </div>
         {center}
         <div className={styles.headerSide} data-side="right">
           {renderSide('blue')}
@@ -510,7 +519,9 @@ export default function GameScreen(props: {
           onToggleSelect={toggleSelected}
           onClearSelection={clearSelected}
           onCardClick={(index) => props.onAction({ type: 'guess', cardIndex: index })}
-          onCardMark={(index) => props.onAction({ type: 'toggleMark', cardIndex: index, team: props.myTeam })}
+          onCardMark={(index) =>
+            props.onAction({ type: 'toggleMark', cardIndex: index, team: props.myTeam })
+          }
           overlay={moles.overlayFor}
           bare={props.moles !== null && !(acting === 'spymaster' && activeSpymaster)}
         />

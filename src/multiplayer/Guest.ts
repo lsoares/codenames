@@ -2,10 +2,7 @@ import { type DataConnection } from 'peerjs'
 import { iceServersReady, logConnection, newPeer, resetTabPeerId, tabPeerId } from './peer'
 import type { Action, Ping, Presence, Repick, RoomView, Session, TeamClaim, Whack } from './Session'
 
-export type JoinFailureReason =
-  | 'room-not-found'
-  | 'broker-unreachable'
-  | 'connection-blocked'
+export type JoinFailureReason = 'room-not-found' | 'broker-unreachable' | 'connection-blocked'
 
 export class JoinError extends Error {
   constructor(readonly reason: JoinFailureReason) {
@@ -166,7 +163,8 @@ export class Guest implements Session {
           if (error.type === 'peer-unavailable') {
             phase = 'room-not-found'
             if (!waitForHost) return fail('room-not-found')
-            if (!missingTimer) missingTimer = setTimeout(() => fail('room-not-found'), hostMissingMs())
+            if (!missingTimer)
+              missingTimer = setTimeout(() => fail('room-not-found'), hostMissingMs())
             redial(this.connection)
           } else {
             if (error.type === 'unavailable-id') resetTabPeerId()
@@ -189,8 +187,7 @@ export class Guest implements Session {
   }
 }
 
-const joinWindowMs = (): number =>
-  Number(localStorage.getItem('codenames:join-window-ms')) || 15000
+const joinWindowMs = (): number => Number(localStorage.getItem('codenames:join-window-ms')) || 15000
 
 const hostMissingMs = (): number =>
   Number(localStorage.getItem('codenames:host-missing-ms')) || 5000

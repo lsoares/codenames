@@ -2,16 +2,38 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { datamuseWords, dictionaryLink, shuffle } from './words'
 
-export const geeks: CardProvider = { id: 'geeks', label: 'Words 🤓', group: 'words', difficulty: 'tough', icon: '💻', description: 'Programming and tech words', source: 'Stack Overflow', sourceUrl: 'https://stackoverflow.com', fetch }
+export const geeks: CardProvider = {
+  id: 'geeks',
+  label: 'Words 🤓',
+  group: 'words',
+  difficulty: 'tough',
+  icon: '💻',
+  description: 'Programming and tech words',
+  source: 'Stack Overflow',
+  sourceUrl: 'https://stackoverflow.com',
+  fetch,
+}
 
 const GEEK_SEEDS = [
-  'computer', 'software', 'hardware', 'internet', 'programming', 'network',
-  'hacker', 'keyboard', 'gaming', 'science', 'database', 'security',
+  'computer',
+  'software',
+  'hardware',
+  'internet',
+  'programming',
+  'network',
+  'hacker',
+  'keyboard',
+  'gaming',
+  'science',
+  'database',
+  'security',
 ]
 
 async function stackOverflowTags(): Promise<string[]> {
   const data = await window
-    .fetch('https://api.stackexchange.com/2.3/tags?order=desc&sort=popular&site=stackoverflow&pagesize=100')
+    .fetch(
+      'https://api.stackexchange.com/2.3/tags?order=desc&sort=popular&site=stackoverflow&pagesize=100',
+    )
     .then((r) => (r.ok ? (r.json() as Promise<{ items?: { name: string }[] }>) : { items: [] }))
     .catch(() => ({ items: [] as { name: string }[] }))
   return [
@@ -24,9 +46,15 @@ async function stackOverflowTags(): Promise<string[]> {
 }
 
 async function fetch(): Promise<Face[]> {
-  const [tagList, dictionary] = await Promise.all([stackOverflowTags(), datamuseWords(20, GEEK_SEEDS)])
+  const [tagList, dictionary] = await Promise.all([
+    stackOverflowTags(),
+    datamuseWords(20, GEEK_SEEDS),
+  ])
   const sources: [string[], (word: string) => string][] = [
-    [shuffle(tagList), (word) => `https://stackoverflow.com/questions/tagged/${word.toLowerCase()}`],
+    [
+      shuffle(tagList),
+      (word) => `https://stackoverflow.com/questions/tagged/${word.toLowerCase()}`,
+    ],
     [dictionary, dictionaryLink],
   ]
   const board = new Map<string, string>()

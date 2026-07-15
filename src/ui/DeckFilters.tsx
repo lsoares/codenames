@@ -6,7 +6,10 @@ export interface DeckFilter {
   difficulty: CardProvider['difficulty'] | null
 }
 
-export default function DeckFilters(props: { value: DeckFilter; onChange: (filter: DeckFilter) => void }) {
+export default function DeckFilters(props: {
+  value: DeckFilter
+  onChange: (filter: DeckFilter) => void
+}) {
   const category = (group: CardProvider['group']) => {
     const active = props.value.group === group
     return (

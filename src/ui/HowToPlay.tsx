@@ -22,7 +22,12 @@ export default function HowToPlay() {
           if (event.target === dialog.current) dialog.current.close()
         }}
       >
-        <button type="button" className={styles.close} aria-label="Close" onClick={() => dialog.current?.close()}>
+        <button
+          type="button"
+          className={styles.close}
+          aria-label="Close"
+          onClick={() => dialog.current?.close()}
+        >
           ✕
         </button>
         <h2 className={styles.heading}>How to play</h2>
@@ -51,8 +56,8 @@ export default function HowToPlay() {
                   ))}
                 </div>
                 <span className={styles.compo}>
-                  20 agent cards (<span className={styles.blue}>7 blue</span>, <span className={styles.red}>8 red</span>,
-                  4 bystanders, 1 assassin)
+                  20 agent cards (<span className={styles.blue}>7 blue</span>,{' '}
+                  <span className={styles.red}>8 red</span>, 4 bystanders, 1 assassin)
                 </span>
               </div>
               <div className={styles.team} data-team="blue" aria-hidden="true">
@@ -70,7 +75,7 @@ export default function HowToPlay() {
               </div>
             </div>
             <p className={styles.caption}>
-Players join <strong>two teams</strong> — <span className={styles.red}>red</span> and{' '}
+              Players join <strong>two teams</strong> — <span className={styles.red}>red</span> and{' '}
               <span className={styles.blue}>blue</span> (<strong>4+ players</strong>). Only the{' '}
               <strong>spymasters see the colors</strong>.
             </p>
@@ -80,56 +85,67 @@ Players join <strong>two teams</strong> — <span className={styles.red}>red</sp
             <span className={styles.cycleTag}>↻ One team at a time</span>
             <div className={styles.beats}>
               <div className={`${styles.strip} ${styles.intro}`}>
-              <div className={`${styles.panel} ${styles.wide}`}>
-                <div className={styles.board} aria-hidden="true">
-                  {BOARD.map((color, i) => (
-                    <span key={i} className={styles.chip} data-color={color} data-clued={CLUED.has(i) || undefined} />
-                  ))}
+                <div className={`${styles.panel} ${styles.wide}`}>
+                  <div className={styles.board} aria-hidden="true">
+                    {BOARD.map((color, i) => (
+                      <span
+                        key={i}
+                        className={styles.chip}
+                        data-color={color}
+                        data-clued={CLUED.has(i) || undefined}
+                      />
+                    ))}
+                  </div>
+                  <div className={styles.clueSource} aria-hidden="true">
+                    <span className={styles.thinker}>
+                      <span className={`${styles.person} ${styles.spy} ${styles.clueSpy}`}>🕵️</span>
+                      <span className={styles.think}>💭</span>
+                    </span>
+                    <span className={styles.cluePill}>
+                      OCEAN <b>2</b>
+                    </span>
+                  </div>
                 </div>
-                <div className={styles.clueSource} aria-hidden="true">
-                  <span className={styles.thinker}>
-                    <span className={`${styles.person} ${styles.spy} ${styles.clueSpy}`}>🕵️</span>
-                    <span className={styles.think}>💭</span>
-                  </span>
-                  <span className={styles.cluePill}>
-                    OCEAN <b>2</b>
-                  </span>
-                </div>
+                <p className={styles.caption}>
+                  <span className={styles.title}>Phase 1: Spymaster's clue</span>Gives{' '}
+                  <strong>one word + a number</strong>, pointing at that many of their cards.
+                  <span className={styles.aside}>The word links the cards.</span>
+                </p>
               </div>
-              <p className={styles.caption}>
-                <span className={styles.title}>Phase 1: Spymaster's clue</span>Gives{' '}
-                <strong>one word + a number</strong>, pointing at that many of their cards.
-                <span className={styles.aside}>The word links the cards.</span>
-              </p>
-            </div>
 
-            <div className={`${styles.strip} ${styles.intro}`}>
-              <div className={`${styles.panel} ${styles.wide}`}>
-                <div className={styles.team} data-team="blue" aria-hidden="true">
-                  <span className={styles.person}>👤</span>
-                  <span className={styles.emoji}>💬</span>
-                  <span className={styles.person}>👤</span>
+              <div className={`${styles.strip} ${styles.intro}`}>
+                <div className={`${styles.panel} ${styles.wide}`}>
+                  <div className={styles.team} data-team="blue" aria-hidden="true">
+                    <span className={styles.person}>👤</span>
+                    <span className={styles.emoji}>💬</span>
+                    <span className={styles.person}>👤</span>
+                  </div>
+                  <div className={styles.board} aria-hidden="true">
+                    {FACES.map((shape, i) =>
+                      REVEALED[i] ? (
+                        <span
+                          key={i}
+                          className={`${styles.chip} ${styles.revealed}`}
+                          data-color={BOARD[i]}
+                        >
+                          {REVEALED[i]}
+                        </span>
+                      ) : (
+                        <span key={i} className={styles.faceChip}>
+                          {shape}
+                        </span>
+                      ),
+                    )}
+                  </div>
                 </div>
-                <div className={styles.board} aria-hidden="true">
-                  {FACES.map((shape, i) =>
-                    REVEALED[i] ? (
-                      <span key={i} className={`${styles.chip} ${styles.revealed}`} data-color={BOARD[i]}>
-                        {REVEALED[i]}
-                      </span>
-                    ) : (
-                      <span key={i} className={styles.faceChip}>
-                        {shape}
-                      </span>
-                    ),
-                  )}
-                </div>
+                <p className={styles.caption}>
+                  <span className={styles.title}>Phase 2: Operatives' guesses</span>They discuss,
+                  then <strong>pick cards</strong>, which reveals them.
+                  <span className={styles.aside}>
+                    A right card keeps the turn going; a wrong one ends it.
+                  </span>
+                </p>
               </div>
-              <p className={styles.caption}>
-                <span className={styles.title}>Phase 2: Operatives' guesses</span>They discuss, then{' '}
-                <strong>pick cards</strong>, which reveals them.
-                <span className={styles.aside}>A right card keeps the turn going; a wrong one ends it.</span>
-              </p>
-            </div>
             </div>
           </div>
 
@@ -139,7 +155,11 @@ Players join <strong>two teams</strong> — <span className={styles.red}>red</sp
               <div className={styles.board} aria-hidden="true">
                 {BOARD.map((color, i) =>
                   color === 'blue' ? (
-                    <span key={i} className={`${styles.chip} ${styles.revealed}`} data-color={color}>
+                    <span
+                      key={i}
+                      className={`${styles.chip} ${styles.revealed}`}
+                      data-color={color}
+                    >
                       ✓
                     </span>
                   ) : (
@@ -157,8 +177,10 @@ Players join <strong>two teams</strong> — <span className={styles.red}>red</sp
               </span>
             </div>
             <p className={styles.caption}>
-The first team to find <strong>all its agents wins</strong>.
-              <span className={styles.aside}>Touch the assassin (the black card) and you lose instantly.</span>
+              The first team to find <strong>all its agents wins</strong>.
+              <span className={styles.aside}>
+                Touch the assassin (the black card) and you lose instantly.
+              </span>
             </p>
           </div>
         </div>
@@ -177,14 +199,51 @@ The first team to find <strong>all its agents wins</strong>.
 }
 
 const BOARD = [
-  'red', 'blue', 'neutral', 'red', 'blue',
-  'blue', 'red', 'blue', 'neutral', 'red',
-  'neutral', 'blue', 'red', 'blue', 'assassin',
-  'red', 'blue', 'neutral', 'red', 'red',
+  'red',
+  'blue',
+  'neutral',
+  'red',
+  'blue',
+  'blue',
+  'red',
+  'blue',
+  'neutral',
+  'red',
+  'neutral',
+  'blue',
+  'red',
+  'blue',
+  'assassin',
+  'red',
+  'blue',
+  'neutral',
+  'red',
+  'red',
 ]
 
 const CLUED = new Set([5, 13])
 
-const FACES = ['●', '■', '▲', '◆', '★', '✚', '◇', '△', '☆', '✦', '❖', '◈', '✜', '⬟', '✱', '◔', '▰', '⬢', '✧', '◑']
+const FACES = [
+  '●',
+  '■',
+  '▲',
+  '◆',
+  '★',
+  '✚',
+  '◇',
+  '△',
+  '☆',
+  '✦',
+  '❖',
+  '◈',
+  '✜',
+  '⬟',
+  '✱',
+  '◔',
+  '▰',
+  '⬢',
+  '✧',
+  '◑',
+]
 
 const REVEALED: Record<number, string> = { 7: '✓', 10: '✕', 12: '✕' }

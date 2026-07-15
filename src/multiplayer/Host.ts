@@ -63,7 +63,13 @@ export class Host implements Session {
     deck: string,
     code?: string,
   ): Promise<Host> {
-    return Host.launch(code ?? RoomCode.random().toString(), createGame(faces, startingTeam, credit, deck), 'new', 4, code != null)
+    return Host.launch(
+      code ?? RoomCode.random().toString(),
+      createGame(faces, startingTeam, credit, deck),
+      'new',
+      4,
+      code != null,
+    )
   }
 
   static resume(roomCode: string, state: GameState): Promise<Host> {
@@ -163,7 +169,10 @@ export class Host implements Session {
         logConnection(connection)
         this.connections.push(connection)
         this.lastSeen.set(connection, Date.now())
-        this.room = this.room.assignTeam(connection.peer).assignEmoji(connection.peer).autoSeat(connection.peer)
+        this.room = this.room
+          .assignTeam(connection.peer)
+          .assignEmoji(connection.peer)
+          .autoSeat(connection.peer)
         this.broadcast()
       })
       connection.on('data', (data) => {
@@ -182,7 +191,9 @@ export class Host implements Session {
         if ((data as Presence).__presence) {
           this.room = this.room.claimSeat(connection.peer, (data as Presence).spymasterTeam)
         } else if ((data as TeamClaim).__team) {
-          this.room = this.room.setTeam(connection.peer, (data as TeamClaim).team).autoSeat(connection.peer)
+          this.room = this.room
+            .setTeam(connection.peer, (data as TeamClaim).team)
+            .autoSeat(connection.peer)
         } else {
           this.applyAction(data as Action)
         }
@@ -199,7 +210,11 @@ export class Host implements Session {
         if (this.fixedCode && this.mode === 'new') return reject(error)
         const nextCode = this.mode === 'new' ? RoomCode.random().toString() : this.code
         setTimeout(
-          () => Host.launch(nextCode, this.game.state, this.mode, retries - 1, this.fixedCode).then(resolve, reject),
+          () =>
+            Host.launch(nextCode, this.game.state, this.mode, retries - 1, this.fixedCode).then(
+              resolve,
+              reject,
+            ),
           this.mode === 'resume' ? 800 : 0,
         )
       } else {
@@ -249,7 +264,10 @@ export class Host implements Session {
           if (now - (this.lastSeen.get(connection) ?? now) > 6000) this.dropConnection(connection)
         }
       }
-      const present = new Set([this.peer.id, ...this.connections.map((connection) => connection.peer)])
+      const present = new Set([
+        this.peer.id,
+        ...this.connections.map((connection) => connection.peer),
+      ])
       const settled = this.room.freeAbsentSeats(present).fillEmptySeats(present)
       if (settled !== this.room) {
         this.room = settled

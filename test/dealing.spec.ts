@@ -6,7 +6,10 @@ test('picking a deck shows a loading spinner on its tile while dealing', async (
     await new Promise((resolve) => setTimeout(resolve, 500))
     await route.fulfill({
       json: Array.from({ length: 20 }, (_, index) => ({
-        urls: { small: `https://example.com/${index}.jpg`, regular: `https://example.com/${index}.jpg` },
+        urls: {
+          small: `https://example.com/${index}.jpg`,
+          regular: `https://example.com/${index}.jpg`,
+        },
       })),
     })
   })

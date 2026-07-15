@@ -10,6 +10,8 @@
     "preview": "vite preview",
     "pretest": "lsof -ti:5174 -ti:9000 | xargs -I{} kill -9 {} 2>/dev/null; true",
     "test": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepare": "git config core.hooksPath .githooks || true"
   },
   "dependencies": {
@@ -24,6 +26,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.2",
     "peer": "^1.0.2",
+    "prettier": "3.9.5",
     "typescript": "^7.0.1-rc",
     "vite": "^5.4.8"
   }

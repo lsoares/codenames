@@ -5,10 +5,12 @@ import { shuffle } from './words'
 export const albums: CardProvider = {
   id: 'albums',
   label: 'Album Art',
-  group: 'culture', difficulty: 'brutal',
+  group: 'culture',
+  difficulty: 'brutal',
   icon: '💿',
   description: 'Cover art from electronic, jazz and experimental records',
-  source: 'iTunes', sourceUrl: 'https://www.apple.com/itunes',
+  source: 'iTunes',
+  sourceUrl: 'https://www.apple.com/itunes',
   fetch,
 }
 
@@ -21,7 +23,18 @@ interface ItunesAlbum {
 }
 
 async function fetch(): Promise<Face[]> {
-  const genres = shuffle(['ambient', 'electronic', 'techno', 'experimental', 'jazz', 'shoegaze', 'psychedelic', 'idm', 'krautrock', 'dub']).slice(0, 3)
+  const genres = shuffle([
+    'ambient',
+    'electronic',
+    'techno',
+    'experimental',
+    'jazz',
+    'shoegaze',
+    'psychedelic',
+    'idm',
+    'krautrock',
+    'dub',
+  ]).slice(0, 3)
 
   const bodies = await Promise.all(
     genres.map((genre) =>
@@ -36,7 +49,10 @@ async function fetch(): Promise<Face[]> {
 
   const seen = new Set<number>()
   const faces = shuffle(bodies.flatMap((body) => body.results))
-    .filter((album) => album.artworkUrl100 && !seen.has(album.collectionId) && seen.add(album.collectionId))
+    .filter(
+      (album) =>
+        album.artworkUrl100 && !seen.has(album.collectionId) && seen.add(album.collectionId),
+    )
     .map((album): Face => ({
       kind: 'image',
       url: album.artworkUrl100!.replace('100x100bb', '600x600bb'),

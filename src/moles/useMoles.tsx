@@ -94,7 +94,10 @@ export function useMoles(
       setStunned(true)
       setTimeout(() => setStunned(false), 2500)
     }
-    onWhack(mole.id, Math.round(performance.now() - (shownAt.current.get(mole.id) ?? performance.now())))
+    onWhack(
+      mole.id,
+      Math.round(performance.now() - (shownAt.current.get(mole.id) ?? performance.now())),
+    )
   }
 
   const overlayFor = (cardIndex: number): ReactNode => {

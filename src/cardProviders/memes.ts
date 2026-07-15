@@ -2,7 +2,17 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const memes: CardProvider = { id: 'memes', label: 'Memes', group: 'culture', difficulty: 'tough', icon: '😂', description: 'Popular meme templates', source: 'Imgflip', sourceUrl: 'https://imgflip.com', fetch }
+export const memes: CardProvider = {
+  id: 'memes',
+  label: 'Memes',
+  group: 'culture',
+  difficulty: 'tough',
+  icon: '😂',
+  description: 'Popular meme templates',
+  source: 'Imgflip',
+  sourceUrl: 'https://imgflip.com',
+  fetch,
+}
 
 interface Meme {
   name: string
@@ -17,5 +27,7 @@ async function fetch(): Promise<Face[]> {
 
   const { data } = (await response.json()) as { data: { memes: Meme[] } }
   if (data.memes.length < 20) throw new Error('Imgflip returned too few memes')
-  return shuffle(data.memes).slice(0, 20).map((meme) => ({ kind: 'image', url: meme.url, tooltip: meme.name }))
+  return shuffle(data.memes)
+    .slice(0, 20)
+    .map((meme) => ({ kind: 'image', url: meme.url, tooltip: meme.name }))
 }

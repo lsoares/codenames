@@ -68,13 +68,16 @@ export class MolesHost {
     const id = this.nextId++
     this.game = this.game.spawn(id, free[Math.floor(Math.random() * free.length)], from, kind)
     this.broadcast()
-    const life = setTimeout(() => {
-      this.lives.delete(life)
-      if (!this.game) return
-      this.game = this.game.resolve(id)
-      this.broadcast()
-      // The +2 rabbit is fugitive; the mouse leaves early so it clutters less.
-    }, kind === 'bonus' ? 1300 : kind === 'decoy' ? 1500 : 2200)
+    const life = setTimeout(
+      () => {
+        this.lives.delete(life)
+        if (!this.game) return
+        this.game = this.game.resolve(id)
+        this.broadcast()
+        // The +2 rabbit is fugitive; the mouse leaves early so it clutters less.
+      },
+      kind === 'bonus' ? 1300 : kind === 'decoy' ? 1500 : 2200,
+    )
     this.lives.add(life)
   }
 }

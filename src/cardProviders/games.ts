@@ -2,7 +2,17 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const games: CardProvider = { id: 'games', label: 'Games', group: 'culture', difficulty: 'brutal', icon: '🎮', description: 'Artwork from acclaimed video games', source: 'RAWG', sourceUrl: 'https://rawg.io', fetch }
+export const games: CardProvider = {
+  id: 'games',
+  label: 'Games',
+  group: 'culture',
+  difficulty: 'brutal',
+  icon: '🎮',
+  description: 'Artwork from acclaimed video games',
+  source: 'RAWG',
+  sourceUrl: 'https://rawg.io',
+  fetch,
+}
 
 interface RawgGame {
   background_image: string | null
@@ -26,7 +36,10 @@ async function fetch(): Promise<Face[]> {
   )
 
   if (faces.length < 20) throw new Error('RAWG returned too few images')
-  return faces
-    .slice(0, 20)
-    .map(({ url, name, slug }) => ({ kind: 'image', url, tooltip: name, link: `https://rawg.io/games/${slug}` }))
+  return faces.slice(0, 20).map(({ url, name, slug }) => ({
+    kind: 'image',
+    url,
+    tooltip: name,
+    link: `https://rawg.io/games/${slug}`,
+  }))
 }

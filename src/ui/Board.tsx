@@ -72,116 +72,121 @@ export default function Board(props: {
 
   return (
     <>
-    <div
-      className={styles.board}
-      data-focus={props.focus || undefined}
-      data-spotlight={spotlight || undefined}
-      data-over={gameOver || undefined}
-      data-portrait={props.portrait || undefined}
-    >
-      {order.map((index) => {
-        const card = cards[index]
-        const showColor = props.game.showsColor(index, isSpymaster)
-        const revealed = card.revealed || gameOver
-        const name =
-          card.face.kind === 'text' || card.face.kind === 'glyph' ? card.face.text : `Card ${index + 1}`
-        const marked = !isSpymaster && highlighted(card, index)
-        const label = showColor
-          ? `${name}, ${card.color === 'neutral' ? 'bystander' : card.color}`
-          : marked
-            ? `${name}, marked`
-            : name
-        const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
-        const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
-        const canMark = props.game.canMark(index, isSpymaster)
-        const zoomUrl =
-          card.face.kind === 'image' && !card.face.link && !smallImages.has(card.face.url)
-            ? card.face.url
-            : null
-        const showCaption = !props.bare && !props.loading && !(props.focus && isSpymaster)
-        return (
-          <div
-            key={index}
-            className={styles.cell}
-            style={{ viewTransitionName: `card-${index}` } as CSSProperties}
-          >
-            <button
-              className={styles.card}
-              aria-label={label}
-              data-color={showColor ? card.color : undefined}
-              data-mine={
-                (isSpymaster && !card.revealed && card.color === props.spymasterTeam) ||
-                undefined
-              }
-              data-revealed={revealed || undefined}
-              data-feedback={props.feedback[index] || undefined}
-              data-selected={(isSpymaster && highlighted(card, index)) || undefined}
-              data-inert={!actionable || undefined}
-              disabled={revealed}
-              onClick={() => {
-                if (!actionable) return
-                if (isSpymaster) props.onToggleSelect(index)
-                else props.onCardClick(index)
-              }}
+      <div
+        className={styles.board}
+        data-focus={props.focus || undefined}
+        data-spotlight={spotlight || undefined}
+        data-over={gameOver || undefined}
+        data-portrait={props.portrait || undefined}
+      >
+        {order.map((index) => {
+          const card = cards[index]
+          const showColor = props.game.showsColor(index, isSpymaster)
+          const revealed = card.revealed || gameOver
+          const name =
+            card.face.kind === 'text' || card.face.kind === 'glyph'
+              ? card.face.text
+              : `Card ${index + 1}`
+          const marked = !isSpymaster && highlighted(card, index)
+          const label = showColor
+            ? `${name}, ${card.color === 'neutral' ? 'bystander' : card.color}`
+            : marked
+              ? `${name}, marked`
+              : name
+          const actionable = props.game.canAct(index, { team: props.myTeam, isSpymaster })
+          const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
+          const canMark = props.game.canMark(index, isSpymaster)
+          const zoomUrl =
+            card.face.kind === 'image' && !card.face.link && !smallImages.has(card.face.url)
+              ? card.face.url
+              : null
+          const showCaption = !props.bare && !props.loading && !(props.focus && isSpymaster)
+          return (
+            <div
+              key={index}
+              className={styles.cell}
+              style={{ viewTransitionName: `card-${index}` } as CSSProperties}
             >
-              {props.loading ? (
-                <span className={`${styles.face} ${styles.loading}`} />
-              ) : (
-                renderFace(card.face, measureImage)
-              )}
-              {badge && (
-                <span className={styles.feedback} role="img" aria-label={feedbackBadge[badge].label}>
-                  {feedbackBadge[badge].emoji}
-                </span>
-              )}
-            </button>
-            {!props.bare && canMark && (
               <button
-                type="button"
-                className={styles.overlayIcon}
-                data-on={marked || undefined}
-                aria-label={`${marked ? 'Unmark' : 'Mark'} ${name}`}
-                title={`${marked ? 'Unmark' : 'Mark'} ${name}`}
-                onClick={() => props.onCardMark(index)}
-              >
-                📌
-              </button>
-            )}
-            {showCaption && card.face.link && (
-              <a
-                className={styles.caption}
-                href={card.face.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Look up ${name}`}
-                onClick={(event) => event.stopPropagation()}
-              >
-                {card.face.tooltip ?? '?'}
-              </a>
-            )}
-            {showCaption && !card.face.link && card.face.tooltip && (
-              <span className={styles.caption}>{card.face.tooltip}</span>
-            )}
-            {!props.bare && zoomUrl && !props.loading && (
-              <button
-                type="button"
-                className={styles.zoomIcon}
-                aria-label={`Enlarge ${name}`}
-                title={`Enlarge ${name}`}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  setZoomed(zoomUrl)
+                className={styles.card}
+                aria-label={label}
+                data-color={showColor ? card.color : undefined}
+                data-mine={
+                  (isSpymaster && !card.revealed && card.color === props.spymasterTeam) || undefined
+                }
+                data-revealed={revealed || undefined}
+                data-feedback={props.feedback[index] || undefined}
+                data-selected={(isSpymaster && highlighted(card, index)) || undefined}
+                data-inert={!actionable || undefined}
+                disabled={revealed}
+                onClick={() => {
+                  if (!actionable) return
+                  if (isSpymaster) props.onToggleSelect(index)
+                  else props.onCardClick(index)
                 }}
               >
-                🔍
+                {props.loading ? (
+                  <span className={`${styles.face} ${styles.loading}`} />
+                ) : (
+                  renderFace(card.face, measureImage)
+                )}
+                {badge && (
+                  <span
+                    className={styles.feedback}
+                    role="img"
+                    aria-label={feedbackBadge[badge].label}
+                  >
+                    {feedbackBadge[badge].emoji}
+                  </span>
+                )}
               </button>
-            )}
-            {props.overlay?.(index)}
-          </div>
-        )
-      })}
-    </div>
-    {zoomed && <ImageLightbox url={zoomed} onClose={() => setZoomed(null)} />}
+              {!props.bare && canMark && (
+                <button
+                  type="button"
+                  className={styles.overlayIcon}
+                  data-on={marked || undefined}
+                  aria-label={`${marked ? 'Unmark' : 'Mark'} ${name}`}
+                  title={`${marked ? 'Unmark' : 'Mark'} ${name}`}
+                  onClick={() => props.onCardMark(index)}
+                >
+                  📌
+                </button>
+              )}
+              {showCaption && card.face.link && (
+                <a
+                  className={styles.caption}
+                  href={card.face.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Look up ${name}`}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  {card.face.tooltip ?? '?'}
+                </a>
+              )}
+              {showCaption && !card.face.link && card.face.tooltip && (
+                <span className={styles.caption}>{card.face.tooltip}</span>
+              )}
+              {!props.bare && zoomUrl && !props.loading && (
+                <button
+                  type="button"
+                  className={styles.zoomIcon}
+                  aria-label={`Enlarge ${name}`}
+                  title={`Enlarge ${name}`}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setZoomed(zoomUrl)
+                  }}
+                >
+                  🔍
+                </button>
+              )}
+              {props.overlay?.(index)}
+            </div>
+          )
+        })}
+      </div>
+      {zoomed && <ImageLightbox url={zoomed} onClose={() => setZoomed(null)} />}
     </>
   )
 }
@@ -206,7 +211,9 @@ function renderFace(face: Face, onImageLoad?: (img: HTMLImageElement) => void) {
             className={`${styles.image} ${
               face.fit === 'framed' ? styles.framed : face.fit === 'contain' ? styles.contain : ''
             }`}
-            style={face.fit === 'framed' ? ({ '--trim': face.trim ?? 0 } as CSSProperties) : undefined}
+            style={
+              face.fit === 'framed' ? ({ '--trim': face.trim ?? 0 } as CSSProperties) : undefined
+            }
             src={face.url}
             alt={face.tooltip ?? ''}
             draggable={false}

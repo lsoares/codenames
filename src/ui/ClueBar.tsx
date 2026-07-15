@@ -57,7 +57,11 @@ export default function ClueBar(props: {
             setCount(event.key === 'ArrowUp' ? stepUp : stepDown)
           }}
         />
-        <div className={styles.count} data-unlimited={unlimited || undefined} data-zero={count === 0 || undefined}>
+        <div
+          className={styles.count}
+          data-unlimited={unlimited || undefined}
+          data-zero={count === 0 || undefined}
+        >
           <input
             className={styles.countInput}
             type="number"

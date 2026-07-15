@@ -3,7 +3,11 @@ import type { CardProvider } from '../cardProviders/providers'
 import type { DeckFilter } from './DeckFilters'
 import styles from './DeckPicker.module.css'
 
-export default function DeckPicker(props: { providers: CardProvider[]; filter: DeckFilter; onPick: (id: string) => void }) {
+export default function DeckPicker(props: {
+  providers: CardProvider[]
+  filter: DeckFilter
+  onPick: (id: string) => void
+}) {
   const [pickedId, setPickedId] = useState<string | null>(null)
   const pick = (id: string) => {
     if (pickedId) return
@@ -23,9 +27,15 @@ export default function DeckPicker(props: { providers: CardProvider[]; filter: D
           onClick={() => pick(provider.id)}
         >
           {loading ? (
-            <span className={styles.spinner} role="progressbar" aria-label={`Dealing ${provider.label}`} />
+            <span
+              className={styles.spinner}
+              role="progressbar"
+              aria-label={`Dealing ${provider.label}`}
+            />
           ) : (
-            <span className={styles.icon} aria-hidden="true">{provider.icon}</span>
+            <span className={styles.icon} aria-hidden="true">
+              {provider.icon}
+            </span>
           )}
           <span className={styles.label}>{provider.label}</span>
         </button>

@@ -67,8 +67,10 @@ async function load(sound: Sound): Promise<AudioBuffer | null> {
 }
 
 function resumeCtx(): AudioContext {
-  ctx ??= new (window.AudioContext ?? (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+  ctx ??= new (
+    window.AudioContext ??
+    (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+  )()
   void ctx.resume()
   return ctx
 }
-

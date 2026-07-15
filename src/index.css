@@ -26,7 +26,11 @@ body {
   min-height: 100vh;
   background: radial-gradient(1200px 620px at 50% -12%, var(--bg-glow), var(--bg));
   color: var(--ink);
-  font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Nunito',
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-size: 18px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;

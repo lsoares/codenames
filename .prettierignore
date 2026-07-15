@@ -1,0 +1,11 @@
+dist/
+node_modules/
+package-lock.json
+docs/
+generated-cards/
+test-results/
+playwright-report/
+
+# prose / markup, not code
+*.md
+*.html

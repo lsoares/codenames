@@ -8,7 +8,8 @@ export const doodles: CardProvider = {
   difficulty: 'casual',
   icon: '🖍️',
   description: 'Hand-drawn open-source emoji from the whole OpenMoji set',
-  source: 'OpenMoji', sourceUrl: 'https://openmoji.org',
+  source: 'OpenMoji',
+  sourceUrl: 'https://openmoji.org',
   fetch,
 }
 
@@ -45,7 +46,9 @@ async function fetch(): Promise<Face[]> {
   // the viewBox-only SVGs, carry intrinsic dimensions so they render in an <img>)
   // live in the GitHub repo. Both are served by jsdelivr.
   const version = '15.0.0'
-  const response = await window.fetch(`https://cdn.jsdelivr.net/npm/openmoji@${version}/data/openmoji.json`)
+  const response = await window.fetch(
+    `https://cdn.jsdelivr.net/npm/openmoji@${version}/data/openmoji.json`,
+  )
   const all: Entry[] = await response.json()
   const pool = all.filter(
     (entry) =>

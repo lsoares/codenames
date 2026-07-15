@@ -510,7 +510,9 @@ button.spymasterSlot[data-mine] {
   color: var(--muted);
   text-decoration: none;
   opacity: 0.8;
-  transition: opacity 0.15s ease, color 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease;
   pointer-events: auto;
 }
 

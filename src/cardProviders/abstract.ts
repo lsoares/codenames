@@ -2,11 +2,31 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const abstract: CardProvider = { id: 'abstract', label: 'Photos', group: 'abstract', difficulty: 'brutal', icon: '🌀', description: 'Abstract imagery open to interpretation', source: 'Pexels', sourceUrl: 'https://www.pexels.com', fetch }
+export const abstract: CardProvider = {
+  id: 'abstract',
+  label: 'Photos',
+  group: 'abstract',
+  difficulty: 'brutal',
+  icon: '🌀',
+  description: 'Abstract imagery open to interpretation',
+  source: 'Pexels',
+  sourceUrl: 'https://www.pexels.com',
+  fetch,
+}
 
 const LOOKS = [
-  'abstract', 'texture', 'pattern', 'paint', 'macro', 'smoke',
-  'bokeh', 'ink', 'marble', 'geometric', 'gradient', 'fractal',
+  'abstract',
+  'texture',
+  'pattern',
+  'paint',
+  'macro',
+  'smoke',
+  'bokeh',
+  'ink',
+  'marble',
+  'geometric',
+  'gradient',
+  'fractal',
 ]
 
 interface PexelsPhoto {
@@ -23,9 +43,12 @@ async function fetch(): Promise<Face[]> {
   const bodies = await Promise.all(
     looks.map((look) =>
       window
-        .fetch(`https://api.pexels.com/v1/search?query=${look}&orientation=landscape&per_page=4&page=${page}`, {
-          headers: { Authorization: key },
-        })
+        .fetch(
+          `https://api.pexels.com/v1/search?query=${look}&orientation=landscape&per_page=4&page=${page}`,
+          {
+            headers: { Authorization: key },
+          },
+        )
         .then((response) => {
           if (!response.ok) throw new Error(`Pexels request failed: ${response.status}`)
           return response.json() as Promise<{ photos: PexelsPhoto[] }>
@@ -40,5 +63,7 @@ async function fetch(): Promise<Face[]> {
     return fresh
   })
   if (photos.length < 20) throw new Error('Pexels returned too few photos')
-  return photos.slice(0, 20).map((photo) => ({ kind: 'image', url: photo.src.medium, link: photo.url }))
+  return photos
+    .slice(0, 20)
+    .map((photo) => ({ kind: 'image', url: photo.src.medium, link: photo.url }))
 }

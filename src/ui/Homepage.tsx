@@ -16,44 +16,44 @@ export default function Homepage(props: {
   return (
     <main className={styles.home}>
       <div className={styles.hero}>
-      <header className={styles.top}>
-        <div className={styles.brand}>
-          <img src="/favicon.svg" alt="" className={styles.logo} />
-          <h1 className={styles.title}>
-            Codenames
-            <br />
-            <span className={styles.titleAccent}>Anything</span>
-          </h1>
-        </div>
-        {onJoin && (
-          <form
-            className={styles.join}
-            onSubmit={(event) => {
-              event.preventDefault()
-              onJoin(code)
-            }}
-          >
-            <input
-              className={styles.joinCode}
-              value={code}
-              aria-label="Room code"
-              placeholder="Room code"
-              onChange={(event) => setCode(event.target.value)}
-            />
-            <button
-              type="submit"
-              className={`secondary ${styles.joinGo}`}
-              aria-label="Join"
-              title="Join"
-              disabled={!code.trim()}
+        <header className={styles.top}>
+          <div className={styles.brand}>
+            <img src="/favicon.svg" alt="" className={styles.logo} />
+            <h1 className={styles.title}>
+              Codenames
+              <br />
+              <span className={styles.titleAccent}>Anything</span>
+            </h1>
+          </div>
+          {onJoin && (
+            <form
+              className={styles.join}
+              onSubmit={(event) => {
+                event.preventDefault()
+                onJoin(code)
+              }}
             >
-              →
-            </button>
-          </form>
-        )}
-      </header>
-      <DeckFilters value={filter} onChange={setFilter} />
-      <DeckPicker providers={props.providers} filter={filter} onPick={props.onPick} />
+              <input
+                className={styles.joinCode}
+                value={code}
+                aria-label="Room code"
+                placeholder="Room code"
+                onChange={(event) => setCode(event.target.value)}
+              />
+              <button
+                type="submit"
+                className={`secondary ${styles.joinGo}`}
+                aria-label="Join"
+                title="Join"
+                disabled={!code.trim()}
+              >
+                →
+              </button>
+            </form>
+          )}
+        </header>
+        <DeckFilters value={filter} onChange={setFilter} />
+        <DeckPicker providers={props.providers} filter={filter} onPick={props.onPick} />
       </div>
       <div className={styles.actions}>
         <HowToPlay />

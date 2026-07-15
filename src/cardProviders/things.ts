@@ -2,12 +2,43 @@ import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 import { shuffle } from './words'
 
-export const things: CardProvider = { id: 'things', label: 'Things', group: 'photos', difficulty: 'casual', icon: '🧩', description: 'Concrete, easily-named everyday objects', source: 'Pexels', sourceUrl: 'https://www.pexels.com', fetch }
+export const things: CardProvider = {
+  id: 'things',
+  label: 'Things',
+  group: 'photos',
+  difficulty: 'casual',
+  icon: '🧩',
+  description: 'Concrete, easily-named everyday objects',
+  source: 'Pexels',
+  sourceUrl: 'https://www.pexels.com',
+  fetch,
+}
 
 const CATEGORIES = [
-  'animal', 'fruit', 'vegetable', 'flower', 'tree', 'vehicle', 'tool', 'instrument',
-  'furniture', 'kitchen', 'clothing', 'building', 'sport', 'toy', 'insect', 'bird',
-  'fish', 'dessert', 'drink', 'weather', 'landscape', 'gadget', 'jewelry', 'shoe',
+  'animal',
+  'fruit',
+  'vegetable',
+  'flower',
+  'tree',
+  'vehicle',
+  'tool',
+  'instrument',
+  'furniture',
+  'kitchen',
+  'clothing',
+  'building',
+  'sport',
+  'toy',
+  'insect',
+  'bird',
+  'fish',
+  'dessert',
+  'drink',
+  'weather',
+  'landscape',
+  'gadget',
+  'jewelry',
+  'shoe',
 ]
 
 interface PexelsPhoto {
@@ -24,9 +55,12 @@ async function fetch(): Promise<Face[]> {
   const bodies = await Promise.all(
     categories.map((category) =>
       window
-        .fetch(`https://api.pexels.com/v1/search?query=${category}&orientation=landscape&per_page=4&page=${page}`, {
-          headers: { Authorization: key },
-        })
+        .fetch(
+          `https://api.pexels.com/v1/search?query=${category}&orientation=landscape&per_page=4&page=${page}`,
+          {
+            headers: { Authorization: key },
+          },
+        )
         .then((response) => {
           if (!response.ok) throw new Error(`Pexels request failed: ${response.status}`)
           return response.json() as Promise<{ photos: PexelsPhoto[] }>
@@ -41,9 +75,12 @@ async function fetch(): Promise<Face[]> {
     return fresh
   })
   if (photos.length < 20) throw new Error('Pexels returned too few photos')
-  return photos
-    .slice(0, 20)
-    .map((photo) => ({ kind: 'image', url: photo.src.medium, tooltip: titleFromUrl(photo.url), link: photo.url }))
+  return photos.slice(0, 20).map((photo) => ({
+    kind: 'image',
+    url: photo.src.medium,
+    tooltip: titleFromUrl(photo.url),
+    link: photo.url,
+  }))
 }
 
 function titleFromUrl(url: string): string | undefined {

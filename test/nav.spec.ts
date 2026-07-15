@@ -12,7 +12,9 @@ test('browser back leaves a game for the homepage', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Codenames Anything' })).toBeVisible()
 })
 
-test('browser back from the deck picker returns to the game, keeping the room', async ({ page }) => {
+test('browser back from the deck picker returns to the game, keeping the room', async ({
+  page,
+}) => {
   await stubUnsplash(page)
   const game = new GamePage(page)
   await game.open()

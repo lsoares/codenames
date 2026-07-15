@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test'
 import { hostRoom, joinRoom } from './gamePage'
 
-test('revealing the assassin ends the game and lays the whole board face-up', async ({ browser }) => {
+test('revealing the assassin ends the game and lays the whole board face-up', async ({
+  browser,
+}) => {
   const { game: spymaster, code } = await hostRoom(browser, 'red')
   const operative = await joinRoom(browser, code, 'red')
 
@@ -16,7 +18,9 @@ test('revealing the assassin ends the game and lays the whole board face-up', as
   await expect(operative.findRevealedCards()).toHaveCount(20)
 })
 
-test('a full game — cap runs out, misses on neutral and enemy, red then wins', async ({ browser }) => {
+test('a full game — cap runs out, misses on neutral and enemy, red then wins', async ({
+  browser,
+}) => {
   const { game: redSpy, code } = await hostRoom(browser, 'red')
   // Four fixed seats — a spymaster and an operative per team — so every turn is
   // played by its own tabs, no mid-game switching. The red spymaster sees every

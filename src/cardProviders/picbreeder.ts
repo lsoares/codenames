@@ -3,10 +3,13 @@ import type { CardProvider } from './providers'
 
 export const picbreeder: CardProvider = {
   id: 'picbreeder',
-  label: 'Picbreeder', group: 'abstract', difficulty: 'brutal',
+  label: 'Picbreeder',
+  group: 'abstract',
+  difficulty: 'brutal',
   icon: '🧬',
   description: 'CPPN-evolved images bred by the Picbreeder community',
-  source: 'Picbreeder', sourceUrl: 'https://picbreeder.net',
+  source: 'Picbreeder',
+  sourceUrl: 'https://picbreeder.net',
   fetch,
 }
 

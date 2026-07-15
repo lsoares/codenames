@@ -1,7 +1,17 @@
 import type { Face } from '../Face'
 import type { CardProvider } from './providers'
 
-export const pexels: CardProvider = { id: 'pexels', label: 'Curated', group: 'photos', difficulty: 'tough', icon: '🖼️', description: 'Curated editorial photos from Pexels', source: 'Pexels', sourceUrl: 'https://www.pexels.com', fetch }
+export const pexels: CardProvider = {
+  id: 'pexels',
+  label: 'Curated',
+  group: 'photos',
+  difficulty: 'tough',
+  icon: '🖼️',
+  description: 'Curated editorial photos from Pexels',
+  source: 'Pexels',
+  sourceUrl: 'https://www.pexels.com',
+  fetch,
+}
 
 interface PexelsPhoto {
   src: { landscape: string }
@@ -22,7 +32,12 @@ async function fetch(): Promise<Face[]> {
   }
 
   const { photos } = (await response.json()) as { photos: PexelsPhoto[] }
-  return photos.map((photo) => ({ kind: 'image', url: photo.src.landscape, tooltip: titleFromUrl(photo.url), link: photo.url }))
+  return photos.map((photo) => ({
+    kind: 'image',
+    url: photo.src.landscape,
+    tooltip: titleFromUrl(photo.url),
+    link: photo.url,
+  }))
 }
 
 function titleFromUrl(url: string): string | undefined {

@@ -4,10 +4,13 @@ import { shuffle } from './words'
 
 export const dreams: CardProvider = {
   id: 'dreams',
-  label: 'Dreams', group: 'abstract', difficulty: 'tough',
+  label: 'Dreams',
+  group: 'abstract',
+  difficulty: 'tough',
   icon: '💭',
   description: 'GAN-dreamed artworks that never existed',
-  source: 'This Image Does Not Exist', sourceUrl: 'https://thisimagedoesnotexist.com',
+  source: 'This Image Does Not Exist',
+  sourceUrl: 'https://thisimagedoesnotexist.com',
   fetch,
 }
 
@@ -24,7 +27,9 @@ async function fetch(): Promise<Face[]> {
   const ids = shuffle(Array.from({ length: 305 }, (_, i) => i + 1))
   const faces = new Set<string>()
   for (let i = 0; i < ids.length && faces.size < 20; i += 26) {
-    const batch = ids.slice(i, i + 26).map((id) => `https://thisimagedoesnotexist.com/images/${id}.jpeg`)
+    const batch = ids
+      .slice(i, i + 26)
+      .map((id) => `https://thisimagedoesnotexist.com/images/${id}.jpeg`)
     for (const src of await Promise.all(batch.map(loads))) if (src) faces.add(src)
   }
 
