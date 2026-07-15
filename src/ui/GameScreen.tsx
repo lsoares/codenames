@@ -484,6 +484,10 @@ export default function GameScreen(props: {
 
   const center = (
     <div className={styles.menu}>
+      <div className={styles.menuRow}>
+        {moles.hud}
+        {clueForm || repickBanner || (showStatus ? statusPill : null)}
+      </div>
       {props.roster.stillGathering() && <RoomInvite />}
       {props.mySeat !== null && !winner && props.game.idle() && (
         <button
@@ -496,10 +500,6 @@ export default function GameScreen(props: {
           🔀
         </button>
       )}
-      <div className={styles.menuRow}>
-        {moles.hud}
-        {clueForm || repickBanner || (showStatus ? statusPill : null)}
-      </div>
     </div>
   )
 
