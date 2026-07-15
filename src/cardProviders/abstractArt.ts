@@ -1,8 +1,8 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
-import { shuffle } from './words'
+import type { Deck } from './providers'
+import { shuffle } from '../shuffle'
 
-export const abstractArt: CardProvider = {
+export const abstractArt: Deck = {
   id: 'abstractArt',
   label: 'Art',
   group: 'abstract',

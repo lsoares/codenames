@@ -1,8 +1,12 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
-import { dictionaryLink, shuffle } from './words'
+import type { Deck } from './providers'
+import { boardSize, type Composition } from '../Game'
+import { dictionaryLink } from './words'
+import { shuffle } from '../shuffle'
 
-export const officialWords: CardProvider = {
+const COMPOSITION: Composition = { startingAgents: 9, otherAgents: 8, neutrals: 7, assassins: 1 }
+
+export const officialWords: Deck = {
   id: 'official-words',
   label: 'Words',
   group: 'words',
@@ -11,6 +15,7 @@ export const officialWords: CardProvider = {
   description: 'The official Codenames word list',
   source: 'Codenames',
   sourceUrl: 'https://czechgames.com/en/codenames/',
+  composition: COMPOSITION,
   fetch,
 }
 
@@ -419,6 +424,6 @@ const WORDS = [
 
 async function fetch(): Promise<Face[]> {
   return shuffle(WORDS)
-    .slice(0, 20)
+    .slice(0, boardSize(COMPOSITION))
     .map((word) => ({ kind: 'text', text: word, link: dictionaryLink(word) }))
 }

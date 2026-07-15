@@ -1,7 +1,7 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
+import type { Deck } from './providers'
 
-export const pokemon: CardProvider = {
+export const pokemon: Deck = {
   id: 'pokemon',
   label: 'Pokémon',
   group: 'culture',

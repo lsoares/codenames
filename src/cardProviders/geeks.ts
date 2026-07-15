@@ -1,8 +1,12 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
-import { datamuseWords, dictionaryLink, shuffle } from './words'
+import type { Deck } from './providers'
+import { boardSize, type Composition } from '../Game'
+import { datamuseWords, dictionaryLink } from './words'
+import { shuffle } from '../shuffle'
 
-export const geeks: CardProvider = {
+const COMPOSITION: Composition = { startingAgents: 9, otherAgents: 8, neutrals: 7, assassins: 1 }
+
+export const geeks: Deck = {
   id: 'geeks',
   label: 'Words 🤓',
   group: 'words',
@@ -11,6 +15,7 @@ export const geeks: CardProvider = {
   description: 'Programming and tech words',
   source: 'Stack Overflow',
   sourceUrl: 'https://stackoverflow.com',
+  composition: COMPOSITION,
   fetch,
 }
 
@@ -46,9 +51,10 @@ async function stackOverflowTags(): Promise<string[]> {
 }
 
 async function fetch(): Promise<Face[]> {
+  const size = boardSize(COMPOSITION)
   const [tagList, dictionary] = await Promise.all([
     stackOverflowTags(),
-    datamuseWords(20, GEEK_SEEDS),
+    datamuseWords(size, GEEK_SEEDS),
   ])
   const sources: [string[], (word: string) => string][] = [
     [
@@ -58,9 +64,9 @@ async function fetch(): Promise<Face[]> {
     [dictionary, dictionaryLink],
   ]
   const board = new Map<string, string>()
-  while (board.size < 20 && sources.some(([pool]) => pool.length)) {
+  while (board.size < size && sources.some(([pool]) => pool.length)) {
     for (const [pool, linkFor] of sources) {
-      if (board.size >= 20) break
+      if (board.size >= size) break
       const word = pool.shift()
       if (word && !board.has(word)) board.set(word, linkFor(word))
     }

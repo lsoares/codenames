@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import type { CardProvider } from '../cardProviders/providers'
+import type { Deck } from '../cardProviders/providers'
 import type { DeckFilter } from './DeckFilters'
 import styles from './DeckPicker.module.css'
 
 export default function DeckPicker(props: {
-  providers: CardProvider[]
+  providers: Deck[]
   filter: DeckFilter
   onPick: (id: string) => void
 }) {
@@ -15,7 +15,7 @@ export default function DeckPicker(props: {
     props.onPick(id)
   }
 
-  const tile = (provider: CardProvider) => {
+  const tile = (provider: Deck) => {
     const loading = pickedId === provider.id
     return (
       <li key={provider.id}>
@@ -43,7 +43,7 @@ export default function DeckPicker(props: {
     )
   }
 
-  const matches = (provider: CardProvider) =>
+  const matches = (provider: Deck) =>
     (!props.filter.group || provider.group === props.filter.group) &&
     (!props.filter.difficulty || provider.difficulty === props.filter.difficulty)
   const ordered = GROUP_ORDER.flatMap((group) =>
@@ -53,10 +53,10 @@ export default function DeckPicker(props: {
     return <p className={styles.empty}>No decks match. Pick another filter.</p>
   }
   return (
-    <ul className={styles.grid} role="list">
+    <ul className={styles.grid} role="list" aria-label="Decks">
       {ordered.map(tile)}
     </ul>
   )
 }
 
-const GROUP_ORDER: CardProvider['group'][] = ['words', 'abstract', 'photos', 'symbols', 'culture']
+const GROUP_ORDER: Deck['group'][] = ['words', 'abstract', 'photos', 'symbols', 'culture']

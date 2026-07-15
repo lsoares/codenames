@@ -1,4 +1,5 @@
 import type { Face } from './Face'
+import { shuffle } from './shuffle'
 
 export type Team = 'red' | 'blue'
 export type CardColor = 'red' | 'blue' | 'neutral' | 'assassin'
@@ -21,6 +22,13 @@ export interface Clue {
   readonly team: Team
   readonly word: string
   readonly count: number
+}
+
+export interface Composition {
+  readonly startingAgents: number
+  readonly otherAgents: number
+  readonly neutrals: number
+  readonly assassins: number
 }
 
 export const UNLIMITED_CLUE = -1
@@ -55,21 +63,35 @@ export interface Transition {
   win: { team: Team; byAssassin: boolean } | null
 }
 
+const DEFAULT_COMPOSITION: Composition = {
+  startingAgents: 8,
+  otherAgents: 7,
+  neutrals: 4,
+  assassins: 1,
+}
+
+export const boardSize = (composition: Composition = DEFAULT_COMPOSITION): number =>
+  composition.startingAgents +
+  composition.otherAgents +
+  composition.neutrals +
+  composition.assassins
+
 export function createGame(
   faces: readonly Face[],
   startingTeam: Team,
   credit: Credit | null = null,
   deck: string | null = null,
+  composition: Composition = DEFAULT_COMPOSITION,
 ): GameState {
   const otherTeam: Team = startingTeam === 'red' ? 'blue' : 'red'
   const colors = shuffle<CardColor>([
-    ...Array<CardColor>(8).fill(startingTeam),
-    ...Array<CardColor>(7).fill(otherTeam),
-    ...Array<CardColor>(4).fill('neutral'),
-    'assassin',
+    ...Array<CardColor>(composition.startingAgents).fill(startingTeam),
+    ...Array<CardColor>(composition.otherAgents).fill(otherTeam),
+    ...Array<CardColor>(composition.neutrals).fill('neutral'),
+    ...Array<CardColor>(composition.assassins).fill('assassin'),
   ])
   return {
-    cards: faces.slice(0, 20).map((face, index) => ({
+    cards: faces.slice(0, colors.length).map((face, index) => ({
       face,
       color: colors[index],
       revealed: false,
@@ -159,13 +181,19 @@ export class Game {
     return !isSpymaster && !this.s.cards[cardIndex].revealed && !this.s.winner
   }
 
-  newGame(faces?: readonly Face[], credit?: Credit | null, deck?: string | null): Game {
+  newGame(
+    faces?: readonly Face[],
+    credit?: Credit | null,
+    deck?: string | null,
+    composition?: Composition,
+  ): Game {
     return new Game(
       createGame(
         faces ?? this.s.cards.map((card) => card.face),
         Math.random() < 0.5 ? 'red' : 'blue',
         credit === undefined ? this.s.credit : credit,
         deck === undefined ? this.s.deck : deck,
+        composition,
       ),
     )
   }
@@ -279,15 +307,6 @@ export class Game {
       win: winner ? { team: winner, byAssassin: card?.color === 'assassin' } : null,
     }
   }
-}
-
-const shuffle = <T>(items: T[]): T[] => {
-  const result = [...items]
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
-  }
-  return result
 }
 
 const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')

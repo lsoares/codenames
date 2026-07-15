@@ -1,8 +1,8 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
-import { shuffle } from './words'
+import type { Deck } from './providers'
+import { shuffle } from '../shuffle'
 
-export const icons: CardProvider = {
+export const icons: Deck = {
   id: 'icons',
   label: 'Pictograms',
   group: 'symbols',

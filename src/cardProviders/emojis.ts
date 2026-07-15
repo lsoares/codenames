@@ -1,8 +1,8 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
-import { shuffle } from './words'
+import type { Deck } from './providers'
+import { shuffle } from '../shuffle'
 
-export const emojis: CardProvider = {
+export const emojis: Deck = {
   id: 'emojis',
   label: 'Emojis',
   group: 'symbols',

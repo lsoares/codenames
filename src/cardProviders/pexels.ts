@@ -1,7 +1,7 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
+import type { Deck } from './providers'
 
-export const pexels: CardProvider = {
+export const pexels: Deck = {
   id: 'pexels',
   label: 'Curated',
   group: 'photos',

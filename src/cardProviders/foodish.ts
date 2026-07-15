@@ -1,7 +1,7 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
+import type { Deck } from './providers'
 
-export const foodish: CardProvider = {
+export const foodish: Deck = {
   id: 'foodish',
   label: 'Food',
   group: 'photos',

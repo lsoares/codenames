@@ -1,6 +1,7 @@
 import { type DataConnection } from 'peerjs'
 import type { Face } from '../Face'
-import { Game, createGame, type Credit, type GameState } from '../Game'
+import { Game, createGame, type GameState } from '../Game'
+import { findDeck, creditOf, type Deck } from '../cardProviders/providers'
 import { MolesHost } from '../moles/MolesHost'
 import { Room } from './Room'
 import { iceServersReady, logConnection, newPeer } from './peer'
@@ -57,15 +58,14 @@ export class Host implements Session {
   }
 
   static start(
+    deck: Deck,
     faces: Face[],
     startingTeam: 'red' | 'blue',
-    credit: Credit | null,
-    deck: string,
     code?: string,
   ): Promise<Host> {
     return Host.launch(
       code ?? RoomCode.random().toString(),
-      createGame(faces, startingTeam, credit, deck),
+      createGame(faces, startingTeam, creditOf(deck), deck.label, deck.composition),
       'new',
       4,
       code != null,
@@ -287,7 +287,9 @@ const apply = (game: Game, action: Action): Game => {
       return game.mark(action.cardIndex, action.team)
     case 'endTurn':
       return game.endTurn()
-    case 'newGame':
-      return game.newGame(action.faces, action.credit, action.deck)
+    case 'newGame': {
+      const deck = findDeck(action.deckId)
+      return game.newGame(action.faces, creditOf(deck), deck.label, deck.composition)
+    }
   }
 }

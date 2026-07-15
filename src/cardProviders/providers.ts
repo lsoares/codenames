@@ -20,15 +20,14 @@ import { memes } from './memes'
 import { icons } from './icons'
 import { gcpIcons } from './gcpIcons'
 import { carLogos } from './carLogos'
-import { tarot } from './tarot'
 import { albums } from './albums'
 import { official } from './official'
 import { generated } from './generated'
 import { officialWords } from './officialWords'
 import type { Face } from '../Face'
-import type { Credit } from '../Game'
+import type { Composition, Credit } from '../Game'
 
-export interface CardProvider {
+export interface Deck {
   id: string
   label: string
   icon: string
@@ -37,11 +36,11 @@ export interface CardProvider {
   difficulty: 'casual' | 'tough' | 'brutal'
   source?: string
   sourceUrl?: string
-  portrait?: boolean
+  composition?: Composition
   fetch: () => Promise<Face[]>
 }
 
-export const providers: CardProvider[] = [
+export const providers: Deck[] = [
   officialWords,
   official,
   generated,
@@ -68,13 +67,10 @@ export const providers: CardProvider[] = [
   albums,
   tmdb,
   pokemon,
-  tarot,
 ]
 
-export async function getFaces(
-  providerId: string,
-): Promise<{ faces: Face[]; credit: Credit | null; deck: string }> {
-  const provider = providers.find((p) => p.id === providerId) ?? unsplash
-  const credit = provider.source ? { label: provider.source, url: provider.sourceUrl ?? '' } : null
-  return { faces: await provider.fetch(), credit, deck: provider.label }
-}
+export const findDeck = (id: string): Deck =>
+  providers.find((provider) => provider.id === id) ?? unsplash
+
+export const creditOf = (deck: Deck): Credit | null =>
+  deck.source ? { label: deck.source, url: deck.sourceUrl ?? '' } : null

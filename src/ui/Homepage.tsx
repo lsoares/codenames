@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import type { CardProvider } from '../cardProviders/providers'
+import type { Deck } from '../cardProviders/providers'
 import DeckPicker from './DeckPicker'
 import DeckFilters, { type DeckFilter } from './DeckFilters'
 import HowToPlay from './HowToPlay'
 import styles from './Homepage.module.css'
 
 export default function Homepage(props: {
-  providers: CardProvider[]
+  providers: Deck[]
   onPick: (id: string) => void
   onJoin?: (code: string) => void
 }) {

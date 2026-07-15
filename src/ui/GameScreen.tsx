@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom'
 import { Game, UNLIMITED_CLUE, unlimitedClueHint, type GuessOutcome, type Team } from '../Game'
 import { Roster, type Action, type MolesView } from '../multiplayer/Session'
 import { useMoles } from '../moles/useMoles'
-import type { CardProvider } from '../cardProviders/providers'
+import type { Deck } from '../cardProviders/providers'
 import Board from './Board'
 import ClueBar from './ClueBar'
 import Confetti from './Confetti'
@@ -29,7 +29,7 @@ export default function GameScreen(props: {
   moles: MolesView | null
   onWhack: (moleId: number, reactionMs: number) => void
   loadingFaces: boolean
-  providers: CardProvider[]
+  providers: Deck[]
 }) {
   const currentDeck = props.providers.find((p) => p.label === props.game.state.deck)
   const currentDeckId = currentDeck?.id
@@ -525,7 +525,6 @@ export default function GameScreen(props: {
           myTeam={props.myTeam}
           selected={selected}
           focus={focus}
-          portrait={currentDeck?.portrait ?? false}
           feedback={feedback}
           onToggleSelect={toggleSelected}
           onClearSelection={clearSelected}

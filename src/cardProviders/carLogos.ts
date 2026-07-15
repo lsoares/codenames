@@ -1,7 +1,7 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
+import type { Deck } from './providers'
 
-export const carLogos: CardProvider = {
+export const carLogos: Deck = {
   id: 'car-logos',
   label: 'Car Logos',
   group: 'symbols',

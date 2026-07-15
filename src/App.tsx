@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import styles from './App.module.css'
 import { Game, type GameState, type Team } from './Game'
 import { identify, track } from './analytics'
-import { getFaces, providers } from './cardProviders/providers'
+import { providers, findDeck } from './cardProviders/providers'
 import { Guest, JoinError } from './multiplayer/Guest'
 import { Host } from './multiplayer/Host'
 import { RoomCode } from './multiplayer/RoomCode'
@@ -113,15 +113,10 @@ export default function App() {
   const newGame = async (id: string, rotate = false) => {
     setLoadingFaces(true)
     try {
-      const { faces, credit, deck } = await getFaces(id)
-      sessionRef.current?.dispatch({
-        type: 'newGame',
-        faces,
-        credit,
-        deck,
-        rotate,
-      })
-      track('game started', { deck })
+      const deck = findDeck(id)
+      const faces = await deck.fetch()
+      sessionRef.current?.dispatch({ type: 'newGame', deckId: deck.id, faces, rotate })
+      track('game started', { deck: deck.label })
     } catch (error) {
       notify(
         `Couldn't deal that deck (${(error as Error)?.message ?? 'unknown error'})`,
@@ -189,9 +184,10 @@ export default function App() {
   const createRoom = async (id: string, code?: string) => {
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
-      const { faces, credit, deck } = await getFaces(id)
-      wire(await Host.start(faces, start, credit, deck, code), true)
-      track('room created', { deck })
+      const deck = findDeck(id)
+      const faces = await deck.fetch()
+      wire(await Host.start(deck, faces, start, code), true)
+      track('room created', { deck: deck.label })
     } catch (error) {
       if (code && (error as { type?: string })?.type === 'unavailable-id') {
         const joined = await Guest.join(code)

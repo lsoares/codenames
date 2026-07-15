@@ -1,7 +1,7 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
+import type { Deck } from './providers'
 
-export const unsplash: CardProvider = {
+export const unsplash: Deck = {
   id: 'unsplash',
   label: 'Random',
   group: 'photos',

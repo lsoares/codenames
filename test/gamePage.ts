@@ -75,9 +75,25 @@ export class GamePage {
   // The homepage lists decks; picking one hosts a room. Random is the default
   // (image) deck the suite plays on, so start there and wait for the board.
   async createRoom(): Promise<void> {
+    await this.createRoomOnDeck('Random')
+  }
+
+  // Host a room on a named deck (picked from the grid), then wait for its board.
+  // Scoped to the deck grid so a deck named like a filter chip (e.g. "Words")
+  // isn't ambiguous with it.
+  async createRoomOnDeck(label: string): Promise<void> {
     await this.showAllDecks()
-    await this.page.getByRole('button', { name: 'Random', exact: true }).click()
-    await this.getCards().first().waitFor()
+    await this.page
+      .getByRole('list', { name: 'Decks' })
+      .getByRole('button', { name: label, exact: true })
+      .click()
+    await this.findBoardCards().first().waitFor()
+  }
+
+  // Every card on the board, whatever the deck: a spymaster sees each card's
+  // colour in its label, so this counts them without depending on card faces.
+  findBoardCards() {
+    return this.page.getByRole('button', { name: /, (red|blue|bystander|assassin)$/ })
   }
 
   // The deck grid opens with the Casual difficulty filter pre-selected, which hides

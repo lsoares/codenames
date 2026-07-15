@@ -1,17 +1,10 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
+import type { Deck } from './providers'
+import { boardSize, type Composition } from '../Game'
+import { shuffle } from '../shuffle'
 
 export const dictionaryLink = (word: string): string =>
   `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
-
-export const shuffle = <T>(items: T[]): T[] => {
-  const out = [...items]
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[out[i], out[j]] = [out[j], out[i]]
-  }
-  return out
-}
 
 export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]> {
   const seen = new Set<string>()
@@ -32,7 +25,9 @@ export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]>
   return [...seen]
 }
 
-export const words: CardProvider = {
+const COMPOSITION: Composition = { startingAgents: 9, otherAgents: 8, neutrals: 7, assassins: 1 }
+
+export const words: Deck = {
   id: 'words',
   label: 'Words+',
   group: 'words',
@@ -41,8 +36,9 @@ export const words: CardProvider = {
   description: 'Fresh everyday nouns generated from Datamuse',
   source: 'Datamuse',
   sourceUrl: 'https://www.datamuse.com/api/',
+  composition: COMPOSITION,
   fetch: (): Promise<Face[]> =>
-    datamuseWords().then((words) =>
+    datamuseWords(boardSize(COMPOSITION)).then((words) =>
       words.map((word) => ({ kind: 'text', text: word, link: dictionaryLink(word) })),
     ),
 }

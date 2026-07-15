@@ -1,16 +1,16 @@
-import type { CardProvider } from '../cardProviders/providers'
+import type { Deck } from '../cardProviders/providers'
 import styles from './DeckFilters.module.css'
 
 export interface DeckFilter {
-  group: CardProvider['group'] | null
-  difficulty: CardProvider['difficulty'] | null
+  group: Deck['group'] | null
+  difficulty: Deck['difficulty'] | null
 }
 
 export default function DeckFilters(props: {
   value: DeckFilter
   onChange: (filter: DeckFilter) => void
 }) {
-  const category = (group: CardProvider['group']) => {
+  const category = (group: Deck['group']) => {
     const active = props.value.group === group
     return (
       <button
@@ -25,7 +25,7 @@ export default function DeckFilters(props: {
     )
   }
 
-  const difficulty = (level: CardProvider['difficulty']) => {
+  const difficulty = (level: Deck['difficulty']) => {
     const active = props.value.difficulty === level
     return (
       <button

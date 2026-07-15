@@ -1,8 +1,8 @@
 import type { Face } from '../Face'
-import type { CardProvider } from './providers'
-import { shuffle } from './words'
+import type { Deck } from './providers'
+import { shuffle } from '../shuffle'
 
-export const tmdb: CardProvider = {
+export const tmdb: Deck = {
   id: 'tmdb',
   label: 'Movies',
   group: 'culture',
