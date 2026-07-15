@@ -485,6 +485,17 @@ export default function GameScreen(props: {
   const center = (
     <div className={styles.menu}>
       {props.roster.stillGathering() && <RoomInvite />}
+      {props.mySeat !== null && !winner && props.game.idle() && (
+        <button
+          type="button"
+          className={styles.shuffle}
+          aria-label="Shuffle the cards"
+          title="Shuffle the cards"
+          onClick={() => dealNewCards(false)}
+        >
+          🔀
+        </button>
+      )}
       <div className={styles.menuRow}>
         {moles.hud}
         {clueForm || repickBanner || (showStatus ? statusPill : null)}
