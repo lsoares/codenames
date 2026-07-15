@@ -17,6 +17,7 @@ interface Entry {
   emoji: string
   hexcode: string
   group: string
+  subgroups: string
   skintone: string
   annotation: string
 }
@@ -52,7 +53,7 @@ async function fetch(): Promise<Face[]> {
   const all: Entry[] = await response.json()
   const pool = all.filter(
     (entry) =>
-      (WEIGHT[entry.group] ?? 1) > 0 &&
+      weightOf(entry) > 0 &&
       !SKIP.has(entry.hexcode) &&
       !entry.skintone &&
       isSingleGlyph(entry.emoji),
@@ -73,12 +74,20 @@ function isSingleGlyph(emoji: string): boolean {
   return points.length === 1 || (points.length === 2 && points[1].codePointAt(0) === 0xfe0f)
 }
 
+// Group weight, but the coloured geometric shapes (circles, squares, triangles)
+// are damped well below the rest of the symbols group — they read as duds far
+// more than the arrows, zodiac or av-symbols alongside them.
+function weightOf(entry: Entry): number {
+  if (entry.subgroups === 'geometric') return 0.2
+  return WEIGHT[entry.group] ?? 1
+}
+
 // Weighted sampling without replacement (Efraimidis–Spirakis): each entry gets a
 // key random^(1/weight), and the highest keys win, so heavier groups surface more
 // often while every eligible emoji stays reachable.
 function pickWeighted(pool: Entry[], count: number): Entry[] {
   return pool
-    .map((entry) => ({ entry, key: Math.random() ** (1 / (WEIGHT[entry.group] ?? 1)) }))
+    .map((entry) => ({ entry, key: Math.random() ** (1 / weightOf(entry)) }))
     .sort((a, b) => b.key - a.key)
     .slice(0, count)
     .map((scored) => scored.entry)
