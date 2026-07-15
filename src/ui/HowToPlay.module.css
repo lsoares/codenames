@@ -1,8 +1,4 @@
 .info {
-  position: fixed;
-  right: 8px;
-  bottom: calc(env(safe-area-inset-bottom) + 8px);
-  z-index: 20;
   display: inline-flex;
   align-items: center;
   justify-content: center;

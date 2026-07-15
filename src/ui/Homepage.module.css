@@ -97,12 +97,36 @@
   transform: translateY(-50%) scale(0.94);
 }
 
-.coffee {
-  align-self: center;
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.buyGame {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 4px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.buyGame:hover {
+  filter: brightness(1.05);
+}
+
+.coffee {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 16px;
   border-radius: 999px;
   background: #ffdd00;

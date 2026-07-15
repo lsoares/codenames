@@ -263,9 +263,10 @@ button.spymasterSlot[data-mine] {
 .menu {
   position: relative;
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
   justify-self: center;
 }
 
@@ -595,6 +596,7 @@ a.deckCredit:hover {
   .menu {
     min-width: 0;
     max-width: 100%;
+    flex-wrap: wrap;
   }
 
   .statusPill {

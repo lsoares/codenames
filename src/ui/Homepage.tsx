@@ -60,15 +60,25 @@ export default function Homepage(props: {
       </header>
       <DeckPicker providers={props.providers} onPick={props.onPick} />
       </div>
-      <HowToPlay />
-      <a
-        className={styles.coffee}
-        href="https://www.buymeacoffee.com/lsoares"
-        target="_blank"
-        rel="noreferrer"
-      >
-        ☕ Buy me a coffee
-      </a>
+      <div className={styles.actions}>
+        <HowToPlay />
+        <a
+          className={styles.buyGame}
+          href="https://czechgames.com/en/codenames/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          🎲 Buy the game
+        </a>
+        <a
+          className={styles.coffee}
+          href="https://www.buymeacoffee.com/lsoares"
+          target="_blank"
+          rel="noreferrer"
+        >
+          ☕ Buy me a coffee
+        </a>
+      </div>
     </main>
   )
 }
