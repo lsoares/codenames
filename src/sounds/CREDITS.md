@@ -14,7 +14,7 @@ released **CC0** (credited there as Freesound Community).
 | `clue.wav` | — | synthesised (rising fifth chime) |
 | `victory.wav` | — | synthesised (triumphant major roll) |
 | `guessRight.ogg` | [Interface Sounds](https://kenney.nl/assets/interface-sounds) | `confirmation_001.ogg` |
-| `guessWrong.ogg` | Interface Sounds | `error_006.ogg` |
+| `guessWrong.ogg` | Interface Sounds | `error_003.ogg` |
 | `endTurn.ogg` | Interface Sounds | `switch_002.ogg` |
 | `takeover.ogg` | Interface Sounds | `confirmation_003.ogg` |
 | `spymaster.ogg` | Interface Sounds | `glass_001.ogg` |
