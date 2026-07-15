@@ -356,7 +356,7 @@ button.spymasterSlot[data-mine] {
   background: color-mix(in srgb, var(--card-face) 60%, transparent);
 }
 
-.clueInfinity {
+.clueUnlimited {
   font-size: 1.35rem;
   font-weight: 800;
   line-height: 1;

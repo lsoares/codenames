@@ -214,6 +214,22 @@ export class GamePage {
     await this.page.getByRole('button', { name: new RegExp(`^Card ${n}(,|$)`) }).click()
   }
 
+  // The operatives' button to end their turn early — only offered once they've
+  // made at least one guess this turn.
+  findPassButton() {
+    return this.page.getByRole('button', { name: 'Pass' })
+  }
+
+  // The operatives' guess meter — a summarised pip row labelled "X used out of Y",
+  // where Y includes the one bonus guess beyond the clue's number.
+  findGuessTally() {
+    return this.page.getByRole('img', { name: /used out of/ })
+  }
+
+  async pass(): Promise<void> {
+    await this.findPassButton().click()
+  }
+
   // Operative marks a card by number via its hover pin icon, allowed on any turn.
   async markCard(n: number): Promise<void> {
     await this.page.getByRole('button', { name: `Mark Card ${n}`, exact: true }).click()

@@ -23,7 +23,12 @@ export interface Clue {
   readonly count: number
 }
 
-export const INFINITE_CLUE = -1
+export const UNLIMITED_CLUE = -1
+
+export const unlimitedClueHint = (zero: boolean): string =>
+  zero
+    ? 'Zero: none of these cards match the clue, so your team may keep guessing until they miss.'
+    : 'Unlimited: your team may guess as many cards as they like, until they miss.'
 
 export interface GameState {
   readonly cards: readonly Card[]
@@ -123,7 +128,7 @@ export class Game {
   }
 
   guessesGiven(): number {
-    return this.s.clue ? this.s.clue.count + 1 : 0
+    return this.s.clue ? startingGuesses(this.s.clue.count) : 0
   }
 
   guessesUsed(): number {
@@ -134,6 +139,10 @@ export class Game {
     return this.s.clue
       ? Math.min(this.guessesGiven(), this.remaining(this.s.turn) + this.guessesUsed())
       : 0
+  }
+
+  hasGuessedThisTurn(): boolean {
+    return this.s.clue !== null && this.s.guessesRemaining !== startingGuesses(this.s.clue.count)
   }
 
   showsColor(cardIndex: number, isSpymaster: boolean): boolean {
@@ -185,8 +194,7 @@ export class Game {
     return new Game({
       ...this.s,
       phase: 'guess',
-      // a big finite number, not Infinity — JSON.stringify would turn Infinity to null
-      guessesRemaining: unlimitedGuesses(count) ? 99 : count + 1,
+      guessesRemaining: startingGuesses(count),
       clue: { team: this.s.turn, word, count },
       clueHistory: [...this.s.clueHistory, { team: this.s.turn, word, count }],
       log: [...this.s.log, `${this.s.turn} clue: ${word} ${count}`],
@@ -194,7 +202,7 @@ export class Game {
   }
 
   endTurn(): Game {
-    if (this.s.winner) return this
+    if (this.s.winner || !this.hasGuessedThisTurn()) return this
     return new Game({
       ...this.s,
       phase: 'clue',
@@ -284,7 +292,13 @@ const shuffle = <T>(items: T[]): T[] => {
 
 const opponent = (team: Team): Team => (team === 'red' ? 'blue' : 'red')
 
-const unlimitedGuesses = (count: number): boolean => count === 0 || count === INFINITE_CLUE
+const unlimitedGuesses = (count: number): boolean => count === 0 || count === UNLIMITED_CLUE
+
+// a big finite number, not Infinity — JSON.stringify would turn Infinity to null
+const UNLIMITED_GUESSES = 99
+
+const startingGuesses = (count: number): number =>
+  unlimitedGuesses(count) ? UNLIMITED_GUESSES : count + 1
 
 const clearMarks = (cards: readonly Card[], team: Team): Card[] =>
   cards.map((card) =>

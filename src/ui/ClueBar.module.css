@@ -78,7 +78,7 @@
   color: var(--turn);
 }
 
-.infinityOverlay {
+.unlimitedOverlay {
   position: absolute;
   inset: 0;
   display: flex;

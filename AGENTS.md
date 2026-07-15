@@ -25,7 +25,8 @@ and https://blog.stackademic.com/towards-self-documenting-code-part-ii-c92a0f58d
 
 Name everything in the domain's vocabulary — here, Codenames: spymaster, operative,
 clue, guess, reveal, mark, team, board, assassin, deck, turn. Not technical or CRUD
-terms.
+terms. The canonical glossary (concepts, actions, and where each lives in the code) is
+[DOMAIN.md](DOMAIN.md) — keep it in sync when the model changes.
 
 - Name by intent and domain meaning, never by implementation. Prefer `revealCard`
   over `updateCard`, `eligibleClients` over `list`, `clientId` over `uuid`.

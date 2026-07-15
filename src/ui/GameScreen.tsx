@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { Game, INFINITE_CLUE, type GuessOutcome, type Team } from '../Game'
+import { Game, UNLIMITED_CLUE, unlimitedClueHint, type GuessOutcome, type Team } from '../Game'
 import { Roster, type Action, type MolesView } from '../multiplayer/Session'
 import { useMoles } from '../moles/useMoles'
 import type { CardProvider } from '../cardProviders/providers'
@@ -109,7 +109,7 @@ export default function GameScreen(props: {
   const guessesUsed = props.game.guessesUsed()
   const guessesShown = props.game.guessesUsable()
   const isUnlimitedClue = props.game.hasUnlimitedClue()
-  const clueCountLabel = (n: number) => (n === INFINITE_CLUE ? '∞' : String(n))
+  const clueCountLabel = (n: number) => (n === UNLIMITED_CLUE ? '∞' : String(n))
   const acting = props.game.awaitingRole()
 
   useEffect(() => {
@@ -270,7 +270,6 @@ export default function GameScreen(props: {
 
   const activeSpymaster = props.mySeat === turn
   const mineTurn = turn === props.myTeam
-  const guessingNow = acting === 'operatives' && mineTurn && props.mySeat === null
   const onBonus = clue !== null && guessesUsed >= clue.count
 
   const moles = useMoles(
@@ -386,24 +385,21 @@ export default function GameScreen(props: {
         </span>
       ) : (
         <>
-          <span key={statusText} className={styles.statusText}>
-            {statusText}
-          </span>
           {!winner && phase === 'guess' && clue && (
             <span className={styles.clueInline}>
               <strong className={styles.clueWord}>{clue.word}</strong>
               {isUnlimitedClue ? (
                 <span
-                  className={styles.clueInfinity}
+                  className={styles.clueUnlimited}
                   role="img"
                   aria-label={clue.count === 0 ? 'zero — unlimited guesses' : 'unlimited guesses'}
-                  title={clueCountLabel(clue.count)}
+                  title={unlimitedClueHint(clue.count === 0)}
                 >
                   {clueCountLabel(clue.count)}
                 </span>
               ) : (
                 (() => {
-                  const pipTotal = guessingNow ? clue.count : guessesShown
+                  const pipTotal = guessesShown
                   return (
                     <span
                       className={styles.pips}
@@ -416,7 +412,7 @@ export default function GameScreen(props: {
                           key={i}
                           className={styles.pip}
                           data-spent={i < guessesUsed || undefined}
-                          data-bonus={(!guessingNow && i === clue.count) || undefined}
+                          data-bonus={i === clue.count || undefined}
                         />
                       ))}
                     </span>
@@ -425,17 +421,23 @@ export default function GameScreen(props: {
               )}
             </span>
           )}
-          {acting === 'operatives' && mineTurn && props.mySeat === null && (
-            <button
-              type="button"
-              className={styles.pass}
-              onClick={() => props.onAction({ type: 'endTurn' })}
-              aria-label="Pass"
-              title="Pass"
-            >
-              Pass
-            </button>
-          )}
+          <span key={statusText} className={styles.statusText}>
+            {statusText}
+          </span>
+          {acting === 'operatives' &&
+            mineTurn &&
+            props.mySeat === null &&
+            props.game.hasGuessedThisTurn() && (
+              <button
+                type="button"
+                className={styles.pass}
+                onClick={() => props.onAction({ type: 'endTurn' })}
+                aria-label="Pass"
+                title="Pass"
+              >
+                Pass
+              </button>
+            )}
         </>
       )}
       {winner && props.mySeat && (

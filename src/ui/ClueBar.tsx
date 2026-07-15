@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { INFINITE_CLUE, type Game } from '../Game'
+import { UNLIMITED_CLUE, unlimitedClueHint, type Game } from '../Game'
 import styles from './ClueBar.module.css'
 
 export default function ClueBar(props: {
@@ -27,7 +27,7 @@ export default function ClueBar(props: {
       onSubmit={(event) => {
         event.preventDefault()
         if (word.trim()) {
-          props.onClue(word.trim(), unlimited ? INFINITE_CLUE : count)
+          props.onClue(word.trim(), unlimited ? UNLIMITED_CLUE : count)
           setWord('')
         }
       }}
@@ -61,6 +61,13 @@ export default function ClueBar(props: {
           className={styles.count}
           data-unlimited={unlimited || undefined}
           data-zero={count === 0 || undefined}
+          title={
+            count === 0
+              ? unlimitedClueHint(true)
+              : unlimited
+                ? unlimitedClueHint(false)
+                : `Your team may guess up to ${count + 1} cards: the clue number plus one bonus.`
+          }
         >
           <input
             className={styles.countInput}
@@ -78,7 +85,7 @@ export default function ClueBar(props: {
             }
           />
           {unlimited && (
-            <span className={styles.infinityOverlay} aria-hidden="true">
+            <span className={styles.unlimitedOverlay} aria-hidden="true">
               ∞
             </span>
           )}
