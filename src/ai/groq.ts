@@ -49,3 +49,52 @@ Already revealed: ${req.revealedWords.length > 0 ? req.revealedWords.join(', ') 
   const parsed = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim())
   return { word: String(parsed.word).toUpperCase(), count: Number(parsed.count) }
 }
+
+export interface GuessRequest {
+  key: string
+  clue: string
+  count: number
+  words: string[]
+}
+
+export async function fetchGuesses(req: GuessRequest): Promise<string[]> {
+  const systemPrompt = `You are a Codenames operative. Your spymaster gave you a one-word clue and a count. You must pick exactly COUNT words from the board that you think the clue refers to.
+
+Rules:
+- Pick exactly ${req.count} word(s) from the board
+- Choose words most strongly associated with the clue
+- You do NOT know which words are yours or which are deadly
+- Respond with a JSON array of words only: ["WORD1","WORD2"]`
+
+  const userMessage = `Clue: ${req.clue} (${req.count})
+Board words: ${req.words.join(', ')}`
+
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${req.key}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
+      ],
+      temperature: 0.3,
+    }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403) throw new Error('Invalid API key.')
+    if (res.status === 429) throw new Error('AI quota exceeded. Try again later.')
+    const msg = data.error?.message || `Groq error ${res.status}`
+    throw new Error(msg)
+  }
+
+  const raw: string = data.choices?.[0]?.message?.content ?? ''
+  const parsed: string[] = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim())
+  return parsed.slice(0, req.count).map((w) => String(w).toUpperCase())
+}

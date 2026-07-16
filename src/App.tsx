@@ -22,6 +22,7 @@ import { creditOf } from './decks'
 import { GameScreen, spymasterEmoji } from './ui/GameScreen'
 import { Homepage } from './ui/Homepage'
 import { SoloGameScreen } from './ui/SoloGameScreen'
+import { SpymasterSoloGameScreen } from './ui/SpymasterSoloGameScreen'
 
 export function App() {
   const [game, setGame] = useState<Game | null>(null)
@@ -50,7 +51,7 @@ export function App() {
   const roomCodeRef = useRef('')
   const repickingRef = useRef(false)
   const identifiedRef = useRef(false)
-  const [solo, setSolo] = useState(false)
+  const [soloMode, setSoloMode] = useState<'off' | 'operative' | 'spymaster'>('off')
   const [soloGame, setSoloGame] = useState<SoloGame | null>(null)
   const [apiKey, setApiKeyState] = useState<string | null>(null)
   const [needsApiKey, setNeedsApiKey] = useState(false)
@@ -362,8 +363,18 @@ export function App() {
     <>
       {needsApiKey ? (
         <AiSetup onReady={onApiKeyReady} />
-      ) : soloGame && apiKey ? (
+      ) : soloGame && apiKey && soloMode === 'operative' ? (
         <SoloGameScreen
+          game={soloGame}
+          apiKey={apiKey}
+          onGameUpdate={setSoloGame}
+          onNewGame={async () => {
+            const title = soloGame.state.deck
+            if (title) await startSoloGame(title)
+          }}
+        />
+      ) : soloGame && apiKey && soloMode === 'spymaster' ? (
+        <SpymasterSoloGameScreen
           game={soloGame}
           apiKey={apiKey}
           onGameUpdate={setSoloGame}
@@ -418,10 +429,10 @@ export function App() {
           decks={decks}
           boardSize={selectedBoardSize}
           onBoardSizeChange={setSelectedBoardSize}
-          solo={solo}
-          onSoloChange={setSolo}
+          soloMode={soloMode}
+          onSoloModeChange={setSoloMode}
           onPick={(title) => {
-            if (solo) {
+            if (soloMode !== 'off') {
               void startSoloGame(title)
             } else if (game) {
               sessionRef.current?.setRepicking(null)
@@ -432,7 +443,7 @@ export function App() {
             }
           }}
           onJoin={
-            solo || game || RoomCode.fromPath(window.location.pathname)
+            soloMode !== 'off' || game || RoomCode.fromPath(window.location.pathname)
               ? undefined
               : (raw) => {
                   const code = RoomCode.fromTyped(raw)

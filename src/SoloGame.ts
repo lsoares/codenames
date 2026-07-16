@@ -50,9 +50,9 @@ export function createSoloGame(
 export class SoloGame {
   constructor(private readonly s: SoloGameState) {}
 
-  get state(): SoloGameState & { readonly winner: Team | null } {
+  get state(): SoloGameState & { readonly winner: Team | null; readonly turn: Team; readonly phase: 'clue' | 'guess' } {
     const winner = this.s.result === 'playing' ? null : ('blue' as Team)
-    return { ...this.s, winner }
+    return { ...this.s, winner, turn: 'blue' as Team, phase: this.s.clue ? 'guess' : 'clue' }
   }
 
   mineCount(): number {
@@ -78,6 +78,22 @@ export class SoloGame {
 
   canMark(_cardIndex: number, _isSpymaster: boolean): boolean {
     return false
+  }
+
+  isVisible(word: string): boolean {
+    const target = word.trim().toLowerCase()
+    if (!target) return false
+    return this.s.cards.some(
+      (card) => !card.revealed && card.face.kind === 'text' && card.face.text.toLowerCase() === target,
+    )
+  }
+
+  meansUnlimited(_count: number): boolean {
+    return false
+  }
+
+  maxClueCount(): number {
+    return this.unrevealedMineCount()
   }
 
   receiveClue(word: string, count: number): SoloGame {

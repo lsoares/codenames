@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import { UNLIMITED_CLUE, unlimitedClueHint, type Game } from '../Game'
+import { UNLIMITED_CLUE, unlimitedClueHint, type Team } from '../Game'
 import styles from './ClueBar.module.css'
 
 export function ClueBar(props: {
-  game: Game
+  game: {
+    isVisible(word: string): boolean
+    meansUnlimited(count: number): boolean
+    maxClueCount(): number
+    readonly state: { readonly turn: Team }
+  }
   selectedCount: number
   onClue: (word: string, count: number) => void
 }) {

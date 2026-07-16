@@ -13,8 +13,8 @@ export function Homepage(props: {
   onBoardSizeChange: (size: BoardSize) => void
   onPick: (id: string) => void
   onJoin?: (code: string) => void
-  solo?: boolean
-  onSoloChange?: (solo: boolean) => void
+  soloMode?: 'off' | 'operative' | 'spymaster'
+  onSoloModeChange?: (mode: 'off' | 'operative' | 'spymaster') => void
 }) {
   const [code, setCode] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<Deck['category'] | undefined>(
@@ -61,17 +61,27 @@ export function Homepage(props: {
           )}
         </header>
         <div className={styles.filters}>
-          {props.onSoloChange && (
-            <label className={styles.soloToggle}>
-              <input
-                type="checkbox"
-                checked={props.solo ?? false}
-                onChange={(event) => props.onSoloChange?.(event.target.checked)}
-              />
-              Solo
-            </label>
+          {props.onSoloModeChange && (
+            <>
+              <label className={styles.soloToggle}>
+                <input
+                  type="checkbox"
+                  checked={props.soloMode === 'operative'}
+                  onChange={(event) => props.onSoloModeChange?.(event.target.checked ? 'operative' : 'off')}
+                />
+                Solo (Operative)
+              </label>
+              <label className={styles.soloToggle}>
+                <input
+                  type="checkbox"
+                  checked={props.soloMode === 'spymaster'}
+                  onChange={(event) => props.onSoloModeChange?.(event.target.checked ? 'spymaster' : 'off')}
+                />
+                Solo (Spymaster)
+              </label>
+            </>
           )}
-          {!props.solo && (
+          {props.soloMode === 'off' && (
             <CategoryPicker
               category={categoryFilter}
               onCategoryChange={(category) => {
@@ -86,7 +96,7 @@ export function Homepage(props: {
           )}
           <BoardSizeSelector value={props.boardSize} onChange={props.onBoardSizeChange} />
         </div>
-        <DeckPicker decks={props.decks} category={props.solo ? 'words' : categoryFilter} onPick={props.onPick} />
+        <DeckPicker decks={props.decks} category={props.soloMode !== 'off' ? 'words' : categoryFilter} onPick={props.onPick} />
       </div>
       <div className={styles.actions}>
         <HowToPlay />

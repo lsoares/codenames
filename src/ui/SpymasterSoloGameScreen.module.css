@@ -1,0 +1,65 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  flex-wrap: wrap;
+}
+
+.score {
+  font-weight: bold;
+  font-size: 1.1rem;
+  opacity: 0.7;
+}
+
+.status {
+  text-align: center;
+  font-size: 1rem;
+}
+
+.clueWord {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 1.3rem;
+}
+
+.clueCount {
+  opacity: 0.6;
+  font-size: 1.1rem;
+  margin-left: 0.3rem;
+}
+
+.guessesLeft {
+  opacity: 0.5;
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+.boardArea {
+  flex: 1;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  padding: 0 1rem 1rem;
+}
+
+.playAgain {
+  padding: 0.6rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.retry {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
