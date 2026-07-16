@@ -34,7 +34,9 @@ export default function App() {
   const [repickingTeam, setRepickingTeam] = useState<Team | null>(null)
   const [isHost, setIsHost] = useState(false)
   const [loadingFaces, setLoadingFaces] = useState(false)
-  const [selectedBoardSize, setSelectedBoardSize] = useState<BoardSize>('5x4')
+  const [selectedBoardSize, setSelectedBoardSize] = useState<BoardSize>(
+    (localStorage.getItem('codenames:board-size') as BoardSize) ?? '5x4',
+  )
   const [status, setStatus] = useState('')
   const sessionRef = useRef<Session | null>(null)
   const isHostRef = useRef(false)
@@ -368,7 +370,10 @@ export default function App() {
         <Homepage
           decks={decks}
           boardSize={selectedBoardSize}
-          onBoardSizeChange={setSelectedBoardSize}
+          onBoardSizeChange={(size) => {
+            setSelectedBoardSize(size)
+            localStorage.setItem('codenames:board-size', size)
+          }}
           onPick={(id) => {
             if (game) {
               sessionRef.current?.setRepicking(null)
