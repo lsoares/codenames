@@ -73,10 +73,10 @@ export class GamePage {
     await this.page.goto(`/${code}`)
   }
 
-  // The homepage lists decks; picking one hosts a room. Random is the default
-  // (image) deck the suite plays on, so start there and wait for the board.
+  // The homepage lists decks; picking one hosts a room. Pictures is casual
+  // (visible by default) and uses static CDN images, so no API stub is needed.
   async createRoom(): Promise<void> {
-    await this.createRoomOnDeck('Random')
+    await this.createRoomOnDeck('Pictures')
   }
 
   // Host a room on a named deck (picked from the grid), then wait for its board.
@@ -88,6 +88,10 @@ export class GamePage {
       .getByRole('button', { name: label, exact: true })
       .click()
     await this.findBoardCards().first().waitFor()
+  }
+
+  async showMoreDecks(): Promise<void> {
+    await this.page.getByRole('button', { name: 'More' }).click()
   }
 
   // Every card on the board, whatever the deck: a spymaster sees each card's
@@ -123,11 +127,15 @@ export class GamePage {
     await this.page.reload()
   }
 
-  // At game end, Change deck returns to the deck grid (in the same room); picking
-  // a deck there re-deals the board for everyone.
-  async changeDeckAtEnd(label: string): Promise<void> {
+  async openChangeDeck(): Promise<void> {
     await this.page.getByRole('button', { name: 'Change deck' }).click()
-    await this.page.getByRole('button', { name: label, exact: true }).click()
+  }
+
+  async pickDeckFromGrid(label: string): Promise<void> {
+    await this.page
+      .getByRole('list', { name: 'Decks' })
+      .getByRole('button', { name: label, exact: true })
+      .click()
   }
 
   async giveClue(word: string, count: number): Promise<void> {

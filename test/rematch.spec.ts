@@ -11,7 +11,9 @@ test('after a win, changing deck deals a fresh board in the same room', async ({
   await operative.guessNumber(target)
   await expect(host.getWinBadge('blue')).toBeVisible()
 
-  await host.changeDeckAtEnd('Random')
+  await host.openChangeDeck()
+  await host.showMoreDecks()
+  await host.pickDeckFromGrid('Random')
 
   await expect(host.getWinBadge('blue')).toHaveCount(0)
   await expect(host.getCards()).toHaveCount(20)

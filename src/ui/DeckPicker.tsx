@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import type { Deck } from '../decks'
-import type { DeckFilter } from './DeckFilters'
+import type { CategoryFilter } from './CategoryPicker'
 import styles from './DeckPicker.module.css'
 
 export default function DeckPicker(props: {
   decks: Deck[]
-  filter: DeckFilter
+  category: CategoryFilter
+  showMore: boolean
   onPick: (id: string) => void
 }) {
   const [pickedId, setPickedId] = useState<string | null>(null)
@@ -43,10 +44,12 @@ export default function DeckPicker(props: {
     )
   }
 
-  const matches = (deck: Deck) => !props.filter.group || deck.group === props.filter.group
-  const ordered = GROUP_ORDER.flatMap((group) =>
+  const matches = (deck: Deck) =>
+    (!props.category || deck.group === props.category) &&
+    (props.showMore || deck.difficulty === 'casual')
+  const ordered = CATEGORY_ORDER.flatMap((category) =>
     props.decks
-      .filter((deck) => deck.group === group && matches(deck))
+      .filter((deck) => deck.group === category && matches(deck))
       .sort((a, b) => DIFFICULTY_RANK[a.difficulty] - DIFFICULTY_RANK[b.difficulty]),
   )
   if (ordered.length === 0) {
@@ -59,7 +62,7 @@ export default function DeckPicker(props: {
   )
 }
 
-const GROUP_ORDER: Deck['group'][] = ['words', 'abstract', 'photos', 'symbols', 'culture']
+const CATEGORY_ORDER: Deck['group'][] = ['words', 'abstract', 'photos', 'symbols', 'culture']
 
 const DIFFICULTY_RANK: Record<Deck['difficulty'], number> = { casual: 0, tough: 1, brutal: 2 }
 

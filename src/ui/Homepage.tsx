@@ -3,7 +3,7 @@ import type { BoardSize } from '../Game'
 import type { Deck } from '../decks'
 import BoardSizeSelector from './BoardSizeSelector'
 import DeckPicker from './DeckPicker'
-import DeckFilters, { type DeckFilter } from './DeckFilters'
+import CategoryPicker, { type CategoryFilter } from './CategoryPicker'
 import HowToPlay from './HowToPlay'
 import styles from './Homepage.module.css'
 
@@ -15,7 +15,8 @@ export default function Homepage(props: {
   onJoin?: (code: string) => void
 }) {
   const [code, setCode] = useState('')
-  const [filter, setFilter] = useState<DeckFilter>({ group: null })
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>(null)
+  const [showMore, setShowMore] = useState(false)
   const onJoin = props.onJoin
   return (
     <main className={styles.home}>
@@ -57,18 +58,25 @@ export default function Homepage(props: {
           )}
         </header>
         <div className={styles.filters}>
-          <DeckFilters
-            value={filter}
-            onChange={(next) => {
-              if (next.group !== filter.group) {
-                props.onBoardSizeChange(next.group === 'words' ? '5x5' : '5x4')
+          <CategoryPicker
+            category={categoryFilter}
+            onCategoryChange={(category) => {
+              if (category !== categoryFilter) {
+                props.onBoardSizeChange(category === 'words' ? '5x5' : '5x4')
               }
-              setFilter(next)
+              setCategoryFilter(category)
             }}
+            showMore={showMore}
+            onShowMoreChange={setShowMore}
           />
           <BoardSizeSelector value={props.boardSize} onChange={props.onBoardSizeChange} />
         </div>
-        <DeckPicker decks={props.decks} filter={filter} onPick={props.onPick} />
+        <DeckPicker
+          decks={props.decks}
+          category={categoryFilter}
+          showMore={showMore}
+          onPick={props.onPick}
+        />
       </div>
       <div className={styles.actions}>
         <HowToPlay />
