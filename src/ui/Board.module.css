@@ -311,10 +311,6 @@ a.caption:focus-visible {
   background: #a89c82;
 }
 
-.card[data-color='assassin'] {
-  background: #2b2d42;
-}
-
 .card[data-revealed] {
   opacity: 0.15;
   transition: opacity 0.2s ease;
@@ -385,6 +381,13 @@ a.caption:focus-visible {
 .card[data-forbidden],
 .card[data-forbidden]:disabled {
   cursor: not-allowed;
+}
+
+/* Hovering the assassin - the one card you must never touch - brings up a skull. */
+.card[data-color='assassin'] {
+  cursor:
+    url('/skull.png') 12 12,
+    not-allowed;
 }
 
 .card[data-inert]:active,
