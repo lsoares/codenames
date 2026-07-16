@@ -60,7 +60,8 @@ export const decks: Deck[] = [
   pokemon,
 ]
 
-export const findDeck = (title: string): Deck => decks.find((deck) => deck.title === title) ?? unsplash
+export const findDeck = (title: string): Deck =>
+  decks.find((deck) => deck.title === title) ?? unsplash
 
 export const creditOf = (deck: Deck): Credit | null =>
   deck.source ? { label: deck.source, url: deck.sourceUrl ?? '' } : null
