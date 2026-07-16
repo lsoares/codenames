@@ -311,6 +311,10 @@ a.caption:focus-visible {
   background: #a89c82;
 }
 
+.card[data-color='assassin'] {
+  background: #2b2d42;
+}
+
 .card[data-revealed] {
   opacity: 0.15;
   transition: opacity 0.2s ease;
