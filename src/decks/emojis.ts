@@ -453,8 +453,8 @@ const EMOJIS = [
   '🔻',
 ]
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   return shuffle(EMOJIS)
-    .slice(0, 20)
+    .slice(0, total)
     .map((emoji) => ({ kind: 'glyph', text: emoji }))
 }

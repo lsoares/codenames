@@ -63,12 +63,16 @@ export interface Transition {
   win: { team: Team; byAssassin: boolean } | null
 }
 
-const DEFAULT_COMPOSITION: Composition = {
-  startingAgents: 8,
-  otherAgents: 7,
-  neutrals: 4,
-  assassins: 1,
+export type BoardSize = '5x4' | '5x5'
+
+const COMPOSITIONS: Record<BoardSize, Composition> = {
+  '5x4': { startingAgents: 8, otherAgents: 7, neutrals: 4, assassins: 1 },
+  '5x5': { startingAgents: 9, otherAgents: 8, neutrals: 7, assassins: 1 },
 }
+
+export const compositionFor = (size: BoardSize): Composition => COMPOSITIONS[size]
+
+const DEFAULT_COMPOSITION = COMPOSITIONS['5x4']
 
 export const boardSize = (composition: Composition = DEFAULT_COMPOSITION): number =>
   composition.startingAgents +

@@ -20,7 +20,7 @@ interface RawgGame {
   slug: string
 }
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const key = import.meta.env.VITE_RAWG_API_KEY
   if (!key) throw new Error('Missing VITE_RAWG_API_KEY')
 
@@ -35,8 +35,8 @@ async function fetch(): Promise<Face[]> {
     game.background_image ? [{ url: game.background_image, name: game.name, slug: game.slug }] : [],
   )
 
-  if (faces.length < 20) throw new Error('RAWG returned too few images')
-  return faces.slice(0, 20).map(({ url, name, slug }) => ({
+  if (faces.length < total) throw new Error('RAWG returned too few images')
+  return faces.slice(0, total).map(({ url, name, slug }) => ({
     kind: 'image',
     url,
     tooltip: name,

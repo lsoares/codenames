@@ -77,9 +77,9 @@ const CODES: [number, string][] = [
   [599, 'Network Connect Timeout Error'],
 ]
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   return shuffle(CODES)
-    .slice(0, 20)
+    .slice(0, total)
     .map(([code, title]) => ({
       kind: 'image',
       url: `https://http.cat/${code}.jpg`,

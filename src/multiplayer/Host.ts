@@ -1,6 +1,6 @@
 import { type DataConnection } from 'peerjs'
 import type { Face } from '../Face'
-import { Game, createGame, type GameState } from '../Game'
+import { Game, compositionFor, createGame, type BoardSize, type GameState } from '../Game'
 import { findDeck, creditOf, type Deck } from '../decks'
 import { MolesHost } from '../moles/MolesHost'
 import { Room } from './Room'
@@ -61,11 +61,12 @@ export class Host implements Session {
     deck: Deck,
     faces: Face[],
     startingTeam: 'red' | 'blue',
+    boardSize: BoardSize,
     code?: string,
   ): Promise<Host> {
     return Host.launch(
       code ?? RoomCode.random().toString(),
-      createGame(faces, startingTeam, creditOf(deck), deck.label, deck.composition),
+      createGame(faces, startingTeam, creditOf(deck), deck.label, compositionFor(boardSize)),
       'new',
       4,
       code != null,
@@ -289,7 +290,7 @@ const apply = (game: Game, action: Action): Game => {
       return game.endTurn()
     case 'newGame': {
       const deck = findDeck(action.deckId)
-      return game.newGame(action.faces, creditOf(deck), deck.label, deck.composition)
+      return game.newGame(action.faces, creditOf(deck), deck.label, compositionFor(action.boardSize))
     }
   }
 }

@@ -34,7 +34,7 @@ interface PexelsPhoto {
   url: string
 }
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const key = import.meta.env.VITE_PEXELS_API_KEY
   if (!key) throw new Error('Missing VITE_PEXELS_API_KEY')
 
@@ -62,8 +62,8 @@ async function fetch(): Promise<Face[]> {
     seen.add(photo.src.medium)
     return fresh
   })
-  if (photos.length < 20) throw new Error('Pexels returned too few photos')
+  if (photos.length < total) throw new Error('Pexels returned too few photos')
   return photos
-    .slice(0, 20)
+    .slice(0, total)
     .map((photo) => ({ kind: 'image', url: photo.src.medium, link: photo.url }))
 }

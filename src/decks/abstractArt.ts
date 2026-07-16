@@ -197,15 +197,15 @@ function wikiartPage(url: string): string | undefined {
     : undefined
 }
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const pool = shuffle(PAINTINGS)
   const faces = new Set<string>()
-  for (let i = 0; i < pool.length && faces.size < 20; i += 26) {
+  for (let i = 0; i < pool.length && faces.size < total; i += 26) {
     for (const src of await Promise.all(pool.slice(i, i + 26).map(loads))) if (src) faces.add(src)
   }
 
-  if (faces.size < 20) throw new Error('WikiArt returned too few images')
-  return [...faces].slice(0, 20).map((url) => ({
+  if (faces.size < total) throw new Error('WikiArt returned too few images')
+  return [...faces].slice(0, total).map((url) => ({
     kind: 'image',
     url,
     tooltip: attribution(url),

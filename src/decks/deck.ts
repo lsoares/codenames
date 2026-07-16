@@ -1,5 +1,4 @@
 import type { Face } from '../Face'
-import type { Composition } from '../Game'
 
 export interface Deck {
   id: string
@@ -10,6 +9,5 @@ export interface Deck {
   difficulty: 'casual' | 'tough' | 'brutal'
   source?: string
   sourceUrl?: string
-  composition?: Composition
-  fetch: () => Promise<Face[]>
+  fetch: (boardSize?: number) => Promise<Face[]>
 }

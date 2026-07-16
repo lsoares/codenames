@@ -16,8 +16,8 @@ export const generated: Deck = {
 
 const BASE = '/generated-cards'
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   return shuffle(Array.from({ length: 184 }, (_, i) => i))
-    .slice(0, 20)
+    .slice(0, total)
     .map((n) => ({ kind: 'image', url: `${BASE}/card-${n}.png`, fit: 'framed', trim: 3.5 }))
 }

@@ -237,9 +237,9 @@ const ICONS: [string, string][] = [
   ['workload-identity-pool', 'Workload Identity Pool'],
 ]
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   return shuffle(ICONS)
-    .slice(0, 20)
+    .slice(0, total)
     .map(([slug, name]) => ({
       kind: 'image',
       url: `https://api.iconify.design/gcp/${slug}.svg`,

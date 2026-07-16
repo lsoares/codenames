@@ -1,10 +1,11 @@
 import { type Browser, type Page } from '@playwright/test'
 
-// Return 20 canned photos so the board is deterministic and offline.
+// Return 25 canned photos so the board is deterministic and offline.
+// The default board size is 5×5 (25 cards); 5×4 (20 cards) uses a subset.
 export async function stubUnsplash(page: Page): Promise<void> {
   await page.route('**/api.unsplash.com/**', (route) =>
     route.fulfill({
-      json: Array.from({ length: 20 }, (_, index) => ({
+      json: Array.from({ length: 25 }, (_, index) => ({
         urls: {
           small: `https://example.com/${index}.jpg`,
           regular: `https://example.com/${index}.jpg`,

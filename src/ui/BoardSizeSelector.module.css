@@ -1,0 +1,27 @@
+.selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.option {
+  border: none;
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+}
+
+.option:hover {
+  color: var(--ink);
+  filter: none;
+}
+
+.active,
+.active:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}

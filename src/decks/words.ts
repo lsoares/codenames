@@ -1,6 +1,5 @@
 import type { Face } from '../Face'
 import type { Deck } from './deck'
-import { boardSize, type Composition } from '../Game'
 import { shuffle } from '../shuffle'
 
 const dictionaryLink = (word: string): string =>
@@ -25,8 +24,6 @@ export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]>
   return [...seen]
 }
 
-const COMPOSITION: Composition = { startingAgents: 9, otherAgents: 8, neutrals: 7, assassins: 1 }
-
 export const words: Deck = {
   id: 'words',
   label: 'Words+',
@@ -36,9 +33,8 @@ export const words: Deck = {
   description: 'Fresh everyday nouns generated from Datamuse',
   source: 'Datamuse',
   sourceUrl: 'https://www.datamuse.com/api/',
-  composition: COMPOSITION,
-  fetch: (): Promise<Face[]> =>
-    datamuseWords(boardSize(COMPOSITION)).then((words) =>
+  fetch: (total = 20): Promise<Face[]> =>
+    datamuseWords(total).then((words) =>
       words.map((word) => ({ kind: 'text', text: word, link: dictionaryLink(word) })),
     ),
 }

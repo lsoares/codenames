@@ -1935,9 +1935,9 @@ const ICONS = [
   'solid/z',
 ]
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   return shuffle(ICONS)
-    .slice(0, 20)
+    .slice(0, total)
     .map((entry) => {
       const name = entry.split('/')[1]
       return {

@@ -18,13 +18,13 @@ interface PexelsPhoto {
   url: string
 }
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const key = import.meta.env.VITE_PEXELS_API_KEY
   if (!key) throw new Error('Missing VITE_PEXELS_API_KEY')
 
   const page = Math.floor(Math.random() * 50) + 1
   const response = await window.fetch(
-    `https://api.pexels.com/v1/curated?per_page=20&page=${page}`,
+    `https://api.pexels.com/v1/curated?per_page=${total}&page=${page}`,
     { headers: { Authorization: key } },
   )
   if (!response.ok) {

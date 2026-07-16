@@ -17,8 +17,8 @@ export const official: Deck = {
 const BASE =
   'https://cdn.jsdelivr.net/gh/samdemaeyer/codenames-pictures@a01b650ecc03fb3b9b535659dd046fcc9d4fd167/public/images/cards'
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   return shuffle(Array.from({ length: 280 }, (_, i) => i))
-    .slice(0, 20)
+    .slice(0, total)
     .map((n) => ({ kind: 'image', url: `${BASE}/card-${n}.jpg`, fit: 'framed', trim: 3.5 }))
 }

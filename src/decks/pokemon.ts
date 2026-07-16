@@ -18,7 +18,7 @@ interface Pokemon {
   sprites: { other: { 'official-artwork': { front_default: string | null } } }
 }
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const ids = new Set<number>()
   while (ids.size < 30) ids.add(Math.floor(Math.random() * 1025) + 1)
 
@@ -36,8 +36,8 @@ async function fetch(): Promise<Face[]> {
     return p && url ? [{ url, name: p.name }] : []
   })
 
-  if (faces.length < 20) throw new Error('PokeAPI returned too few images')
-  return faces.slice(0, 20).map(({ url, name }) => ({
+  if (faces.length < total) throw new Error('PokeAPI returned too few images')
+  return faces.slice(0, total).map(({ url, name }) => ({
     kind: 'image',
     url,
     tooltip: name.charAt(0).toUpperCase() + name.slice(1),

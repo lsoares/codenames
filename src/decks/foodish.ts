@@ -17,7 +17,7 @@ interface FoodishImage {
   image: string
 }
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const responses = await Promise.all(
     Array.from({ length: 30 }, () =>
       window
@@ -28,8 +28,8 @@ async function fetch(): Promise<Face[]> {
   )
 
   const faces = [...new Set(responses.flatMap((r) => (r ? [r.image] : [])))]
-  if (faces.length < 20) throw new Error('Foodish returned too few images')
-  return faces.slice(0, 20).map((url) => {
+  if (faces.length < total) throw new Error('Foodish returned too few images')
+  return faces.slice(0, total).map((url) => {
     const folder = url.split('/').slice(-2)[0] ?? ''
     return { kind: 'image', url, tooltip: folder.charAt(0).toUpperCase() + folder.slice(1) }
   })

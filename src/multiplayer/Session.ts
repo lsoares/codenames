@@ -1,5 +1,5 @@
 import type { Face } from '../Face'
-import type { GameState, Team } from '../Game'
+import type { BoardSize, GameState, Team } from '../Game'
 import type { MoleSighting } from '../moles/MoleGame'
 import type { Seats } from './Room'
 
@@ -8,7 +8,7 @@ export type Action =
   | { type: 'guess'; cardIndex: number }
   | { type: 'toggleMark'; cardIndex: number; team: Team }
   | { type: 'endTurn' }
-  | { type: 'newGame'; deckId: string; faces: Face[]; rotate?: boolean }
+  | { type: 'newGame'; deckId: string; faces: Face[]; boardSize: BoardSize; rotate?: boolean }
 
 export type Presence = { __presence: true; spymasterTeam: Team | null }
 export type TeamClaim = { __team: true; team: Team }

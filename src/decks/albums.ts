@@ -22,7 +22,7 @@ interface ItunesAlbum {
   collectionViewUrl: string
 }
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const genres = shuffle([
     'ambient',
     'electronic',
@@ -60,6 +60,6 @@ async function fetch(): Promise<Face[]> {
       link: album.collectionViewUrl,
     }))
 
-  if (faces.length < 20) throw new Error('iTunes returned too few albums')
-  return faces.slice(0, 20)
+  if (faces.length < total) throw new Error('iTunes returned too few albums')
+  return faces.slice(0, total)
 }

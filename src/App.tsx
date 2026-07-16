@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './App.module.css'
-import { Game, type GameState, type Team } from './Game'
+import { boardSize, compositionFor, Game, type BoardSize, type GameState, type Team } from './Game'
 import { identify, track } from './analytics'
 import { decks, findDeck } from './decks'
 import { Guest, JoinError } from './multiplayer/Guest'
@@ -34,6 +34,7 @@ export default function App() {
   const [repickingTeam, setRepickingTeam] = useState<Team | null>(null)
   const [isHost, setIsHost] = useState(false)
   const [loadingFaces, setLoadingFaces] = useState(false)
+  const [selectedBoardSize, setSelectedBoardSize] = useState<BoardSize>('5x4')
   const [status, setStatus] = useState('')
   const sessionRef = useRef<Session | null>(null)
   const isHostRef = useRef(false)
@@ -114,8 +115,15 @@ export default function App() {
     setLoadingFaces(true)
     try {
       const deck = findDeck(id)
-      const faces = await deck.fetch()
-      sessionRef.current?.dispatch({ type: 'newGame', deckId: deck.id, faces, rotate })
+      const total = boardSize(compositionFor(selectedBoardSize))
+      const faces = await deck.fetch(total)
+      sessionRef.current?.dispatch({
+        type: 'newGame',
+        deckId: deck.id,
+        faces,
+        boardSize: selectedBoardSize,
+        rotate,
+      })
       track('game started', { deck: deck.label })
     } catch (error) {
       notify(
@@ -185,8 +193,9 @@ export default function App() {
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
       const deck = findDeck(id)
-      const faces = await deck.fetch()
-      wire(await Host.start(deck, faces, start, code), true)
+      const total = boardSize(compositionFor(selectedBoardSize))
+      const faces = await deck.fetch(total)
+      wire(await Host.start(deck, faces, start, selectedBoardSize, code), true)
       track('room created', { deck: deck.label })
     } catch (error) {
       if (code && (error as { type?: string })?.type === 'unavailable-id') {
@@ -358,6 +367,8 @@ export default function App() {
       ) : (
         <Homepage
           decks={decks}
+          boardSize={selectedBoardSize}
+          onBoardSizeChange={setSelectedBoardSize}
           onPick={(id) => {
             if (game) {
               sessionRef.current?.setRepicking(null)

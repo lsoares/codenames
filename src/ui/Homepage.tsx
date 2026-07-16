@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import type { BoardSize } from '../Game'
 import type { Deck } from '../decks'
+import BoardSizeSelector from './BoardSizeSelector'
 import DeckPicker from './DeckPicker'
 import DeckFilters, { type DeckFilter } from './DeckFilters'
 import HowToPlay from './HowToPlay'
@@ -7,6 +9,8 @@ import styles from './Homepage.module.css'
 
 export default function Homepage(props: {
   decks: Deck[]
+  boardSize: BoardSize
+  onBoardSizeChange: (size: BoardSize) => void
   onPick: (id: string) => void
   onJoin?: (code: string) => void
 }) {
@@ -52,7 +56,18 @@ export default function Homepage(props: {
             </form>
           )}
         </header>
-        <DeckFilters value={filter} onChange={setFilter} />
+        <div className={styles.filters}>
+          <DeckFilters
+            value={filter}
+            onChange={(next) => {
+              if (next.group !== filter.group) {
+                props.onBoardSizeChange(next.group === 'words' ? '5x5' : '5x4')
+              }
+              setFilter(next)
+            }}
+          />
+          <BoardSizeSelector value={props.boardSize} onChange={props.onBoardSizeChange} />
+        </div>
         <DeckPicker decks={props.decks} filter={filter} onPick={props.onPick} />
       </div>
       <div className={styles.actions}>

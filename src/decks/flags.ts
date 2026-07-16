@@ -83,8 +83,8 @@ const FLAGS: [string, string][] = [
   ['🇫🇯', 'Fiji'],
 ]
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   return shuffle(FLAGS)
-    .slice(0, 20)
+    .slice(0, total)
     .map(([flag, country]) => ({ kind: 'glyph', text: flag, tooltip: country }))
 }

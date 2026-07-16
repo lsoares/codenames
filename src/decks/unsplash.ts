@@ -19,12 +19,12 @@ interface UnsplashPhoto {
   links?: { html: string }
 }
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const key = import.meta.env.VITE_UNSPLASH_ACCESS_KEY
   if (!key) throw new Error('Missing VITE_UNSPLASH_ACCESS_KEY')
 
   const response = await window.fetch(
-    `https://api.unsplash.com/photos/random?count=20&orientation=landscape&client_id=${key}`,
+    `https://api.unsplash.com/photos/random?count=${total}&orientation=landscape&client_id=${key}`,
   )
   if (!response.ok) {
     throw new Error(`Unsplash request failed: ${response.status}`)

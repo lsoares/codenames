@@ -20,7 +20,7 @@ interface TmdbMovie {
   id: number
 }
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const key = import.meta.env.VITE_TMDB_API_KEY
   if (!key) throw new Error('Missing VITE_TMDB_API_KEY')
 
@@ -45,6 +45,6 @@ async function fetch(): Promise<Face[]> {
       link: `https://www.themoviedb.org/movie/${movie.id}`,
     }))
 
-  if (faces.length < 20) throw new Error('TMDB returned too few backdrops')
-  return faces.slice(0, 20)
+  if (faces.length < total) throw new Error('TMDB returned too few backdrops')
+  return faces.slice(0, total)
 }

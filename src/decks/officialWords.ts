@@ -1,12 +1,9 @@
 import type { Face } from '../Face'
 import type { Deck } from './deck'
-import { boardSize, type Composition } from '../Game'
 import { shuffle } from '../shuffle'
 
 const dictionaryLink = (word: string): string =>
   `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
-
-const COMPOSITION: Composition = { startingAgents: 9, otherAgents: 8, neutrals: 7, assassins: 1 }
 
 export const officialWords: Deck = {
   id: 'official-words',
@@ -17,7 +14,6 @@ export const officialWords: Deck = {
   description: 'A big community word list, curated by DarkTwinge',
   source: 'DarkTwinge',
   sourceUrl: 'https://www.darktwinge.com/codenames-word-list/',
-  composition: COMPOSITION,
   fetch,
 }
 
@@ -856,8 +852,8 @@ const WORDS = [
   'ZONE',
 ]
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   return shuffle(WORDS)
-    .slice(0, boardSize(COMPOSITION))
+    .slice(0, total)
     .map((word) => ({ kind: 'text', text: word, link: dictionaryLink(word) }))
 }

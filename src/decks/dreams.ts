@@ -23,16 +23,16 @@ function loads(src: string): Promise<string | null> {
   })
 }
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const ids = shuffle(Array.from({ length: 305 }, (_, i) => i + 1))
   const faces = new Set<string>()
-  for (let i = 0; i < ids.length && faces.size < 20; i += 26) {
+  for (let i = 0; i < ids.length && faces.size < total; i += 26) {
     const batch = ids
       .slice(i, i + 26)
       .map((id) => `https://thisimagedoesnotexist.com/images/${id}.jpeg`)
     for (const src of await Promise.all(batch.map(loads))) if (src) faces.add(src)
   }
 
-  if (faces.size < 20) throw new Error('This Image Does Not Exist returned too few images')
-  return [...faces].slice(0, 20).map((url) => ({ kind: 'image', url }))
+  if (faces.size < total) throw new Error('This Image Does Not Exist returned too few images')
+  return [...faces].slice(0, total).map((url) => ({ kind: 'image', url }))
 }

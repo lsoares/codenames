@@ -42,7 +42,7 @@ const WEIGHT: Record<string, number> = {
 }
 const SKIP: ReadonlySet<string> = new Set<string>([])
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   // The npm package ships the catalogue metadata; the raster PNGs (which, unlike
   // the viewBox-only SVGs, carry intrinsic dimensions so they render in an <img>)
   // live in the GitHub repo. Both are served by jsdelivr.
@@ -58,7 +58,7 @@ async function fetch(): Promise<Face[]> {
       !entry.skintone &&
       isSingleGlyph(entry.emoji),
   )
-  return pickWeighted(pool, 20).map((entry) => ({
+  return pickWeighted(pool, total).map((entry) => ({
     kind: 'image',
     url: `https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@${version}/color/618x618/${entry.hexcode}.png`,
     fit: 'contain',

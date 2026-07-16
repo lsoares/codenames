@@ -1,13 +1,10 @@
 import type { Face } from '../Face'
 import type { Deck } from './deck'
-import { boardSize, type Composition } from '../Game'
 import { datamuseWords } from './words'
 import { shuffle } from '../shuffle'
 
 const dictionaryLink = (word: string): string =>
   `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
-
-const COMPOSITION: Composition = { startingAgents: 9, otherAgents: 8, neutrals: 7, assassins: 1 }
 
 export const geeks: Deck = {
   id: 'geeks',
@@ -18,7 +15,6 @@ export const geeks: Deck = {
   description: 'Programming and tech words',
   source: 'Stack Overflow',
   sourceUrl: 'https://stackoverflow.com',
-  composition: COMPOSITION,
   fetch,
 }
 
@@ -53,8 +49,7 @@ async function stackOverflowTags(): Promise<string[]> {
   ]
 }
 
-async function fetch(): Promise<Face[]> {
-  const size = boardSize(COMPOSITION)
+async function fetch(size = 20): Promise<Face[]> {
   const [tagList, dictionary] = await Promise.all([
     stackOverflowTags(),
     datamuseWords(size, GEEK_SEEDS),

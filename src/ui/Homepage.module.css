@@ -95,6 +95,14 @@
   transform: translateY(-50%) scale(0.94);
 }
 
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
 .actions {
   display: flex;
   align-items: center;

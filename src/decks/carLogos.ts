@@ -74,9 +74,9 @@ interface Brand {
 
 let brands: Promise<Brand[]> | null = null
 
-async function fetch(): Promise<Face[]> {
+async function fetch(total = 20): Promise<Face[]> {
   const all = await (brands ??= loadBrands())
-  return sampleWeighted(all, 20).map((brand) => ({
+  return sampleWeighted(all, total).map((brand) => ({
     kind: 'image',
     url: `${CDN}/optimized/${brand.slug}.png`,
     fit: 'contain',
