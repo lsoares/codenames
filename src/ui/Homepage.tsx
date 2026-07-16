@@ -59,7 +59,7 @@ export default function Homepage(props: {
         <HowToPlay />
         <a
           className={styles.buyGame}
-          href="https://czechgames.com/en/codenames/"
+          href="https://store.czechgames.com/collections/codenames"
           target="_blank"
           rel="noreferrer"
         >

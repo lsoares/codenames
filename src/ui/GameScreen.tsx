@@ -460,7 +460,7 @@ export default function GameScreen(props: {
         <span className={styles.endLinks}>
           <a
             className={styles.endLink}
-            href="https://czechgames.com/en/codenames-pictures/"
+            href="https://store.czechgames.com/collections/codenames"
             target="_blank"
             rel="noreferrer"
           >
