@@ -40,6 +40,8 @@ test('a full game — cap runs out, misses on neutral and enemy, red then wins',
   // turn passes to blue on a hit — not a miss.
   await redSpy.giveClue('reds', 1)
 
+  // The tally includes the bonus guess beyond the clue count.
+  await expect(redOp.findGuessTally()).toHaveAccessibleName('0 used out of 2')
   // After a clue, the operative cannot pass before making at least one guess.
   await expect(redOp.findPassButton()).toHaveCount(0)
 
