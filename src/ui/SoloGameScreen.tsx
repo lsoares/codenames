@@ -5,6 +5,7 @@ import { fetchClue } from '../ai/groq'
 import { playSound } from '../sound'
 import type { GuessOutcome } from '../Boardable'
 import { Board } from './Board'
+import { Confetti } from './Confetti'
 import styles from './SoloGameScreen.module.css'
 
 export function SoloGameScreen(props: {
@@ -101,6 +102,15 @@ export function SoloGameScreen(props: {
 
   useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
 
+  const prevResultRef = useRef(result)
+  useEffect(() => {
+    const prev = prevResultRef.current
+    prevResultRef.current = result
+    if (prev === result) return
+    if (result === 'win') playSound('victory')
+    if (result === 'dead') playSound('gameOver')
+  }, [result])
+
   const statusText = () => {
     if (result === 'win') return 'You found all the words!'
     if (result === 'dead') return 'Hit an assassin. Game over.'
@@ -158,6 +168,8 @@ export function SoloGameScreen(props: {
           onCardMark={() => {}}
         />
       </div>
+
+      {result === 'win' && <Confetti />}
     </main>
   )
 }
