@@ -16,7 +16,7 @@ test('picking a deck shows a loading spinner on its tile while dealing', async (
   const game = new GamePage(page)
   await game.open()
 
-  await game.showMoreDecks()
+  await game.selectCategory('Photos')
   await game.pickDeck('Random')
 
   await expect(game.findDealingSpinner('Random')).toBeVisible()

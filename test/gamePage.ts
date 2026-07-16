@@ -90,8 +90,11 @@ export class GamePage {
     await this.findBoardCards().first().waitFor()
   }
 
-  async showMoreDecks(): Promise<void> {
-    await this.page.getByRole('button', { name: 'More' }).click()
+  async selectCategory(name: string): Promise<void> {
+    await this.page
+      .getByRole('group', { name: 'Filter decks' })
+      .getByRole('button', { name, exact: true })
+      .click()
   }
 
   // Every card on the board, whatever the deck: a spymaster sees each card's

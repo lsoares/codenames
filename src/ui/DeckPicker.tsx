@@ -1,12 +1,10 @@
 import { useState } from 'react'
 import type { Deck } from '../decks'
-import type { CategoryFilter } from './CategoryPicker'
 import styles from './DeckPicker.module.css'
 
 export function DeckPicker(props: {
   decks: Deck[]
-  category: CategoryFilter
-  showMore: boolean
+  category?: Deck['category']
   onPick: (id: string) => void
 }) {
   const [pickedId, setPickedId] = useState<string | null>(null)
@@ -46,7 +44,7 @@ export function DeckPicker(props: {
 
   const matches = (deck: Deck) =>
     (!props.category || deck.category === props.category) &&
-    (props.showMore || deck.difficulty === 'casual')
+    (props.category !== null || deck.difficulty === 'casual')
   const ordered = CATEGORY_ORDER.flatMap((category) =>
     props.decks
       .filter((deck) => deck.category === category && matches(deck))

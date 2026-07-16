@@ -12,7 +12,7 @@ test('after a win, changing deck deals a fresh board in the same room', async ({
   await expect(host.getWinBadge('blue')).toBeVisible()
 
   await host.openChangeDeck()
-  await host.showMoreDecks()
+  await host.selectCategory('Photos')
   await host.pickDeckFromGrid('Random')
 
   await expect(host.getWinBadge('blue')).toHaveCount(0)

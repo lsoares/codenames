@@ -3,7 +3,7 @@ import type { BoardSize } from '../Game'
 import type { Deck } from '../decks'
 import { BoardSizeSelector } from './BoardSizeSelector'
 import { DeckPicker } from './DeckPicker'
-import { CategoryPicker, type CategoryFilter } from './CategoryPicker'
+import { CategoryPicker } from './CategoryPicker'
 import { HowToPlay } from './HowToPlay'
 import styles from './Homepage.module.css'
 
@@ -15,8 +15,7 @@ export function Homepage(props: {
   onJoin?: (code: string) => void
 }) {
   const [code, setCode] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>(null)
-  const [showMore, setShowMore] = useState(false)
+  const [categoryFilter, setCategoryFilter] = useState<Deck['category']>()
   const onJoin = props.onJoin
   return (
     <main className={styles.home}>
@@ -66,15 +65,12 @@ export function Homepage(props: {
               }
               setCategoryFilter(category)
             }}
-            showMore={showMore}
-            onShowMoreChange={setShowMore}
           />
           <BoardSizeSelector value={props.boardSize} onChange={props.onBoardSizeChange} />
         </div>
         <DeckPicker
           decks={props.decks}
           category={categoryFilter}
-          showMore={showMore}
           onPick={props.onPick}
         />
       </div>
