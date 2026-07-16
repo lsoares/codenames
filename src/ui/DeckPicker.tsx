@@ -44,7 +44,7 @@ export function DeckPicker(props: {
 
   const matches = (deck: Deck) =>
     (!props.category || deck.category === props.category) &&
-    (props.category !== null || deck.difficulty === 'casual')
+    (props.category != null || deck.difficulty === 'casual')
   const ordered = CATEGORY_ORDER.flatMap((category) =>
     props.decks
       .filter((deck) => deck.category === category && matches(deck))
