@@ -50,8 +50,9 @@ export function createSoloGame(
 export class SoloGame {
   constructor(private readonly s: SoloGameState) {}
 
-  get state(): SoloGameState {
-    return this.s
+  get state(): SoloGameState & { readonly winner: Team | null } {
+    const winner = this.s.result === 'playing' ? null : ('blue' as Team)
+    return { ...this.s, winner }
   }
 
   mineCount(): number {
@@ -75,7 +76,7 @@ export class SoloGame {
     )
   }
 
-  canMark(): boolean {
+  canMark(_cardIndex: number, _isSpymaster: boolean): boolean {
     return false
   }
 

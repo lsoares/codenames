@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Face } from '../Face'
-import { Game, type Card, type GuessOutcome, type Team } from '../Game'
+import type { Card, Team } from '../Game'
+import type { Boardable, GuessOutcome } from '../Boardable'
 import styles from './Board.module.css'
 
 export function Board(props: {
-  game: Game
+  game: Boardable
   loading: boolean
   spymasterTeam: Team | null
   myTeam: Team
