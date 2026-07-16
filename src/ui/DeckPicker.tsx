@@ -3,7 +3,7 @@ import type { Deck } from '../decks'
 import type { CategoryFilter } from './CategoryPicker'
 import styles from './DeckPicker.module.css'
 
-export default function DeckPicker(props: {
+export function DeckPicker(props: {
   decks: Deck[]
   category: CategoryFilter
   showMore: boolean
@@ -45,11 +45,11 @@ export default function DeckPicker(props: {
   }
 
   const matches = (deck: Deck) =>
-    (!props.category || deck.group === props.category) &&
+    (!props.category || deck.category === props.category) &&
     (props.showMore || deck.difficulty === 'casual')
   const ordered = CATEGORY_ORDER.flatMap((category) =>
     props.decks
-      .filter((deck) => deck.group === category && matches(deck))
+      .filter((deck) => deck.category === category && matches(deck))
       .sort((a, b) => DIFFICULTY_RANK[a.difficulty] - DIFFICULTY_RANK[b.difficulty]),
   )
   if (ordered.length === 0) {
@@ -62,7 +62,7 @@ export default function DeckPicker(props: {
   )
 }
 
-const CATEGORY_ORDER: Deck['group'][] = ['words', 'abstract', 'photos', 'symbols', 'culture']
+const CATEGORY_ORDER: Deck['category'][] = ['words', 'abstract', 'photos', 'symbols', 'culture']
 
 const DIFFICULTY_RANK: Record<Deck['difficulty'], number> = { casual: 0, tough: 1, brutal: 2 }
 

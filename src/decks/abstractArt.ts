@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const abstractArt: Deck = {
   id: 'abstractArt',
   label: 'Art',
-  group: 'abstract',
+  category: 'abstract',
   difficulty: 'brutal',
   icon: '🎨',
   description: 'Genuinely abstract painting from WikiArt',

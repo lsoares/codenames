@@ -9,7 +9,7 @@ const dictionaryLink = (word: string): string =>
 export const geeks: Deck = {
   id: 'geeks',
   label: 'Tech Words',
-  group: 'words',
+  category: 'words',
   difficulty: 'tough',
   icon: '💻',
   description: 'Programming and tech words',

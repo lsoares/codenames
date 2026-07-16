@@ -1,7 +1,7 @@
 import type { BoardSize } from '../Game'
 import styles from './BoardSizeSelector.module.css'
 
-export default function BoardSizeSelector(props: {
+export function BoardSizeSelector(props: {
   value: BoardSize
   onChange: (size: BoardSize) => void
 }) {

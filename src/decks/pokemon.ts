@@ -4,7 +4,7 @@ import type { Deck } from './deck'
 export const pokemon: Deck = {
   id: 'pokemon',
   label: 'Pokémon',
-  group: 'culture',
+  category: 'culture',
   difficulty: 'tough',
   icon: '⚡',
   description: 'Official Pokémon artwork',

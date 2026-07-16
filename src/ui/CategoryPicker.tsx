@@ -1,15 +1,15 @@
 import type { Deck } from '../decks'
 import styles from './CategoryPicker.module.css'
 
-export type CategoryFilter = Deck['group'] | null
+export type CategoryFilter = Deck['category'] | null
 
-export default function CategoryPicker(props: {
+export function CategoryPicker(props: {
   category: CategoryFilter
   onCategoryChange: (category: CategoryFilter) => void
   showMore: boolean
   onShowMoreChange: (showMore: boolean) => void
 }) {
-  const tab = (category: Deck['group']) => {
+  const tab = (category: Deck['category']) => {
     const active = props.category === category
     return (
       <button

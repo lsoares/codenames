@@ -48,7 +48,7 @@ const WORDS = [
 export const wordsImages: Deck = {
   id: 'words-images',
   label: 'Words + Images',
-  group: 'abstract',
+  category: 'abstract',
   difficulty: 'tough',
   icon: '🃏',
   description: 'Words and pictures mixed on the grid - clues must fit both',

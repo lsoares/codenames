@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const flags: Deck = {
   id: 'flags',
   label: 'Flags',
-  group: 'symbols',
+  category: 'symbols',
   difficulty: 'brutal',
   icon: '🌍',
   description: 'Country flags from around the world',

@@ -8,7 +8,7 @@ const dictionaryLink = (word: string): string =>
 export const officialWords: Deck = {
   id: 'official-words',
   label: 'Words',
-  group: 'words',
+  category: 'words',
   difficulty: 'casual',
   icon: '📝',
   description: 'A big community word list, curated by DarkTwinge',

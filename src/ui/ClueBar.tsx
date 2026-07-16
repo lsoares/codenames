@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { UNLIMITED_CLUE, unlimitedClueHint, type Game } from '../Game'
 import styles from './ClueBar.module.css'
 
-export default function ClueBar(props: {
+export function ClueBar(props: {
   game: Game
   selectedCount: number
   onClue: (word: string, count: number) => void

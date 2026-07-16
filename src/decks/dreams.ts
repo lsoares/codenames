@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const dreams: Deck = {
   id: 'dreams',
   label: 'Dreams',
-  group: 'abstract',
+  category: 'abstract',
   difficulty: 'tough',
   icon: '💭',
   description: 'GAN-dreamed artworks that never existed',

@@ -3,7 +3,7 @@ import type { Face } from '../Face'
 import { Game, type Card, type GuessOutcome, type Team } from '../Game'
 import styles from './Board.module.css'
 
-export default function Board(props: {
+export function Board(props: {
   game: Game
   loading: boolean
   spymasterTeam: Team | null

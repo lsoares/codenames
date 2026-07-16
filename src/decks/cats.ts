@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const cats: Deck = {
   id: 'cats',
   label: 'Cats',
-  group: 'photos',
+  category: 'photos',
   difficulty: 'brutal',
   icon: '🐱',
   description: 'Cats acting out HTTP status codes',

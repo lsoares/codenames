@@ -4,15 +4,15 @@ import { Game, UNLIMITED_CLUE, unlimitedClueHint, type GuessOutcome, type Team }
 import { Roster, type Action, type MolesView } from '../multiplayer/Session'
 import { useMoles } from '../moles/useMoles'
 import type { Deck } from '../decks'
-import Board from './Board'
-import ClueBar from './ClueBar'
-import Confetti from './Confetti'
-import ThinkingBar from './ThinkingBar'
+import { Board } from './Board'
+import { ClueBar } from './ClueBar'
+import { Confetti } from './Confetti'
+import { ThinkingBar } from './ThinkingBar'
 import styles from './GameScreen.module.css'
 
 export const spymasterEmoji: Record<Team, string> = { red: '🕵️‍♀️', blue: '🕵️‍♂️' }
 
-export default function GameScreen(props: {
+export function GameScreen(props: {
   game: Game
   flash: { text: string; team: Team | null; emoji?: string } | null
   isHost: boolean

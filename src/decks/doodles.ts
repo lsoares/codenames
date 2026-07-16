@@ -4,7 +4,7 @@ import type { Deck } from './deck'
 export const doodles: Deck = {
   id: 'doodles',
   label: 'Doodles',
-  group: 'symbols',
+  category: 'symbols',
   difficulty: 'casual',
   icon: '🖍️',
   description: 'Hand-drawn open-source emoji from the whole OpenMoji set',

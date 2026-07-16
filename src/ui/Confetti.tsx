@@ -1,6 +1,6 @@
 import styles from './Confetti.module.css'
 
-export default function Confetti() {
+export function Confetti() {
   return (
     <div className={styles.confetti} aria-hidden="true">
       {Array.from({ length: 80 }, (_, i) => (

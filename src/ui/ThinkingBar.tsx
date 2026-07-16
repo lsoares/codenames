@@ -3,7 +3,7 @@ import type { Team } from '../Game'
 import { playSound } from '../sound'
 import styles from './ThinkingBar.module.css'
 
-export default function ThinkingBar(props: { team: Team }) {
+export function ThinkingBar(props: { team: Team }) {
   const [seconds, setSeconds] = useState(0)
   const capped = seconds >= CAP_MINUTES * 60
   useEffect(() => {

@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const albums: Deck = {
   id: 'albums',
   label: 'Album Art',
-  group: 'culture',
+  category: 'culture',
   difficulty: 'brutal',
   icon: '💿',
   description: 'Cover art from electronic, jazz and experimental records',

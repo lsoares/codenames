@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import styles from './HowToPlay.module.css'
 
-export default function HowToPlay() {
+export function HowToPlay() {
   const dialog = useRef<HTMLDialogElement>(null)
   return (
     <>

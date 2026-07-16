@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const generated: Deck = {
   id: 'generated',
   label: 'Pictures+',
-  group: 'abstract',
+  category: 'abstract',
   difficulty: 'casual',
   icon: '🗿',
   description: 'AI-drawn cards that fuse two unrelated things into one picture',

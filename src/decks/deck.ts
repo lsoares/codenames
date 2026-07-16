@@ -5,7 +5,7 @@ export interface Deck {
   label: string
   icon: string
   description: string
-  group: 'words' | 'photos' | 'abstract' | 'symbols' | 'culture'
+  category: 'words' | 'photos' | 'abstract' | 'symbols' | 'culture'
   difficulty: 'casual' | 'tough' | 'brutal'
   source?: string
   sourceUrl?: string

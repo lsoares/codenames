@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import type { BoardSize } from '../Game'
 import type { Deck } from '../decks'
-import BoardSizeSelector from './BoardSizeSelector'
-import DeckPicker from './DeckPicker'
-import CategoryPicker, { type CategoryFilter } from './CategoryPicker'
-import HowToPlay from './HowToPlay'
+import { BoardSizeSelector } from './BoardSizeSelector'
+import { DeckPicker } from './DeckPicker'
+import { CategoryPicker, type CategoryFilter } from './CategoryPicker'
+import { HowToPlay } from './HowToPlay'
 import styles from './Homepage.module.css'
 
-export default function Homepage(props: {
+export function Homepage(props: {
   decks: Deck[]
   boardSize: BoardSize
   onBoardSizeChange: (size: BoardSize) => void

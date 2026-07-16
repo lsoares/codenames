@@ -4,7 +4,7 @@ import type { Deck } from './deck'
 export const carLogos: Deck = {
   id: 'car-logos',
   label: 'Car Logos',
-  group: 'symbols',
+  category: 'symbols',
   difficulty: 'brutal',
   icon: '🚗',
   description: 'Automobile brand logos from around the world',

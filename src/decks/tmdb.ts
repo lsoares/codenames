@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const tmdb: Deck = {
   id: 'tmdb',
   label: 'Movies',
-  group: 'culture',
+  category: 'culture',
   difficulty: 'tough',
   icon: '🎬',
   description: 'Stills from popular and acclaimed films',

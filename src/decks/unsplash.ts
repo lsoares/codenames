@@ -4,7 +4,7 @@ import type { Deck } from './deck'
 export const unsplash: Deck = {
   id: 'unsplash',
   label: 'Random',
-  group: 'photos',
+  category: 'photos',
   difficulty: 'tough',
   icon: '📷',
   description: 'Random photos from Unsplash',

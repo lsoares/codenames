@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const icons: Deck = {
   id: 'icons',
   label: 'Pictograms',
-  group: 'symbols',
+  category: 'symbols',
   difficulty: 'tough',
   icon: '✳️',
   description: 'The full Font Awesome free collection',

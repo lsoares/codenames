@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const gcpIcons: Deck = {
   id: 'gcp-icons',
   label: 'GCP Icons',
-  group: 'symbols',
+  category: 'symbols',
   difficulty: 'tough',
   icon: '☁️',
   description: 'Google Cloud product icons in full colour',

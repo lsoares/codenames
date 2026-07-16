@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const official: Deck = {
   id: 'official',
   label: 'Pictures',
-  group: 'abstract',
+  category: 'abstract',
   difficulty: 'casual',
   icon: '🕵️',
   description: 'The official Codenames Pictures cards',

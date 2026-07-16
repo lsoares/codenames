@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const games: Deck = {
   id: 'games',
   label: 'Games',
-  group: 'culture',
+  category: 'culture',
   difficulty: 'brutal',
   icon: '🎮',
   description: 'Artwork from acclaimed video games',

@@ -4,7 +4,7 @@ import type { Deck } from './deck'
 export const picbreeder: Deck = {
   id: 'picbreeder',
   label: 'Picbreeder',
-  group: 'abstract',
+  category: 'abstract',
   difficulty: 'brutal',
   icon: '🧬',
   description: 'CPPN-evolved images bred by the Picbreeder community',

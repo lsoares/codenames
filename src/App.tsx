@@ -15,10 +15,10 @@ import {
 } from './multiplayer/Session'
 import { Takeover } from './multiplayer/Takeover'
 import { playSound } from './sound'
-import GameScreen, { spymasterEmoji } from './ui/GameScreen'
-import Homepage from './ui/Homepage'
+import { GameScreen, spymasterEmoji } from './ui/GameScreen'
+import { Homepage } from './ui/Homepage'
 
-export default function App() {
+export function App() {
   const [game, setGame] = useState<Game | null>(null)
   const [repicking, setRepicking] = useState(false)
   const [roomCode, setRoomCode] = useState('')

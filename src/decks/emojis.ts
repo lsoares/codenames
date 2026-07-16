@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const emojis: Deck = {
   id: 'emojis',
   label: 'Emojis',
-  group: 'symbols',
+  category: 'symbols',
   difficulty: 'tough',
   icon: '😀',
   description: 'Random emoji',

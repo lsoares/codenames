@@ -4,7 +4,7 @@ import type { Deck } from './deck'
 export const pexels: Deck = {
   id: 'pexels',
   label: 'Curated',
-  group: 'photos',
+  category: 'photos',
   difficulty: 'tough',
   icon: '🖼️',
   description: 'Curated editorial photos from Pexels',

@@ -5,7 +5,7 @@ import { shuffle } from '../shuffle'
 export const memes: Deck = {
   id: 'memes',
   label: 'Memes',
-  group: 'culture',
+  category: 'culture',
   difficulty: 'tough',
   icon: '😂',
   description: 'Popular meme templates',
