@@ -1,12 +1,12 @@
 import type { Face } from '../Face'
 import type { Deck } from './deck'
-import { datamuseWords } from './words'
+import { datamuseWords } from './wordsPlus'
 import { shuffle } from '../shuffle'
 
 const dictionaryLink = (word: string): string =>
   `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
 
-export const geeks: Deck = {
+export const techWords: Deck = {
   title: 'Tech Words',
   category: 'words',
   difficulty: 'tough',

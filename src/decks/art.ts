@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
-export const abstractArt: Deck = {
+export const art: Deck = {
   title: 'Art',
   category: 'abstract',
   difficulty: 'brutal',

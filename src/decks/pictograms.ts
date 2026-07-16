@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
-export const icons: Deck = {
+export const pictograms: Deck = {
   title: 'Pictograms',
   category: 'symbols',
   difficulty: 'tough',

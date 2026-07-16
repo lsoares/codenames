@@ -1,7 +1,7 @@
 import type { Face } from '../Face'
 import type { Deck } from './deck'
 
-export const pexels: Deck = {
+export const curated: Deck = {
   title: 'Curated',
   category: 'photos',
   difficulty: 'tough',

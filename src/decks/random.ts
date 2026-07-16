@@ -1,7 +1,7 @@
 import type { Face } from '../Face'
 import type { Deck } from './deck'
 
-export const unsplash: Deck = {
+export const random: Deck = {
   title: 'Random',
   category: 'photos',
   difficulty: 'tough',

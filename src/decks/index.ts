@@ -1,51 +1,52 @@
-import { unsplash } from './unsplash'
-import { pexels } from './pexels'
-import { words } from './words'
-import { tmdb } from './tmdb'
+import { random } from './random'
+import { curated } from './curated'
+import { wordsPlus } from './wordsPlus'
+import { movies } from './movies'
 import { cats } from './cats'
 import { dogs } from './dogs'
 import { foodish } from './foodish'
 import { pokemon } from './pokemon'
-import { geeks } from './geeks'
+import { techWords } from './techWords'
 import { games } from './games'
 import { things } from './things'
 import { emojis } from './emojis'
 import { doodles } from './doodles'
 import { flags } from './flags'
-import { abstract } from './abstract'
-import { abstractArt } from './abstractArt'
+import { photos } from './photos'
+import { art } from './art'
 import { picbreeder } from './picbreeder'
-import { dreams } from './dreams'
+import { humanOrAi } from './humanOrAi'
 import { memes } from './memes'
-import { icons } from './icons'
+import { pictograms } from './pictograms'
 import { gcpIcons } from './gcpIcons'
 import { carLogos } from './carLogos'
-import { albums } from './albums'
-import { official } from './official'
-import { generated } from './generated'
-import { officialWords } from './officialWords'
-import { wordsImages } from './wordsAndImages'
+import { albumArt } from './albumArt'
+import { pictures } from './pictures'
+import { picturesPlus } from './picturesPlus'
+import { words } from './words'
+import { wordsAndPictures, wordsAndPicturesPlus } from './wordsAndPictures'
 import type { Credit } from '../Game'
 import type { Deck } from './deck'
 
 export type { Deck }
 
 export const decks: Deck[] = [
-  officialWords,
-  official,
-  generated,
-  wordsImages,
   words,
-  geeks,
-  unsplash,
-  pexels,
-  abstract,
+  pictures,
+  picturesPlus,
+  wordsAndPictures,
+  wordsAndPicturesPlus,
+  wordsPlus,
+  techWords,
+  random,
+  curated,
+  photos,
   picbreeder,
-  dreams,
-  abstractArt,
+  humanOrAi,
+  art,
   memes,
   things,
-  icons,
+  pictograms,
   gcpIcons,
   carLogos,
   games,
@@ -55,13 +56,16 @@ export const decks: Deck[] = [
   cats,
   dogs,
   foodish,
-  albums,
-  tmdb,
+  albumArt,
+  movies,
   pokemon,
 ]
 
-export const findDeck = (title: string): Deck =>
-  decks.find((deck) => deck.title === title) ?? unsplash
+export const findDeck = (title: string): Deck => {
+  const deck = decks.find((deck) => deck.title === title)
+  if (!deck) throw new Error(`Deck not found: ${title}`)
+  return deck
+}
 
 export const creditOf = (deck: Deck): Credit | null =>
   deck.source ? { label: deck.source, url: deck.sourceUrl ?? '' } : null

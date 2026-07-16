@@ -2,7 +2,7 @@ import type { Face } from '../Face'
 import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
-export const tmdb: Deck = {
+export const movies: Deck = {
   title: 'Movies',
   category: 'culture',
   difficulty: 'tough',

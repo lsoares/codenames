@@ -538,7 +538,7 @@ export function GameScreen(props: {
 
       {props.game.state.deck && (
         <footer className={styles.footer}>
-          {props.game.state.credit ? (
+          {props.game.state.credit?.url ? (
             <a
               className={styles.deckCredit}
               href={props.game.state.credit.url}
@@ -548,7 +548,10 @@ export function GameScreen(props: {
               {props.game.state.deck}, by {props.game.state.credit.label}
             </a>
           ) : (
-            <span className={styles.deckCredit}>{props.game.state.deck}</span>
+            <span className={styles.deckCredit}>
+              {props.game.state.deck}
+              {props.game.state.credit && `, by ${props.game.state.credit.label}`}
+            </span>
           )}
         </footer>
       )}
