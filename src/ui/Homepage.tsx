@@ -15,7 +15,9 @@ export function Homepage(props: {
   onJoin?: (code: string) => void
 }) {
   const [code, setCode] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState<Deck['category']>()
+  const [categoryFilter, setCategoryFilter] = useState<Deck['category'] | undefined>(
+    (localStorage.getItem('codenames:category') as Deck['category']) || undefined,
+  )
   const onJoin = props.onJoin
   return (
     <main className={styles.home}>
@@ -64,6 +66,8 @@ export function Homepage(props: {
                 props.onBoardSizeChange(category === 'words' ? '5x5' : '5x4')
               }
               setCategoryFilter(category)
+              if (category) localStorage.setItem('codenames:category', category)
+              else localStorage.removeItem('codenames:category')
             }}
           />
           <BoardSizeSelector value={props.boardSize} onChange={props.onBoardSizeChange} />

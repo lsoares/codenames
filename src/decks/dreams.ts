@@ -3,11 +3,11 @@ import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
 export const dreams: Deck = {
-  title: 'Dreams',
+  title: 'Human or AI?',
   category: 'abstract',
   difficulty: 'tough',
-  icon: '💭',
-  description: 'GAN-dreamed artworks that never existed',
+  icon: '🤖',
+  description: 'A mix of human art and AI-generated images',
   source: 'This Image Does Not Exist',
   sourceUrl: 'https://thisimagedoesnotexist.com',
   fetch,

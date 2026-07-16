@@ -21,7 +21,7 @@ export function DeckPicker(props: {
         <button
           type="button"
           className={`${styles.tile}${picked && !loading ? ` ${styles.dimmed}` : ''}`}
-          title={`${deck.description} ${DIFFICULTY_PIPS[deck.difficulty]}`}
+          title={`${deck.description}${DIFFICULTY_PIPS[deck.difficulty] ? `\n${DIFFICULTY_PIPS[deck.difficulty]}` : ''}`}
           disabled={picked !== null}
           onClick={() => pick(deck.title)}
         >
@@ -65,7 +65,7 @@ const CATEGORY_ORDER: Deck['category'][] = ['words', 'abstract', 'photos', 'symb
 const DIFFICULTY_RANK: Record<Deck['difficulty'], number> = { casual: 0, tough: 1, brutal: 2 }
 
 const DIFFICULTY_PIPS: Record<Deck['difficulty'], string> = {
-  casual: '\u2605',
-  tough: '\u2605\u2605',
-  brutal: '\u2605\u2605\u2605',
+  casual: '',
+  tough: '\u26A0\uFE0F',
+  brutal: '\u26A0\uFE0F\u26A0\uFE0F',
 }
