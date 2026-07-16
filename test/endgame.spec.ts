@@ -28,6 +28,7 @@ test('a full game — cap runs out, misses on neutral and enemy, red then wins',
   const redOp = await joinRoom(browser, code, 'red')
   const blueSpy = await joinRoom(browser, code, 'blue')
   const blueOp = await joinRoom(browser, code, 'blue')
+  await expect(redSpy.findBoardCards()).toHaveCount(20)
   const reds = await redSpy.getCardNumbers('red')
   const blues = await redSpy.getCardNumbers('blue')
   const neutrals = await redSpy.getCardNumbers('neutral')
@@ -36,8 +37,8 @@ test('a full game — cap runs out, misses on neutral and enemy, red then wins',
   await expect(redOp.findGiveClueButton()).toHaveCount(0)
   await expect(blueSpy.findGiveClueButton()).toHaveCount(0)
 
-  // Red: a clue for 1 grants two guesses; two right in a row spend them, so the
-  // turn passes to blue on a hit — not a miss.
+  // Red: a clue for 1 grants two guesses; one right, then pass — the voluntary
+  // pass hands the turn to blue without missing.
   await redSpy.giveClue('reds', 1)
 
   // The tally includes the bonus guess beyond the clue count.
@@ -49,8 +50,10 @@ test('a full game — cap runs out, misses on neutral and enemy, red then wins',
   // A correct guess flashes a hit to the guesser, and the reveal syncs to the
   // other tabs (the blue spymaster sees the same card turn over).
   await expect(redOp.findFeedback('correct')).toBeVisible()
+  // After at least one guess, the operative can pass.
+  await expect(redOp.findPassButton()).toBeVisible()
   await expect(blueSpy.getCard('red', { revealed: true }).first()).toBeVisible()
-  await redOp.guessNumber(reds[1])
+  await redOp.pass()
   await expect.poll(() => redSpy.getCurrentTurn()).toBe('blue')
 
   // Blue: one right, then a neutral — the miss hands the turn back to red.
@@ -62,7 +65,7 @@ test('a full game — cap runs out, misses on neutral and enemy, red then wins',
   // Red: one right, then an enemy (blue) card — the miss flashes a miss and
   // passes the turn to blue.
   await redSpy.giveClue('more', 0)
-  await redOp.guessNumber(reds[2])
+  await redOp.guessNumber(reds[1])
   await redOp.guessNumber(blues[1])
   await expect(redOp.findFeedback('wrong')).toBeVisible()
   await expect.poll(() => redSpy.getCurrentTurn()).toBe('blue')
@@ -75,12 +78,15 @@ test('a full game — cap runs out, misses on neutral and enemy, red then wins',
 
   // Red again: clear the rest; the last red card wins it.
   await redSpy.giveClue('rest', 0)
-  const rest = reds.slice(3)
+  const rest = reds.slice(2)
   for (const n of rest.slice(0, -1)) await redOp.guessNumber(n)
 
   await redOp.guessNumber(rest[rest.length - 1])
 
   await expect(redSpy.getWinBadge('red')).toBeVisible()
+  // After a win, no more clues or guesses are possible.
+  await expect(redSpy.findGiveClueButton()).toHaveCount(0)
+  await expect(redOp.findPassButton()).toHaveCount(0)
   // At game end each side lists the clues that team gave, in order.
   await expect(redSpy.getTeamClues('red')).toHaveText([/reds/, /more/, /rest/])
   await expect(redSpy.getTeamClues('blue')).toHaveText([/blues/, /again/])
