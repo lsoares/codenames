@@ -14,7 +14,7 @@
   min-height: 0;
   display: grid;
   place-items: stretch;
-  padding-bottom: 30px;
+  padding-bottom: 15px;
 }
 
 .header {

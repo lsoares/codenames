@@ -32,9 +32,17 @@ test('a full game — cap runs out, misses on neutral and enemy, red then wins',
   const blues = await redSpy.getCardNumbers('blue')
   const neutrals = await redSpy.getCardNumbers('neutral')
 
+  // Operatives have no clue controls; the off-turn spymaster has no clue button.
+  await expect(redOp.findGiveClueButton()).toHaveCount(0)
+  await expect(blueSpy.findGiveClueButton()).toHaveCount(0)
+
   // Red: a clue for 1 grants two guesses; two right in a row spend them, so the
   // turn passes to blue on a hit — not a miss.
   await redSpy.giveClue('reds', 1)
+
+  // After a clue, the operative cannot pass before making at least one guess.
+  await expect(redOp.findPassButton()).toHaveCount(0)
+
   await redOp.guessNumber(reds[0])
   // A correct guess flashes a hit to the guesser, and the reveal syncs to the
   // other tabs (the blue spymaster sees the same card turn over).

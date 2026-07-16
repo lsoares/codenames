@@ -209,19 +209,6 @@ export class GamePage {
     await this.page.keyboard.press('Escape')
   }
 
-  // The banner invite shown while the room still needs players holds the room
-  // name (click to copy the link).
-  getJoinLinkButton() {
-    return this.page.getByRole('button', { name: 'Copy join link' })
-  }
-
-  async copyRoomLink(): Promise<void> {
-    await this.getJoinLinkButton().click()
-  }
-
-  getCopiedNote() {
-    return this.page.getByText('Invite link copied!')
-  }
 
   // Spymaster-only: the number of the first unrevealed card of a colour, so an
   // operative (who can't see colours) can be told which card to click.
