@@ -209,7 +209,6 @@ export class GamePage {
     await this.page.keyboard.press('Escape')
   }
 
-
   // Spymaster-only: the number of the first unrevealed card of a colour, so an
   // operative (who can't see colours) can be told which card to click.
   async getCardNumber(color: Color): Promise<number> {
