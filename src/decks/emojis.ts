@@ -3,8 +3,7 @@ import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
 export const emojis: Deck = {
-  id: 'emojis',
-  label: 'Emojis',
+  title: 'Emojis',
   category: 'symbols',
   difficulty: 'tough',
   icon: '😀',

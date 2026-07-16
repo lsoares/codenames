@@ -8,7 +8,7 @@ export type Action =
   | { type: 'guess'; cardIndex: number }
   | { type: 'toggleMark'; cardIndex: number; team: Team }
   | { type: 'endTurn' }
-  | { type: 'newGame'; deckId: string; faces: Face[]; boardSize: BoardSize; rotate?: boolean }
+  | { type: 'newGame'; deckTitle: string; faces: Face[]; boardSize: BoardSize; rotate?: boolean }
 
 export type Presence = { __presence: true; spymasterTeam: Team | null }
 export type TeamClaim = { __team: true; team: Team }

@@ -1,8 +1,7 @@
 import type { Face } from '../Face'
 
 export interface Deck {
-  id: string
-  label: string
+  title: string
   icon: string
   description: string
   category: 'words' | 'photos' | 'abstract' | 'symbols' | 'culture'

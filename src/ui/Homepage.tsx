@@ -86,7 +86,7 @@ export function Homepage(props: {
           target="_blank"
           rel="noreferrer"
         >
-          ☕ Buy me a coffee
+          ☕
         </a>
         <a
           className={styles.feedback}

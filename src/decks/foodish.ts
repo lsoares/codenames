@@ -2,8 +2,7 @@ import type { Face } from '../Face'
 import type { Deck } from './deck'
 
 export const foodish: Deck = {
-  id: 'foodish',
-  label: 'Food',
+  title: 'Food',
   category: 'photos',
   difficulty: 'brutal',
   icon: '🍔',

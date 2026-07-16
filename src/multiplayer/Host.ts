@@ -66,7 +66,7 @@ export class Host implements Session {
   ): Promise<Host> {
     return Host.launch(
       code ?? RoomCode.random().toString(),
-      createGame(faces, startingTeam, creditOf(deck), deck.label, compositionFor(boardSize)),
+      createGame(faces, startingTeam, creditOf(deck), deck.title, compositionFor(boardSize)),
       'new',
       4,
       code != null,
@@ -289,11 +289,11 @@ const apply = (game: Game, action: Action): Game => {
     case 'endTurn':
       return game.endTurn()
     case 'newGame': {
-      const deck = findDeck(action.deckId)
+      const deck = findDeck(action.deckTitle)
       return game.newGame(
         action.faces,
         creditOf(deck),
-        deck.label,
+        deck.title,
         compositionFor(action.boardSize),
       )
     }

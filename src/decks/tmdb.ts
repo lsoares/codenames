@@ -3,8 +3,7 @@ import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
 export const tmdb: Deck = {
-  id: 'tmdb',
-  label: 'Movies',
+  title: 'Movies',
   category: 'culture',
   difficulty: 'tough',
   icon: '🎬',
@@ -15,9 +14,9 @@ export const tmdb: Deck = {
 }
 
 interface TmdbMovie {
+  id: number
   backdrop_path: string | null
   title: string
-  id: number
 }
 
 async function fetch(total = 20): Promise<Face[]> {

@@ -23,7 +23,7 @@ export function GameScreen(props: {
   onClaimSeat: (team: Team | null) => void
   onJoinTeam: (team: Team) => void
   onAction: (action: Action) => void
-  onNewGame: (deckId: string, rotateSpymaster?: boolean) => void
+  onNewGame: (deckTitle: string, rotateSpymaster?: boolean) => void
   onRepick: () => void
   repicking: Team | null
   moles: MolesView | null
@@ -31,10 +31,9 @@ export function GameScreen(props: {
   loadingFaces: boolean
   decks: Deck[]
 }) {
-  const currentDeck = props.decks.find((deck) => deck.label === props.game.state.deck)
-  const currentDeckId = currentDeck?.id
+  const currentDeckTitle = props.game.state.deck
   const dealFreshBoard = () => {
-    if (currentDeckId) props.onNewGame(currentDeckId)
+    if (currentDeckTitle) props.onNewGame(currentDeckTitle)
   }
 
   const requestJoinTeam = (team: Team) => {
@@ -233,7 +232,7 @@ export function GameScreen(props: {
     props.game.idle() || window.confirm('The current game will be lost. Continue?')
 
   const dealNewCards = (rotateSpymaster: boolean) => {
-    if (currentDeckId && confirmDiscard()) props.onNewGame(currentDeckId, rotateSpymaster)
+    if (currentDeckTitle && confirmDiscard()) props.onNewGame(currentDeckTitle, rotateSpymaster)
   }
 
   const changeDeck = () => {
@@ -472,7 +471,7 @@ export function GameScreen(props: {
             target="_blank"
             rel="noreferrer"
           >
-            ☕ Buy me a coffee
+            ☕
           </a>
         </span>
       )}

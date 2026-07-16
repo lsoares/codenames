@@ -2,8 +2,7 @@ import type { Face } from '../Face'
 import type { Deck } from './deck'
 
 export const pokemon: Deck = {
-  id: 'pokemon',
-  label: 'Pokémon',
+  title: 'Pokémon',
   category: 'culture',
   difficulty: 'tough',
   icon: '⚡',

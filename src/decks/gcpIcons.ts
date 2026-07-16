@@ -3,8 +3,7 @@ import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
 export const gcpIcons: Deck = {
-  id: 'gcp-icons',
-  label: 'GCP Icons',
+  title: 'GCP Icons',
   category: 'symbols',
   difficulty: 'tough',
   icon: '☁️',

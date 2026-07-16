@@ -6,8 +6,7 @@ const dictionaryLink = (word: string): string =>
   `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
 
 export const officialWords: Deck = {
-  id: 'official-words',
-  label: 'Words',
+  title: 'Words',
   category: 'words',
   difficulty: 'casual',
   icon: '📝',

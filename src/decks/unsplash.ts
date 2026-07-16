@@ -2,8 +2,7 @@ import type { Face } from '../Face'
 import type { Deck } from './deck'
 
 export const unsplash: Deck = {
-  id: 'unsplash',
-  label: 'Random',
+  title: 'Random',
   category: 'photos',
   difficulty: 'tough',
   icon: '📷',

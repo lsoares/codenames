@@ -2,10 +2,9 @@ import type { Face } from '../Face'
 import type { Deck } from './deck'
 
 export const doodles: Deck = {
-  id: 'doodles',
-  label: 'Doodles',
+  title: 'Doodles',
   category: 'symbols',
-  difficulty: 'casual',
+  difficulty: 'tough',
   icon: '🖍️',
   description: 'Hand-drawn open-source emoji from the whole OpenMoji set',
   source: 'OpenMoji',

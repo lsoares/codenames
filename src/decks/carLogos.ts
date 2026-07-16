@@ -2,8 +2,7 @@ import type { Face } from '../Face'
 import type { Deck } from './deck'
 
 export const carLogos: Deck = {
-  id: 'car-logos',
-  label: 'Car Logos',
+  title: 'Car Logos',
   category: 'symbols',
   difficulty: 'brutal',
   icon: '🚗',

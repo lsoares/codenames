@@ -25,8 +25,7 @@ export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]>
 }
 
 export const words: Deck = {
-  id: 'words',
-  label: 'Words+',
+  title: 'Words+',
   category: 'words',
   difficulty: 'casual',
   icon: '🔤',

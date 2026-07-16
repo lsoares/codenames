@@ -3,8 +3,7 @@ import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
 export const memes: Deck = {
-  id: 'memes',
-  label: 'Memes',
+  title: 'Memes',
   category: 'culture',
   difficulty: 'tough',
   icon: '😂',

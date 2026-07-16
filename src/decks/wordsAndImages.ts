@@ -46,10 +46,9 @@ const WORDS = [
 ]
 
 export const wordsImages: Deck = {
-  id: 'words-images',
-  label: 'Words + Images',
+  title: 'Words and Pictures+',
   category: 'abstract',
-  difficulty: 'tough',
+  difficulty: 'casual',
   icon: '🃏',
   description: 'Words and pictures mixed on the grid - clues must fit both',
   fetch: async (total = 20) => {

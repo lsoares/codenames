@@ -7,36 +7,36 @@ export function DeckPicker(props: {
   category?: Deck['category']
   onPick: (id: string) => void
 }) {
-  const [pickedId, setPickedId] = useState<string | null>(null)
-  const pick = (id: string) => {
-    if (pickedId) return
-    setPickedId(id)
-    props.onPick(id)
+  const [picked, setPicked] = useState<string | null>(null)
+  const pick = (title: string) => {
+    if (picked) return
+    setPicked(title)
+    props.onPick(title)
   }
 
   const tile = (deck: Deck) => {
-    const loading = pickedId === deck.id
+    const loading = picked === deck.title
     return (
-      <li key={deck.id}>
+      <li key={deck.title}>
         <button
           type="button"
-          className={`${styles.tile}${pickedId && !loading ? ` ${styles.dimmed}` : ''}`}
+          className={`${styles.tile}${picked && !loading ? ` ${styles.dimmed}` : ''}`}
           title={`${deck.description} ${DIFFICULTY_PIPS[deck.difficulty]}`}
-          disabled={pickedId !== null}
-          onClick={() => pick(deck.id)}
+          disabled={picked !== null}
+          onClick={() => pick(deck.title)}
         >
           {loading ? (
             <span
               className={styles.spinner}
               role="progressbar"
-              aria-label={`Dealing ${deck.label}`}
+              aria-label={`Dealing ${deck.title}`}
             />
           ) : (
             <span className={styles.icon} aria-hidden="true">
               {deck.icon}
             </span>
           )}
-          <span className={styles.label}>{deck.label}</span>
+          <span className={styles.label}>{deck.title}</span>
         </button>
       </li>
     )

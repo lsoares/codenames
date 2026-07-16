@@ -2,8 +2,7 @@ import type { Face } from '../Face'
 import type { Deck } from './deck'
 
 export const picbreeder: Deck = {
-  id: 'picbreeder',
-  label: 'Picbreeder',
+  title: 'Picbreeder',
   category: 'abstract',
   difficulty: 'brutal',
   icon: '🧬',

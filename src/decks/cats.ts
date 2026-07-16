@@ -3,8 +3,7 @@ import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
 
 export const cats: Deck = {
-  id: 'cats',
-  label: 'Cats',
+  title: 'Cats',
   category: 'photos',
   difficulty: 'brutal',
   icon: '🐱',

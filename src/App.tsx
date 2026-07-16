@@ -111,20 +111,20 @@ export function App() {
   const mySeat: Team | null = roster.seatOf(selfIdRef.current)
   const myTeam: Team = mySeat ?? roster.teamOf(selfIdRef.current) ?? 'red'
 
-  const newGame = async (id: string, rotate = false) => {
+  const newGame = async (title: string, rotate = false) => {
     setLoadingFaces(true)
     try {
-      const deck = findDeck(id)
+      const deck = findDeck(title)
       const total = boardSize(compositionFor(selectedBoardSize))
       const faces = await deck.fetch(total)
       sessionRef.current?.dispatch({
         type: 'newGame',
-        deckId: deck.id,
+        deckTitle: deck.title,
         faces,
         boardSize: selectedBoardSize,
         rotate,
       })
-      track('game started', { deck: deck.label })
+      track('game started', { deck: deck.title })
     } catch (error) {
       notify(
         `Couldn't deal that deck (${(error as Error)?.message ?? 'unknown error'})`,
@@ -189,14 +189,14 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const createRoom = async (id: string, code?: string) => {
+  const createRoom = async (title: string, code?: string) => {
     const start = (localStorage.getItem('codenames:start-team') as Team | null) ?? randomTeam()
     try {
-      const deck = findDeck(id)
+      const deck = findDeck(title)
       const total = boardSize(compositionFor(selectedBoardSize))
       const faces = await deck.fetch(total)
       wire(await Host.start(deck, faces, start, selectedBoardSize, code), true)
-      track('room created', { deck: deck.label })
+      track('room created', { deck: deck.title })
     } catch (error) {
       if (code && (error as { type?: string })?.type === 'unavailable-id') {
         const joined = await Guest.join(code)
@@ -369,13 +369,13 @@ export function App() {
           decks={decks}
           boardSize={selectedBoardSize}
           onBoardSizeChange={setSelectedBoardSize}
-          onPick={(id) => {
+          onPick={(title) => {
             if (game) {
               sessionRef.current?.setRepicking(null)
-              void newGame(id, true)
+              void newGame(title, true)
               setRepicking(false)
             } else {
-              void createRoom(id, RoomCode.fromPath(window.location.pathname)?.toString())
+              void createRoom(title, RoomCode.fromPath(window.location.pathname)?.toString())
             }
           }}
           onJoin={
