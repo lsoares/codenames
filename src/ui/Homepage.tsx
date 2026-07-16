@@ -68,11 +68,7 @@ export function Homepage(props: {
           />
           <BoardSizeSelector value={props.boardSize} onChange={props.onBoardSizeChange} />
         </div>
-        <DeckPicker
-          decks={props.decks}
-          category={categoryFilter}
-          onPick={props.onPick}
-        />
+        <DeckPicker decks={props.decks} category={categoryFilter} onPick={props.onPick} />
       </div>
       <div className={styles.actions}>
         <HowToPlay />

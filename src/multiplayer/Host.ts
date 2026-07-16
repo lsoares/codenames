@@ -290,7 +290,12 @@ const apply = (game: Game, action: Action): Game => {
       return game.endTurn()
     case 'newGame': {
       const deck = findDeck(action.deckId)
-      return game.newGame(action.faces, creditOf(deck), deck.label, compositionFor(action.boardSize))
+      return game.newGame(
+        action.faces,
+        creditOf(deck),
+        deck.label,
+        compositionFor(action.boardSize),
+      )
     }
   }
 }
