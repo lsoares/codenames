@@ -13,6 +13,8 @@ export function Homepage(props: {
   onBoardSizeChange: (size: BoardSize) => void
   onPick: (id: string) => void
   onJoin?: (code: string) => void
+  solo?: boolean
+  onSoloChange?: (solo: boolean) => void
 }) {
   const [code, setCode] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<Deck['category'] | undefined>(
@@ -59,20 +61,32 @@ export function Homepage(props: {
           )}
         </header>
         <div className={styles.filters}>
-          <CategoryPicker
-            category={categoryFilter}
-            onCategoryChange={(category) => {
-              if (category !== categoryFilter) {
-                props.onBoardSizeChange(category === 'words' ? '5x5' : '5x4')
-              }
-              setCategoryFilter(category)
-              if (category) localStorage.setItem('codenames:category', category)
-              else localStorage.removeItem('codenames:category')
-            }}
-          />
+          {props.onSoloChange && (
+            <label className={styles.soloToggle}>
+              <input
+                type="checkbox"
+                checked={props.solo ?? false}
+                onChange={(event) => props.onSoloChange?.(event.target.checked)}
+              />
+              Solo
+            </label>
+          )}
+          {!props.solo && (
+            <CategoryPicker
+              category={categoryFilter}
+              onCategoryChange={(category) => {
+                if (category !== categoryFilter) {
+                  props.onBoardSizeChange(category === 'words' ? '5x5' : '5x4')
+                }
+                setCategoryFilter(category)
+                if (category) localStorage.setItem('codenames:category', category)
+                else localStorage.removeItem('codenames:category')
+              }}
+            />
+          )}
           <BoardSizeSelector value={props.boardSize} onChange={props.onBoardSizeChange} />
         </div>
-        <DeckPicker decks={props.decks} category={categoryFilter} onPick={props.onPick} />
+        <DeckPicker decks={props.decks} category={props.solo ? 'words' : categoryFilter} onPick={props.onPick} />
       </div>
       <div className={styles.actions}>
         <HowToPlay />

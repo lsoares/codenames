@@ -15,8 +15,13 @@ import {
 } from './multiplayer/Session'
 import { Takeover } from './multiplayer/Takeover'
 import { playSound } from './sound'
+import { SoloGame, createSoloGame } from './SoloGame'
+import { AiSetup } from './ai/AiSetup'
+import { getApiKey } from './ai/keyStore'
+import { creditOf } from './decks'
 import { GameScreen, spymasterEmoji } from './ui/GameScreen'
 import { Homepage } from './ui/Homepage'
+import { SoloGameScreen } from './ui/SoloGameScreen'
 
 export function App() {
   const [game, setGame] = useState<Game | null>(null)
@@ -45,6 +50,11 @@ export function App() {
   const roomCodeRef = useRef('')
   const repickingRef = useRef(false)
   const identifiedRef = useRef(false)
+  const [solo, setSolo] = useState(false)
+  const [soloGame, setSoloGame] = useState<SoloGame | null>(null)
+  const [apiKey, setApiKeyState] = useState<string | null>(null)
+  const [needsApiKey, setNeedsApiKey] = useState(false)
+  const [pendingSoloDeck, setPendingSoloDeck] = useState<string | null>(null)
   const [flash, setFlash] = useState<{
     text: string
     team: Team | null
@@ -321,9 +331,48 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const startSoloGame = async (title: string) => {
+    const key = await getApiKey()
+    if (!key) {
+      setPendingSoloDeck(title)
+      setNeedsApiKey(true)
+      return
+    }
+    setApiKeyState(key)
+    const deck = findDeck(title)
+    const total = selectedBoardSize === '5x4' ? 20 : 25
+    const faces = await deck.fetch(total)
+    setSoloGame(new SoloGame(createSoloGame(faces, deck.title, creditOf(deck), selectedBoardSize)))
+  }
+
+  const onApiKeyReady = async (key: string) => {
+    setApiKeyState(key)
+    setNeedsApiKey(false)
+    if (pendingSoloDeck) {
+      const title = pendingSoloDeck
+      setPendingSoloDeck(null)
+      const deck = findDeck(title)
+      const total = selectedBoardSize === '5x4' ? 20 : 25
+      const faces = await deck.fetch(total)
+      setSoloGame(new SoloGame(createSoloGame(faces, deck.title, creditOf(deck), selectedBoardSize)))
+    }
+  }
+
   return (
     <>
-      {game && !repicking ? (
+      {needsApiKey ? (
+        <AiSetup onReady={onApiKeyReady} />
+      ) : soloGame && apiKey ? (
+        <SoloGameScreen
+          game={soloGame}
+          apiKey={apiKey}
+          onGameUpdate={setSoloGame}
+          onNewGame={async () => {
+            const title = soloGame.state.deck
+            if (title) await startSoloGame(title)
+          }}
+        />
+      ) : game && !repicking ? (
         <GameScreen
           game={game}
           flash={flash}
@@ -369,8 +418,12 @@ export function App() {
           decks={decks}
           boardSize={selectedBoardSize}
           onBoardSizeChange={setSelectedBoardSize}
+          solo={solo}
+          onSoloChange={setSolo}
           onPick={(title) => {
-            if (game) {
+            if (solo) {
+              void startSoloGame(title)
+            } else if (game) {
               sessionRef.current?.setRepicking(null)
               void newGame(title, true)
               setRepicking(false)
@@ -379,7 +432,7 @@ export function App() {
             }
           }}
           onJoin={
-            game || RoomCode.fromPath(window.location.pathname)
+            solo || game || RoomCode.fromPath(window.location.pathname)
               ? undefined
               : (raw) => {
                   const code = RoomCode.fromTyped(raw)

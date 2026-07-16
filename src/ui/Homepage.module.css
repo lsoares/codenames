@@ -103,6 +103,15 @@
   gap: 12px 24px;
 }
 
+.soloToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  user-select: none;
+}
+
 .actions {
   display: flex;
   align-items: center;
