@@ -3,7 +3,6 @@ import styles from './DeckFilters.module.css'
 
 export interface DeckFilter {
   group: Deck['group'] | null
-  difficulty: Deck['difficulty'] | null
 }
 
 export default function DeckFilters(props: {
@@ -25,35 +24,13 @@ export default function DeckFilters(props: {
     )
   }
 
-  const difficulty = (level: Deck['difficulty']) => {
-    const active = props.value.difficulty === level
-    return (
-      <button
-        key={level}
-        type="button"
-        aria-pressed={active}
-        className={`${styles.chip}${active ? ` ${styles.active}` : ''}`}
-        onClick={() => props.onChange({ ...props.value, difficulty: active ? null : level })}
-      >
-        {level[0].toUpperCase() + level.slice(1)}
-      </button>
-    )
-  }
-
   return (
-    <div className={styles.chips} role="group" aria-label="Filter decks">
-      <div className={styles.set}>
-        {category('words')}
-        {category('photos')}
-        {category('abstract')}
-        {category('symbols')}
-        {category('culture')}
-      </div>
-      <div className={styles.set}>
-        {difficulty('casual')}
-        {difficulty('tough')}
-        {difficulty('brutal')}
-      </div>
+    <div className={styles.set} role="group" aria-label="Filter decks">
+      {category('words')}
+      {category('photos')}
+      {category('abstract')}
+      {category('symbols')}
+      {category('culture')}
     </div>
   )
 }

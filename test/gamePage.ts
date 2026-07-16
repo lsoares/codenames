@@ -83,7 +83,6 @@ export class GamePage {
   // Scoped to the deck grid so a deck named like a filter chip (e.g. "Words")
   // isn't ambiguous with it.
   async createRoomOnDeck(label: string): Promise<void> {
-    await this.showAllDecks()
     await this.page
       .getByRole('list', { name: 'Decks' })
       .getByRole('button', { name: label, exact: true })
@@ -97,12 +96,6 @@ export class GamePage {
     return this.page.getByRole('button', { name: /, (red|blue|bystander|assassin)$/ })
   }
 
-  // The deck grid opens with the Casual difficulty filter pre-selected, which hides
-  // the image decks; clearing it makes every deck (like Random) pickable again.
-  async showAllDecks(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Casual' }).click()
-  }
-
   // The homepage box for entering an existing room by its code.
   async joinRoomByCode(code: string): Promise<void> {
     await this.page.getByRole('textbox', { name: 'Room code' }).fill(code)
@@ -112,7 +105,6 @@ export class GamePage {
   // Pick a homepage deck without waiting for the board, so a test can observe the
   // dealing state while the deck's faces are still being fetched.
   async pickDeck(label: string): Promise<void> {
-    await this.showAllDecks()
     await this.page.getByRole('button', { name: label, exact: true }).click()
   }
 
@@ -135,7 +127,6 @@ export class GamePage {
   // a deck there re-deals the board for everyone.
   async changeDeckAtEnd(label: string): Promise<void> {
     await this.page.getByRole('button', { name: 'Change deck' }).click()
-    await this.showAllDecks()
     await this.page.getByRole('button', { name: label, exact: true }).click()
   }
 

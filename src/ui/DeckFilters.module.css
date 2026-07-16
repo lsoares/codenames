@@ -1,11 +1,3 @@
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 24px;
-}
-
 /* One cream panel, the same family as the page, sitting a touch proud of it.
    Inactive keys lie flush; only the selected key is carved in. */
 .set {

@@ -22,7 +22,7 @@ export default function DeckPicker(props: {
         <button
           type="button"
           className={`${styles.tile}${pickedId && !loading ? ` ${styles.dimmed}` : ''}`}
-          title={deck.description}
+          title={`${deck.description} ${DIFFICULTY_PIPS[deck.difficulty]}`}
           disabled={pickedId !== null}
           onClick={() => pick(deck.id)}
         >
@@ -43,11 +43,11 @@ export default function DeckPicker(props: {
     )
   }
 
-  const matches = (deck: Deck) =>
-    (!props.filter.group || deck.group === props.filter.group) &&
-    (!props.filter.difficulty || deck.difficulty === props.filter.difficulty)
+  const matches = (deck: Deck) => !props.filter.group || deck.group === props.filter.group
   const ordered = GROUP_ORDER.flatMap((group) =>
-    props.decks.filter((deck) => deck.group === group && matches(deck)),
+    props.decks
+      .filter((deck) => deck.group === group && matches(deck))
+      .sort((a, b) => DIFFICULTY_RANK[a.difficulty] - DIFFICULTY_RANK[b.difficulty]),
   )
   if (ordered.length === 0) {
     return <p className={styles.empty}>No decks match. Pick another filter.</p>
@@ -60,3 +60,11 @@ export default function DeckPicker(props: {
 }
 
 const GROUP_ORDER: Deck['group'][] = ['words', 'abstract', 'photos', 'symbols', 'culture']
+
+const DIFFICULTY_RANK: Record<Deck['difficulty'], number> = { casual: 0, tough: 1, brutal: 2 }
+
+const DIFFICULTY_PIPS: Record<Deck['difficulty'], string> = {
+  casual: '\u2605',
+  tough: '\u2605\u2605',
+  brutal: '\u2605\u2605\u2605',
+}

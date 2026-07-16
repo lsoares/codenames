@@ -15,7 +15,7 @@ export default function Homepage(props: {
   onJoin?: (code: string) => void
 }) {
   const [code, setCode] = useState('')
-  const [filter, setFilter] = useState<DeckFilter>({ group: null, difficulty: 'casual' })
+  const [filter, setFilter] = useState<DeckFilter>({ group: null })
   const onJoin = props.onJoin
   return (
     <main className={styles.home}>
