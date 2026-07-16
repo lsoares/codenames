@@ -1,0 +1,121 @@
+import type { Face } from './Face'
+import type { BoardSize, Card, CardColor, Credit, GuessOutcome, Team } from './Game'
+import { shuffle } from './shuffle'
+
+export interface SoloClue {
+  readonly word: string
+  readonly count: number
+}
+
+export interface SoloGameState {
+  readonly cards: readonly Card[]
+  readonly deck: string | null
+  readonly credit: Credit | null
+  readonly clue: SoloClue | null
+  readonly clueHistory: readonly SoloClue[]
+  readonly guessesRemaining: number
+  readonly result: 'playing' | 'win' | 'dead'
+}
+
+export function createSoloGame(
+  faces: readonly Face[],
+  deck: string | null,
+  credit: Credit | null,
+  boardSize: BoardSize,
+): SoloGameState {
+  const { mine, assassins } = boardSize === '5x5'
+    ? { mine: 15, assassins: 10 }
+    : { mine: 12, assassins: 8 }
+  const colors = shuffle<CardColor>([
+    ...Array<CardColor>(mine).fill('blue'),
+    ...Array<CardColor>(assassins).fill('assassin'),
+  ])
+  return {
+    cards: faces.slice(0, colors.length).map((face, index) => ({
+      face,
+      color: colors[index],
+      revealed: false,
+      markedBy: [],
+      outcome: null,
+    })),
+    deck,
+    credit,
+    clue: null,
+    clueHistory: [],
+    guessesRemaining: 0,
+    result: 'playing',
+  }
+}
+
+export class SoloGame {
+  constructor(private readonly s: SoloGameState) {}
+
+  get state(): SoloGameState {
+    return this.s
+  }
+
+  mineCount(): number {
+    return this.s.cards.filter((c) => c.color === 'blue').length
+  }
+
+  unrevealedMineCount(): number {
+    return this.s.cards.filter((c) => c.color === 'blue' && !c.revealed).length
+  }
+
+  showsColor(cardIndex: number, _isSpymaster: boolean): boolean {
+    return this.s.cards[cardIndex].revealed || this.s.result !== 'playing'
+  }
+
+  canAct(cardIndex: number, _viewer: { team: Team; isSpymaster: boolean }): boolean {
+    return (
+      this.s.result === 'playing' &&
+      this.s.clue !== null &&
+      this.s.guessesRemaining > 0 &&
+      !this.s.cards[cardIndex].revealed
+    )
+  }
+
+  canMark(): boolean {
+    return false
+  }
+
+  receiveClue(word: string, count: number): SoloGame {
+    if (this.s.result !== 'playing' || this.s.clue !== null) return this
+    const clue: SoloClue = { word, count }
+    return new SoloGame({
+      ...this.s,
+      clue,
+      clueHistory: [...this.s.clueHistory, clue],
+      guessesRemaining: count,
+    })
+  }
+
+  guess(cardIndex: number): SoloGame {
+    if (this.s.result !== 'playing' || !this.s.clue || this.s.guessesRemaining <= 0) return this
+    const card = this.s.cards[cardIndex]
+    if (!card || card.revealed) return this
+
+    const outcome: GuessOutcome = card.color === 'assassin' ? 'assassin' : 'correct'
+    const cards = this.s.cards.map((c, i) =>
+      i === cardIndex ? { ...c, revealed: true, outcome } : c,
+    )
+
+    if (card.color === 'assassin') {
+      return new SoloGame({ ...this.s, cards, result: 'dead', clue: null, guessesRemaining: 0 })
+    }
+
+    const remaining = this.s.guessesRemaining - 1
+    const allMineRevealed = cards.filter((c) => c.color === 'blue' && !c.revealed).length === 0
+
+    if (allMineRevealed) {
+      return new SoloGame({ ...this.s, cards, result: 'win', clue: null, guessesRemaining: 0 })
+    }
+
+    return new SoloGame({
+      ...this.s,
+      cards,
+      guessesRemaining: remaining,
+      clue: remaining <= 0 ? null : this.s.clue,
+    })
+  }
+}
