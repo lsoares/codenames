@@ -20,7 +20,7 @@ import { AiSetup } from './arena/ai/AiSetup'
 import { getApiKey } from './arena/ai/keyStore'
 import { creditOf } from './decks'
 import { GameScreen, spymasterEmoji } from './classic/GameScreen'
-import { Homepage } from './ui/Homepage'
+import { Homepage } from './Homepage'
 import { SoloGameScreen } from './arena/Screen'
 import { SpymasterSoloGameScreen } from './arena/SpymasterScreen'
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Deck } from '../decks'
+import type { Deck } from './decks'
 import styles from './DeckPicker.module.css'
 
 export function DeckPicker(props: {

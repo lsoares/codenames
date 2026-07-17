@@ -1,4 +1,4 @@
-import type { Deck } from '../decks'
+import type { Deck } from './decks'
 import styles from './CategoryPicker.module.css'
 
 export function CategoryPicker(props: {
