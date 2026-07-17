@@ -35,11 +35,7 @@ export function ClueDisplay(props: {
           title={`${props.guessesUsed} of ${props.guessesTotal} guesses used (N+1 rule)`}
         >
           {Array.from({ length: props.count }, (_, i) => (
-            <span
-              key={i}
-              className={styles.pip}
-              data-spent={i < props.guessesUsed || undefined}
-            />
+            <span key={i} className={styles.pip} data-spent={i < props.guessesUsed || undefined} />
           ))}
         </span>
       )}

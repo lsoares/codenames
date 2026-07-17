@@ -128,7 +128,13 @@ export function Board(props: {
               <button
                 className={styles.card}
                 aria-label={label}
-                title={!isSpymaster && actionable ? (marked && !cooldown.has(index) ? 'Reveal' : 'Mark') : undefined}
+                title={
+                  !isSpymaster && actionable
+                    ? marked && !cooldown.has(index)
+                      ? 'Reveal'
+                      : 'Mark'
+                    : undefined
+                }
                 data-color={showColor ? card.color : undefined}
                 data-mine={
                   (isSpymaster && !card.revealed && card.color === props.spymasterTeam) || undefined
