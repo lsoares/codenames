@@ -4,7 +4,7 @@ import type { Deck } from '../decks'
 import { BoardSizeSelector } from '../components/BoardSizeSelector'
 import { DeckPicker } from './DeckPicker'
 import { CategoryPicker } from './CategoryPicker'
-import { HowToPlay } from '../components/HowToPlay'
+import { HowToPlay } from '../classic/HowToPlay'
 import styles from './Homepage.module.css'
 
 export function Homepage(props: {
