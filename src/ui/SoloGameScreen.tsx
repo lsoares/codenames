@@ -15,6 +15,7 @@ export function SoloGameScreen(props: {
   onGameUpdate: (game: SoloGame) => void
   onNewGame: () => void
   onSwitchRole?: () => void
+  onHome?: () => void
 }) {
   const { clue, clueHistory, guessesRemaining, result } = props.game.state
 
@@ -174,6 +175,12 @@ export function SoloGameScreen(props: {
           onCardMark={(index) => props.onGameUpdate(props.game.mark(index))}
         />
       </div>
+
+      {props.onHome && (
+        <button type="button" className={styles.home} aria-label="Back to homepage" title="Back to homepage" onClick={props.onHome}>
+          <img src="/favicon.svg" alt="" className={styles.homeIcon} />
+        </button>
+      )}
 
       {result === 'win' && <Confetti />}
     </main>

@@ -398,6 +398,7 @@ export function App() {
             const title = soloGame.state.deck
             if (title) await startSoloGame(title)
           }}
+          onHome={() => { history.pushState({}, '', '/'); goHome() }}
         />
       ) : soloGame && apiKey && soloMode === 'spymaster' ? (
         <SpymasterSoloGameScreen
@@ -414,6 +415,7 @@ export function App() {
             const title = soloGame.state.deck
             if (title) await startSoloGame(title)
           }}
+          onHome={() => { history.pushState({}, '', '/'); goHome() }}
         />
       ) : game && !repicking ? (
         <GameScreen

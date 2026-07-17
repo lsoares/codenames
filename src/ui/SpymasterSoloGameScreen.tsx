@@ -16,6 +16,7 @@ export function SpymasterSoloGameScreen(props: {
   onGameUpdate: (game: SoloGame) => void
   onNewGame: () => void
   onSwitchRole?: () => void
+  onHome?: () => void
 }) {
   const { clue, clueHistory, guessesRemaining, result } = props.game.state
 
@@ -58,9 +59,9 @@ export function SpymasterSoloGameScreen(props: {
           .filter((c) => !c.revealed && c.face.kind === 'text')
           .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
           .filter(Boolean)
-        const guess = await fetchGuess({ key: props.apiKey, clue: word, count, words })
+        await new Promise((resolve) => setTimeout(resolve, 1500))
         if (cancelRef.current) break
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        const guess = await fetchGuess({ key: props.apiKey, clue: word, count, words })
         if (cancelRef.current) break
         const cardIndex = current.state.cards.findIndex(
           (c) => !c.revealed && c.face.kind === 'text' && c.face.text.toUpperCase() === guess,
@@ -144,7 +145,7 @@ export function SpymasterSoloGameScreen(props: {
   }
 
   return (
-    <main className={styles.screen}>
+    <main className={styles.screen} data-thinking={aiGuessing || undefined}>
       <header className={styles.header}>
         {props.onSwitchRole && (
           <span className={styles.rolePicker}>
@@ -192,6 +193,12 @@ export function SpymasterSoloGameScreen(props: {
           onCardMark={() => {}}
         />
       </div>
+
+      {props.onHome && (
+        <button type="button" className={styles.home} aria-label="Back to homepage" title="Back to homepage" onClick={props.onHome}>
+          <img src="/favicon.svg" alt="" className={styles.homeIcon} />
+        </button>
+      )}
 
       {result === 'win' && <Confetti />}
     </main>

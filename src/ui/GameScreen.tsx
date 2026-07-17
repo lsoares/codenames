@@ -386,16 +386,14 @@ export function GameScreen(props: {
       ) : (
         <>
           {!winner && phase === 'guess' && clue && (
-            <span className={styles.clueInline} style={{ '--clue-color': 'var(--card-face)', '--pip-color': 'var(--card-face)' } as React.CSSProperties}>
-              <ClueDisplay
-                word={clue.word}
-                count={clue.count}
-                guessesUsed={guessesUsed}
-                guessesTotal={guessesShown}
-                unlimited={isUnlimitedClue}
-                bonusAt={clue.count}
-              />
-            </span>
+            <ClueDisplay
+              word={clue.word}
+              count={clue.count}
+              guessesUsed={guessesUsed}
+              guessesTotal={guessesShown}
+              unlimited={isUnlimitedClue}
+              bonusAt={clue.count}
+            />
           )}
           <span key={statusText} className={styles.statusText}>
             {statusText}
