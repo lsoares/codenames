@@ -205,13 +205,10 @@ export function Board(props: {
                   {card.face.tooltip ?? '?'}
                 </a>
               )}
-              {showCaption && !card.face.link && card.face.tooltip && (
-                <span className={styles.caption}>{card.face.tooltip}</span>
-              )}
-              {!props.bare && zoomUrl && !props.loading && !revealed && (
+              {showCaption && !card.face.link && zoomUrl && (
                 <button
                   type="button"
-                  className={styles.zoomIcon}
+                  className={styles.caption}
                   aria-label={`Enlarge ${name}`}
                   title={`Enlarge ${name}`}
                   onClick={(event) => {
@@ -219,8 +216,11 @@ export function Board(props: {
                     setZoomed(zoomUrl)
                   }}
                 >
-                  🔍
+                  {card.face.tooltip ?? '...'}
                 </button>
+              )}
+              {showCaption && !card.face.link && !zoomUrl && card.face.tooltip && (
+                <span className={styles.caption}>{card.face.tooltip}</span>
               )}
               {props.overlay?.(index)}
             </div>

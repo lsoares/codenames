@@ -31,7 +31,7 @@ export function playSound(sound: Sound, volume = 1, slice: { duration?: number }
     if (!buffer) return
     const source = ac.createBufferSource()
     const gain = ac.createGain()
-    gain.gain.value = 0.5 * volume
+    gain.gain.value = 0.3 * volume
     source.buffer = buffer
     source.connect(gain).connect(ac.destination)
     source.start(ac.currentTime, 0, slice.duration)

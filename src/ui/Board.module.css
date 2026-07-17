@@ -68,13 +68,12 @@
 }
 
 .cell:hover .overlayIcon,
-.overlayIcon:focus-visible,
-.overlayIcon[data-on] {
-  opacity: 1;
+.overlayIcon:focus-visible {
+  opacity: 0.35;
 }
 
 .overlayIcon[data-on] {
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .caption {
@@ -116,39 +115,14 @@ a.caption:focus-visible {
   opacity: 1;
 }
 
-.zoomIcon {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
+button.caption {
   border: none;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
-  color: var(--ink);
-  font-size: 1rem;
-  line-height: 1;
   cursor: pointer;
-  opacity: 0;
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
 }
 
-.cell:hover .zoomIcon,
-.zoomIcon:focus-visible {
-  opacity: 1;
-}
-
-.zoomIcon:hover,
-.zoomIcon:focus-visible {
-  transform: scale(1.15);
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+button.caption:hover,
+button.caption:focus-visible {
+  background: rgba(0, 0, 0, 0.72);
 }
 
 .face {
