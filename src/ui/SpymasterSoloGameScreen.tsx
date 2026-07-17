@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { SoloGame } from '../SoloGame'
-import { fetchGuesses } from '../ai/groq'
+import { fetchGuess } from '../ai/groq'
 import { playSound } from '../sound'
 import type { GuessOutcome } from '../Boardable'
 import { Board } from './Board'
@@ -51,15 +51,14 @@ export function SpymasterSoloGameScreen(props: {
     playSound('clue')
 
     try {
-      const words = withClue.state.cards
-        .filter((c) => !c.revealed && c.face.kind === 'text')
-        .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
-        .filter(Boolean)
-
-      const guesses = await fetchGuesses({ key: props.apiKey, clue: word, count, words })
-
       let current = withClue
-      for (const guess of guesses) {
+      for (let i = 0; i < count; i++) {
+        if (cancelRef.current || current.state.result !== 'playing') break
+        const words = current.state.cards
+          .filter((c) => !c.revealed && c.face.kind === 'text')
+          .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
+          .filter(Boolean)
+        const guess = await fetchGuess({ key: props.apiKey, clue: word, count, words })
         if (cancelRef.current) break
         await new Promise((resolve) => setTimeout(resolve, 1000))
         if (cancelRef.current) break
@@ -69,7 +68,6 @@ export function SpymasterSoloGameScreen(props: {
         if (cardIndex < 0) continue
         current = current.guess(cardIndex)
         animate(() => props.onGameUpdate(current))
-        if (current.state.result !== 'playing') break
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong.')

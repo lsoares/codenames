@@ -60,16 +60,17 @@ export interface GuessRequest {
   words: string[]
 }
 
-export async function fetchGuesses(req: GuessRequest): Promise<string[]> {
-  const systemPrompt = `You are a Codenames operative. Your spymaster gave you a one-word clue and a count. You must pick exactly COUNT words from the board that you think the clue refers to.
+export async function fetchGuess(req: GuessRequest): Promise<string> {
+  const systemPrompt = `You are a Codenames operative. Your spymaster gave you a one-word clue. Pick the ONE word from the board that BEST matches the clue right now.
 
 Rules:
-- Pick exactly ${req.count} word(s) from the board
-- Choose words most strongly associated with the clue
+- Pick exactly 1 word from the board
+- Choose the word most strongly associated with the clue
 - You do NOT know which words are yours or which are deadly
-- Respond with JSON only: {"guesses":["WORD1","WORD2"]}`
+- Be bold: go with your strongest association, even if risky
+- Respond with JSON only: {"guess":"WORD"}`
 
-  const userMessage = `Clue: ${req.clue} (${req.count})
+  const userMessage = `Clue: ${req.clue}
 Board words: ${req.words.join(', ')}`
 
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -100,6 +101,5 @@ Board words: ${req.words.join(', ')}`
 
   const raw: string = data.choices?.[0]?.message?.content ?? ''
   const parsed = JSON.parse(raw)
-  const guesses: string[] = parsed.guesses ?? parsed
-  return guesses.slice(0, req.count).map((w) => String(w).toUpperCase())
+  return String(parsed.guess ?? parsed).toUpperCase()
 }

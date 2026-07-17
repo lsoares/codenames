@@ -67,13 +67,10 @@ export class SoloGame {
     return isSpymaster || this.s.cards[cardIndex].revealed || this.s.result !== 'playing'
   }
 
-  canAct(cardIndex: number, _viewer: { team: Team; isSpymaster: boolean }): boolean {
-    return (
-      this.s.result === 'playing' &&
-      this.s.clue !== null &&
-      this.s.guessesRemaining > 0 &&
-      !this.s.cards[cardIndex].revealed
-    )
+  canAct(cardIndex: number, viewer: { team: Team; isSpymaster: boolean }): boolean {
+    if (this.s.result !== 'playing' || this.s.cards[cardIndex].revealed) return false
+    if (viewer.isSpymaster) return this.s.cards[cardIndex].color === 'blue'
+    return this.s.clue !== null && this.s.guessesRemaining > 0
   }
 
   canMark(_cardIndex: number, isSpymaster: boolean): boolean {
