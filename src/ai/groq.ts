@@ -33,6 +33,7 @@ Already revealed: ${req.revealedWords.length > 0 ? req.revealedWords.join(', ') 
         { role: 'user', content: userMessage },
       ],
       temperature: 0.7,
+      response_format: { type: 'json_object' },
     }),
   })
 
@@ -46,7 +47,7 @@ Already revealed: ${req.revealedWords.length > 0 ? req.revealedWords.join(', ') 
   }
 
   const raw: string = data.choices?.[0]?.message?.content ?? ''
-  const parsed = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim())
+  const parsed = JSON.parse(raw)
   return { word: String(parsed.word).toUpperCase(), count: Number(parsed.count) }
 }
 
@@ -64,7 +65,7 @@ Rules:
 - Pick exactly ${req.count} word(s) from the board
 - Choose words most strongly associated with the clue
 - You do NOT know which words are yours or which are deadly
-- Respond with a JSON array of words only: ["WORD1","WORD2"]`
+- Respond with JSON only: {"guesses":["WORD1","WORD2"]}`
 
   const userMessage = `Clue: ${req.clue} (${req.count})
 Board words: ${req.words.join(', ')}`
@@ -82,6 +83,7 @@ Board words: ${req.words.join(', ')}`
         { role: 'user', content: userMessage },
       ],
       temperature: 0.3,
+      response_format: { type: 'json_object' },
     }),
   })
 
@@ -95,6 +97,7 @@ Board words: ${req.words.join(', ')}`
   }
 
   const raw: string = data.choices?.[0]?.message?.content ?? ''
-  const parsed: string[] = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim())
-  return parsed.slice(0, req.count).map((w) => String(w).toUpperCase())
+  const parsed = JSON.parse(raw)
+  const guesses: string[] = parsed.guesses ?? parsed
+  return guesses.slice(0, req.count).map((w) => String(w).toUpperCase())
 }

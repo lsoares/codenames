@@ -14,17 +14,20 @@ export function SoloGameScreen(props: {
   onGameUpdate: (game: SoloGame) => void
   onNewGame: () => void
 }) {
-  const { cards, clue, clueHistory, guessesRemaining, result } = props.game.state
+  const { clue, clueHistory, guessesRemaining, result } = props.game.state
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const loadingRef = useRef(false)
+  const gameRef = useRef(props.game)
+  gameRef.current = props.game
 
   const requestClue = () => {
     if (loadingRef.current) return
     loadingRef.current = true
     setLoading(true)
     setError(null)
+    const cards = gameRef.current.state.cards
     const mineWords = cards
       .filter((c) => c.color === 'blue' && !c.revealed && c.face.kind === 'text')
       .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
@@ -36,7 +39,7 @@ export function SoloGameScreen(props: {
       .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
     fetchClue({ key: props.apiKey, mineWords, assassinWords, revealedWords })
       .then(({ word, count }) => {
-        props.onGameUpdate(props.game.receiveClue(word, count))
+        props.onGameUpdate(gameRef.current.receiveClue(word, count))
         playSound('clue')
       })
       .catch((err: unknown) => {
