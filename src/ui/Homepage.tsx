@@ -78,7 +78,7 @@ export function Homepage(props: {
       <div className={styles.actions}>
         {props.onPractice && (
           <button type="button" className={styles.practice} onClick={props.onPractice}>
-            🤖 Practice solo
+            🤖 Arena
           </button>
         )}
         <HowToPlay />

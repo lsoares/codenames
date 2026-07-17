@@ -309,8 +309,8 @@ export class GamePage {
     return this.page.getByRole('img', { name: /operative|spymaster/ }).count()
   }
 
-  async clickPractice(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Practice' }).click()
+  async clickArena(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Arena' }).click()
   }
 
   findPlayAgainButton() {

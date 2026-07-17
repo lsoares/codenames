@@ -17,12 +17,12 @@ function stubGroqApi(
   })
 }
 
-test('practice: AI gives a clue and the player guesses a card', async ({ page }) => {
+test('arena: AI gives a clue and the player guesses a card', async ({ page }) => {
   const game = new GamePage(page)
   await stubGroqApi(page, [{ word: 'NATURE', count: 1 }])
 
   await game.open()
-  await game.clickPractice()
+  await game.clickArena()
   await game.saveApiKey()
 
   await expect(page.getByText('NATURE')).toBeVisible()
@@ -40,10 +40,10 @@ test('practice: AI gives a clue and the player guesses a card', async ({ page })
   ).toBeVisible()
 })
 
-test('practice: setup screen appears when no API key is configured', async ({ page }) => {
+test('arena: setup screen appears when no API key is configured', async ({ page }) => {
   const game = new GamePage(page)
   await game.open()
-  await game.clickPractice()
+  await game.clickArena()
 
   await expect(page.getByRole('textbox', { name: 'API key' })).toBeVisible()
   await expect(page.getByText('Create a Groq API key')).toBeVisible()
