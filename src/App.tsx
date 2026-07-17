@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './App.module.css'
-import { boardSize, compositionFor, Game, type BoardSize, type GameState, type Team } from './classic/Game'
+import {
+  boardSize,
+  compositionFor,
+  Game,
+  type BoardSize,
+  type GameState,
+  type Team,
+} from './classic/Game'
 import { identify, track } from './analytics'
 import { decks, findDeck } from './decks'
 import { Guest, JoinError } from './classic/Guest'
 import { Host } from './classic/Host'
 import { RoomCode } from './RoomCode'
-import {
-  Roster,
-  type Action,
-  type MolesView,
-  type Player,
-  type Session,
-} from './classic/Session'
+import { Roster, type Action, type MolesView, type Player, type Session } from './classic/Session'
 import { Takeover } from './classic/Takeover'
 import { playSound } from './sound'
 import { ArenaGame, createArenaGame } from './arena/Game'
@@ -363,7 +364,9 @@ export function App() {
     const deck = findDeck(title)
     const total = selectedBoardSize === '5x4' ? 20 : 25
     const faces = await deck.fetch(total)
-    setArenaGame(new ArenaGame(createArenaGame(faces, deck.title, creditOf(deck), selectedBoardSize)))
+    setArenaGame(
+      new ArenaGame(createArenaGame(faces, deck.title, creditOf(deck), selectedBoardSize)),
+    )
   }
 
   const onApiKeyReady = async (key: string) => {
