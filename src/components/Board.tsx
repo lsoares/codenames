@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Face } from '../Face'
-import type { Card, Team } from '../Game'
+import type { Card, Team } from '../classic/Game'
 import type { Boardable, GuessOutcome } from '../Boardable'
 import styles from './Board.module.css'
 

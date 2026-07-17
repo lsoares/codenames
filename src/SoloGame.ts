@@ -1,5 +1,5 @@
 import type { Face } from './Face'
-import type { BoardSize, Card, CardColor, Credit, GuessOutcome, Team } from './Game'
+import type { BoardSize, Card, CardColor, Credit, GuessOutcome, Team } from './classic/Game'
 import { shuffle } from './shuffle'
 
 export interface SoloClue {

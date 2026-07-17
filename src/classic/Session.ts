@@ -1,6 +1,6 @@
 import type { Face } from '../Face'
-import type { BoardSize, GameState, Team } from '../Game'
-import type { MoleSighting } from '../moles/MoleGame'
+import type { BoardSize, GameState, Team } from './Game'
+import type { MoleSighting } from './moles/MoleGame'
 import type { Seats } from './Room'
 
 export type Action =

@@ -1,5 +1,5 @@
-import type { Face } from './Face'
-import { shuffle } from './shuffle'
+import type { Face } from '../Face'
+import { shuffle } from '../shuffle'
 
 export type Team = 'red' | 'blue'
 export type CardColor = 'red' | 'blue' | 'neutral' | 'assassin'

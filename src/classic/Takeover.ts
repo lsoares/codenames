@@ -1,4 +1,4 @@
-import type { GameState } from '../Game'
+import type { GameState } from './Game'
 import { Guest } from './Guest'
 import { Host } from './Host'
 import type { Session } from './Session'

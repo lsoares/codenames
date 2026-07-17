@@ -1,4 +1,4 @@
-import type { Card, GuessOutcome, Team } from './Game'
+import type { Card, GuessOutcome, Team } from './classic/Game'
 
 export type { GuessOutcome }
 

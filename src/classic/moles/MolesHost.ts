@@ -1,4 +1,4 @@
-import type { MolesView } from '../multiplayer/Session'
+import type { MolesView } from '../Session'
 import { MoleGame } from './MoleGame'
 
 export interface MolesWorld {

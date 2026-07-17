@@ -1,4 +1,4 @@
-import { unlimitedClueHint } from '../Game'
+import { unlimitedClueHint } from '../classic/Game'
 import styles from './ClueDisplay.module.css'
 
 export function ClueDisplay(props: {

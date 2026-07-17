@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import type { MolesView, Player } from '../multiplayer/Session'
+import type { MolesView, Player } from '../Session'
 import type { MoleKind, MoleSighting } from './MoleGame'
-import { playSound } from '../sound'
+import { playSound } from '../../sound'
 import styles from './Moles.module.css'
 
 export function useMoles(

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './App.module.css'
-import { boardSize, compositionFor, Game, type BoardSize, type GameState, type Team } from './Game'
+import { boardSize, compositionFor, Game, type BoardSize, type GameState, type Team } from './classic/Game'
 import { identify, track } from './analytics'
 import { decks, findDeck } from './decks'
-import { Guest, JoinError } from './multiplayer/Guest'
-import { Host } from './multiplayer/Host'
+import { Guest, JoinError } from './classic/Guest'
+import { Host } from './classic/Host'
 import { RoomCode } from './multiplayer/RoomCode'
 import {
   Roster,
@@ -12,14 +12,14 @@ import {
   type MolesView,
   type Player,
   type Session,
-} from './multiplayer/Session'
-import { Takeover } from './multiplayer/Takeover'
+} from './classic/Session'
+import { Takeover } from './classic/Takeover'
 import { playSound } from './sound'
 import { SoloGame, createSoloGame } from './SoloGame'
 import { AiSetup } from './ai/AiSetup'
 import { getApiKey } from './ai/keyStore'
 import { creditOf } from './decks'
-import { GameScreen, spymasterEmoji } from './ui/GameScreen'
+import { GameScreen, spymasterEmoji } from './classic/GameScreen'
 import { Homepage } from './ui/Homepage'
 import { SoloGameScreen } from './ui/SoloGameScreen'
 import { SpymasterSoloGameScreen } from './ui/SpymasterSoloGameScreen'

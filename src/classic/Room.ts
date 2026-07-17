@@ -1,4 +1,4 @@
-import type { Team } from '../Game'
+import type { Team } from './Game'
 
 export interface Seats {
   readonly red: string | null
