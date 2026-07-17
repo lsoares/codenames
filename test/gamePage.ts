@@ -306,12 +306,8 @@ export class GamePage {
     return this.page.getByRole('img', { name: /operative|spymaster/ }).count()
   }
 
-  async enableSolo(): Promise<void> {
-    await this.page.getByRole('checkbox', { name: 'Solo (Operative)' }).check()
-  }
-
-  async enableSoloSpymaster(): Promise<void> {
-    await this.page.getByRole('checkbox', { name: 'Solo (Spymaster)' }).check()
+  async clickPractice(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Practice' }).click()
   }
 
   findPlayAgainButton() {

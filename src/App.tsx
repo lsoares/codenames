@@ -52,6 +52,8 @@ export function App() {
   const repickingRef = useRef(false)
   const identifiedRef = useRef(false)
   const [soloMode, setSoloMode] = useState<'off' | 'operative' | 'spymaster'>('off')
+  const soloModeRef = useRef(soloMode)
+  soloModeRef.current = soloMode
   const [soloGame, setSoloGame] = useState<SoloGame | null>(null)
   const [apiKey, setApiKeyState] = useState<string | null>(null)
   const [needsApiKey, setNeedsApiKey] = useState(false)
@@ -179,10 +181,23 @@ export function App() {
     setMoles(null)
     setRepickingTeam(null)
     setStatus('')
+    setSoloMode('off')
+    setSoloGame(null)
+    setApiKeyState(null)
+    setNeedsApiKey(false)
+    setPendingSoloDeck(null)
   }
 
   useEffect(() => {
     const onPopState = () => {
+      if (soloModeRef.current !== 'off' && window.location.pathname !== '/practice') {
+        setSoloMode('off')
+        setSoloGame(null)
+        setApiKeyState(null)
+        setNeedsApiKey(false)
+        setPendingSoloDeck(null)
+        return
+      }
       if (RoomCode.fromPath(window.location.pathname)) return
       // The deck picker opened over a room is a sub-screen, not a fresh page:
       // backing out of it cancels the repick and keeps the room, rather than
@@ -328,6 +343,11 @@ export function App() {
   useEffect(() => {
     if (startedRef.current) return
     startedRef.current = true
+    if (window.location.pathname === '/practice') {
+      setSoloMode('operative')
+      void startSoloGame('Words')
+      return
+    }
     attemptJoin()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -369,6 +389,12 @@ export function App() {
           apiKey={apiKey}
           onGameUpdate={setSoloGame}
           onNewGame={async () => {
+            setSoloMode('spymaster')
+            const title = soloGame.state.deck
+            if (title) await startSoloGame(title)
+          }}
+          onSwitchRole={async () => {
+            setSoloMode('spymaster')
             const title = soloGame.state.deck
             if (title) await startSoloGame(title)
           }}
@@ -379,6 +405,12 @@ export function App() {
           apiKey={apiKey}
           onGameUpdate={setSoloGame}
           onNewGame={async () => {
+            setSoloMode('operative')
+            const title = soloGame.state.deck
+            if (title) await startSoloGame(title)
+          }}
+          onSwitchRole={async () => {
+            setSoloMode('operative')
             const title = soloGame.state.deck
             if (title) await startSoloGame(title)
           }}
@@ -429,12 +461,8 @@ export function App() {
           decks={decks}
           boardSize={selectedBoardSize}
           onBoardSizeChange={setSelectedBoardSize}
-          soloMode={soloMode}
-          onSoloModeChange={setSoloMode}
           onPick={(title) => {
-            if (soloMode !== 'off') {
-              void startSoloGame(title)
-            } else if (game) {
+            if (game) {
               sessionRef.current?.setRepicking(null)
               void newGame(title, true)
               setRepicking(false)
@@ -442,8 +470,13 @@ export function App() {
               void createRoom(title, RoomCode.fromPath(window.location.pathname)?.toString())
             }
           }}
+          onPractice={() => {
+            setSoloMode('operative')
+            history.pushState({}, '', '/practice')
+            void startSoloGame('Words')
+          }}
           onJoin={
-            soloMode !== 'off' || game || RoomCode.fromPath(window.location.pathname)
+            game || RoomCode.fromPath(window.location.pathname)
               ? undefined
               : (raw) => {
                   const code = RoomCode.fromTyped(raw)

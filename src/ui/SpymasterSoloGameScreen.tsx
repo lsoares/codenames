@@ -14,6 +14,7 @@ export function SpymasterSoloGameScreen(props: {
   apiKey: string
   onGameUpdate: (game: SoloGame) => void
   onNewGame: () => void
+  onSwitchRole?: () => void
 }) {
   const { clue, clueHistory, guessesRemaining, result } = props.game.state
 
@@ -149,9 +150,13 @@ export function SpymasterSoloGameScreen(props: {
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
-        <span className={styles.score}>
-          {props.game.unrevealedMineCount()} / {props.game.mineCount()}
-        </span>
+        {props.onSwitchRole && (
+          <span className={styles.rolePicker}>
+            <button type="button" className={styles.roleInactive} aria-label="Become operative" title="Become operative" onClick={props.onSwitchRole}>🙂</button>
+            <span className={styles.roleActive} role="img" aria-label="You are the spymaster">🕵️‍♀️</span>
+          </span>
+        )}
+        <span className={styles.count}>{props.game.unrevealedMineCount()}</span>
         {showClueBar ? (
           <ClueBar
             key={clueHistory.length}

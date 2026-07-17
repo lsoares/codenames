@@ -14,13 +14,12 @@ function stubGroqApi(page: import('@playwright/test').Page, responses: { word: s
   })
 }
 
-test('solo: AI gives a clue and the player guesses a card', async ({ page }) => {
+test('practice: AI gives a clue and the player guesses a card', async ({ page }) => {
   const game = new GamePage(page)
   await stubGroqApi(page, [{ word: 'NATURE', count: 1 }])
 
   await game.open()
-  await game.enableSolo()
-  await game.createRoomOnDeck('Words')
+  await game.clickPractice()
   await game.saveApiKey()
 
   await expect(page.getByText('NATURE')).toBeVisible()
@@ -34,27 +33,10 @@ test('solo: AI gives a clue and the player guesses a card', async ({ page }) => 
   ).toBeVisible()
 })
 
-test('solo toggle shows only word decks', async ({ page }) => {
+test('practice: setup screen appears when no API key is configured', async ({ page }) => {
   const game = new GamePage(page)
   await game.open()
-  await game.enableSolo()
-
-  await expect(
-    page.getByRole('list', { name: 'Decks' })
-      .getByRole('button', { name: 'Words', exact: true })
-  ).toBeVisible()
-
-  await expect(
-    page.getByRole('list', { name: 'Decks' })
-      .getByRole('button', { name: 'Pictures', exact: true })
-  ).not.toBeVisible()
-})
-
-test('solo: setup screen appears when no API key is configured', async ({ page }) => {
-  const game = new GamePage(page)
-  await game.open()
-  await game.enableSolo()
-  await game.createRoomOnDeck('Words')
+  await game.clickPractice()
 
   await expect(page.getByRole('textbox', { name: 'API key' })).toBeVisible()
   await expect(page.getByText('Create a Groq API key')).toBeVisible()

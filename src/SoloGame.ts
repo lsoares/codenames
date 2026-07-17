@@ -63,8 +63,8 @@ export class SoloGame {
     return this.s.cards.filter((c) => c.color === 'blue' && !c.revealed).length
   }
 
-  showsColor(cardIndex: number, _isSpymaster: boolean): boolean {
-    return this.s.cards[cardIndex].revealed || this.s.result !== 'playing'
+  showsColor(cardIndex: number, isSpymaster: boolean): boolean {
+    return isSpymaster || this.s.cards[cardIndex].revealed || this.s.result !== 'playing'
   }
 
   canAct(cardIndex: number, _viewer: { team: Team; isSpymaster: boolean }): boolean {

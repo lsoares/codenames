@@ -13,6 +13,7 @@ export function SoloGameScreen(props: {
   apiKey: string
   onGameUpdate: (game: SoloGame) => void
   onNewGame: () => void
+  onSwitchRole?: () => void
 }) {
   const { clue, clueHistory, guessesRemaining, result } = props.game.state
 
@@ -138,9 +139,13 @@ export function SoloGameScreen(props: {
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
-        <span className={styles.score}>
-          {props.game.unrevealedMineCount()} / {props.game.mineCount()}
-        </span>
+        {props.onSwitchRole && (
+          <span className={styles.rolePicker}>
+            <span className={styles.roleActive} role="img" aria-label="You are the operative">🙂</span>
+            <button type="button" className={styles.roleInactive} aria-label="Become spymaster" title="Become spymaster" onClick={props.onSwitchRole}>🕵️‍♀️</button>
+          </span>
+        )}
+        <span className={styles.count}>{props.game.unrevealedMineCount()}</span>
         <span className={styles.status} role="status">
           {statusText()}
         </span>

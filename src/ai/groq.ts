@@ -6,13 +6,15 @@ export interface ClueRequest {
 }
 
 export async function fetchClue(req: ClueRequest): Promise<{ word: string; count: number }> {
-  const systemPrompt = `You are a Codenames spymaster. You see a board of words. Some are yours (MINE), some are deadly (ASSASSIN). Previously revealed words are listed so you don't reuse them.
+  const systemPrompt = `You are a bold Codenames spymaster. You see a board of words. Some are yours (MINE), some are deadly (ASSASSIN). Previously revealed words are listed so you don't reuse them.
 
 Give a single-word clue and a count (how many MINE words it connects to). The clue must:
 - Be exactly ONE word (no spaces, no hyphens, no proper nouns that are on the board)
 - NOT be any word on the board or a derivative of one
 - Connect exactly COUNT of your MINE words through meaning, association, or category
 - AVOID connecting to ASSASSIN words (these kill the guesser)
+
+Play aggressively: aim for high counts (2-4) when you can find a clever connection. Take calculated risks to link more words. A count of 1 is a last resort.
 
 Respond with JSON only: {"word":"YOUR_CLUE","count":N}`
 
