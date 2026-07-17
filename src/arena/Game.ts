@@ -1,6 +1,6 @@
-import type { Face } from './Face'
-import type { BoardSize, Card, CardColor, Credit, GuessOutcome, Team } from './classic/Game'
-import { shuffle } from './shuffle'
+import type { Face } from '../Face'
+import type { BoardSize, Card, CardColor, Credit, GuessOutcome, Team } from '../classic/Game'
+import { shuffle } from '../shuffle'
 
 export interface SoloClue {
   readonly word: string

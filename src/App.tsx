@@ -5,7 +5,7 @@ import { identify, track } from './analytics'
 import { decks, findDeck } from './decks'
 import { Guest, JoinError } from './classic/Guest'
 import { Host } from './classic/Host'
-import { RoomCode } from './multiplayer/RoomCode'
+import { RoomCode } from './RoomCode'
 import {
   Roster,
   type Action,
@@ -15,14 +15,14 @@ import {
 } from './classic/Session'
 import { Takeover } from './classic/Takeover'
 import { playSound } from './sound'
-import { SoloGame, createSoloGame } from './SoloGame'
-import { AiSetup } from './ai/AiSetup'
-import { getApiKey } from './ai/keyStore'
+import { SoloGame, createSoloGame } from './arena/Game'
+import { AiSetup } from './arena/ai/AiSetup'
+import { getApiKey } from './arena/ai/keyStore'
 import { creditOf } from './decks'
 import { GameScreen, spymasterEmoji } from './classic/GameScreen'
 import { Homepage } from './ui/Homepage'
-import { SoloGameScreen } from './ui/SoloGameScreen'
-import { SpymasterSoloGameScreen } from './ui/SpymasterSoloGameScreen'
+import { SoloGameScreen } from './arena/Screen'
+import { SpymasterSoloGameScreen } from './arena/SpymasterScreen'
 
 export function App() {
   const [game, setGame] = useState<Game | null>(null)

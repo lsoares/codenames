@@ -4,8 +4,8 @@ import { Game, compositionFor, createGame, type BoardSize, type GameState } from
 import { findDeck, creditOf, type Deck } from '../decks'
 import { MolesHost } from './moles/MolesHost'
 import { Room } from './Room'
-import { iceServersReady, logConnection, newPeer } from '../multiplayer/peer'
-import { RoomCode } from '../multiplayer/RoomCode'
+import { iceServersReady, logConnection, newPeer } from '../peer'
+import { RoomCode } from '../RoomCode'
 import type { Action, Ping, Presence, Repick, RoomView, Session, TeamClaim, Whack } from './Session'
 
 export class Host implements Session {

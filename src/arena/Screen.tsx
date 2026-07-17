@@ -1,16 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { SoloGame } from '../SoloGame'
-import { fetchGuess } from '../ai/groq'
+import { SoloGame } from './Game'
+import { fetchClue } from './ai/groq'
 import { playSound } from '../sound'
 import type { GuessOutcome } from '../Boardable'
 import { Board } from '../components/Board'
-import { ClueBar } from '../components/ClueBar'
 import { ClueDisplay } from '../components/ClueDisplay'
 import { Confetti } from '../components/Confetti'
-import styles from './SpymasterSoloGameScreen.module.css'
+import styles from './Screen.module.css'
 
-export function SpymasterSoloGameScreen(props: {
+export function SoloGameScreen(props: {
   game: SoloGame
   apiKey: string
   onGameUpdate: (game: SoloGame) => void
@@ -20,10 +19,47 @@ export function SpymasterSoloGameScreen(props: {
 }) {
   const { clue, clueHistory, guessesRemaining, result } = props.game.state
 
-  const [aiGuessing, setAiGuessing] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [selected, setSelected] = useState<Set<number>>(new Set())
-  const cancelRef = useRef(false)
+  const loadingRef = useRef(false)
+  const gameRef = useRef(props.game)
+  gameRef.current = props.game
+
+  const requestClue = () => {
+    if (loadingRef.current) return
+    loadingRef.current = true
+    setLoading(true)
+    setError(null)
+    const cards = gameRef.current.state.cards
+    const mineWords = cards
+      .filter((c) => c.color === 'blue' && !c.revealed && c.face.kind === 'text')
+      .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
+    const assassinWords = cards
+      .filter((c) => c.color === 'assassin' && !c.revealed && c.face.kind === 'text')
+      .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
+    const revealedWords = cards
+      .filter((c) => c.revealed && c.face.kind === 'text')
+      .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
+    fetchClue({ key: props.apiKey, mineWords, assassinWords, revealedWords })
+      .then(({ word, count, targets }) => {
+        const validTargets = targets.filter((t) => mineWords.includes(t))
+        props.onGameUpdate(gameRef.current.receiveClue(word, count, validTargets))
+        playSound('clue')
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      })
+      .finally(() => {
+        setLoading(false)
+        loadingRef.current = false
+      })
+  }
+
+  useEffect(() => {
+    if (result === 'playing' && clue === null && !loadingRef.current) {
+      requestClue()
+    }
+  }, [result, clue])
 
   const animate = (update: () => void) => {
     const doc = document as Document & { startViewTransition?: (run: () => void) => void }
@@ -32,56 +68,12 @@ export function SpymasterSoloGameScreen(props: {
     doc.startViewTransition(() => flushSync(update))
   }
 
-  const toggleSelected = (index: number) => {
-    animate(() =>
-      setSelected((prev) => {
-        const next = new Set(prev)
-        next.has(index) ? next.delete(index) : next.add(index)
-        return next
-      }),
-    )
+  const handleCardClick = (index: number) => {
+    animate(() => {
+      const next = props.game.guess(index)
+      props.onGameUpdate(next)
+    })
   }
-
-  const handleClue = async (word: string, count: number) => {
-    const withClue = props.game.receiveClue(word, count)
-    props.onGameUpdate(withClue)
-    setSelected(new Set())
-    setAiGuessing(true)
-    setError(null)
-    cancelRef.current = false
-    playSound('clue')
-
-    try {
-      let current = withClue
-      for (let i = 0; i < count; i++) {
-        if (cancelRef.current || current.state.result !== 'playing') break
-        const words = current.state.cards
-          .filter((c) => !c.revealed && c.face.kind === 'text')
-          .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
-          .filter(Boolean)
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-        if (cancelRef.current) break
-        const guess = await fetchGuess({ key: props.apiKey, clue: word, count, words })
-        if (cancelRef.current) break
-        const cardIndex = current.state.cards.findIndex(
-          (c) => !c.revealed && c.face.kind === 'text' && c.face.text.toUpperCase() === guess,
-        )
-        if (cardIndex < 0) continue
-        current = current.guess(cardIndex)
-        animate(() => props.onGameUpdate(current))
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong.')
-    } finally {
-      setAiGuessing(false)
-    }
-  }
-
-  useEffect(() => {
-    return () => {
-      cancelRef.current = true
-    }
-  }, [])
 
   const [feedback, setFeedback] = useState<Record<number, GuessOutcome>>({})
   const prevGameRef = useRef(props.game)
@@ -126,12 +118,10 @@ export function SpymasterSoloGameScreen(props: {
     if (result === 'dead') playSound('gameOver')
   }, [result])
 
-  const showClueBar = result === 'playing' && !clue && !aiGuessing
-
   const statusText = () => {
-    if (result === 'win') return 'AI found all the words!'
-    if (result === 'dead') return 'AI hit an assassin. Game over.'
-    if (aiGuessing) return 'AI is guessing...'
+    if (result === 'win') return 'You found all the words!'
+    if (result === 'dead') return 'Hit an assassin. Game over.'
+    if (loading) return 'AI is thinking...'
     if (error) return error
     if (clue) {
       return (
@@ -143,48 +133,39 @@ export function SpymasterSoloGameScreen(props: {
         />
       )
     }
-    return 'Give a clue'
+    return null
   }
 
   return (
-    <main className={styles.screen} data-thinking={aiGuessing || undefined}>
+    <main className={styles.screen}>
       <header className={styles.header}>
         {props.onSwitchRole && (
           <span className={styles.rolePicker}>
+            <span className={styles.roleActive} role="img" aria-label="You are the operative">
+              🙂
+            </span>
             <button
               type="button"
               className={styles.roleInactive}
-              aria-label="Become operative"
-              title="Become operative"
+              aria-label="Become spymaster"
+              title="Become spymaster"
               onClick={props.onSwitchRole}
             >
-              🙂
-            </button>
-            <span className={styles.roleActive} role="img" aria-label="You are the spymaster">
               🕵️‍♀️
-            </span>
+            </button>
           </span>
         )}
         <span className={styles.count}>{props.game.unrevealedMineCount()}</span>
-        {showClueBar ? (
-          <ClueBar
-            key={clueHistory.length}
-            game={props.game}
-            selectedCount={selected.size}
-            onClue={(word, count) => void handleClue(word, count)}
-          />
-        ) : (
-          <span className={styles.status} role="status">
-            {statusText()}
-          </span>
-        )}
+        <span className={styles.status} role="status">
+          {statusText()}
+        </span>
         {result !== 'playing' && (
           <button type="button" className={styles.playAgain} onClick={props.onNewGame}>
             Play again
           </button>
         )}
         {result === 'playing' && error && (
-          <button type="button" className={styles.retry} onClick={() => setError(null)}>
+          <button type="button" className={styles.retry} onClick={requestClue}>
             Retry
           </button>
         )}
@@ -193,16 +174,29 @@ export function SpymasterSoloGameScreen(props: {
       <div className={styles.boardArea}>
         <Board
           game={props.game}
-          loading={false}
-          spymasterTeam="blue"
+          loading={loading && clueHistory.length === 0}
+          spymasterTeam={null}
           myTeam="blue"
-          selected={selected}
-          focus={showClueBar && selected.size > 0}
+          selected={new Set()}
+          focus={false}
+          revealedToEnd
           feedback={feedback}
-          onToggleSelect={showClueBar ? toggleSelected : () => {}}
-          onClearSelection={() => animate(() => setSelected(new Set()))}
-          onCardClick={() => {}}
-          onCardMark={() => {}}
+          onToggleSelect={() => {}}
+          onClearSelection={() => {}}
+          onCardClick={handleCardClick}
+          onCardMark={(index) => props.onGameUpdate(props.game.mark(index))}
+          overlay={
+            result === 'dead'
+              ? (index) => {
+                  const lastClue = clueHistory[clueHistory.length - 1]
+                  const card = props.game.state.cards[index]
+                  if (!lastClue?.targets?.length || card.revealed) return null
+                  const word = card.face.kind === 'text' ? card.face.text : ''
+                  if (!lastClue.targets.includes(word.toUpperCase())) return null
+                  return <span className={styles.target}>💡</span>
+                }
+              : undefined
+          }
         />
       </div>
 
