@@ -18,6 +18,7 @@ export function Board(props: {
   onCardMark: (index: number) => void
   overlay?: (index: number) => ReactNode
   bare?: boolean
+  revealedToEnd?: boolean
 }) {
   const isSpymaster = props.spymasterTeam !== null
   const cards = props.game.state.cards
@@ -68,7 +69,13 @@ export function Board(props: {
             if (props.selected.has(a)) return pickOrder.indexOf(a) - pickOrder.indexOf(b)
             return 0
           })
-      : cards.map((_, index) => index)
+      : props.revealedToEnd
+        ? cards.map((_, index) => index).sort((a, b) => {
+            const aRevealed = cards[a].revealed ? 1 : 0
+            const bRevealed = cards[b].revealed ? 1 : 0
+            return aRevealed - bRevealed
+          })
+        : cards.map((_, index) => index)
 
   return (
     <>

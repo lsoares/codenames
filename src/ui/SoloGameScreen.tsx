@@ -168,6 +168,7 @@ export function SoloGameScreen(props: {
           myTeam="blue"
           selected={new Set()}
           focus={false}
+          revealedToEnd
           feedback={feedback}
           onToggleSelect={() => {}}
           onClearSelection={() => {}}
