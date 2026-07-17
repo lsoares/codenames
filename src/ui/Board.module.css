@@ -362,6 +362,22 @@ a.caption:focus-visible {
   filter: none;
 }
 
+.card[data-marked] {
+  border: 3px dashed var(--mark-color, var(--blue));
+}
+
+body[data-team='red'] .card[data-marked] {
+  --mark-color: var(--red);
+}
+
+body[data-team='blue'] .card[data-marked] {
+  --mark-color: var(--blue);
+}
+
+.card[data-cooldown] {
+  cursor: not-allowed;
+}
+
 .card[data-selected] {
   transform: translateY(-5px);
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);

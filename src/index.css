@@ -1,6 +1,6 @@
 :root {
-  --bg: #ece2cd;
-  --bg-glow: #f4ecdb;
+  --bg: #dddad4;
+  --bg-glow: #e8e5e0;
   --surface: #fdfbf5;
   /* Sampled from the official picture cards so their cream margin blends into
      the card face and the letterbox disappears. */

@@ -32,9 +32,9 @@ export function ClueDisplay(props: {
           className={styles.pips}
           role="img"
           aria-label={`${props.guessesUsed} used out of ${props.guessesTotal}`}
-          title={`${props.guessesUsed} used out of ${props.guessesTotal}`}
+          title={`${props.guessesUsed} of ${props.guessesTotal} guesses used (N+1 rule)`}
         >
-          {Array.from({ length: props.guessesTotal }, (_, i) => (
+          {Array.from({ length: props.count }, (_, i) => (
             <span
               key={i}
               className={styles.pip}

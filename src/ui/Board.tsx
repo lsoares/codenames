@@ -135,6 +135,8 @@ export function Board(props: {
                 data-revealed={revealed || undefined}
                 data-feedback={props.feedback[index] || undefined}
                 data-selected={(isSpymaster && highlighted(card, index)) || undefined}
+                data-marked={marked || undefined}
+                data-cooldown={(marked && cooldown.has(index)) || undefined}
                 data-inert={!actionable || undefined}
                 data-forbidden={forbidden || undefined}
                 disabled={revealed}
