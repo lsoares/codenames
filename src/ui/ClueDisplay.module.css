@@ -4,7 +4,7 @@
   gap: 12px;
   padding: 6px 18px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--clue-bg, var(--blue)) 80%, var(--bg, #f5f0e6));
+  background: color-mix(in srgb, var(--turn, var(--blue)) 80%, var(--bg, #f5f0e6));
 }
 
 .word {
@@ -29,16 +29,6 @@
 
 .pip[data-spent] {
   background: var(--clue-fg, var(--card-face, white));
-}
-
-.pip[data-bonus] {
-  background: transparent;
-  box-shadow: inset 0 0 0 1.5px
-    color-mix(in srgb, var(--clue-fg, var(--card-face, white)) 50%, transparent);
-}
-
-.pip[data-bonus][data-spent] {
-  background: color-mix(in srgb, var(--clue-fg, var(--card-face, white)) 60%, transparent);
 }
 
 .unlimited {

@@ -392,7 +392,6 @@ export function GameScreen(props: {
               guessesUsed={guessesUsed}
               guessesTotal={guessesShown}
               unlimited={isUnlimitedClue}
-              bonusAt={clue.count}
             />
           )}
           <span key={statusText} className={styles.statusText}>

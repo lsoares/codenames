@@ -6,7 +6,6 @@ export function ClueDisplay(props: {
   guessesUsed: number
   guessesTotal: number
   unlimited?: boolean
-  bonusAt?: number
 }) {
   return (
     <span className={styles.clue}>
@@ -27,7 +26,6 @@ export function ClueDisplay(props: {
               key={i}
               className={styles.pip}
               data-spent={i < props.guessesUsed || undefined}
-              data-bonus={(props.bonusAt !== undefined && i === props.bonusAt) || undefined}
             />
           ))}
         </span>
