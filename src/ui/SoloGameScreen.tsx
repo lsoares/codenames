@@ -115,11 +115,7 @@ export function SoloGameScreen(props: {
     prevResultRef.current = result
     if (prev === result) return
     if (result === 'win') playSound('victory')
-    if (result === 'dead') {
-      playSound('gameOver')
-      const lastClue = props.game.state.clueHistory[props.game.state.clueHistory.length - 1]
-      if (lastClue?.targets?.length) console.info(`AI meant "${lastClue.word}": ${lastClue.targets.join(', ')}`)
-    }
+    if (result === 'dead') playSound('gameOver')
   }, [result])
 
   const statusText = () => {
