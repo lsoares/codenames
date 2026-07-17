@@ -118,6 +118,7 @@ a.caption:focus-visible {
 button.caption {
   border: none;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 button.caption:hover,
