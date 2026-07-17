@@ -42,7 +42,8 @@ export function SoloGameScreen(props: {
       .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
     fetchClue({ key: props.apiKey, mineWords, assassinWords, revealedWords })
       .then(({ word, count, targets }) => {
-        props.onGameUpdate(gameRef.current.receiveClue(word, count, targets))
+        const validTargets = targets.filter((t) => mineWords.includes(t))
+        props.onGameUpdate(gameRef.current.receiveClue(word, count, validTargets))
         playSound('clue')
       })
       .catch((err: unknown) => {
