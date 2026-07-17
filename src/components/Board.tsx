@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Face } from '../Face'
-import type { Card, Team } from '../classic/Game'
-import type { Boardable, GuessOutcome } from '../Boardable'
+import type { Card, GuessOutcome, Team } from '../classic/Game'
+
+export interface Boardable {
+  showsColor(cardIndex: number, isSpymaster: boolean): boolean
+  canAct(cardIndex: number, viewer: { team: Team; isSpymaster: boolean }): boolean
+  canMark(cardIndex: number, isSpymaster: boolean): boolean
+  readonly state: { readonly cards: readonly Card[]; readonly winner: Team | null }
+}
 import styles from './Board.module.css'
 
 export function Board(props: {
