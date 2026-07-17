@@ -5,6 +5,7 @@ import { fetchClue } from '../ai/groq'
 import { playSound } from '../sound'
 import type { GuessOutcome } from '../Boardable'
 import { Board } from './Board'
+import { ClueDisplay } from './ClueDisplay'
 import { Confetti } from './Confetti'
 import styles from './SoloGameScreen.module.css'
 
@@ -122,15 +123,12 @@ export function SoloGameScreen(props: {
     if (error) return error
     if (clue) {
       return (
-        <>
-          <strong className={styles.clueWord}>{clue.word}</strong>
-          <span className={styles.clueCount}>{clue.count}</span>
-          {guessesRemaining > 0 && (
-            <span className={styles.guessesLeft}>
-              {guessesRemaining} guess{guessesRemaining === 1 ? '' : 'es'} left
-            </span>
-          )}
-        </>
+        <ClueDisplay
+          word={clue.word}
+          count={clue.count}
+          guessesUsed={clue.count - guessesRemaining}
+          guessesTotal={clue.count}
+        />
       )
     }
     return null
@@ -173,7 +171,7 @@ export function SoloGameScreen(props: {
           onToggleSelect={() => {}}
           onClearSelection={() => {}}
           onCardClick={handleCardClick}
-          onCardMark={() => {}}
+          onCardMark={(index) => props.onGameUpdate(props.game.mark(index))}
         />
       </div>
 

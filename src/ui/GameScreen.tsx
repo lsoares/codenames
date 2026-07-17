@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { Game, UNLIMITED_CLUE, unlimitedClueHint, type GuessOutcome, type Team } from '../Game'
+import { Game, UNLIMITED_CLUE, type GuessOutcome, type Team } from '../Game'
 import { Roster, type Action, type MolesView } from '../multiplayer/Session'
 import { useMoles } from '../moles/useMoles'
 import type { Deck } from '../decks'
 import { Board } from './Board'
 import { ClueBar } from './ClueBar'
+import { ClueDisplay } from './ClueDisplay'
 import { Confetti } from './Confetti'
 import { ThinkingBar } from './ThinkingBar'
 import styles from './GameScreen.module.css'
@@ -385,39 +386,15 @@ export function GameScreen(props: {
       ) : (
         <>
           {!winner && phase === 'guess' && clue && (
-            <span className={styles.clueInline}>
-              <strong className={styles.clueWord}>{clue.word}</strong>
-              {isUnlimitedClue ? (
-                <span
-                  className={styles.clueUnlimited}
-                  role="img"
-                  aria-label={clue.count === 0 ? 'zero — unlimited guesses' : 'unlimited guesses'}
-                  title={unlimitedClueHint(clue.count === 0)}
-                >
-                  {clueCountLabel(clue.count)}
-                </span>
-              ) : (
-                (() => {
-                  const pipTotal = guessesShown
-                  return (
-                    <span
-                      className={styles.pips}
-                      role="img"
-                      aria-label={`${guessesUsed} used out of ${pipTotal}`}
-                      title={`${guessesUsed} used out of ${pipTotal}`}
-                    >
-                      {Array.from({ length: pipTotal }, (_, i) => (
-                        <span
-                          key={i}
-                          className={styles.pip}
-                          data-spent={i < guessesUsed || undefined}
-                          data-bonus={i === clue.count || undefined}
-                        />
-                      ))}
-                    </span>
-                  )
-                })()
-              )}
+            <span className={styles.clueInline} style={{ '--clue-color': 'var(--card-face)', '--pip-color': 'var(--card-face)' } as React.CSSProperties}>
+              <ClueDisplay
+                word={clue.word}
+                count={clue.count}
+                guessesUsed={guessesUsed}
+                guessesTotal={guessesShown}
+                unlimited={isUnlimitedClue}
+                bonusAt={clue.count}
+              />
             </span>
           )}
           <span key={statusText} className={styles.statusText}>

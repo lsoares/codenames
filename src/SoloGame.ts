@@ -76,8 +76,27 @@ export class SoloGame {
     )
   }
 
-  canMark(_cardIndex: number, _isSpymaster: boolean): boolean {
-    return false
+  canMark(_cardIndex: number, isSpymaster: boolean): boolean {
+    return !isSpymaster && this.s.result === 'playing'
+  }
+
+  mark(cardIndex: number): SoloGame {
+    if (this.s.result !== 'playing') return this
+    const target = this.s.cards[cardIndex]
+    if (!target || target.revealed) return this
+    return new SoloGame({
+      ...this.s,
+      cards: this.s.cards.map((card, index) =>
+        index === cardIndex
+          ? {
+              ...card,
+              markedBy: card.markedBy.includes('blue' as Team)
+                ? card.markedBy.filter((t) => t !== 'blue')
+                : [...card.markedBy, 'blue' as Team],
+            }
+          : card,
+      ),
+    })
   }
 
   isVisible(word: string): boolean {
