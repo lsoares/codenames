@@ -9,7 +9,11 @@ export function AiSetup(props: { onReady: (key: string) => void }) {
   return (
     <div className={styles.setup}>
       <h2 className={styles.heading}>AI Setup</h2>
-      <p className={styles.privacy}>Your API key stays on your device and is sent only to Groq.</p>
+      <p className={styles.link}>
+        <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">
+          1. Create a Groq API key
+        </a>
+      </p>
       <form
         className={styles.form}
         onSubmit={async (event) => {
@@ -29,7 +33,7 @@ export function AiSetup(props: { onReady: (key: string) => void }) {
           className={styles.input}
           type="password"
           value={key}
-          placeholder="Paste your Groq API key"
+          placeholder="2. Paste it here"
           aria-label="API key"
           autoComplete="current-password"
           onChange={(event) => setKey(event.target.value)}
@@ -38,11 +42,7 @@ export function AiSetup(props: { onReady: (key: string) => void }) {
           {saving ? 'Saving...' : 'Save'}
         </button>
       </form>
-      <p className={styles.link}>
-        <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">
-          Create a Groq API key
-        </a>
-      </p>
+      <p className={styles.privacy}>Your key stays on this device and is sent only to Groq.</p>
     </div>
   )
 }
