@@ -15,7 +15,7 @@ import {
 } from './classic/Session'
 import { Takeover } from './classic/Takeover'
 import { playSound } from './sound'
-import { SoloGame, createSoloGame } from './arena/Game'
+import { ArenaGame, createArenaGame } from './arena/Game'
 import { AiSetup } from './arena/ai/AiSetup'
 import { getApiKey } from './arena/ai/keyStore'
 import { creditOf } from './decks'
@@ -51,10 +51,10 @@ export function App() {
   const roomCodeRef = useRef('')
   const repickingRef = useRef(false)
   const identifiedRef = useRef(false)
-  const [soloMode, setSoloMode] = useState<'off' | 'operative' | 'spymaster'>('off')
-  const soloModeRef = useRef(soloMode)
-  soloModeRef.current = soloMode
-  const [soloGame, setSoloGame] = useState<SoloGame | null>(null)
+  const [arenaMode, setArenaMode] = useState<'off' | 'operative' | 'spymaster'>('off')
+  const arenaModeRef = useRef(arenaMode)
+  arenaModeRef.current = arenaMode
+  const [arenaGame, setArenaGame] = useState<ArenaGame | null>(null)
   const [apiKey, setApiKeyState] = useState<string | null>(null)
   const [needsApiKey, setNeedsApiKey] = useState(false)
   const [pendingSoloDeck, setPendingSoloDeck] = useState<string | null>(null)
@@ -181,8 +181,8 @@ export function App() {
     setMoles(null)
     setRepickingTeam(null)
     setStatus('')
-    setSoloMode('off')
-    setSoloGame(null)
+    setArenaMode('off')
+    setArenaGame(null)
     setApiKeyState(null)
     setNeedsApiKey(false)
     setPendingSoloDeck(null)
@@ -190,9 +190,9 @@ export function App() {
 
   useEffect(() => {
     const onPopState = () => {
-      if (soloModeRef.current !== 'off' && window.location.pathname !== '/practice') {
-        setSoloMode('off')
-        setSoloGame(null)
+      if (arenaModeRef.current !== 'off' && window.location.pathname !== '/practice') {
+        setArenaMode('off')
+        setArenaGame(null)
         setApiKeyState(null)
         setNeedsApiKey(false)
         setPendingSoloDeck(null)
@@ -344,7 +344,7 @@ export function App() {
     if (startedRef.current) return
     startedRef.current = true
     if (window.location.pathname === '/practice') {
-      setSoloMode('operative')
+      setArenaMode('operative')
       void startSoloGame('Words')
       return
     }
@@ -363,7 +363,7 @@ export function App() {
     const deck = findDeck(title)
     const total = selectedBoardSize === '5x4' ? 20 : 25
     const faces = await deck.fetch(total)
-    setSoloGame(new SoloGame(createSoloGame(faces, deck.title, creditOf(deck), selectedBoardSize)))
+    setArenaGame(new ArenaGame(createArenaGame(faces, deck.title, creditOf(deck), selectedBoardSize)))
   }
 
   const onApiKeyReady = async (key: string) => {
@@ -375,8 +375,8 @@ export function App() {
       const deck = findDeck(title)
       const total = selectedBoardSize === '5x4' ? 20 : 25
       const faces = await deck.fetch(total)
-      setSoloGame(
-        new SoloGame(createSoloGame(faces, deck.title, creditOf(deck), selectedBoardSize)),
+      setArenaGame(
+        new ArenaGame(createArenaGame(faces, deck.title, creditOf(deck), selectedBoardSize)),
       )
     }
   }
@@ -385,19 +385,19 @@ export function App() {
     <>
       {needsApiKey ? (
         <AiSetup onReady={onApiKeyReady} />
-      ) : soloGame && apiKey && soloMode === 'operative' ? (
+      ) : arenaGame && apiKey && arenaMode === 'operative' ? (
         <SoloGameScreen
-          game={soloGame}
+          game={arenaGame}
           apiKey={apiKey}
-          onGameUpdate={setSoloGame}
+          onGameUpdate={setArenaGame}
           onNewGame={async () => {
-            setSoloMode('spymaster')
-            const title = soloGame.state.deck
+            setArenaMode('spymaster')
+            const title = arenaGame.state.deck
             if (title) await startSoloGame(title)
           }}
           onSwitchRole={async () => {
-            setSoloMode('spymaster')
-            const title = soloGame.state.deck
+            setArenaMode('spymaster')
+            const title = arenaGame.state.deck
             if (title) await startSoloGame(title)
           }}
           onHome={() => {
@@ -405,19 +405,19 @@ export function App() {
             goHome()
           }}
         />
-      ) : soloGame && apiKey && soloMode === 'spymaster' ? (
+      ) : arenaGame && apiKey && arenaMode === 'spymaster' ? (
         <SpymasterSoloGameScreen
-          game={soloGame}
+          game={arenaGame}
           apiKey={apiKey}
-          onGameUpdate={setSoloGame}
+          onGameUpdate={setArenaGame}
           onNewGame={async () => {
-            setSoloMode('operative')
-            const title = soloGame.state.deck
+            setArenaMode('operative')
+            const title = arenaGame.state.deck
             if (title) await startSoloGame(title)
           }}
           onSwitchRole={async () => {
-            setSoloMode('operative')
-            const title = soloGame.state.deck
+            setArenaMode('operative')
+            const title = arenaGame.state.deck
             if (title) await startSoloGame(title)
           }}
           onHome={() => {
@@ -481,7 +481,7 @@ export function App() {
             }
           }}
           onPractice={() => {
-            setSoloMode('operative')
+            setArenaMode('operative')
             history.pushState({}, '', '/practice')
             void startSoloGame('Words')
           }}

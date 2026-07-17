@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { SoloGame } from './Game'
+import { ArenaGame } from './Game'
 import { fetchGuess } from './ai/groq'
 import { playSound } from '../sound'
 import type { GuessOutcome } from '../Boardable'
@@ -11,9 +11,9 @@ import { Confetti } from '../components/Confetti'
 import styles from './SpymasterScreen.module.css'
 
 export function SpymasterSoloGameScreen(props: {
-  game: SoloGame
+  game: ArenaGame
   apiKey: string
-  onGameUpdate: (game: SoloGame) => void
+  onGameUpdate: (game: ArenaGame) => void
   onNewGame: () => void
   onSwitchRole?: () => void
   onHome?: () => void

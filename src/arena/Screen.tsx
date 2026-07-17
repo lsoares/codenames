@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { SoloGame } from './Game'
+import { ArenaGame } from './Game'
 import { fetchClue } from './ai/groq'
 import { playSound } from '../sound'
 import type { GuessOutcome } from '../Boardable'
@@ -10,9 +10,9 @@ import { Confetti } from '../components/Confetti'
 import styles from './Screen.module.css'
 
 export function SoloGameScreen(props: {
-  game: SoloGame
+  game: ArenaGame
   apiKey: string
-  onGameUpdate: (game: SoloGame) => void
+  onGameUpdate: (game: ArenaGame) => void
   onNewGame: () => void
   onSwitchRole?: () => void
   onHome?: () => void
