@@ -5,6 +5,7 @@ import { shuffle } from './shuffle'
 export interface SoloClue {
   readonly word: string
   readonly count: number
+  readonly targets?: readonly string[]
 }
 
 export interface SoloGameState {
@@ -112,9 +113,9 @@ export class SoloGame {
     return this.unrevealedMineCount()
   }
 
-  receiveClue(word: string, count: number): SoloGame {
+  receiveClue(word: string, count: number, targets?: string[]): SoloGame {
     if (this.s.result !== 'playing' || this.s.clue !== null) return this
-    const clue: SoloClue = { word, count }
+    const clue: SoloClue = { word, count, targets }
     return new SoloGame({
       ...this.s,
       clue,

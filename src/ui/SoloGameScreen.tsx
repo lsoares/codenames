@@ -41,8 +41,8 @@ export function SoloGameScreen(props: {
       .filter((c) => c.revealed && c.face.kind === 'text')
       .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
     fetchClue({ key: props.apiKey, mineWords, assassinWords, revealedWords })
-      .then(({ word, count }) => {
-        props.onGameUpdate(gameRef.current.receiveClue(word, count))
+      .then(({ word, count, targets }) => {
+        props.onGameUpdate(gameRef.current.receiveClue(word, count, targets))
         playSound('clue')
       })
       .catch((err: unknown) => {
@@ -119,7 +119,12 @@ export function SoloGameScreen(props: {
 
   const statusText = () => {
     if (result === 'win') return 'You found all the words!'
-    if (result === 'dead') return 'Hit an assassin. Game over.'
+    if (result === 'dead') {
+      const lastClue = clueHistory[clueHistory.length - 1]
+      const targets = lastClue?.targets
+      if (targets?.length) return `AI meant: ${targets.join(', ')}`
+      return 'Hit an assassin. Game over.'
+    }
     if (loading) return 'AI is thinking...'
     if (error) return error
     if (clue) {

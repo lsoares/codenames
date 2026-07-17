@@ -5,7 +5,7 @@ export interface ClueRequest {
   revealedWords: string[]
 }
 
-export async function fetchClue(req: ClueRequest): Promise<{ word: string; count: number }> {
+export async function fetchClue(req: ClueRequest): Promise<{ word: string; count: number; targets: string[] }> {
   const systemPrompt = `You are a bold Codenames spymaster. You see a board of words. Some are yours (MINE), some are deadly (ASSASSIN). Previously revealed words are listed so you don't reuse them.
 
 Give a single-word clue and a count (how many MINE words it connects to). The clue must:
@@ -16,7 +16,7 @@ Give a single-word clue and a count (how many MINE words it connects to). The cl
 
 Play aggressively: aim for high counts (2-4) when you can find a clever connection. Take calculated risks to link more words. A count of 1 is a last resort.
 
-Respond with JSON only: {"word":"YOUR_CLUE","count":N}`
+Respond with JSON only: {"word":"YOUR_CLUE","count":N,"targets":["WORD1","WORD2"]}`
 
   const userMessage = `MINE words: ${req.mineWords.join(', ')}
 ASSASSIN words: ${req.assassinWords.join(', ')}
@@ -50,7 +50,8 @@ Already revealed: ${req.revealedWords.length > 0 ? req.revealedWords.join(', ') 
 
   const raw: string = data.choices?.[0]?.message?.content ?? ''
   const parsed = JSON.parse(raw)
-  return { word: String(parsed.word).toUpperCase(), count: Number(parsed.count) }
+  const targets: string[] = (parsed.targets ?? []).map((w: string) => String(w).toUpperCase())
+  return { word: String(parsed.word).toUpperCase(), count: Number(parsed.count), targets }
 }
 
 export interface GuessRequest {
