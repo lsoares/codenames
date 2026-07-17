@@ -1,7 +1,10 @@
 import { test, expect } from '@playwright/test'
 import { GamePage } from './gamePage'
 
-function stubGroqApi(page: import('@playwright/test').Page, responses: { word: string; count: number }[]) {
+function stubGroqApi(
+  page: import('@playwright/test').Page,
+  responses: { word: string; count: number }[],
+) {
   let callIndex = 0
   return page.route('**/api.groq.com/**', (route) => {
     const response = responses[callIndex] ?? responses[responses.length - 1]
@@ -23,13 +26,17 @@ test('practice: AI gives a clue and the player guesses a card', async ({ page })
   await game.saveApiKey()
 
   await expect(page.getByText('NATURE')).toBeVisible()
-  const firstWord = await page.locator('[class*="board"] button:not([disabled])').first().innerText()
+  const firstWord = await page
+    .locator('[class*="board"] button:not([disabled])')
+    .first()
+    .innerText()
 
   await page.getByRole('button', { name: firstWord, exact: true }).click()
 
   await expect(
-    page.getByRole('img', { name: 'correct guess' })
-      .or(page.getByRole('img', { name: 'assassin' }))
+    page
+      .getByRole('img', { name: 'correct guess' })
+      .or(page.getByRole('img', { name: 'assassin' })),
   ).toBeVisible()
 })
 

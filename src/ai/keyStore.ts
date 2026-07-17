@@ -14,7 +14,10 @@ function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open('codenames', 1)
     const timer = setTimeout(() => reject(new Error('IndexedDB open timed out')), 8000)
-    const settle = <T>(fn: (arg: T) => void, arg: T) => { clearTimeout(timer); fn(arg) }
+    const settle = <T>(fn: (arg: T) => void, arg: T) => {
+      clearTimeout(timer)
+      fn(arg)
+    }
     req.onupgradeneeded = () => req.result.createObjectStore('kv')
     req.onsuccess = () => settle(resolve, req.result)
     req.onerror = () => settle(reject, req.error)

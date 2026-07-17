@@ -5,7 +5,9 @@ export interface ClueRequest {
   revealedWords: string[]
 }
 
-export async function fetchClue(req: ClueRequest): Promise<{ word: string; count: number; targets: string[] }> {
+export async function fetchClue(
+  req: ClueRequest,
+): Promise<{ word: string; count: number; targets: string[] }> {
   const systemPrompt = `You are a bold Codenames spymaster. You see a board of words. Some are yours (MINE), some are deadly (ASSASSIN). Previously revealed words are listed so you don't reuse them.
 
 Give a single-word clue and a count (how many MINE words it connects to). The clue must:

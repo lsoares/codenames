@@ -24,9 +24,8 @@ export function createSoloGame(
   credit: Credit | null,
   boardSize: BoardSize,
 ): SoloGameState {
-  const { mine, assassins } = boardSize === '5x5'
-    ? { mine: 15, assassins: 10 }
-    : { mine: 12, assassins: 8 }
+  const { mine, assassins } =
+    boardSize === '5x5' ? { mine: 15, assassins: 10 } : { mine: 12, assassins: 8 }
   const colors = shuffle<CardColor>([
     ...Array<CardColor>(mine).fill('blue'),
     ...Array<CardColor>(assassins).fill('assassin'),
@@ -51,7 +50,11 @@ export function createSoloGame(
 export class SoloGame {
   constructor(private readonly s: SoloGameState) {}
 
-  get state(): SoloGameState & { readonly winner: Team | null; readonly turn: Team; readonly phase: 'clue' | 'guess' } {
+  get state(): SoloGameState & {
+    readonly winner: Team | null
+    readonly turn: Team
+    readonly phase: 'clue' | 'guess'
+  } {
     const winner = this.s.result === 'playing' ? null : ('blue' as Team)
     return { ...this.s, winner, turn: 'blue' as Team, phase: this.s.clue ? 'guess' : 'clue' }
   }
@@ -101,7 +104,8 @@ export class SoloGame {
     const target = word.trim().toLowerCase()
     if (!target) return false
     return this.s.cards.some(
-      (card) => !card.revealed && card.face.kind === 'text' && card.face.text.toLowerCase() === target,
+      (card) =>
+        !card.revealed && card.face.kind === 'text' && card.face.text.toLowerCase() === target,
     )
   }
 

@@ -375,7 +375,9 @@ export function App() {
       const deck = findDeck(title)
       const total = selectedBoardSize === '5x4' ? 20 : 25
       const faces = await deck.fetch(total)
-      setSoloGame(new SoloGame(createSoloGame(faces, deck.title, creditOf(deck), selectedBoardSize)))
+      setSoloGame(
+        new SoloGame(createSoloGame(faces, deck.title, creditOf(deck), selectedBoardSize)),
+      )
     }
   }
 
@@ -398,7 +400,10 @@ export function App() {
             const title = soloGame.state.deck
             if (title) await startSoloGame(title)
           }}
-          onHome={() => { history.pushState({}, '', '/'); goHome() }}
+          onHome={() => {
+            history.pushState({}, '', '/')
+            goHome()
+          }}
         />
       ) : soloGame && apiKey && soloMode === 'spymaster' ? (
         <SpymasterSoloGameScreen
@@ -415,7 +420,10 @@ export function App() {
             const title = soloGame.state.deck
             if (title) await startSoloGame(title)
           }}
-          onHome={() => { history.pushState({}, '', '/'); goHome() }}
+          onHome={() => {
+            history.pushState({}, '', '/')
+            goHome()
+          }}
         />
       ) : game && !repicking ? (
         <GameScreen

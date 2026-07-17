@@ -27,7 +27,7 @@ export function ClueDisplay(props: {
               key={i}
               className={styles.pip}
               data-spent={i < props.guessesUsed || undefined}
-              data-bonus={props.bonusAt !== undefined && i === props.bonusAt || undefined}
+              data-bonus={(props.bonusAt !== undefined && i === props.bonusAt) || undefined}
             />
           ))}
         </span>

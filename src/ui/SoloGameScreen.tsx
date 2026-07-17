@@ -141,8 +141,18 @@ export function SoloGameScreen(props: {
       <header className={styles.header}>
         {props.onSwitchRole && (
           <span className={styles.rolePicker}>
-            <span className={styles.roleActive} role="img" aria-label="You are the operative">🙂</span>
-            <button type="button" className={styles.roleInactive} aria-label="Become spymaster" title="Become spymaster" onClick={props.onSwitchRole}>🕵️‍♀️</button>
+            <span className={styles.roleActive} role="img" aria-label="You are the operative">
+              🙂
+            </span>
+            <button
+              type="button"
+              className={styles.roleInactive}
+              aria-label="Become spymaster"
+              title="Become spymaster"
+              onClick={props.onSwitchRole}
+            >
+              🕵️‍♀️
+            </button>
           </span>
         )}
         <span className={styles.count}>{props.game.unrevealedMineCount()}</span>
@@ -175,19 +185,29 @@ export function SoloGameScreen(props: {
           onClearSelection={() => {}}
           onCardClick={handleCardClick}
           onCardMark={(index) => props.onGameUpdate(props.game.mark(index))}
-          overlay={result === 'dead' ? (index) => {
-            const lastClue = clueHistory[clueHistory.length - 1]
-            const card = props.game.state.cards[index]
-            if (!lastClue?.targets?.length || card.revealed) return null
-            const word = card.face.kind === 'text' ? card.face.text : ''
-            if (!lastClue.targets.includes(word.toUpperCase())) return null
-            return <span className={styles.target}>💡</span>
-          } : undefined}
+          overlay={
+            result === 'dead'
+              ? (index) => {
+                  const lastClue = clueHistory[clueHistory.length - 1]
+                  const card = props.game.state.cards[index]
+                  if (!lastClue?.targets?.length || card.revealed) return null
+                  const word = card.face.kind === 'text' ? card.face.text : ''
+                  if (!lastClue.targets.includes(word.toUpperCase())) return null
+                  return <span className={styles.target}>💡</span>
+                }
+              : undefined
+          }
         />
       </div>
 
       {props.onHome && (
-        <button type="button" className={styles.home} aria-label="Back to homepage" title="Back to homepage" onClick={props.onHome}>
+        <button
+          type="button"
+          className={styles.home}
+          aria-label="Back to homepage"
+          title="Back to homepage"
+          onClick={props.onHome}
+        >
           <img src="/favicon.svg" alt="" className={styles.homeIcon} />
         </button>
       )}

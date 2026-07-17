@@ -39,11 +39,7 @@ export function AiSetup(props: { onReady: (key: string) => void }) {
         </button>
       </form>
       <p className={styles.link}>
-        <a
-          href="https://console.groq.com/keys"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">
           Create a Groq API key
         </a>
       </p>

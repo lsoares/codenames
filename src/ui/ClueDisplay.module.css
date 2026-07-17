@@ -33,7 +33,8 @@
 
 .pip[data-bonus] {
   background: transparent;
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--clue-fg, var(--card-face, white)) 50%, transparent);
+  box-shadow: inset 0 0 0 1.5px
+    color-mix(in srgb, var(--clue-fg, var(--card-face, white)) 50%, transparent);
 }
 
 .pip[data-bonus][data-spent] {

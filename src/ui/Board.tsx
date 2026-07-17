@@ -70,11 +70,13 @@ export function Board(props: {
             return 0
           })
       : props.revealedToEnd
-        ? cards.map((_, index) => index).sort((a, b) => {
-            const aRevealed = cards[a].revealed ? 1 : 0
-            const bRevealed = cards[b].revealed ? 1 : 0
-            return aRevealed - bRevealed
-          })
+        ? cards
+            .map((_, index) => index)
+            .sort((a, b) => {
+              const aRevealed = cards[a].revealed ? 1 : 0
+              const bRevealed = cards[b].revealed ? 1 : 0
+              return aRevealed - bRevealed
+            })
         : cards.map((_, index) => index)
 
   return (

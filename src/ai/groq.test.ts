@@ -7,12 +7,16 @@ describe('fetchClue', () => {
   })
 
   it('sends the board to Groq and parses the clue response', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({
-        choices: [{ message: { content: '{"word":"ANIMAL","count":3}' } }],
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [{ message: { content: '{"word":"ANIMAL","count":3}' } }],
+          }),
       }),
-    }))
+    )
 
     const result = await fetchClue({
       key: 'test-key',
@@ -32,17 +36,22 @@ describe('fetchClue', () => {
   })
 
   it('throws on API error', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 401,
-      json: () => Promise.resolve({ error: { message: 'Invalid API key.' } }),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+        json: () => Promise.resolve({ error: { message: 'Invalid API key.' } }),
+      }),
+    )
 
-    await expect(fetchClue({
-      key: 'bad-key',
-      mineWords: ['DOG'],
-      assassinWords: ['BOMB'],
-      revealedWords: [],
-    })).rejects.toThrow('Invalid API key')
+    await expect(
+      fetchClue({
+        key: 'bad-key',
+        mineWords: ['DOG'],
+        assassinWords: ['BOMB'],
+        revealedWords: [],
+      }),
+    ).rejects.toThrow('Invalid API key')
   })
 })

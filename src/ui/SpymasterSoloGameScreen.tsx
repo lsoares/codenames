@@ -78,7 +78,9 @@ export function SpymasterSoloGameScreen(props: {
   }
 
   useEffect(() => {
-    return () => { cancelRef.current = true }
+    return () => {
+      cancelRef.current = true
+    }
   }, [])
 
   const [feedback, setFeedback] = useState<Record<number, GuessOutcome>>({})
@@ -149,8 +151,18 @@ export function SpymasterSoloGameScreen(props: {
       <header className={styles.header}>
         {props.onSwitchRole && (
           <span className={styles.rolePicker}>
-            <button type="button" className={styles.roleInactive} aria-label="Become operative" title="Become operative" onClick={props.onSwitchRole}>🙂</button>
-            <span className={styles.roleActive} role="img" aria-label="You are the spymaster">🕵️‍♀️</span>
+            <button
+              type="button"
+              className={styles.roleInactive}
+              aria-label="Become operative"
+              title="Become operative"
+              onClick={props.onSwitchRole}
+            >
+              🙂
+            </button>
+            <span className={styles.roleActive} role="img" aria-label="You are the spymaster">
+              🕵️‍♀️
+            </span>
           </span>
         )}
         <span className={styles.count}>{props.game.unrevealedMineCount()}</span>
@@ -195,7 +207,13 @@ export function SpymasterSoloGameScreen(props: {
       </div>
 
       {props.onHome && (
-        <button type="button" className={styles.home} aria-label="Back to homepage" title="Back to homepage" onClick={props.onHome}>
+        <button
+          type="button"
+          className={styles.home}
+          aria-label="Back to homepage"
+          title="Back to homepage"
+          onClick={props.onHome}
+        >
           <img src="/favicon.svg" alt="" className={styles.homeIcon} />
         </button>
       )}
