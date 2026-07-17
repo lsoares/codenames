@@ -9,9 +9,15 @@
 
 .word {
   font-size: 1.5rem;
+  font-weight: 700;
   line-height: 1.1;
   text-transform: uppercase;
   color: var(--clue-fg, var(--card-face, white));
+  text-decoration: none;
+}
+
+.word:hover {
+  text-decoration: underline;
 }
 
 .pips {

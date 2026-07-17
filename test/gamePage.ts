@@ -217,9 +217,12 @@ export class GamePage {
     return labels.map((l) => Number(l.match(/^Card (\d+)/)?.[1]))
   }
 
-  // Operative guess by card number (works without seeing the colour).
+  // Operative guess by card number: first click marks, wait for cooldown, second click guesses.
   async guessNumber(n: number): Promise<void> {
-    await this.page.getByRole('button', { name: new RegExp(`^Card ${n}(,|$)`) }).click()
+    const card = this.page.getByRole('button', { name: new RegExp(`^Card ${n}(,|$)`) })
+    await card.click()
+    await this.page.waitForTimeout(1100)
+    await card.click()
   }
 
   // The operatives' button to end their turn early — only offered once they've

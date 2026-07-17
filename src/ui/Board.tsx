@@ -19,16 +19,21 @@ export function Board(props: {
   overlay?: (index: number) => ReactNode
   bare?: boolean
   revealedToEnd?: boolean
+  markBeforeGuess?: boolean
 }) {
   const isSpymaster = props.spymasterTeam !== null
   const cards = props.game.state.cards
   const gameOver = props.game.state.winner !== null
   const [zoomed, setZoomed] = useState<string | null>(null)
+  const [cooldown, setCooldown] = useState<Set<number>>(new Set())
+  const cooldownTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
   const [smallImages, setSmallImages] = useState<Set<string>>(new Set())
   const measureImage = (img: HTMLImageElement) => {
     if (img.naturalWidth < img.clientWidth * 1.5 && img.naturalHeight < img.clientHeight * 1.5)
       setSmallImages((prev) => new Set(prev).add(img.getAttribute('src') ?? ''))
   }
+
+  useEffect(() => () => cooldownTimers.current.forEach(clearTimeout), [])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -135,8 +140,28 @@ export function Board(props: {
                 disabled={revealed}
                 onClick={() => {
                   if (!actionable) return
-                  if (isSpymaster) props.onToggleSelect(index)
-                  else props.onCardClick(index)
+                  if (isSpymaster) {
+                    props.onToggleSelect(index)
+                    return
+                  }
+                  if (props.markBeforeGuess) {
+                    if (!marked) {
+                      props.onCardMark(index)
+                      setCooldown((prev) => new Set(prev).add(index))
+                      const timer = setTimeout(() => {
+                        setCooldown((prev) => {
+                          const next = new Set(prev)
+                          next.delete(index)
+                          return next
+                        })
+                        cooldownTimers.current.delete(index)
+                      }, 1000)
+                      cooldownTimers.current.set(index, timer)
+                      return
+                    }
+                    if (cooldown.has(index)) return
+                  }
+                  props.onCardClick(index)
                 }}
               >
                 {props.loading ? (

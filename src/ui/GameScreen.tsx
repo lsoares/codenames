@@ -255,7 +255,14 @@ export function GameScreen(props: {
           ) : (
             clues.map((c, i) => (
               <li key={i}>
-                <strong className={styles.clueLogWord}>{c.word}</strong>
+                <a
+                  className={styles.clueLogWord}
+                  href={`https://en.wiktionary.org/wiki/${encodeURIComponent(c.word.toLowerCase())}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {c.word}
+                </a>
                 <span className={styles.clueLogDot}>•</span>
                 <span className={styles.clueLogCount}>{clueCountLabel(c.count)}</span>
               </li>
@@ -505,6 +512,7 @@ export function GameScreen(props: {
           onCardMark={(index) =>
             props.onAction({ type: 'toggleMark', cardIndex: index, team: props.myTeam })
           }
+          markBeforeGuess
           overlay={moles.overlayFor}
           bare={moles.armed}
         />

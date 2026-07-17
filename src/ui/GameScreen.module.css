@@ -225,6 +225,11 @@ button.spymasterSlot[data-mine] {
 .clueLogWord {
   font-weight: 700;
   text-transform: uppercase;
+  text-decoration: none;
+}
+
+.clueLogWord:hover {
+  text-decoration: underline;
 }
 
 .clueLog[data-team='red'] .clueLogWord {

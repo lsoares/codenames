@@ -1,3 +1,4 @@
+import { unlimitedClueHint } from '../Game'
 import styles from './ClueDisplay.module.css'
 
 export function ClueDisplay(props: {
@@ -9,9 +10,21 @@ export function ClueDisplay(props: {
 }) {
   return (
     <span className={styles.clue}>
-      <strong className={styles.word}>{props.word}</strong>
+      <a
+        className={styles.word}
+        href={`https://en.wiktionary.org/wiki/${encodeURIComponent(props.word.toLowerCase())}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {props.word}
+      </a>
       {props.unlimited ? (
-        <span className={styles.unlimited} role="img" aria-label="unlimited guesses">
+        <span
+          className={styles.unlimited}
+          role="img"
+          aria-label="unlimited guesses"
+          title={unlimitedClueHint(props.count === 0)}
+        >
           {props.count === 0 ? '0' : '∞'}
         </span>
       ) : (
