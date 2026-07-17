@@ -119,12 +119,7 @@ export function SoloGameScreen(props: {
 
   const statusText = () => {
     if (result === 'win') return 'You found all the words!'
-    if (result === 'dead') {
-      const lastClue = clueHistory[clueHistory.length - 1]
-      const targets = lastClue?.targets
-      if (targets?.length) return `AI meant: ${targets.join(', ')}`
-      return 'Hit an assassin. Game over.'
-    }
+    if (result === 'dead') return 'Hit an assassin. Game over.'
     if (loading) return 'AI is thinking...'
     if (error) return error
     if (clue) {
@@ -179,6 +174,14 @@ export function SoloGameScreen(props: {
           onClearSelection={() => {}}
           onCardClick={handleCardClick}
           onCardMark={(index) => props.onGameUpdate(props.game.mark(index))}
+          overlay={result === 'dead' ? (index) => {
+            const lastClue = clueHistory[clueHistory.length - 1]
+            const card = props.game.state.cards[index]
+            if (!lastClue?.targets?.length || card.revealed) return null
+            const word = card.face.kind === 'text' ? card.face.text : ''
+            if (!lastClue.targets.includes(word.toUpperCase())) return null
+            return <span className={styles.target}>🎯</span>
+          } : undefined}
         />
       </div>
 

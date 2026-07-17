@@ -157,6 +157,14 @@
   background: var(--blue);
 }
 
+.target {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
 .home {
   position: fixed;
   left: 8px;
