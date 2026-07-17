@@ -67,8 +67,8 @@
   transition: opacity 0.15s ease;
 }
 
-.cell:hover .overlayIcon,
-.overlayIcon:focus-visible {
+.cell:hover .overlayIcon:not([data-on]),
+.overlayIcon:focus-visible:not([data-on]) {
   opacity: 0.35;
 }
 
