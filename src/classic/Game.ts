@@ -1,22 +1,14 @@
 import type { Face } from '../Face'
 import { shuffle } from '../shuffle'
+export type { Team } from '../Team'
+export type { Card, CardColor, GuessOutcome } from '../Card'
+export type { Credit } from '../Credit'
+export type { BoardSize } from '../BoardSize'
+import type { Team } from '../Team'
+import type { Card, CardColor, GuessOutcome } from '../Card'
+import type { Credit } from '../Credit'
 
-export type Team = 'red' | 'blue'
-export type CardColor = 'red' | 'blue' | 'neutral' | 'assassin'
 export type GamePhase = 'clue' | 'guess'
-
-export interface Credit {
-  readonly label: string
-  readonly url: string
-}
-
-export interface Card {
-  readonly face: Face
-  readonly color: CardColor
-  readonly revealed: boolean
-  readonly markedBy: readonly Team[]
-  readonly outcome: GuessOutcome | null
-}
 
 export interface Clue {
   readonly team: Team
@@ -51,8 +43,6 @@ export interface GameState {
   readonly log: readonly string[]
 }
 
-export type GuessOutcome = 'correct' | 'wrong' | 'neutral' | 'assassin'
-
 export type ActingRole = 'spymaster' | 'operatives'
 
 export interface Transition {
@@ -63,7 +53,7 @@ export interface Transition {
   win: { team: Team; byAssassin: boolean } | null
 }
 
-export type BoardSize = '5x4' | '5x5'
+import type { BoardSize } from '../BoardSize'
 
 const COMPOSITIONS: Record<BoardSize, Composition> = {
   '5x4': { startingAgents: 8, otherAgents: 7, neutrals: 4, assassins: 1 },

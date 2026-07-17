@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { BoardSize } from './classic/Game'
+import type { BoardSize } from './BoardSize'
 import type { Deck } from './decks'
 import { BoardSizeSelector } from './components/BoardSizeSelector'
 import { DeckPicker } from './DeckPicker'

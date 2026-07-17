@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Team } from '../classic/Game'
+import type { Team } from '../Team'
 import { playSound } from '../sound'
 import styles from './ThinkingBar.module.css'
 

@@ -25,7 +25,7 @@ import { pictures } from './pictures'
 import { picturesPlus } from './picturesPlus'
 import { words } from './words'
 import { wordsAndPictures, wordsAndPicturesPlus } from './wordsAndPictures'
-import type { Credit } from '../classic/Game'
+import type { Credit } from '../Credit'
 import type { Deck } from './deck'
 
 export type { Deck }

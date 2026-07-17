@@ -1,4 +1,4 @@
-import type { BoardSize } from '../classic/Game'
+import type { BoardSize } from '../BoardSize'
 import styles from './BoardSizeSelector.module.css'
 
 export function BoardSizeSelector(props: {

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Face } from '../Face'
-import type { Card, GuessOutcome, Team } from '../classic/Game'
+import type { Card, GuessOutcome } from '../Card'
+import type { Team } from '../Team'
 
 export interface Boardable {
   showsColor(cardIndex: number, isSpymaster: boolean): boolean

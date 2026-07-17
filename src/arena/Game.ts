@@ -1,5 +1,8 @@
 import type { Face } from '../Face'
-import type { BoardSize, Card, CardColor, Credit, GuessOutcome, Team } from '../classic/Game'
+import type { BoardSize } from '../BoardSize'
+import type { Card, CardColor, GuessOutcome } from '../Card'
+import type { Credit } from '../Credit'
+import type { Team } from '../Team'
 import { shuffle } from '../shuffle'
 
 export interface ArenaClue {
