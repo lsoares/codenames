@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import type { BoardSize } from '../Game'
 import type { Deck } from '../decks'
-import { BoardSizeSelector } from './BoardSizeSelector'
+import { BoardSizeSelector } from '../components/BoardSizeSelector'
 import { DeckPicker } from './DeckPicker'
 import { CategoryPicker } from './CategoryPicker'
-import { HowToPlay } from './HowToPlay'
+import { HowToPlay } from '../components/HowToPlay'
 import styles from './Homepage.module.css'
 
 export function Homepage(props: {

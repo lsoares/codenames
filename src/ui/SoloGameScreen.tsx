@@ -4,9 +4,9 @@ import { SoloGame } from '../SoloGame'
 import { fetchClue } from '../ai/groq'
 import { playSound } from '../sound'
 import type { GuessOutcome } from '../Boardable'
-import { Board } from './Board'
-import { ClueDisplay } from './ClueDisplay'
-import { Confetti } from './Confetti'
+import { Board } from '../components/Board'
+import { ClueDisplay } from '../components/ClueDisplay'
+import { Confetti } from '../components/Confetti'
 import styles from './SoloGameScreen.module.css'
 
 export function SoloGameScreen(props: {
