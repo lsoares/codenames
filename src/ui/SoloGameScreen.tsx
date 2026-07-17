@@ -185,7 +185,7 @@ export function SoloGameScreen(props: {
             if (!lastClue?.targets?.length || card.revealed) return null
             const word = card.face.kind === 'text' ? card.face.text : ''
             if (!lastClue.targets.includes(word.toUpperCase())) return null
-            return <span className={styles.target}>🎯</span>
+            return <span className={styles.target}>💡</span>
           } : undefined}
         />
       </div>
