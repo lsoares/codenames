@@ -30,7 +30,16 @@ export function ArenaApp(props: { code?: string }) {
   const gameRef = useRef<ArenaGame | null>(null)
   const startedRef = useRef(false)
 
+  const clearArenaStorage = () => {
+    const code = hostRef.current?.roomCode ?? props.code
+    if (code) {
+      localStorage.removeItem(`arena:${code}`)
+      localStorage.removeItem(`arena-game:${code}`)
+    }
+  }
+
   const goHome = () => {
+    clearArenaStorage()
     hostRef.current?.close()
     guestRef.current?.close()
     hostRef.current = null
@@ -78,30 +87,49 @@ export function ArenaApp(props: { code?: string }) {
     }
   }
 
+  const gameStateKey = (code: string) => `arena-game:${code}`
+
+  const saveGameState = () => {
+    const game = gameRef.current
+    const code = hostRef.current?.roomCode ?? props.code
+    if (!game || !code) return
+    localStorage.setItem(gameStateKey(code), JSON.stringify(game.state))
+  }
+
   const applyView = (view: ArenaView) => {
     setScoreboard(view.scoreboard)
     setArenaWinner(view.winner)
 
     if (!gameRef.current) {
-      const cards = view.board.faces.map((face, i) => ({
-        face,
-        color: view.board.colors[i],
-        revealed: false,
-        markedBy: [] as ('red' | 'blue')[],
-        outcome: null,
-      }))
-      const game = new ArenaGame({
-        cards,
-        deck: view.board.deck,
-        credit: null,
-        clue: null,
-        clueHistory: [],
-        guessesRemaining: 0,
-        result: 'playing' as const,
-      })
-      gameRef.current = game
-      setArenaGame(game)
-      void requestClue()
+      const code = hostRef.current?.roomCode ?? props.code
+      const savedGame = code ? localStorage.getItem(gameStateKey(code)) : null
+      if (savedGame) {
+        const game = new ArenaGame(JSON.parse(savedGame))
+        gameRef.current = game
+        setArenaGame(game)
+        reportScore()
+        if (game.state.clue === null && game.state.result === 'playing') void requestClue()
+      } else {
+        const cards = view.board.faces.map((face, i) => ({
+          face,
+          color: view.board.colors[i],
+          revealed: false,
+          markedBy: [] as ('red' | 'blue')[],
+          outcome: null,
+        }))
+        const game = new ArenaGame({
+          cards,
+          deck: view.board.deck,
+          credit: null,
+          clue: null,
+          clueHistory: [],
+          guessesRemaining: 0,
+          result: 'playing' as const,
+        })
+        gameRef.current = game
+        setArenaGame(game)
+        void requestClue()
+      }
     }
   }
 
@@ -155,7 +183,7 @@ export function ArenaApp(props: { code?: string }) {
       setSelfId(host.selfId)
       history.replaceState({}, '', '/' + host.roomCode)
       host.subscribe(applyView)
-      sessionStorage.setItem(`arena:${host.roomCode}`, JSON.stringify({ faces, colors, deck }))
+      localStorage.setItem(`arena:${host.roomCode}`, JSON.stringify({ faces, colors, deck }))
       setStatus('')
     } catch {
       if (code) {
@@ -170,7 +198,7 @@ export function ArenaApp(props: { code?: string }) {
     if (startedRef.current) return
     startedRef.current = true
     if (props.code) {
-      const saved = sessionStorage.getItem(`arena:${props.code}`)
+      const saved = localStorage.getItem(`arena:${props.code}`)
       if (saved) {
         void startAsHost(props.code, JSON.parse(saved))
       } else {
@@ -201,9 +229,11 @@ export function ArenaApp(props: { code?: string }) {
     }
 
     reportScore()
+    saveGameState()
   }
 
   const restart = async (nextMode: 'operative' | 'spymaster') => {
+    clearArenaStorage()
     setArenaMode(nextMode)
     gameRef.current = null
     setArenaGame(null)
