@@ -144,6 +144,10 @@ export class ArenaGuest {
         })
         peer.on('error', (error: { type?: string }) => {
           if (settled) return
+          if (error.type === 'peer-unavailable') {
+            fail('room-not-found')
+            return
+          }
           if (error.type === 'unavailable-id') resetTabPeerId()
           peer.destroy()
           setTimeout(attempt, 800)
