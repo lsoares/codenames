@@ -95,6 +95,40 @@
   transform: translateY(-50%) scale(0.94);
 }
 
+.invite {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inviteButton {
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 2px dashed color-mix(in srgb, var(--ink) 25%, transparent);
+  background: none;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.inviteButton:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.copied {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.copied[data-show] {
+  opacity: 1;
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;

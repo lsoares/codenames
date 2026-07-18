@@ -383,6 +383,7 @@ export function ClassicApp() {
                   attemptJoin()
                 }
           }
+          roomCode={game ? roomCode : undefined}
         />
       )}
     </>
