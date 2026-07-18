@@ -100,8 +100,19 @@ export function ArenaApp(props: { code?: string }) {
     setScoreboard(view.scoreboard)
     setArenaWinner(view.winner)
 
+    const code = hostRef.current?.roomCode ?? props.code
+    if (code) {
+      localStorage.setItem(
+        `arena:${code}`,
+        JSON.stringify({
+          faces: view.board.faces,
+          colors: view.board.colors,
+          deck: view.board.deck,
+        }),
+      )
+    }
+
     if (!gameRef.current) {
-      const code = hostRef.current?.roomCode ?? props.code
       const savedGame = code ? localStorage.getItem(gameStateKey(code)) : null
       if (savedGame) {
         const game = new ArenaGame(JSON.parse(savedGame))
@@ -152,7 +163,12 @@ export function ArenaApp(props: { code?: string }) {
         setStatus('')
         applyView(view)
       })
-      guest.onDisconnect(() => setStatus('Lost connection.'))
+      guest.onDisconnect(() => {
+        guestRef.current = null
+        setStatus('Reconnecting...')
+        const saved = localStorage.getItem(`arena:${code}`)
+        void startAsHost(code, saved ? JSON.parse(saved) : undefined)
+      })
     } catch {
       setStatus('Could not join arena.')
     }
