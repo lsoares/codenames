@@ -1,6 +1,13 @@
 import type { DataConnection } from 'peerjs'
 import { iceServersReady, logConnection, newPeer, resetTabPeerId, tabPeerId } from '../peer'
-import type { ArenaView, ArenaScoreUpdate, ArenaPing } from './messages'
+import type { ArenaClue } from './Game'
+import type {
+  ArenaView,
+  ArenaScoreUpdate,
+  ArenaClueRequest,
+  ArenaClueResponse,
+  ArenaPing,
+} from './messages'
 
 export class ArenaGuest {
   selfId!: string
@@ -8,6 +15,7 @@ export class ArenaGuest {
   private peer!: ReturnType<typeof newPeer>
   private connection!: DataConnection
   private readonly listeners: Array<(view: ArenaView) => void> = []
+  private clueResolvers: Array<(clue: ArenaClue) => void> = []
   private latest: ArenaView | null = null
   private disconnectHandler: () => void = () => {}
   private lastSeen = 0
@@ -35,6 +43,11 @@ export class ArenaGuest {
 
   sendScore(found: number, dead: boolean): void {
     this.connection.send({ __arenaScore: true, found, dead } satisfies ArenaScoreUpdate)
+  }
+
+  requestClue(mineWords: string[]): Promise<ArenaClue> {
+    this.connection.send({ __clueRequest: true, mineWords } satisfies ArenaClueRequest)
+    return new Promise((resolve) => this.clueResolvers.push(resolve))
   }
 
   close(): void {
@@ -85,6 +98,11 @@ export class ArenaGuest {
         connection.on('data', (data) => {
           this.lastSeen = Date.now()
           if ((data as ArenaPing).__arenaPing) return
+          if ((data as ArenaClueResponse).__clueResponse) {
+            const resolver = this.clueResolvers.shift()
+            if (resolver) resolver((data as ArenaClueResponse).clue)
+            return
+          }
           this.latest = data as ArenaView
           this.listeners.forEach((listener) => listener(this.latest as ArenaView))
         })

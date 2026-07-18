@@ -10,6 +10,8 @@ import type {
   ArenaBoard,
   ArenaScoreEntry,
   ArenaScoreUpdate,
+  ArenaClueRequest,
+  ArenaClueResponse,
   ArenaPing,
 } from './messages'
 
@@ -22,8 +24,9 @@ export class ArenaHost {
   private readonly lastSeen = new Map<DataConnection, number>()
   private readonly scores = new Map<string, { found: number; dead: boolean }>()
   private readonly emojis = new Map<string, string>()
+  private readonly clueCache = new Map<string, ArenaClue>()
+  private readonly pendingRequests = new Set<string>()
   private heartbeat?: ReturnType<typeof setInterval>
-  private clueHistory: ArenaClue[] = []
   private winner: string | null = null
   private readonly peer: ReturnType<typeof newPeer>
 
@@ -75,32 +78,48 @@ export class ArenaHost {
     this.broadcast()
   }
 
-  async requestNextClue(): Promise<void> {
-    const mineWords: string[] = []
-    const assassinWords: string[] = []
-    const revealedWords: string[] = []
+  async requestClueFor(mineWords: string[]): Promise<ArenaClue> {
+    const key = cacheKey(mineWords)
+    const cached = this.clueCache.get(key)
+    if (cached) return cached
 
-    for (let i = 0; i < this.board.faces.length; i++) {
-      const face = this.board.faces[i]
-      const color = this.board.colors[i]
-      const word = face.kind === 'text' ? face.text : null
-      if (!word) continue
-      if (color === 'blue') mineWords.push(word)
-      else if (color === 'assassin') assassinWords.push(word)
+    if (this.pendingRequests.has(key)) {
+      return new Promise((resolve) => {
+        const check = setInterval(() => {
+          const result = this.clueCache.get(key)
+          if (result) {
+            clearInterval(check)
+            resolve(result)
+          }
+        }, 200)
+      })
     }
 
-    for (const clue of this.clueHistory) {
-      if (clue.targets) revealedWords.push(...clue.targets)
+    this.pendingRequests.add(key)
+    const assassinWords: string[] = []
+    for (let i = 0; i < this.board.faces.length; i++) {
+      const face = this.board.faces[i]
+      if (face.kind === 'text' && this.board.colors[i] === 'assassin') {
+        assassinWords.push(face.text)
+      }
     }
 
     try {
-      const result = await fetchClue({ key: this.apiKey, mineWords, assassinWords, revealedWords })
+      const result = await fetchClue({
+        key: this.apiKey,
+        mineWords,
+        assassinWords,
+        revealedWords: [],
+      })
       const clue: ArenaClue = { word: result.word, count: result.count, targets: result.targets }
-      this.clueHistory = [...this.clueHistory, clue]
-      this.broadcast()
+      this.clueCache.set(key, clue)
+      return clue
     } catch (err) {
       console.error('[arena] clue request failed, retrying in 3s:', err)
-      setTimeout(() => void this.requestNextClue(), 3000)
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+      return this.requestClueFor(mineWords)
+    } finally {
+      this.pendingRequests.delete(key)
     }
   }
 
@@ -140,6 +159,15 @@ export class ArenaHost {
             this.winner = connection.peer
           }
           this.broadcast()
+          return
+        }
+        if ((data as ArenaClueRequest).__clueRequest) {
+          const req = data as ArenaClueRequest
+          void this.requestClueFor(req.mineWords).then((clue) => {
+            if (connection.open) {
+              connection.send({ __clueResponse: true, clue } satisfies ArenaClueResponse)
+            }
+          })
         }
       })
       connection.on('close', () => this.dropConnection(connection))
@@ -161,7 +189,6 @@ export class ArenaHost {
     }
     return {
       board: this.board,
-      clueHistory: this.clueHistory,
       scoreboard,
       winner: this.winner,
     }
@@ -219,4 +246,8 @@ export class ArenaHost {
       ].find((e) => !used.has(e)) ?? '👤'
     )
   }
+}
+
+function cacheKey(mineWords: string[]): string {
+  return [...mineWords].sort().join(',')
 }

@@ -18,9 +18,18 @@ export interface ArenaBoard {
 
 export interface ArenaView {
   board: ArenaBoard
-  clueHistory: ArenaClue[]
   scoreboard: ArenaScoreEntry[]
   winner: string | null
+}
+
+export interface ArenaClueRequest {
+  __clueRequest: true
+  mineWords: string[]
+}
+
+export interface ArenaClueResponse {
+  __clueResponse: true
+  clue: ArenaClue
 }
 
 export interface ArenaScoreUpdate {

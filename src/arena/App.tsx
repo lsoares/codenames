@@ -21,10 +21,10 @@ export function ArenaApp(props: { code?: string }) {
   const [arenaWinner, setArenaWinner] = useState<string | null>(null)
   const [selfId, setSelfId] = useState('')
   const [status, setStatus] = useState('')
+  const [loadingClue, setLoadingClue] = useState(false)
   const hostRef = useRef<ArenaHost | null>(null)
   const guestRef = useRef<ArenaGuest | null>(null)
   const gameRef = useRef<ArenaGame | null>(null)
-  const clueIndexRef = useRef(0)
   const startedRef = useRef(false)
 
   const goHome = () => {
@@ -36,8 +36,45 @@ export function ArenaApp(props: { code?: string }) {
     window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
+  const getUnrevealedMineWords = (): string[] => {
+    const game = gameRef.current
+    if (!game) return []
+    return game.state.cards
+      .filter((c) => c.color === 'blue' && !c.revealed && c.face.kind === 'text')
+      .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
+      .filter(Boolean)
+  }
+
+  const requestClue = async () => {
+    const mineWords = getUnrevealedMineWords()
+    if (mineWords.length === 0) return
+    setLoadingClue(true)
+    try {
+      let clue
+      if (hostRef.current) {
+        clue = await hostRef.current.requestClueFor(mineWords)
+      } else if (guestRef.current) {
+        clue = await guestRef.current.requestClue(mineWords)
+      }
+      if (
+        clue &&
+        gameRef.current?.state.clue === null &&
+        gameRef.current.state.result === 'playing'
+      ) {
+        const next = gameRef.current.receiveClue(
+          clue.word,
+          clue.count,
+          clue.targets as string[] | undefined,
+        )
+        gameRef.current = next
+        setArenaGame(next)
+      }
+    } finally {
+      setLoadingClue(false)
+    }
+  }
+
   const applyView = (view: ArenaView) => {
-    lastViewRef.current = view
     setScoreboard(view.scoreboard)
     setArenaWinner(view.winner)
 
@@ -49,7 +86,7 @@ export function ArenaApp(props: { code?: string }) {
         markedBy: [] as ('red' | 'blue')[],
         outcome: null,
       }))
-      const state = {
+      const game = new ArenaGame({
         cards,
         deck: view.board.deck,
         credit: null,
@@ -57,33 +94,10 @@ export function ArenaApp(props: { code?: string }) {
         clueHistory: [],
         guessesRemaining: 0,
         result: 'playing' as const,
-      }
-      const game = new ArenaGame(state)
+      })
       gameRef.current = game
       setArenaGame(game)
-      clueIndexRef.current = 0
-    }
-
-    while (clueIndexRef.current < view.clueHistory.length) {
-      const current: ArenaGame = gameRef.current!
-      if (current.state.clue !== null || current.state.result !== 'playing') break
-      const clue = view.clueHistory[clueIndexRef.current]
-      const alreadyRevealed = clue.targets
-        ? clue.targets.filter((t) =>
-            current.state.cards.some(
-              (c) => c.revealed && c.face.kind === 'text' && c.face.text.toUpperCase() === t,
-            ),
-          ).length
-        : 0
-      const adjustedCount = Math.max(1, clue.count - alreadyRevealed)
-      const next: ArenaGame = current.receiveClue(
-        clue.word,
-        adjustedCount,
-        clue.targets as string[] | undefined,
-      )
-      gameRef.current = next
-      setArenaGame(next)
-      clueIndexRef.current++
+      void requestClue()
     }
   }
 
@@ -122,15 +136,16 @@ export function ArenaApp(props: { code?: string }) {
     setStatus('Creating room...')
     const deck = findDeck('Words')
     const faces = await deck.fetch(20)
-    const colors = faces.map((_, i) => (i < 12 ? 'blue' : 'assassin') as CardColor)
-    const shuffledColors = shuffle(colors)
-    const host = await ArenaHost.start(faces, shuffledColors, deck.title, key)
+    const colors = shuffle<CardColor>([
+      ...Array<CardColor>(12).fill('blue'),
+      ...Array<CardColor>(8).fill('assassin'),
+    ])
+    const host = await ArenaHost.start(faces, colors, deck.title, key)
     hostRef.current = host
     setSelfId(host.selfId)
     history.replaceState({}, '', '/' + host.roomCode)
     host.subscribe(applyView)
     setStatus('')
-    void host.requestNextClue()
   }
 
   useEffect(() => {
@@ -153,22 +168,25 @@ export function ArenaApp(props: { code?: string }) {
     void startAsHost()
   }
 
-  const lastViewRef = useRef<ArenaView | null>(null)
-
   const handleGameUpdate = (game: ArenaGame) => {
     const hadClue = gameRef.current?.state.clue !== null
     gameRef.current = game
     setArenaGame(game)
 
     if (hadClue && game.state.clue === null && game.state.result === 'playing') {
-      if (lastViewRef.current && clueIndexRef.current < lastViewRef.current.clueHistory.length) {
-        applyView(lastViewRef.current)
-      } else if (hostRef.current) {
-        void hostRef.current.requestNextClue()
-      }
+      void requestClue()
     }
 
     reportScore()
+  }
+
+  const restart = async (nextMode: 'operative' | 'spymaster') => {
+    setArenaMode(nextMode)
+    gameRef.current = null
+    setArenaGame(null)
+    hostRef.current?.close()
+    hostRef.current = null
+    void startAsHost()
   }
 
   if (needsApiKey) return <AiSetup onReady={onApiKeyReady} />
@@ -186,33 +204,14 @@ export function ArenaApp(props: { code?: string }) {
         game={arenaGame}
         apiKey={apiKey ?? ''}
         onGameUpdate={handleGameUpdate}
-        onNewGame={async () => {
-          setArenaMode('spymaster')
-          gameRef.current = null
-          clueIndexRef.current = 0
-          setArenaGame(null)
-          hostRef.current?.close()
-          hostRef.current = null
-          gameRef.current = null
-          clueIndexRef.current = 0
-          void startAsHost()
-        }}
-        onSwitchRole={async () => {
-          setArenaMode('spymaster')
-          gameRef.current = null
-          clueIndexRef.current = 0
-          setArenaGame(null)
-          hostRef.current?.close()
-          hostRef.current = null
-          gameRef.current = null
-          clueIndexRef.current = 0
-          void startAsHost()
-        }}
+        onNewGame={() => void restart('spymaster')}
+        onSwitchRole={() => void restart('spymaster')}
         onHome={goHome}
         scoreboard={scoreboard.length > 1 ? scoreboard : undefined}
         selfId={selfId}
         arenaWinner={arenaWinner}
         externalClues={!!hostRef.current || !!guestRef.current}
+        loading={loadingClue}
       />
     )
   }
@@ -223,28 +222,8 @@ export function ArenaApp(props: { code?: string }) {
         game={arenaGame}
         apiKey={apiKey ?? ''}
         onGameUpdate={handleGameUpdate}
-        onNewGame={async () => {
-          setArenaMode('operative')
-          gameRef.current = null
-          clueIndexRef.current = 0
-          setArenaGame(null)
-          hostRef.current?.close()
-          hostRef.current = null
-          gameRef.current = null
-          clueIndexRef.current = 0
-          void startAsHost()
-        }}
-        onSwitchRole={async () => {
-          setArenaMode('operative')
-          gameRef.current = null
-          clueIndexRef.current = 0
-          setArenaGame(null)
-          hostRef.current?.close()
-          hostRef.current = null
-          gameRef.current = null
-          clueIndexRef.current = 0
-          void startAsHost()
-        }}
+        onNewGame={() => void restart('operative')}
+        onSwitchRole={() => void restart('operative')}
         onHome={goHome}
       />
     )

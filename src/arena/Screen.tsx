@@ -23,6 +23,7 @@ export function SoloGameScreen(props: {
   selfId?: string
   arenaWinner?: string | null
   externalClues?: boolean
+  loading?: boolean
 }) {
   const { clue, clueHistory, guessesRemaining, result } = props.game.state
 
@@ -130,7 +131,7 @@ export function SoloGameScreen(props: {
       ? 'You found all the words!'
       : result === 'dead'
         ? 'Hit an assassin. Game over.'
-        : loading || (props.externalClues && !clue)
+        : loading || props.loading || (props.externalClues && !clue)
           ? 'AI is thinking...'
           : error
             ? error
