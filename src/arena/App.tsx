@@ -107,12 +107,6 @@ export function ArenaApp(props: { code?: string }) {
   }
 
   const joinAsGuest = async (code: string) => {
-    const key = await getApiKey()
-    if (!key) {
-      setNeedsApiKey(true)
-      return
-    }
-    setApiKey(key)
     setStatus(`Joining ${code}...`)
     try {
       const guest = await ArenaGuest.join(code)
@@ -143,11 +137,7 @@ export function ArenaApp(props: { code?: string }) {
   const onApiKeyReady = async (key: string) => {
     setApiKey(key)
     setNeedsApiKey(false)
-    if (props.code) {
-      void joinAsGuest(props.code)
-    } else {
-      void startAsHost()
-    }
+    void startAsHost()
   }
 
   const handleGameUpdate = (game: ArenaGame) => {
