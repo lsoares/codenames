@@ -1,0 +1,36 @@
+.scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: inherit;
+  transition: opacity 0.2s;
+}
+
+.self {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dead {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
+.winner {
+  background: rgba(255, 215, 0, 0.25);
+  border-color: gold;
+  color: gold;
+}
