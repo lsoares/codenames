@@ -13,7 +13,7 @@ export function Homepage(props: {
   onBoardSizeChange: (size: BoardSize) => void
   onPick: (id: string) => void
   onJoin?: (code: string) => void
-  onPractice?: () => void
+  onArena?: () => void
 }) {
   const [code, setCode] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<Deck['category'] | undefined>(
@@ -76,8 +76,8 @@ export function Homepage(props: {
         <DeckPicker decks={props.decks} category={categoryFilter} onPick={props.onPick} />
       </div>
       <div className={styles.actions}>
-        {props.onPractice && (
-          <button type="button" className={styles.practice} onClick={props.onPractice}>
+        {props.onArena && (
+          <button type="button" className={styles.practice} onClick={props.onArena}>
             🤖 Arena
           </button>
         )}
