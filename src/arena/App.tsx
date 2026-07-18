@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArenaGame, createArenaGame } from './Game'
+import { ArenaGame } from './Game'
 import { ArenaHost } from './Host'
 import { ArenaGuest } from './Guest'
 import { AiSetup } from './ai/AiSetup'
@@ -8,6 +8,8 @@ import { StatusBanner } from '../components/StatusBanner'
 import { SoloGameScreen } from './Screen'
 import { SpymasterSoloGameScreen } from './SpymasterScreen'
 import { findDeck } from '../decks'
+import { shuffle } from '../shuffle'
+import type { CardColor } from '../Card'
 import type { ArenaView, ArenaScoreEntry } from './messages'
 
 export function ArenaApp(props: { code?: string }) {
@@ -98,18 +100,25 @@ export function ArenaApp(props: { code?: string }) {
     }
   }
 
-  const startLocal = async () => {
+  const startAsHost = async () => {
     const key = await getApiKey()
     if (!key) {
       setNeedsApiKey(true)
       return
     }
     setApiKey(key)
+    setStatus('Creating room...')
     const deck = findDeck('Words')
     const faces = await deck.fetch(20)
-    const game = new ArenaGame(createArenaGame(faces, deck.title, null, '5x4'))
-    gameRef.current = game
-    setArenaGame(game)
+    const colors = faces.map((_, i) => (i < 12 ? 'blue' : 'assassin') as CardColor)
+    const shuffledColors = shuffle(colors)
+    const host = await ArenaHost.start(faces, shuffledColors, deck.title, key)
+    hostRef.current = host
+    setSelfId(host.selfId)
+    history.replaceState({}, '', '/' + host.roomCode)
+    host.subscribe(applyView)
+    setStatus('')
+    void host.requestNextClue()
   }
 
   useEffect(() => {
@@ -118,7 +127,7 @@ export function ArenaApp(props: { code?: string }) {
     if (props.code) {
       void joinAsGuest(props.code)
     } else {
-      void startLocal()
+      void startAsHost()
     }
     return () => {
       hostRef.current?.close()
@@ -129,7 +138,7 @@ export function ArenaApp(props: { code?: string }) {
   const onApiKeyReady = async (key: string) => {
     setApiKey(key)
     setNeedsApiKey(false)
-    void startLocal()
+    void startAsHost()
   }
 
   const handleGameUpdate = (game: ArenaGame) => {
@@ -164,14 +173,22 @@ export function ArenaApp(props: { code?: string }) {
           gameRef.current = null
           clueIndexRef.current = 0
           setArenaGame(null)
-          void startLocal()
+          hostRef.current?.close()
+          hostRef.current = null
+          gameRef.current = null
+          clueIndexRef.current = 0
+          void startAsHost()
         }}
         onSwitchRole={async () => {
           setArenaMode('spymaster')
           gameRef.current = null
           clueIndexRef.current = 0
           setArenaGame(null)
-          void startLocal()
+          hostRef.current?.close()
+          hostRef.current = null
+          gameRef.current = null
+          clueIndexRef.current = 0
+          void startAsHost()
         }}
         onHome={goHome}
         scoreboard={scoreboard.length > 1 ? scoreboard : undefined}
@@ -193,14 +210,22 @@ export function ArenaApp(props: { code?: string }) {
           gameRef.current = null
           clueIndexRef.current = 0
           setArenaGame(null)
-          void startLocal()
+          hostRef.current?.close()
+          hostRef.current = null
+          gameRef.current = null
+          clueIndexRef.current = 0
+          void startAsHost()
         }}
         onSwitchRole={async () => {
           setArenaMode('operative')
           gameRef.current = null
           clueIndexRef.current = 0
           setArenaGame(null)
-          void startLocal()
+          hostRef.current?.close()
+          hostRef.current = null
+          gameRef.current = null
+          clueIndexRef.current = 0
+          void startAsHost()
         }}
         onHome={goHome}
       />
