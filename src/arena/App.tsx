@@ -142,11 +142,11 @@ export function ArenaApp(props: { code?: string }) {
   }
 
   const handleGameUpdate = (game: ArenaGame) => {
+    const hadClue = gameRef.current?.state.clue !== null
     gameRef.current = game
     setArenaGame(game)
 
-    const prevClue = gameRef.current?.state.clue
-    if (game.state.clue === null && prevClue !== null && game.state.result === 'playing') {
+    if (hadClue && game.state.clue === null && game.state.result === 'playing') {
       if (hostRef.current) void hostRef.current.requestNextClue()
     }
 

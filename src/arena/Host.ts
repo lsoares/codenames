@@ -93,10 +93,15 @@ export class ArenaHost {
       if (clue.targets) revealedWords.push(...clue.targets)
     }
 
-    const result = await fetchClue({ key: this.apiKey, mineWords, assassinWords, revealedWords })
-    const clue: ArenaClue = { word: result.word, count: result.count, targets: result.targets }
-    this.clueHistory = [...this.clueHistory, clue]
-    this.broadcast()
+    try {
+      const result = await fetchClue({ key: this.apiKey, mineWords, assassinWords, revealedWords })
+      const clue: ArenaClue = { word: result.word, count: result.count, targets: result.targets }
+      this.clueHistory = [...this.clueHistory, clue]
+      this.broadcast()
+    } catch (err) {
+      console.error('[arena] clue request failed, retrying in 3s:', err)
+      setTimeout(() => void this.requestNextClue(), 3000)
+    }
   }
 
   close(): void {

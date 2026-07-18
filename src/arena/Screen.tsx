@@ -7,6 +7,7 @@ import type { GuessOutcome } from '../Card'
 import { Board } from '../components/Board'
 import { ClueDisplay } from '../components/ClueDisplay'
 import { Confetti } from '../components/Confetti'
+import { StatusBanner } from '../components/StatusBanner'
 import { Scoreboard } from './Scoreboard'
 import type { ArenaScoreEntry } from './messages'
 import styles from './Screen.module.css'
@@ -124,23 +125,16 @@ export function SoloGameScreen(props: {
     if (result === 'dead') playSound('gameOver')
   }, [result])
 
-  const statusText = () => {
-    if (result === 'win') return 'You found all the words!'
-    if (result === 'dead') return 'Hit an assassin. Game over.'
-    if (loading || (props.externalClues && !clue)) return 'AI is thinking...'
-    if (error) return error
-    if (clue) {
-      return (
-        <ClueDisplay
-          word={clue.word}
-          count={clue.count}
-          guessesUsed={clue.count - guessesRemaining}
-          guessesTotal={clue.count}
-        />
-      )
-    }
-    return null
-  }
+  const bannerText =
+    result === 'win'
+      ? 'You found all the words!'
+      : result === 'dead'
+        ? 'Hit an assassin. Game over.'
+        : loading || (props.externalClues && !clue)
+          ? 'AI is thinking...'
+          : error
+            ? error
+            : null
 
   return (
     <main className={styles.screen}>
@@ -168,9 +162,16 @@ export function SoloGameScreen(props: {
             onSwitchRole={props.onSwitchRole}
           />
         )}
-        <span className={styles.status} role="status">
-          {statusText()}
-        </span>
+        {bannerText ? (
+          <StatusBanner text={bannerText} />
+        ) : clue ? (
+          <ClueDisplay
+            word={clue.word}
+            count={clue.count}
+            guessesUsed={clue.count - guessesRemaining}
+            guessesTotal={clue.count}
+          />
+        ) : null}
         {result !== 'playing' && (
           <button type="button" className={styles.playAgain} onClick={props.onNewGame}>
             Play again
