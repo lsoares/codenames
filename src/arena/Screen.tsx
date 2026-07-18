@@ -7,6 +7,8 @@ import type { GuessOutcome } from '../Card'
 import { Board } from '../components/Board'
 import { ClueDisplay } from '../components/ClueDisplay'
 import { Confetti } from '../components/Confetti'
+import { Scoreboard } from './Scoreboard'
+import type { ArenaScoreEntry } from './messages'
 import styles from './Screen.module.css'
 
 export function SoloGameScreen(props: {
@@ -16,6 +18,10 @@ export function SoloGameScreen(props: {
   onNewGame: () => void
   onSwitchRole?: () => void
   onHome?: () => void
+  scoreboard?: ArenaScoreEntry[]
+  selfId?: string
+  arenaWinner?: string | null
+  externalClues?: boolean
 }) {
   const { clue, clueHistory, guessesRemaining, result } = props.game.state
 
@@ -56,7 +62,7 @@ export function SoloGameScreen(props: {
   }
 
   useEffect(() => {
-    if (result === 'playing' && clue === null && !loadingRef.current) {
+    if (!props.externalClues && result === 'playing' && clue === null && !loadingRef.current) {
       requestClue()
     }
   }, [result, clue])
@@ -121,7 +127,7 @@ export function SoloGameScreen(props: {
   const statusText = () => {
     if (result === 'win') return 'You found all the words!'
     if (result === 'dead') return 'Hit an assassin. Game over.'
-    if (loading) return 'AI is thinking...'
+    if (loading || (props.externalClues && !clue)) return 'AI is thinking...'
     if (error) return error
     if (clue) {
       return (
@@ -156,6 +162,13 @@ export function SoloGameScreen(props: {
           </span>
         )}
         <span className={styles.count}>{props.game.unrevealedMineCount()}</span>
+        {props.scoreboard && props.selfId && (
+          <Scoreboard
+            entries={props.scoreboard}
+            selfId={props.selfId}
+            winner={props.arenaWinner ?? null}
+          />
+        )}
         <span className={styles.status} role="status">
           {statusText()}
         </span>
