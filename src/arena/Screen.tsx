@@ -145,28 +145,26 @@ export function SoloGameScreen(props: {
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
-        {props.onSwitchRole && (
-          <span className={styles.rolePicker}>
-            <span className={styles.roleActive} role="img" aria-label="You are the operative">
-              🙂
-            </span>
-            <button
-              type="button"
-              className={styles.roleInactive}
-              aria-label="Become spymaster"
-              title="Become spymaster"
-              onClick={props.onSwitchRole}
-            >
-              🕵️‍♀️
-            </button>
-          </span>
-        )}
-        <span className={styles.count}>{props.game.unrevealedMineCount()}</span>
-        {props.scoreboard && props.selfId && (
+        {props.scoreboard && props.selfId ? (
           <Scoreboard
             entries={props.scoreboard}
             selfId={props.selfId}
             winner={props.arenaWinner ?? null}
+            onSwitchRole={props.onSwitchRole}
+          />
+        ) : (
+          <Scoreboard
+            entries={[
+              {
+                id: props.selfId ?? 'self',
+                found: props.game.mineCount() - props.game.unrevealedMineCount(),
+                total: props.game.mineCount(),
+                dead: props.game.state.result === 'dead',
+              },
+            ]}
+            selfId={props.selfId ?? 'self'}
+            winner={props.game.state.result === 'win' ? (props.selfId ?? 'self') : null}
+            onSwitchRole={props.onSwitchRole}
           />
         )}
         <span className={styles.status} role="status">

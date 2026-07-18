@@ -8,6 +8,7 @@ import { Board } from '../components/Board'
 import { ClueBar } from '../components/ClueBar'
 import { ClueDisplay } from '../components/ClueDisplay'
 import { Confetti } from '../components/Confetti'
+import { Scoreboard } from './Scoreboard'
 import styles from './SpymasterScreen.module.css'
 
 export function SpymasterSoloGameScreen(props: {
@@ -149,23 +150,19 @@ export function SpymasterSoloGameScreen(props: {
   return (
     <main className={styles.screen} data-thinking={aiGuessing || undefined}>
       <header className={styles.header}>
-        {props.onSwitchRole && (
-          <span className={styles.rolePicker}>
-            <button
-              type="button"
-              className={styles.roleInactive}
-              aria-label="Become operative"
-              title="Become operative"
-              onClick={props.onSwitchRole}
-            >
-              🙂
-            </button>
-            <span className={styles.roleActive} role="img" aria-label="You are the spymaster">
-              🕵️‍♀️
-            </span>
-          </span>
-        )}
-        <span className={styles.count}>{props.game.unrevealedMineCount()}</span>
+        <Scoreboard
+          entries={[
+            {
+              id: 'self',
+              found: props.game.mineCount() - props.game.unrevealedMineCount(),
+              total: props.game.mineCount(),
+              dead: props.game.state.result === 'dead',
+            },
+          ]}
+          selfId="self"
+          winner={props.game.state.result === 'win' ? 'self' : null}
+          onSwitchRole={props.onSwitchRole}
+        />
         {showClueBar ? (
           <ClueBar
             key={clueHistory.length}

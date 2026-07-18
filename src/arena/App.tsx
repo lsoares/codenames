@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArenaGame } from './Game'
+import { ArenaGame, createArenaGame } from './Game'
 import { ArenaHost } from './Host'
 import { ArenaGuest } from './Guest'
 import { AiSetup } from './ai/AiSetup'
@@ -7,8 +7,6 @@ import { getApiKey } from './ai/keyStore'
 import { SoloGameScreen } from './Screen'
 import { SpymasterSoloGameScreen } from './SpymasterScreen'
 import { findDeck } from '../decks'
-import { shuffle } from '../shuffle'
-import type { CardColor } from '../Card'
 import type { ArenaView, ArenaScoreEntry } from './messages'
 
 export function ArenaApp(props: { code?: string }) {
@@ -83,29 +81,6 @@ export function ArenaApp(props: { code?: string }) {
     if (guestRef.current) guestRef.current.sendScore(found, dead)
   }
 
-  const startAsHost = async () => {
-    const key = await getApiKey()
-    if (!key) {
-      setNeedsApiKey(true)
-      return
-    }
-    setApiKey(key)
-    setStatus('Creating room...')
-    const deck = findDeck('Words')
-    const faces = await deck.fetch(20)
-    const colors = shuffle<CardColor>([
-      ...Array<CardColor>(12).fill('blue'),
-      ...Array<CardColor>(8).fill('assassin'),
-    ])
-    const host = await ArenaHost.start(faces, colors, deck.title, key)
-    hostRef.current = host
-    setSelfId(host.selfId)
-    history.pushState({}, '', '/' + host.roomCode)
-    host.subscribe(applyView)
-    setStatus('')
-    void host.requestNextClue()
-  }
-
   const joinAsGuest = async (code: string) => {
     setStatus(`Joining ${code}...`)
     try {
@@ -122,13 +97,27 @@ export function ArenaApp(props: { code?: string }) {
     }
   }
 
+  const startLocal = async () => {
+    const key = await getApiKey()
+    if (!key) {
+      setNeedsApiKey(true)
+      return
+    }
+    setApiKey(key)
+    const deck = findDeck('Words')
+    const faces = await deck.fetch(20)
+    const game = new ArenaGame(createArenaGame(faces, deck.title, null, '5x4'))
+    gameRef.current = game
+    setArenaGame(game)
+  }
+
   useEffect(() => {
     if (startedRef.current) return
     startedRef.current = true
     if (props.code) {
       void joinAsGuest(props.code)
     } else {
-      void startAsHost()
+      void startLocal()
     }
     return () => {
       hostRef.current?.close()
@@ -139,7 +128,7 @@ export function ArenaApp(props: { code?: string }) {
   const onApiKeyReady = async (key: string) => {
     setApiKey(key)
     setNeedsApiKey(false)
-    void startAsHost()
+    void startLocal()
   }
 
   const handleGameUpdate = (game: ArenaGame) => {
@@ -169,14 +158,14 @@ export function ArenaApp(props: { code?: string }) {
           gameRef.current = null
           clueIndexRef.current = 0
           setArenaGame(null)
-          if (hostRef.current) void startAsHost()
+          void startLocal()
         }}
         onSwitchRole={async () => {
           setArenaMode('spymaster')
           gameRef.current = null
           clueIndexRef.current = 0
           setArenaGame(null)
-          if (hostRef.current) void startAsHost()
+          void startLocal()
         }}
         onHome={goHome}
         scoreboard={scoreboard.length > 1 ? scoreboard : undefined}
@@ -198,14 +187,14 @@ export function ArenaApp(props: { code?: string }) {
           gameRef.current = null
           clueIndexRef.current = 0
           setArenaGame(null)
-          if (hostRef.current) void startAsHost()
+          void startLocal()
         }}
         onSwitchRole={async () => {
           setArenaMode('operative')
           gameRef.current = null
           clueIndexRef.current = 0
           setArenaGame(null)
-          if (hostRef.current) void startAsHost()
+          void startLocal()
         }}
         onHome={goHome}
       />

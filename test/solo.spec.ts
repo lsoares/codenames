@@ -26,10 +26,8 @@ test('arena: AI gives a clue and the player guesses a card', async ({ page }) =>
   await game.saveApiKey()
 
   await expect(page.getByText('NATURE')).toBeVisible()
-  const firstWord = await page
-    .locator('[class*="board"] button:not([disabled])')
-    .first()
-    .innerText()
+  const wordButtons = page.locator('button').filter({ hasText: /^[A-Z]{2,}$/ })
+  const firstWord = await wordButtons.first().innerText()
 
   await page.getByRole('button', { name: firstWord, exact: true }).click()
 

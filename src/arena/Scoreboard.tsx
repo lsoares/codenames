@@ -1,31 +1,41 @@
-import styles from './Scoreboard.module.css'
 import type { ArenaScoreEntry } from './messages'
+import styles from './Scoreboard.module.css'
 
-interface Props {
+export function Scoreboard(props: {
   entries: ArenaScoreEntry[]
   selfId: string
   winner: string | null
-}
-
-export function Scoreboard(props: Props) {
-  if (props.entries.length <= 1) return null
+  onSwitchRole?: () => void
+}) {
   return (
-    <div className={styles.scoreboard}>
-      {props.entries.map((entry) => (
-        <span
-          key={entry.id}
-          className={[
-            styles.pill,
-            entry.dead ? styles.dead : '',
-            entry.id === props.winner ? styles.winner : '',
-            entry.id === props.selfId ? styles.self : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
+    <span className={styles.scoreboard}>
+      {props.entries.map((entry) => {
+        const isSelf = entry.id === props.selfId
+        const remaining = entry.total - entry.found
+        return (
+          <span
+            key={entry.id}
+            className={styles.card}
+            data-self={isSelf || undefined}
+            data-dead={entry.dead || undefined}
+            data-winner={entry.id === props.winner || undefined}
+            title={isSelf ? `You: ${entry.found}/${entry.total}` : `${entry.found}/${entry.total}`}
+          >
+            {remaining}
+          </span>
+        )
+      })}
+      {props.onSwitchRole && (
+        <button
+          type="button"
+          className={styles.switchRole}
+          aria-label="Switch role"
+          title="Switch role"
+          onClick={props.onSwitchRole}
         >
-          {entry.found}/{entry.total}
-        </span>
-      ))}
-    </div>
+          🔄
+        </button>
+      )}
+    </span>
   )
 }

@@ -1,36 +1,45 @@
 .scoreboard {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
   align-items: center;
+  gap: 6px;
 }
 
-.pill {
+.card {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: inherit;
-  transition: opacity 0.2s;
+  justify-content: center;
+  min-width: 28px;
+  height: 22px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 14%, transparent);
 }
 
-.self {
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.2);
+.card[data-self] {
+  border: 2px solid var(--blue);
 }
 
-.dead {
-  opacity: 0.35;
+.card[data-dead] {
+  filter: grayscale(1);
+  opacity: 0.4;
   text-decoration: line-through;
 }
 
-.winner {
-  background: rgba(255, 215, 0, 0.25);
-  border-color: gold;
-  color: gold;
+.card[data-winner] {
+  background: color-mix(in srgb, var(--blue) 40%, transparent);
+}
+
+.switchRole {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0.5;
+}
+
+.switchRole:hover {
+  opacity: 1;
 }
