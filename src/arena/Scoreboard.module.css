@@ -1,10 +1,34 @@
 .scoreboard {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  margin-left: auto;
 }
 
-.card {
+.player {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.player[data-dead] {
+  filter: grayscale(1);
+  opacity: 0.4;
+}
+
+.player[data-winner] .count {
+  background: color-mix(in srgb, var(--blue) 40%, transparent);
+}
+
+.player[data-self] .count {
+  border: 2px solid var(--blue);
+}
+
+.emoji {
+  font-size: 1.1rem;
+}
+
+.count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -15,20 +39,6 @@
   font-size: 0.9rem;
   color: var(--blue);
   background: color-mix(in srgb, var(--blue) 14%, transparent);
-}
-
-.card[data-self] {
-  border: 2px solid var(--blue);
-}
-
-.card[data-dead] {
-  filter: grayscale(1);
-  opacity: 0.4;
-  text-decoration: line-through;
-}
-
-.card[data-winner] {
-  background: color-mix(in srgb, var(--blue) 40%, transparent);
 }
 
 .switchRole {

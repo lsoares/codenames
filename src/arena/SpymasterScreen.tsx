@@ -154,6 +154,7 @@ export function SpymasterSoloGameScreen(props: {
           entries={[
             {
               id: 'self',
+              emoji: '🦊',
               found: props.game.mineCount() - props.game.unrevealedMineCount(),
               total: props.game.mineCount(),
               dead: props.game.state.result === 'dead',

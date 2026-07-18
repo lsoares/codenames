@@ -157,6 +157,7 @@ export function SoloGameScreen(props: {
             entries={[
               {
                 id: props.selfId ?? 'self',
+                emoji: '🦊',
                 found: props.game.mineCount() - props.game.unrevealedMineCount(),
                 total: props.game.mineCount(),
                 dead: props.game.state.result === 'dead',

@@ -9,22 +9,6 @@ export function Scoreboard(props: {
 }) {
   return (
     <span className={styles.scoreboard}>
-      {props.entries.map((entry) => {
-        const isSelf = entry.id === props.selfId
-        const remaining = entry.total - entry.found
-        return (
-          <span
-            key={entry.id}
-            className={styles.card}
-            data-self={isSelf || undefined}
-            data-dead={entry.dead || undefined}
-            data-winner={entry.id === props.winner || undefined}
-            title={isSelf ? `You: ${entry.found}/${entry.total}` : `${entry.found}/${entry.total}`}
-          >
-            {remaining}
-          </span>
-        )
-      })}
       {props.onSwitchRole && (
         <button
           type="button"
@@ -36,6 +20,23 @@ export function Scoreboard(props: {
           🔄
         </button>
       )}
+      {props.entries.map((entry) => {
+        const isSelf = entry.id === props.selfId
+        const remaining = entry.total - entry.found
+        return (
+          <span
+            key={entry.id}
+            className={styles.player}
+            data-self={isSelf || undefined}
+            data-dead={entry.dead || undefined}
+            data-winner={entry.id === props.winner || undefined}
+            title={`${entry.found}/${entry.total}`}
+          >
+            <span className={styles.emoji}>{entry.emoji}</span>
+            <span className={styles.count}>{remaining}</span>
+          </span>
+        )
+      })}
     </span>
   )
 }

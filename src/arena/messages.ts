@@ -4,6 +4,7 @@ import type { ArenaClue } from './Game'
 
 export interface ArenaScoreEntry {
   id: string
+  emoji: string
   found: number
   total: number
   dead: boolean

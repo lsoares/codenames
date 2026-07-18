@@ -4,6 +4,7 @@ import { ArenaHost } from './Host'
 import { ArenaGuest } from './Guest'
 import { AiSetup } from './ai/AiSetup'
 import { getApiKey } from './ai/keyStore'
+import { StatusBanner } from '../components/StatusBanner'
 import { SoloGameScreen } from './Screen'
 import { SpymasterSoloGameScreen } from './SpymasterScreen'
 import { findDeck } from '../decks'
@@ -145,7 +146,12 @@ export function ArenaApp(props: { code?: string }) {
 
   if (needsApiKey) return <AiSetup onReady={onApiKeyReady} />
 
-  if (status) return <div style={{ padding: '2rem', textAlign: 'center' }}>{status}</div>
+  if (status)
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+        <StatusBanner text={status} />
+      </div>
+    )
 
   if (arenaGame && arenaMode === 'operative') {
     return (

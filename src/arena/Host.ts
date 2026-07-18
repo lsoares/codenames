@@ -21,6 +21,7 @@ export class ArenaHost {
   private readonly listeners: Array<(view: ArenaView) => void> = []
   private readonly lastSeen = new Map<DataConnection, number>()
   private readonly scores = new Map<string, { found: number; dead: boolean }>()
+  private readonly emojis = new Map<string, string>()
   private heartbeat?: ReturnType<typeof setInterval>
   private clueHistory: ArenaClue[] = []
   private winner: string | null = null
@@ -36,6 +37,7 @@ export class ArenaHost {
     this.roomCode = peerId
     this.selfId = peerId
     this.scores.set(peerId, { found: 0, dead: false })
+    this.emojis.set(peerId, this.nextEmoji())
     window.addEventListener('pagehide', this.releaseOnUnload)
   }
 
@@ -120,6 +122,7 @@ export class ArenaHost {
         this.connections.push(connection)
         this.lastSeen.set(connection, Date.now())
         this.scores.set(connection.peer, { found: 0, dead: false })
+        this.emojis.set(connection.peer, this.nextEmoji())
         connection.send(this.buildView())
       })
       connection.on('data', (data) => {
@@ -143,7 +146,13 @@ export class ArenaHost {
   private buildView(): ArenaView {
     const scoreboard: ArenaScoreEntry[] = []
     for (const [id, score] of this.scores) {
-      scoreboard.push({ id, found: score.found, total: this.total, dead: score.dead })
+      scoreboard.push({
+        id,
+        emoji: this.emojis.get(id) ?? '👤',
+        found: score.found,
+        total: this.total,
+        dead: score.dead,
+      })
     }
     return {
       board: this.board,
@@ -164,6 +173,7 @@ export class ArenaHost {
     if (index < 0) return
     this.connections.splice(index, 1)
     this.scores.delete(connection.peer)
+    this.emojis.delete(connection.peer)
     this.lastSeen.delete(connection)
     this.broadcast()
   }
@@ -180,5 +190,28 @@ export class ArenaHost {
         }
       }
     }, 2000)
+  }
+
+  private nextEmoji(): string {
+    const used = new Set(this.emojis.values())
+    return (
+      [
+        '🦊',
+        '🐸',
+        '🦉',
+        '🐼',
+        '🐧',
+        '🦁',
+        '🐙',
+        '🦄',
+        '🐷',
+        '🐵',
+        '🦋',
+        '🐝',
+        '🐢',
+        '🐳',
+        '🦎',
+      ].find((e) => !used.has(e)) ?? '👤'
+    )
   }
 }
