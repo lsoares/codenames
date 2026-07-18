@@ -8,6 +8,7 @@ import { Board } from '../components/Board'
 import { ClueBar } from '../components/ClueBar'
 import { ClueDisplay } from '../components/ClueDisplay'
 import { Confetti } from '../components/Confetti'
+import { RoomInvite } from '../components/RoomInvite'
 import { ThinkingBar } from '../components/ThinkingBar'
 import styles from './GameScreen.module.css'
 
@@ -558,36 +559,5 @@ export function GameScreen(props: {
 
       {winner === props.myTeam && <Confetti />}
     </main>
-  )
-}
-
-function RoomInvite() {
-  const [copied, setCopied] = useState(false)
-  const timer = useRef<number>()
-  const url = `https://codenamesany.pages.dev${window.location.pathname}`
-  const roomName = decodeURIComponent(window.location.pathname).replace(/^\/+|\/+$/g, '')
-  return (
-    <div className={styles.invite}>
-      <span className={styles.invitePrompt}>Invite more players</span>
-      <div className={styles.roomLine}>
-        <span className={styles.copied} data-show={copied || undefined} aria-live="polite">
-          {copied ? 'Invite link copied!' : ''}
-        </span>
-        <button
-          type="button"
-          className={styles.roomName}
-          aria-label="Copy join link"
-          title="Copy link"
-          onClick={() => {
-            void navigator.clipboard?.writeText(url)
-            setCopied(true)
-            window.clearTimeout(timer.current)
-            timer.current = window.setTimeout(() => setCopied(false), 1400)
-          }}
-        >
-          {roomName}
-        </button>
-      </div>
-    </div>
   )
 }

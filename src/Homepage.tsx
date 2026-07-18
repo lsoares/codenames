@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import type { BoardSize } from './BoardSize'
 import type { Deck } from './decks'
 import { BoardSizeSelector } from './components/BoardSizeSelector'
 import { DeckPicker } from './DeckPicker'
 import { CategoryPicker } from './CategoryPicker'
 import { HowToPlay } from './classic/HowToPlay'
+import { RoomInvite } from './components/RoomInvite'
 import styles from './Homepage.module.css'
 
 export function Homepage(props: {
@@ -59,7 +60,7 @@ export function Homepage(props: {
               </button>
             </form>
           ) : props.roomCode ? (
-            <InviteLink roomCode={props.roomCode} />
+            <RoomInvite />
           ) : null}
         </header>
         <div className={styles.filters}>
@@ -115,32 +116,5 @@ export function Homepage(props: {
         </a>
       </p>
     </main>
-  )
-}
-
-function InviteLink(props: { roomCode: string }) {
-  const [copied, setCopied] = useState(false)
-  const timer = useRef<number>()
-  const url = `https://codenamesany.pages.dev/${props.roomCode}`
-  return (
-    <span className={styles.invite}>
-      <span className={styles.copied} data-show={copied || undefined} aria-live="polite">
-        {copied ? 'Copied!' : ''}
-      </span>
-      <button
-        type="button"
-        className={styles.inviteButton}
-        aria-label="Copy invite link"
-        title="Copy invite link"
-        onClick={() => {
-          void navigator.clipboard?.writeText(url)
-          setCopied(true)
-          window.clearTimeout(timer.current)
-          timer.current = window.setTimeout(() => setCopied(false), 1400)
-        }}
-      >
-        {props.roomCode}
-      </button>
-    </span>
   )
 }
