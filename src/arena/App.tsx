@@ -14,6 +14,8 @@ import type { ArenaView, ArenaScoreEntry } from './messages'
 
 export function ArenaApp(props: { code?: string }) {
   const [arenaMode, setArenaMode] = useState<'operative' | 'spymaster'>('operative')
+  const arenaModeRef = useRef(arenaMode)
+  arenaModeRef.current = arenaMode
   const [arenaGame, setArenaGame] = useState<ArenaGame | null>(null)
   const [apiKey, setApiKey] = useState<string | null>(null)
   const [needsApiKey, setNeedsApiKey] = useState(false)
@@ -46,6 +48,7 @@ export function ArenaApp(props: { code?: string }) {
   }
 
   const requestClue = async () => {
+    if (arenaModeRef.current !== 'operative') return
     const mineWords = getUnrevealedMineWords()
     if (mineWords.length === 0) return
     setLoadingClue(true)
