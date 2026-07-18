@@ -37,6 +37,7 @@ export function ArenaApp(props: { code?: string }) {
   }
 
   const applyView = (view: ArenaView) => {
+    lastViewRef.current = view
     setScoreboard(view.scoreboard)
     setArenaWinner(view.winner)
 
@@ -63,14 +64,17 @@ export function ArenaApp(props: { code?: string }) {
       clueIndexRef.current = 0
     }
 
-    const game = gameRef.current!
     while (clueIndexRef.current < view.clueHistory.length) {
+      const current: ArenaGame = gameRef.current!
+      if (current.state.clue !== null || current.state.result !== 'playing') break
       const clue = view.clueHistory[clueIndexRef.current]
-      if (game.state.clue === null && game.state.result === 'playing') {
-        const next = game.receiveClue(clue.word, clue.count, clue.targets as string[] | undefined)
-        gameRef.current = next
-        setArenaGame(next)
-      }
+      const next: ArenaGame = current.receiveClue(
+        clue.word,
+        clue.count,
+        clue.targets as string[] | undefined,
+      )
+      gameRef.current = next
+      setArenaGame(next)
       clueIndexRef.current++
     }
   }
@@ -141,13 +145,19 @@ export function ArenaApp(props: { code?: string }) {
     void startAsHost()
   }
 
+  const lastViewRef = useRef<ArenaView | null>(null)
+
   const handleGameUpdate = (game: ArenaGame) => {
     const hadClue = gameRef.current?.state.clue !== null
     gameRef.current = game
     setArenaGame(game)
 
     if (hadClue && game.state.clue === null && game.state.result === 'playing') {
-      if (hostRef.current) void hostRef.current.requestNextClue()
+      if (lastViewRef.current && clueIndexRef.current < lastViewRef.current.clueHistory.length) {
+        applyView(lastViewRef.current)
+      } else if (hostRef.current) {
+        void hostRef.current.requestNextClue()
+      }
     }
 
     reportScore()
