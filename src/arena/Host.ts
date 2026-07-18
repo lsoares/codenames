@@ -31,9 +31,9 @@ export class ArenaHost {
   private readonly peer: ReturnType<typeof newPeer>
 
   private constructor(
-    private readonly board: ArenaBoard,
+    private board: ArenaBoard,
     private readonly apiKey: string,
-    private readonly total: number,
+    private total: number,
     peerId: string,
   ) {
     this.peer = newPeer(peerId)
@@ -76,6 +76,22 @@ export class ArenaHost {
       this.winner = this.selfId
     }
     this.broadcast()
+  }
+
+  resetBoard(faces: Face[], colors: CardColor[]): void {
+    this.board = { faces, colors, deck: this.board.deck }
+    this.total = colors.filter((c) => c === 'blue').length
+    this.clueCache.clear()
+    this.pendingRequests.clear()
+    this.winner = null
+    for (const [id] of this.scores) {
+      this.scores.set(id, { found: 0, dead: false })
+    }
+    this.broadcast()
+  }
+
+  currentView(): ArenaView {
+    return this.buildView()
   }
 
   async requestClueFor(mineWords: string[]): Promise<ArenaClue> {

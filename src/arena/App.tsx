@@ -237,9 +237,20 @@ export function ArenaApp(props: { code?: string }) {
     setArenaMode(nextMode)
     gameRef.current = null
     setArenaGame(null)
-    hostRef.current?.close()
-    hostRef.current = null
-    void startAsHost()
+    setLoadingClue(false)
+    const code = hostRef.current?.roomCode
+    if (code && hostRef.current) {
+      hostRef.current.resetBoard(
+        await findDeck('Words').fetch(20),
+        shuffle<CardColor>([
+          ...Array<CardColor>(12).fill('blue'),
+          ...Array<CardColor>(8).fill('assassin'),
+        ]),
+      )
+      applyView(hostRef.current.currentView())
+    } else {
+      void startAsHost()
+    }
   }
 
   if (needsApiKey) return <AiSetup onReady={onApiKeyReady} />
