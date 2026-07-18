@@ -112,9 +112,11 @@ export function ArenaApp(props: { code?: string }) {
       const guest = await ArenaGuest.join(code)
       guestRef.current = guest
       setSelfId(guest.selfId)
-      guest.subscribe(applyView)
+      guest.subscribe((view) => {
+        setStatus('')
+        applyView(view)
+      })
       guest.onDisconnect(() => setStatus('Lost connection.'))
-      setStatus('')
     } catch {
       setStatus('Could not join arena.')
     }
@@ -156,11 +158,11 @@ export function ArenaApp(props: { code?: string }) {
 
   if (status) return <div style={{ padding: '2rem', textAlign: 'center' }}>{status}</div>
 
-  if (arenaGame && apiKey && arenaMode === 'operative') {
+  if (arenaGame && arenaMode === 'operative') {
     return (
       <SoloGameScreen
         game={arenaGame}
-        apiKey={apiKey}
+        apiKey={apiKey ?? ''}
         onGameUpdate={handleGameUpdate}
         onNewGame={async () => {
           setArenaMode('spymaster')
@@ -185,11 +187,11 @@ export function ArenaApp(props: { code?: string }) {
     )
   }
 
-  if (arenaGame && apiKey && arenaMode === 'spymaster') {
+  if (arenaGame && arenaMode === 'spymaster') {
     return (
       <SpymasterSoloGameScreen
         game={arenaGame}
-        apiKey={apiKey}
+        apiKey={apiKey ?? ''}
         onGameUpdate={handleGameUpdate}
         onNewGame={async () => {
           setArenaMode('operative')
