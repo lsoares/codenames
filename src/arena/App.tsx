@@ -170,7 +170,14 @@ export function ArenaApp(props: { code?: string }) {
         void startAsHost(code, saved ? JSON.parse(saved) : undefined)
       })
     } catch {
-      setStatus('Could not join arena.')
+      const saved = localStorage.getItem(`arena:${code}`)
+      if (saved) {
+        setStatus('Taking over room...')
+        void startAsHost(code, JSON.parse(saved))
+      } else {
+        setStatus('Taking over room...')
+        void startAsHost(code)
+      }
     }
   }
 
