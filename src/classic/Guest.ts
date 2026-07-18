@@ -190,4 +190,4 @@ export class Guest implements Session {
 const joinWindowMs = (): number => Number(localStorage.getItem('codenames:join-window-ms')) || 15000
 
 const hostMissingMs = (): number =>
-  Number(localStorage.getItem('codenames:host-missing-ms')) || 5000
+  Number(localStorage.getItem('codenames:host-missing-ms')) || 2000
