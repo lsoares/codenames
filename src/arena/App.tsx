@@ -10,6 +10,7 @@ import { SpymasterSoloGameScreen } from './SpymasterScreen'
 import { findDeck } from '../decks'
 import { shuffle } from '../shuffle'
 import type { CardColor } from '../Card'
+import type { Face } from '../Face'
 import type { ArenaView, ArenaScoreEntry } from './messages'
 
 export function ArenaApp(props: { code?: string }) {
@@ -129,7 +130,10 @@ export function ArenaApp(props: { code?: string }) {
     }
   }
 
-  const startAsHost = async () => {
+  const startAsHost = async (
+    code?: string,
+    savedBoard?: { faces: Face[]; colors: CardColor[]; deck: string | null },
+  ) => {
     const key = await getApiKey()
     if (!key) {
       setNeedsApiKey(true)
@@ -137,17 +141,20 @@ export function ArenaApp(props: { code?: string }) {
     }
     setApiKey(key)
     setStatus('Creating room...')
-    const deck = findDeck('Words')
-    const faces = await deck.fetch(20)
-    const colors = shuffle<CardColor>([
-      ...Array<CardColor>(12).fill('blue'),
-      ...Array<CardColor>(8).fill('assassin'),
-    ])
-    const host = await ArenaHost.start(faces, colors, deck.title, key)
+    const faces = savedBoard?.faces ?? (await findDeck('Words').fetch(20))
+    const colors =
+      savedBoard?.colors ??
+      shuffle<CardColor>([
+        ...Array<CardColor>(12).fill('blue'),
+        ...Array<CardColor>(8).fill('assassin'),
+      ])
+    const deck = savedBoard?.deck ?? 'Words'
+    const host = await ArenaHost.start(faces, colors, deck, key, code)
     hostRef.current = host
     setSelfId(host.selfId)
     history.replaceState({}, '', '/' + host.roomCode)
     host.subscribe(applyView)
+    sessionStorage.setItem(`arena:${host.roomCode}`, JSON.stringify({ faces, colors, deck }))
     setStatus('')
   }
 
@@ -155,7 +162,12 @@ export function ArenaApp(props: { code?: string }) {
     if (startedRef.current) return
     startedRef.current = true
     if (props.code) {
-      void joinAsGuest(props.code)
+      const saved = sessionStorage.getItem(`arena:${props.code}`)
+      if (saved) {
+        void startAsHost(props.code, JSON.parse(saved))
+      } else {
+        void joinAsGuest(props.code)
+      }
     } else {
       void startAsHost()
     }
