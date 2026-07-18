@@ -149,13 +149,21 @@ export function ArenaApp(props: { code?: string }) {
         ...Array<CardColor>(8).fill('assassin'),
       ])
     const deck = savedBoard?.deck ?? 'Words'
-    const host = await ArenaHost.start(faces, colors, deck, key, code)
-    hostRef.current = host
-    setSelfId(host.selfId)
-    history.replaceState({}, '', '/' + host.roomCode)
-    host.subscribe(applyView)
-    sessionStorage.setItem(`arena:${host.roomCode}`, JSON.stringify({ faces, colors, deck }))
-    setStatus('')
+    try {
+      const host = await ArenaHost.start(faces, colors, deck, key, code)
+      hostRef.current = host
+      setSelfId(host.selfId)
+      history.replaceState({}, '', '/' + host.roomCode)
+      host.subscribe(applyView)
+      sessionStorage.setItem(`arena:${host.roomCode}`, JSON.stringify({ faces, colors, deck }))
+      setStatus('')
+    } catch {
+      if (code) {
+        void joinAsGuest(code)
+      } else {
+        setStatus('Could not create room.')
+      }
+    }
   }
 
   useEffect(() => {
