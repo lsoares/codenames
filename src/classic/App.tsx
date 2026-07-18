@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from '../App.module.css'
-import {
-  boardSize,
-  compositionFor,
-  Game,
-  type BoardSize,
-  type GameState,
-  type Team,
-} from './Game'
+import { boardSize, compositionFor, Game, type BoardSize, type GameState, type Team } from './Game'
 import { identify, track } from '../analytics'
 import { decks, findDeck } from '../decks'
 import { Guest, JoinError } from './Guest'

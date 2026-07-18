@@ -31,7 +31,9 @@ export function ArenaApp(props: { code?: string }) {
     const deck = findDeck(title)
     const total = selectedBoardSize === '5x4' ? 20 : 25
     const faces = await deck.fetch(total)
-    setArenaGame(new ArenaGame(createArenaGame(faces, deck.title, creditOf(deck), selectedBoardSize)))
+    setArenaGame(
+      new ArenaGame(createArenaGame(faces, deck.title, creditOf(deck), selectedBoardSize)),
+    )
   }
 
   const onApiKeyReady = async (key: string) => {
@@ -43,7 +45,9 @@ export function ArenaApp(props: { code?: string }) {
       const deck = findDeck(title)
       const total = selectedBoardSize === '5x4' ? 20 : 25
       const faces = await deck.fetch(total)
-      setArenaGame(new ArenaGame(createArenaGame(faces, deck.title, creditOf(deck), selectedBoardSize)))
+      setArenaGame(
+        new ArenaGame(createArenaGame(faces, deck.title, creditOf(deck), selectedBoardSize)),
+      )
     }
   }
 

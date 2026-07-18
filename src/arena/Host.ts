@@ -5,7 +5,13 @@ import { iceServersReady, logConnection, newPeer } from '../peer'
 import { RoomCode } from '../RoomCode'
 import { fetchClue } from './ai/groq'
 import type { ArenaClue } from './Game'
-import type { ArenaView, ArenaBoard, ArenaScoreEntry, ArenaScoreUpdate, ArenaPing } from './messages'
+import type {
+  ArenaView,
+  ArenaBoard,
+  ArenaScoreEntry,
+  ArenaScoreUpdate,
+  ArenaPing,
+} from './messages'
 
 export class ArenaHost {
   readonly roomCode: string

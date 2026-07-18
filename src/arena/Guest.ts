@@ -76,7 +76,8 @@ export class ArenaGuest {
           logConnection(connection)
           this.lastSeen = Date.now()
           this.watchdog = setInterval(() => {
-            if (this.connection.open) this.connection.send({ __arenaPing: true } satisfies ArenaPing)
+            if (this.connection.open)
+              this.connection.send({ __arenaPing: true } satisfies ArenaPing)
             if (Date.now() - this.lastSeen > 6000) this.markLost()
           }, 2000)
           succeed()
