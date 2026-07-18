@@ -68,9 +68,17 @@ export function ArenaApp(props: { code?: string }) {
       const current: ArenaGame = gameRef.current!
       if (current.state.clue !== null || current.state.result !== 'playing') break
       const clue = view.clueHistory[clueIndexRef.current]
+      const alreadyRevealed = clue.targets
+        ? clue.targets.filter((t) =>
+            current.state.cards.some(
+              (c) => c.revealed && c.face.kind === 'text' && c.face.text.toUpperCase() === t,
+            ),
+          ).length
+        : 0
+      const adjustedCount = Math.max(1, clue.count - alreadyRevealed)
       const next: ArenaGame = current.receiveClue(
         clue.word,
-        clue.count,
+        adjustedCount,
         clue.targets as string[] | undefined,
       )
       gameRef.current = next
