@@ -20,11 +20,7 @@ export interface ArenaGameState {
   readonly guessesRemaining: number
   readonly result: 'playing' | 'win' | 'dead'
   readonly startedAt: number
-  readonly penaltyMs: number
 }
-
-export const NEUTRAL_PENALTY_MS = 10_000
-export const RED_PENALTY_MS = 20_000
 
 export function createArenaGame(
   faces: readonly Face[],
@@ -57,7 +53,6 @@ export function createArenaGame(
     guessesRemaining: 0,
     result: 'playing',
     startedAt: Date.now(),
-    penaltyMs: 0,
   }
 }
 
@@ -143,7 +138,11 @@ export class ArenaGame {
   }
 
   elapsedMs(): number {
-    return Date.now() - this.s.startedAt + this.s.penaltyMs
+    return Date.now() - this.s.startedAt
+  }
+
+  cluesUsed(): number {
+    return this.s.clueHistory.length
   }
 
   guess(cardIndex: number): ArenaGame {
@@ -167,24 +166,8 @@ export class ArenaGame {
       return new ArenaGame({ ...this.s, cards, result: 'dead', clue: null, guessesRemaining: 0 })
     }
 
-    if (card.color === 'red') {
-      return new ArenaGame({
-        ...this.s,
-        cards,
-        penaltyMs: this.s.penaltyMs + RED_PENALTY_MS,
-        clue: null,
-        guessesRemaining: 0,
-      })
-    }
-
-    if (card.color === 'neutral') {
-      return new ArenaGame({
-        ...this.s,
-        cards,
-        penaltyMs: this.s.penaltyMs + NEUTRAL_PENALTY_MS,
-        clue: null,
-        guessesRemaining: 0,
-      })
+    if (card.color === 'red' || card.color === 'neutral') {
+      return new ArenaGame({ ...this.s, cards, clue: null, guessesRemaining: 0 })
     }
 
     const remaining = this.s.guessesRemaining - 1

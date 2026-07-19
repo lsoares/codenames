@@ -37,11 +37,14 @@ export function Scoreboard(props: {
             data-self={isSelf || undefined}
             data-dead={entry.dead || undefined}
             data-winner={entry.id === props.winner || undefined}
-            title={formatTime(entry.timeMs)}
+            title={`${entry.clues} clues, ${formatTime(entry.timeMs)}`}
           >
             <span className={styles.emoji}>{entry.emoji}</span>
             <span className={styles.count}>{remaining}</span>
-            <span className={styles.time}>{formatTime(entry.timeMs)}</span>
+            <span className={styles.time}>
+              {entry.clues > 0 && `${entry.clues}x `}
+              {formatTime(entry.timeMs)}
+            </span>
           </span>
         )
       })}

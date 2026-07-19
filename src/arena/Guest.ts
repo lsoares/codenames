@@ -41,8 +41,14 @@ export class ArenaGuest {
     this.disconnectHandler = listener
   }
 
-  sendScore(found: number, dead: boolean, timeMs: number): void {
-    this.connection.send({ __arenaScore: true, found, dead, timeMs } satisfies ArenaScoreUpdate)
+  sendScore(found: number, dead: boolean, clues: number, timeMs: number): void {
+    this.connection.send({
+      __arenaScore: true,
+      found,
+      dead,
+      clues,
+      timeMs,
+    } satisfies ArenaScoreUpdate)
   }
 
   requestClue(mineWords: string[]): Promise<ArenaClue> {

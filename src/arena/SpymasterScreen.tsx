@@ -158,6 +158,7 @@ export function SpymasterSoloGameScreen(props: {
               found: props.game.mineCount() - props.game.unrevealedMineCount(),
               total: props.game.mineCount(),
               dead: props.game.state.result === 'dead',
+              clues: props.game.cluesUsed(),
               timeMs: props.game.elapsedMs(),
             },
           ]}

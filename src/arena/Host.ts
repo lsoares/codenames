@@ -22,7 +22,10 @@ export class ArenaHost {
   private readonly connections: DataConnection[] = []
   private readonly listeners: Array<(view: ArenaView) => void> = []
   private readonly lastSeen = new Map<DataConnection, number>()
-  private readonly scores = new Map<string, { found: number; dead: boolean; timeMs: number }>()
+  private readonly scores = new Map<
+    string,
+    { found: number; dead: boolean; clues: number; timeMs: number }
+  >()
   private readonly emojis = new Map<string, string>()
   private readonly clueCache = new Map<string, ArenaClue>()
   private readonly pendingRequests = new Set<string>()
@@ -39,7 +42,7 @@ export class ArenaHost {
     this.peer = newPeer(peerId)
     this.roomCode = peerId
     this.selfId = peerId
-    this.scores.set(peerId, { found: 0, dead: false, timeMs: 0 })
+    this.scores.set(peerId, { found: 0, dead: false, clues: 0, timeMs: 0 })
     this.emojis.set(peerId, this.nextEmoji())
     window.addEventListener('pagehide', this.releaseOnUnload)
   }
@@ -70,8 +73,8 @@ export class ArenaHost {
     listener(this.buildView())
   }
 
-  updateScore(found: number, dead: boolean, timeMs: number): void {
-    this.scores.set(this.selfId, { found, dead, timeMs })
+  updateScore(found: number, dead: boolean, clues: number, timeMs: number): void {
+    this.scores.set(this.selfId, { found, dead, clues, timeMs })
     if (found >= this.total && !dead && this.winner === null) {
       this.winner = this.selfId
     }
@@ -85,7 +88,7 @@ export class ArenaHost {
     this.pendingRequests.clear()
     this.winner = null
     for (const [id] of this.scores) {
-      this.scores.set(id, { found: 0, dead: false, timeMs: 0 })
+      this.scores.set(id, { found: 0, dead: false, clues: 0, timeMs: 0 })
     }
     this.broadcast()
   }
@@ -166,7 +169,7 @@ export class ArenaHost {
         logConnection(connection)
         this.connections.push(connection)
         this.lastSeen.set(connection, Date.now())
-        this.scores.set(connection.peer, { found: 0, dead: false, timeMs: 0 })
+        this.scores.set(connection.peer, { found: 0, dead: false, clues: 0, timeMs: 0 })
         this.emojis.set(connection.peer, this.nextEmoji())
         connection.send(this.buildView())
       })
@@ -178,6 +181,7 @@ export class ArenaHost {
           this.scores.set(connection.peer, {
             found: update.found,
             dead: update.dead,
+            clues: update.clues,
             timeMs: update.timeMs,
           })
           if (update.found >= this.total && !update.dead && this.winner === null) {
@@ -210,6 +214,7 @@ export class ArenaHost {
         found: score.found,
         total: this.total,
         dead: score.dead,
+        clues: score.clues,
         timeMs: score.timeMs,
       })
     }
