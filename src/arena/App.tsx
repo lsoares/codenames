@@ -24,9 +24,7 @@ async function fetchMixedWords(total = 20): Promise<Face[]> {
     text: word,
     link: getDefinitionUrl(word),
   }))
-  const staticOnly = staticFaces.filter(
-    (f) => f.kind === 'text' && !dynamicWords.includes(f.text),
-  )
+  const staticOnly = staticFaces.filter((f) => f.kind === 'text' && !dynamicWords.includes(f.text))
   const mixed = shuffle([...dynamicFaces, ...staticOnly]).slice(0, total)
   return mixed
 }

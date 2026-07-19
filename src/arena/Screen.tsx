@@ -39,13 +39,20 @@ export function SoloGameScreen(props: {
     setLoading(true)
     setError(null)
     const cards = gameRef.current.state.cards
-    const textOf = (c: typeof cards[number]) => (c.face.kind === 'text' ? c.face.text : '')
+    const textOf = (c: (typeof cards)[number]) => (c.face.kind === 'text' ? c.face.text : '')
     const mineWords = cards.filter((c) => c.color === 'blue' && !c.revealed).map(textOf)
     const opponentWords = cards.filter((c) => c.color === 'red' && !c.revealed).map(textOf)
     const neutralWords = cards.filter((c) => c.color === 'neutral' && !c.revealed).map(textOf)
     const assassinWords = cards.filter((c) => c.color === 'assassin' && !c.revealed).map(textOf)
     const revealedWords = cards.filter((c) => c.revealed).map(textOf)
-    fetchClue({ key: props.apiKey, mineWords, opponentWords, neutralWords, assassinWords, revealedWords })
+    fetchClue({
+      key: props.apiKey,
+      mineWords,
+      opponentWords,
+      neutralWords,
+      assassinWords,
+      revealedWords,
+    })
       .then(({ word, count, targets }) => {
         const validTargets = targets.filter((t) => mineWords.includes(t))
         props.onGameUpdate(gameRef.current.receiveClue(word, count, validTargets))

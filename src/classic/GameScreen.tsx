@@ -114,7 +114,6 @@ export function GameScreen(props: {
   const clueCountLabel = (n: number) => (n === UNLIMITED_CLUE ? '∞' : String(n))
   const acting = props.game.awaitingRole()
 
-
   useEffect(() => {
     document.body.dataset.team = props.myTeam
     return () => {

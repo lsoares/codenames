@@ -175,7 +175,11 @@ export class ArenaHost {
         if ((data as ArenaPing).__arenaPing) return
         if ((data as ArenaScoreUpdate).__arenaScore) {
           const update = data as ArenaScoreUpdate
-          this.scores.set(connection.peer, { found: update.found, dead: update.dead, timeMs: update.timeMs })
+          this.scores.set(connection.peer, {
+            found: update.found,
+            dead: update.dead,
+            timeMs: update.timeMs,
+          })
           if (update.found >= this.total && !update.dead && this.winner === null) {
             this.winner = connection.peer
           }
