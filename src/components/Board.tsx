@@ -7,7 +7,7 @@ export interface Boardable {
   showsColor(cardIndex: number, isSpymaster: boolean): boolean
   canAct(cardIndex: number, viewer: { team: Team; isSpymaster: boolean }): boolean
   canMark(cardIndex: number, isSpymaster: boolean): boolean
-  readonly state: { readonly cards: readonly Card[]; readonly winner: Team | null }
+  readonly state: { readonly cards: readonly Card[]; readonly winner: Team | null; readonly turn: Team }
 }
 import styles from './Board.module.css'
 
@@ -119,7 +119,8 @@ export function Board(props: {
             ? !revealed && card.color !== props.spymasterTeam
             : card.revealed
           const badge = gameOver && card.revealed ? card.outcome : props.feedback[index]
-          const canMark = props.game.canMark(index, isSpymaster)
+          const myTurnClue = props.game.state.turn === props.myTeam && !actionable
+          const canMark = props.game.canMark(index, isSpymaster) && !myTurnClue
           const zoomUrl =
             card.face.kind === 'image' && !card.face.link && !smallImages.has(card.face.url)
               ? card.face.url
