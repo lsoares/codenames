@@ -24,10 +24,10 @@ export class Room {
     return { ...this.emojiOf }
   }
 
-  assignTeam(peerId: string, preferred?: Team): Room {
+  assignTeam(peerId: string): Room {
     if (this.teamOf[peerId]) return this
     return new Room(
-      { ...this.teamOf, [peerId]: this.teamForArrival(preferred) },
+      { ...this.teamOf, [peerId]: this.teamForArrival() },
       this.seatOf,
       this.emojiOf,
     )
@@ -40,14 +40,13 @@ export class Room {
     return new Room(this.teamOf, this.seatOf, { ...this.emojiOf, [peerId]: free })
   }
 
-  private teamForArrival(preferred?: Team): Team {
+  private teamForArrival(): Team {
     const teams = Object.values(this.teamOf)
     const red = teams.filter((t) => t === 'red').length
     const blue = teams.filter((t) => t === 'blue').length
-    // Second player joins the first player's team (spy + operative pair)
     if (red + blue === 1) return red === 1 ? 'red' : 'blue'
     if (red !== blue) return red < blue ? 'red' : 'blue'
-    return preferred ?? (Math.random() < 0.5 ? 'red' : 'blue')
+    return Math.random() < 0.5 ? 'red' : 'blue'
   }
 
   setTeam(peerId: string, team: Team): Room {

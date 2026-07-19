@@ -150,8 +150,7 @@ export class Host implements Session {
       this.reconnectDelay = 0
       if (!this.opened) {
         this.opened = true
-        const preferred = this.mode === 'new' ? this.game.state.turn : undefined
-        this.room = this.room.assignTeam(id, preferred).assignEmoji(id)
+        this.room = this.room.assignTeam(id).assignEmoji(id)
         if (this.mode === 'new') this.room = this.room.autoSeat(id)
       }
       resolve(this)
