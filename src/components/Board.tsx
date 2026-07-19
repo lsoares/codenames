@@ -151,11 +151,14 @@ export function Board(props: {
                 data-selected={(isSpymaster && highlighted(card, index)) || undefined}
                 data-marked={marked || undefined}
                 data-cooldown={(marked && cooldown.has(index)) || undefined}
-                data-inert={!actionable || undefined}
+                data-inert={(!actionable && !canMark) || undefined}
                 data-forbidden={forbidden || undefined}
                 disabled={revealed}
                 onClick={() => {
-                  if (!actionable) return
+                  if (!actionable) {
+                    if (canMark) props.onCardMark(index)
+                    return
+                  }
                   if (isSpymaster) {
                     props.onToggleSelect(index)
                     return
