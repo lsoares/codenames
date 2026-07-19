@@ -26,11 +26,7 @@ export class Room {
 
   assignTeam(peerId: string): Room {
     if (this.teamOf[peerId]) return this
-    return new Room(
-      { ...this.teamOf, [peerId]: this.teamForArrival() },
-      this.seatOf,
-      this.emojiOf,
-    )
+    return new Room({ ...this.teamOf, [peerId]: this.teamForArrival() }, this.seatOf, this.emojiOf)
   }
 
   assignEmoji(peerId: string): Room {
