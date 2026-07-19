@@ -7,7 +7,11 @@ export interface Boardable {
   showsColor(cardIndex: number, isSpymaster: boolean): boolean
   canAct(cardIndex: number, viewer: { team: Team; isSpymaster: boolean }): boolean
   canMark(cardIndex: number, isSpymaster: boolean): boolean
-  readonly state: { readonly cards: readonly Card[]; readonly winner: Team | null; readonly turn: Team }
+  readonly state: {
+    readonly cards: readonly Card[]
+    readonly winner: Team | null
+    readonly turn: Team
+  }
 }
 import styles from './Board.module.css'
 
