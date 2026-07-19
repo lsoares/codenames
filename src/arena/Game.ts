@@ -20,6 +20,7 @@ export interface ArenaGameState {
   readonly guessesRemaining: number
   readonly result: 'playing' | 'win' | 'dead'
   readonly startedAt: number
+  readonly penaltyClues: number
 }
 
 export function createArenaGame(
@@ -53,6 +54,7 @@ export function createArenaGame(
     guessesRemaining: 0,
     result: 'playing',
     startedAt: Date.now(),
+    penaltyClues: 0,
   }
 }
 
@@ -142,7 +144,7 @@ export class ArenaGame {
   }
 
   cluesUsed(): number {
-    return this.s.clueHistory.length
+    return this.s.clueHistory.length + this.s.penaltyClues
   }
 
   guess(cardIndex: number): ArenaGame {
@@ -166,7 +168,17 @@ export class ArenaGame {
       return new ArenaGame({ ...this.s, cards, result: 'dead', clue: null, guessesRemaining: 0 })
     }
 
-    if (card.color === 'red' || card.color === 'neutral') {
+    if (card.color === 'red') {
+      return new ArenaGame({
+        ...this.s,
+        cards,
+        penaltyClues: this.s.penaltyClues + 1,
+        clue: null,
+        guessesRemaining: 0,
+      })
+    }
+
+    if (card.color === 'neutral') {
       return new ArenaGame({ ...this.s, cards, clue: null, guessesRemaining: 0 })
     }
 

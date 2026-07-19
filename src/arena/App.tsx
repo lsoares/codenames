@@ -132,7 +132,7 @@ export function ArenaApp(props: { code?: string }) {
       const savedGame = code ? localStorage.getItem(gameStateKey(code)) : null
       if (savedGame) {
         const parsed = JSON.parse(savedGame)
-        const game = new ArenaGame({ startedAt: Date.now(), ...parsed })
+        const game = new ArenaGame({ startedAt: Date.now(), penaltyClues: 0, ...parsed })
         gameRef.current = game
         setArenaGame(game)
         reportScore()
@@ -154,6 +154,7 @@ export function ArenaApp(props: { code?: string }) {
           guessesRemaining: 0,
           result: 'playing' as const,
           startedAt: Date.now(),
+          penaltyClues: 0,
         })
         gameRef.current = game
         setArenaGame(game)
