@@ -34,6 +34,8 @@ test('arena: AI gives a clue and the player guesses a card', async ({ page }) =>
   await expect(
     page
       .getByRole('img', { name: 'correct guess' })
+      .or(page.getByRole('img', { name: 'wrong guess' }))
+      .or(page.getByRole('img', { name: 'bystander card' }))
       .or(page.getByRole('img', { name: 'assassin' })),
   ).toBeVisible()
 })

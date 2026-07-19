@@ -30,7 +30,7 @@ test('a guest reload does not inflate the player count', async ({ browser }) => 
   await guestContext.close()
 })
 
-test('a joining guest auto-takes an open spymaster seat', async ({ browser }) => {
+test('a joining guest pairs as operative on the same team', async ({ browser }) => {
   const hostContext = await browser.newContext()
   const guestContext = await browser.newContext()
   const hostPage = await hostContext.newPage()
@@ -47,9 +47,8 @@ test('a joining guest auto-takes an open spymaster seat', async ({ browser }) =>
 
   await guestGame.openRoom(code)
 
-  // Without claiming anything, the guest already sees the cards' colours — only a
-  // spymaster does — proving an open seat filled automatically on arrival.
-  await expect(guestGame.getCard('blue').first()).toBeVisible()
+  // Guest joins the host's team as operative — cannot see card colours.
+  await expect(guestGame.getCard('blue').first()).not.toBeVisible()
 
   await hostContext.close()
   await guestContext.close()
