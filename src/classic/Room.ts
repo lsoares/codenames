@@ -41,8 +41,11 @@ export class Room {
   }
 
   private teamForArrival(preferred?: Team): Team {
-    const red = Object.values(this.teamOf).filter((t) => t === 'red').length
-    const blue = Object.values(this.teamOf).filter((t) => t === 'blue').length
+    const teams = Object.values(this.teamOf)
+    const red = teams.filter((t) => t === 'red').length
+    const blue = teams.filter((t) => t === 'blue').length
+    // Second player joins the first player's team (spy + operative pair)
+    if (red + blue === 1) return red === 1 ? 'red' : 'blue'
     if (red !== blue) return red < blue ? 'red' : 'blue'
     return preferred ?? (Math.random() < 0.5 ? 'red' : 'blue')
   }

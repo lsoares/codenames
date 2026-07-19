@@ -10,16 +10,25 @@ export interface ClueRequest {
 export async function fetchClue(
   req: ClueRequest,
 ): Promise<{ word: string; count: number; targets: string[] }> {
-  const systemPrompt = `You are a bold Codenames spymaster. You see a board of words: yours (MINE), opponent (RED), bystanders (NEUTRAL), and deadly (ASSASSIN). Previously revealed words are listed so you don't reuse them.
+  const systemPrompt = `You are an expert Codenames spymaster. The board has: your words (MINE), opponent words (RED), bystanders (NEUTRAL), and deadly words (ASSASSIN).
 
-Give a single-word clue and a count (how many MINE words it connects to). The clue must:
-- Be exactly ONE word (no spaces, no hyphens, no proper nouns that are on the board)
-- NOT be any word on the board or a derivative of one
-- Connect exactly COUNT of your MINE words through meaning, association, or category
-- NEVER connect to ASSASSIN words (instant death)
-- AVOID connecting to RED words (heavy time penalty) or NEUTRAL words (mild time penalty)
+Your job: give a one-word clue that links as many MINE words as possible while avoiding dangerous words.
 
-Play aggressively: aim for high counts (2-4) when you can find a clever connection. Take calculated risks to link more words. A count of 1 is a last resort.
+Strategy:
+1. First scan for pairs/groups of MINE words with a shared theme, category, or strong association
+2. Mild overlap with NEUTRAL is acceptable if it lets you link 3+ MINE words
+3. Think about double meanings, categories, compound words, and lateral associations
+4. Prefer count 2-4 over safe count-1 clues. A good 3-clue beats a perfect 1-clue in a timed game. Never claim count higher than 4
+
+SAFETY CHECK (do this LAST before answering):
+- Would a person hearing your clue think of ANY assassin or red word? If yes, REJECT the clue and pick a different one
+- Your clue must NOT belong to the same semantic field as any ASSASSIN word
+- Example: if HOSPITAL is assassin, clues like MEDIC, NURSE, SURGERY, HEALTH are ALL forbidden
+
+Rules:
+- Exactly ONE word (no spaces, hyphens, or board words)
+- NOT a derivative or substring of any board word
+- The count must equal the number of MINE words you expect the operative to guess
 
 Respond with JSON only: {"word":"YOUR_CLUE","count":N,"targets":["WORD1","WORD2"]}`
 
@@ -69,16 +78,20 @@ export interface GuessRequest {
 }
 
 export async function fetchGuess(req: GuessRequest): Promise<string> {
-  const systemPrompt = `You are a Codenames operative. Your spymaster gave you a one-word clue. Pick the ONE word from the board that BEST matches the clue right now.
+  const systemPrompt = `You are a Codenames operative. Your spymaster gave you a one-word clue and a count (how many words on the board relate to the clue).
+
+Think step by step:
+1. Consider ALL meanings of the clue (literal, figurative, category, compound words, idioms)
+2. For each board word, rate how strongly it connects to ANY meaning of the clue
+3. Pick the single STRONGEST match - the word your spymaster most likely intended
+4. If multiple words seem equally strong, prefer the more specific/unusual connection (your spymaster chose this clue deliberately to point to their words, not obvious traps)
 
 Rules:
 - Pick exactly 1 word from the board
-- Choose the word most strongly associated with the clue
-- You do NOT know which words are yours or which are deadly
-- Be bold: go with your strongest association, even if risky
+- The count tells you how many words relate - use it to gauge if the connection should be obvious (count=1) or thematic (count=3+)
 - Respond with JSON only: {"guess":"WORD"}`
 
-  const userMessage = `Clue: ${req.clue}
+  const userMessage = `Clue: ${req.clue} (count: ${req.count})
 Board words: ${req.words.join(', ')}`
 
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
