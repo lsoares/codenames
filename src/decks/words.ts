@@ -1,9 +1,6 @@
-import type { Face } from '../Face'
+import { getDefinitionUrl, type Face } from '../Face'
 import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
-
-const dictionaryLink = (word: string): string =>
-  `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
 
 export const words: Deck = {
   title: 'Words',
@@ -854,5 +851,5 @@ const WORDS = [
 async function fetch(total = 20): Promise<Face[]> {
   return shuffle(WORDS)
     .slice(0, total)
-    .map((word) => ({ kind: 'text', text: word, link: dictionaryLink(word) }))
+    .map((word) => ({ kind: 'text', text: word, link: getDefinitionUrl(word) }))
 }

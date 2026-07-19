@@ -1,3 +1,6 @@
+export const getDefinitionUrl = (word: string): string =>
+  `https://www.dictionary.com/browse/${encodeURIComponent(word.toLowerCase())}`
+
 export type CardFit = 'cover' | 'contain' | 'framed'
 
 export type Face = FaceContent & { readonly tooltip?: string; readonly link?: string }

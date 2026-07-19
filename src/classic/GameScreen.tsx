@@ -4,6 +4,7 @@ import { Game, UNLIMITED_CLUE, type GuessOutcome, type Team } from './Game'
 import { Roster, type Action, type MolesView } from './Session'
 import { useMoles } from './moles/useMoles'
 import type { Deck } from '../decks'
+import { getDefinitionUrl } from '../Face'
 import { Board } from '../components/Board'
 import { ClueBar } from '../components/ClueBar'
 import { ClueDisplay } from '../components/ClueDisplay'
@@ -258,7 +259,7 @@ export function GameScreen(props: {
               <li key={i}>
                 <a
                   className={styles.clueLogWord}
-                  href={`https://en.wiktionary.org/wiki/${encodeURIComponent(c.word.toLowerCase())}`}
+                  href={getDefinitionUrl(c.word)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

@@ -1,10 +1,7 @@
-import type { Face } from '../Face'
+import { getDefinitionUrl, type Face } from '../Face'
 import type { Deck } from './deck'
 import { datamuseWords } from './wordsPlus'
 import { shuffle } from '../shuffle'
-
-const dictionaryLink = (word: string): string =>
-  `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
 
 export const techWords: Deck = {
   title: 'Tech Words',
@@ -58,7 +55,7 @@ async function fetch(size = 20): Promise<Face[]> {
       shuffle(tagList),
       (word) => `https://stackoverflow.com/questions/tagged/${word.toLowerCase()}`,
     ],
-    [dictionary, dictionaryLink],
+    [dictionary, getDefinitionUrl],
   ]
   const board = new Map<string, string>()
   while (board.size < size && sources.some(([pool]) => pool.length)) {

@@ -1,9 +1,6 @@
-import type { Face } from '../Face'
+import { getDefinitionUrl, type Face } from '../Face'
 import type { Deck } from './deck'
 import { shuffle } from '../shuffle'
-
-const dictionaryLink = (word: string): string =>
-  `https://en.wiktionary.org/wiki/${encodeURIComponent(word.toLowerCase())}`
 
 export async function datamuseWords(count = 20, pool = SEEDS): Promise<string[]> {
   const seen = new Set<string>()
@@ -34,7 +31,7 @@ export const wordsPlus: Deck = {
   sourceUrl: 'https://www.datamuse.com/api/',
   fetch: (total = 20): Promise<Face[]> =>
     datamuseWords(total).then((words) =>
-      words.map((word) => ({ kind: 'text', text: word, link: dictionaryLink(word) })),
+      words.map((word) => ({ kind: 'text', text: word, link: getDefinitionUrl(word) })),
     ),
 }
 

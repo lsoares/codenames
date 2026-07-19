@@ -39,16 +39,13 @@ export function SoloGameScreen(props: {
     setLoading(true)
     setError(null)
     const cards = gameRef.current.state.cards
-    const mineWords = cards
-      .filter((c) => c.color === 'blue' && !c.revealed && c.face.kind === 'text')
-      .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
-    const assassinWords = cards
-      .filter((c) => c.color === 'assassin' && !c.revealed && c.face.kind === 'text')
-      .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
-    const revealedWords = cards
-      .filter((c) => c.revealed && c.face.kind === 'text')
-      .map((c) => (c.face.kind === 'text' ? c.face.text : ''))
-    fetchClue({ key: props.apiKey, mineWords, assassinWords, revealedWords })
+    const textOf = (c: typeof cards[number]) => (c.face.kind === 'text' ? c.face.text : '')
+    const mineWords = cards.filter((c) => c.color === 'blue' && !c.revealed).map(textOf)
+    const opponentWords = cards.filter((c) => c.color === 'red' && !c.revealed).map(textOf)
+    const neutralWords = cards.filter((c) => c.color === 'neutral' && !c.revealed).map(textOf)
+    const assassinWords = cards.filter((c) => c.color === 'assassin' && !c.revealed).map(textOf)
+    const revealedWords = cards.filter((c) => c.revealed).map(textOf)
+    fetchClue({ key: props.apiKey, mineWords, opponentWords, neutralWords, assassinWords, revealedWords })
       .then(({ word, count, targets }) => {
         const validTargets = targets.filter((t) => mineWords.includes(t))
         props.onGameUpdate(gameRef.current.receiveClue(word, count, validTargets))
@@ -156,6 +153,7 @@ export function SoloGameScreen(props: {
                 found: props.game.mineCount() - props.game.unrevealedMineCount(),
                 total: props.game.mineCount(),
                 dead: props.game.state.result === 'dead',
+                timeMs: props.game.elapsedMs(),
               },
             ]}
             selfId={props.selfId ?? 'self'}

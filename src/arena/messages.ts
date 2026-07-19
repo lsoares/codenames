@@ -8,6 +8,7 @@ export interface ArenaScoreEntry {
   found: number
   total: number
   dead: boolean
+  timeMs: number
 }
 
 export interface ArenaBoard {
@@ -36,6 +37,7 @@ export interface ArenaScoreUpdate {
   __arenaScore: true
   found: number
   dead: boolean
+  timeMs: number
 }
 
 export interface ArenaPing {

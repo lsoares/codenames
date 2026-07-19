@@ -22,7 +22,7 @@ export class ArenaHost {
   private readonly connections: DataConnection[] = []
   private readonly listeners: Array<(view: ArenaView) => void> = []
   private readonly lastSeen = new Map<DataConnection, number>()
-  private readonly scores = new Map<string, { found: number; dead: boolean }>()
+  private readonly scores = new Map<string, { found: number; dead: boolean; timeMs: number }>()
   private readonly emojis = new Map<string, string>()
   private readonly clueCache = new Map<string, ArenaClue>()
   private readonly pendingRequests = new Set<string>()
@@ -39,7 +39,7 @@ export class ArenaHost {
     this.peer = newPeer(peerId)
     this.roomCode = peerId
     this.selfId = peerId
-    this.scores.set(peerId, { found: 0, dead: false })
+    this.scores.set(peerId, { found: 0, dead: false, timeMs: 0 })
     this.emojis.set(peerId, this.nextEmoji())
     window.addEventListener('pagehide', this.releaseOnUnload)
   }
@@ -70,8 +70,8 @@ export class ArenaHost {
     listener(this.buildView())
   }
 
-  updateScore(found: number, dead: boolean): void {
-    this.scores.set(this.selfId, { found, dead })
+  updateScore(found: number, dead: boolean, timeMs: number): void {
+    this.scores.set(this.selfId, { found, dead, timeMs })
     if (found >= this.total && !dead && this.winner === null) {
       this.winner = this.selfId
     }
@@ -85,7 +85,7 @@ export class ArenaHost {
     this.pendingRequests.clear()
     this.winner = null
     for (const [id] of this.scores) {
-      this.scores.set(id, { found: 0, dead: false })
+      this.scores.set(id, { found: 0, dead: false, timeMs: 0 })
     }
     this.broadcast()
   }
@@ -113,17 +113,22 @@ export class ArenaHost {
 
     this.pendingRequests.add(key)
     const assassinWords: string[] = []
+    const opponentWords: string[] = []
+    const neutralWords: string[] = []
     for (let i = 0; i < this.board.faces.length; i++) {
       const face = this.board.faces[i]
-      if (face.kind === 'text' && this.board.colors[i] === 'assassin') {
-        assassinWords.push(face.text)
-      }
+      if (face.kind !== 'text') continue
+      if (this.board.colors[i] === 'assassin') assassinWords.push(face.text)
+      else if (this.board.colors[i] === 'red') opponentWords.push(face.text)
+      else if (this.board.colors[i] === 'neutral') neutralWords.push(face.text)
     }
 
     try {
       const result = await fetchClue({
         key: this.apiKey,
         mineWords,
+        opponentWords,
+        neutralWords,
         assassinWords,
         revealedWords: [],
       })
@@ -161,7 +166,7 @@ export class ArenaHost {
         logConnection(connection)
         this.connections.push(connection)
         this.lastSeen.set(connection, Date.now())
-        this.scores.set(connection.peer, { found: 0, dead: false })
+        this.scores.set(connection.peer, { found: 0, dead: false, timeMs: 0 })
         this.emojis.set(connection.peer, this.nextEmoji())
         connection.send(this.buildView())
       })
@@ -170,7 +175,7 @@ export class ArenaHost {
         if ((data as ArenaPing).__arenaPing) return
         if ((data as ArenaScoreUpdate).__arenaScore) {
           const update = data as ArenaScoreUpdate
-          this.scores.set(connection.peer, { found: update.found, dead: update.dead })
+          this.scores.set(connection.peer, { found: update.found, dead: update.dead, timeMs: update.timeMs })
           if (update.found >= this.total && !update.dead && this.winner === null) {
             this.winner = connection.peer
           }
@@ -201,6 +206,7 @@ export class ArenaHost {
         found: score.found,
         total: this.total,
         dead: score.dead,
+        timeMs: score.timeMs,
       })
     }
     return {

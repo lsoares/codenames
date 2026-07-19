@@ -6,6 +6,12 @@
   gap: 8px;
 }
 
+@media (max-width: 640px) {
+  .scoreboard {
+    position: static;
+  }
+}
+
 .player {
   display: inline-flex;
   align-items: center;
@@ -40,6 +46,13 @@
   font-size: 0.9rem;
   color: var(--blue);
   background: color-mix(in srgb, var(--blue) 14%, transparent);
+}
+
+.time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted, #888);
+  font-variant-numeric: tabular-nums;
 }
 
 .switchRole {

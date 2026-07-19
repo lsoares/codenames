@@ -8,10 +8,28 @@ import { StatusBanner } from '../components/StatusBanner'
 import { SoloGameScreen } from './Screen'
 import { SpymasterSoloGameScreen } from './SpymasterScreen'
 import { findDeck } from '../decks'
+import { datamuseWords } from '../decks/wordsPlus'
 import { shuffle } from '../shuffle'
 import type { CardColor } from '../Card'
-import type { Face } from '../Face'
+import { getDefinitionUrl, type Face } from '../Face'
 import type { ArenaView, ArenaScoreEntry } from './messages'
+
+async function fetchMixedWords(total = 20): Promise<Face[]> {
+  const staticDeck = findDeck('Words')
+  const staticFaces = await staticDeck.fetch(total)
+  const dynamicCount = Math.ceil(total / 2)
+  const dynamicWords = await datamuseWords(dynamicCount).catch(() => [] as string[])
+  const dynamicFaces: Face[] = dynamicWords.map((word) => ({
+    kind: 'text',
+    text: word,
+    link: getDefinitionUrl(word),
+  }))
+  const staticOnly = staticFaces.filter(
+    (f) => f.kind === 'text' && !dynamicWords.includes(f.text),
+  )
+  const mixed = shuffle([...dynamicFaces, ...staticOnly]).slice(0, total)
+  return mixed
+}
 
 export function ArenaApp(props: { code?: string }) {
   const [arenaMode, setArenaMode] = useState<'operative' | 'spymaster'>('operative')
@@ -115,7 +133,8 @@ export function ArenaApp(props: { code?: string }) {
     if (!gameRef.current) {
       const savedGame = code ? localStorage.getItem(gameStateKey(code)) : null
       if (savedGame) {
-        const game = new ArenaGame(JSON.parse(savedGame))
+        const parsed = JSON.parse(savedGame)
+        const game = new ArenaGame({ startedAt: Date.now(), penaltyMs: 0, ...parsed })
         gameRef.current = game
         setArenaGame(game)
         reportScore()
@@ -136,6 +155,8 @@ export function ArenaApp(props: { code?: string }) {
           clueHistory: [],
           guessesRemaining: 0,
           result: 'playing' as const,
+          startedAt: Date.now(),
+          penaltyMs: 0,
         })
         gameRef.current = game
         setArenaGame(game)
@@ -149,8 +170,9 @@ export function ArenaApp(props: { code?: string }) {
     if (!game) return
     const found = game.mineCount() - game.unrevealedMineCount()
     const dead = game.state.result === 'dead'
-    if (hostRef.current) hostRef.current.updateScore(found, dead)
-    if (guestRef.current) guestRef.current.sendScore(found, dead)
+    const timeMs = game.elapsedMs()
+    if (hostRef.current) hostRef.current.updateScore(found, dead, timeMs)
+    if (guestRef.current) guestRef.current.sendScore(found, dead, timeMs)
   }
 
   const joinAsGuest = async (code: string) => {
@@ -192,14 +214,16 @@ export function ArenaApp(props: { code?: string }) {
     }
     setApiKey(key)
     setStatus('Creating room...')
-    const faces = savedBoard?.faces ?? (await findDeck('Words').fetch(20))
+    const faces = savedBoard?.faces ?? (await fetchMixedWords(20))
     const colors =
       savedBoard?.colors ??
       shuffle<CardColor>([
-        ...Array<CardColor>(12).fill('blue'),
-        ...Array<CardColor>(8).fill('assassin'),
+        ...Array<CardColor>(8).fill('blue'),
+        ...Array<CardColor>(5).fill('red'),
+        ...Array<CardColor>(6).fill('neutral'),
+        ...Array<CardColor>(1).fill('assassin'),
       ])
-    const deck = savedBoard?.deck ?? 'Words'
+    const deck = savedBoard?.deck ?? 'Words+'
     try {
       const host = await ArenaHost.start(faces, colors, deck, key, code)
       hostRef.current = host
@@ -264,10 +288,12 @@ export function ArenaApp(props: { code?: string }) {
     const code = hostRef.current?.roomCode
     if (code && hostRef.current) {
       hostRef.current.resetBoard(
-        await findDeck('Words').fetch(20),
+        await fetchMixedWords(20),
         shuffle<CardColor>([
-          ...Array<CardColor>(12).fill('blue'),
-          ...Array<CardColor>(8).fill('assassin'),
+          ...Array<CardColor>(8).fill('blue'),
+          ...Array<CardColor>(5).fill('red'),
+          ...Array<CardColor>(6).fill('neutral'),
+          ...Array<CardColor>(1).fill('assassin'),
         ]),
       )
       applyView(hostRef.current.currentView())

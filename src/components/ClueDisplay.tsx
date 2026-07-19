@@ -1,3 +1,4 @@
+import { getDefinitionUrl } from '../Face'
 import { unlimitedClueHint } from '../classic/Game'
 import styles from './ClueDisplay.module.css'
 
@@ -12,7 +13,7 @@ export function ClueDisplay(props: {
     <span className={styles.clue}>
       <a
         className={styles.word}
-        href={`https://en.wiktionary.org/wiki/${encodeURIComponent(props.word.toLowerCase())}`}
+        href={getDefinitionUrl(props.word)}
         target="_blank"
         rel="noopener noreferrer"
       >

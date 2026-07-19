@@ -19,7 +19,12 @@ export interface ArenaGameState {
   readonly clueHistory: readonly ArenaClue[]
   readonly guessesRemaining: number
   readonly result: 'playing' | 'win' | 'dead'
+  readonly startedAt: number
+  readonly penaltyMs: number
 }
+
+export const NEUTRAL_PENALTY_MS = 10_000
+export const RED_PENALTY_MS = 20_000
 
 export function createArenaGame(
   faces: readonly Face[],
@@ -27,10 +32,14 @@ export function createArenaGame(
   credit: Credit | null,
   boardSize: BoardSize,
 ): ArenaGameState {
-  const { mine, assassins } =
-    boardSize === '5x5' ? { mine: 15, assassins: 10 } : { mine: 12, assassins: 8 }
+  const { mine, red, neutral, assassins } =
+    boardSize === '5x5'
+      ? { mine: 9, red: 7, neutral: 7, assassins: 2 }
+      : { mine: 8, red: 5, neutral: 6, assassins: 1 }
   const colors = shuffle<CardColor>([
     ...Array<CardColor>(mine).fill('blue'),
+    ...Array<CardColor>(red).fill('red'),
+    ...Array<CardColor>(neutral).fill('neutral'),
     ...Array<CardColor>(assassins).fill('assassin'),
   ])
   return {
@@ -47,6 +56,8 @@ export function createArenaGame(
     clueHistory: [],
     guessesRemaining: 0,
     result: 'playing',
+    startedAt: Date.now(),
+    penaltyMs: 0,
   }
 }
 
@@ -131,18 +142,49 @@ export class ArenaGame {
     })
   }
 
+  elapsedMs(): number {
+    return Date.now() - this.s.startedAt + this.s.penaltyMs
+  }
+
   guess(cardIndex: number): ArenaGame {
     if (this.s.result !== 'playing' || !this.s.clue || this.s.guessesRemaining <= 0) return this
     const card = this.s.cards[cardIndex]
     if (!card || card.revealed) return this
 
-    const outcome: GuessOutcome = card.color === 'assassin' ? 'assassin' : 'correct'
+    const outcome: GuessOutcome =
+      card.color === 'blue'
+        ? 'correct'
+        : card.color === 'assassin'
+          ? 'assassin'
+          : card.color === 'red'
+            ? 'wrong'
+            : 'neutral'
     const cards = this.s.cards.map((c, i) =>
       i === cardIndex ? { ...c, revealed: true, outcome } : c,
     )
 
     if (card.color === 'assassin') {
       return new ArenaGame({ ...this.s, cards, result: 'dead', clue: null, guessesRemaining: 0 })
+    }
+
+    if (card.color === 'red') {
+      return new ArenaGame({
+        ...this.s,
+        cards,
+        penaltyMs: this.s.penaltyMs + RED_PENALTY_MS,
+        clue: null,
+        guessesRemaining: 0,
+      })
+    }
+
+    if (card.color === 'neutral') {
+      return new ArenaGame({
+        ...this.s,
+        cards,
+        penaltyMs: this.s.penaltyMs + NEUTRAL_PENALTY_MS,
+        clue: null,
+        guessesRemaining: 0,
+      })
     }
 
     const remaining = this.s.guessesRemaining - 1
