@@ -132,7 +132,7 @@ export function SoloGameScreen(props: {
 
   const bannerText =
     result === 'win'
-      ? 'You found all the words!'
+      ? `Done in ${props.game.cluesUsed()} clues!`
       : result === 'dead'
         ? 'Hit an assassin. Game over.'
         : loading || props.loading || (props.externalClues && !clue)
