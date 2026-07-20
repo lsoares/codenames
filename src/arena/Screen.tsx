@@ -132,7 +132,8 @@ export function SoloGameScreen(props: {
 
   const bannerText =
     result === 'win'
-      ? `Done in ${props.game.cluesUsed()} clues!`
+      ? `Done in ${props.game.cluesUsed()} clues!` +
+        (props.game.state.penaltyClues > 0 ? ` (${props.game.state.penaltyClues} penalties)` : '')
       : result === 'dead'
         ? 'Hit an assassin. Game over.'
         : loading || props.loading || (props.externalClues && !clue)

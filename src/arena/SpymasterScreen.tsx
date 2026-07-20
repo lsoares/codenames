@@ -130,7 +130,11 @@ export function SpymasterSoloGameScreen(props: {
   const showClueBar = result === 'playing' && !clue && !aiGuessing
 
   const statusText = () => {
-    if (result === 'win') return `Done in ${props.game.cluesUsed()} clues!`
+    if (result === 'win')
+      return (
+        `Done in ${props.game.cluesUsed()} clues!` +
+        (props.game.state.penaltyClues > 0 ? ` (${props.game.state.penaltyClues} penalties)` : '')
+      )
     if (result === 'dead') return 'AI hit an assassin. Game over.'
     if (aiGuessing) return 'AI is guessing...'
     if (error) return error
