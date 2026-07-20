@@ -56,7 +56,7 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  border: none;
+  border: 2px solid transparent;
   border-radius: 999px;
   background: transparent;
   box-shadow: none;
@@ -69,11 +69,13 @@
 
 .cell:hover .overlayIcon:not([data-on]),
 .overlayIcon:focus-visible:not([data-on]) {
-  opacity: 0.35;
+  opacity: 1;
+  border-color: var(--mark-color, var(--blue));
 }
 
 .overlayIcon[data-on] {
   opacity: 1;
+  background: var(--mark-color, var(--blue));
 }
 
 .caption {
@@ -322,14 +324,15 @@ button.caption:focus-visible {
 }
 
 .card[data-marked] {
-  border: 3px dashed var(--mark-color, var(--blue));
+  box-shadow: inset 0 0 0 3px var(--mark-color, var(--blue));
+  filter: brightness(1.08);
 }
 
-body[data-team='red'] .card[data-marked] {
+body[data-team='red'] .cell {
   --mark-color: var(--red);
 }
 
-body[data-team='blue'] .card[data-marked] {
+body[data-team='blue'] .cell {
   --mark-color: var(--blue);
 }
 

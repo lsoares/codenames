@@ -88,8 +88,8 @@ export class ArenaGame {
     return this.s.clue !== null && this.s.guessesRemaining > 0
   }
 
-  canMark(_cardIndex: number, isSpymaster: boolean): boolean {
-    return !isSpymaster && this.s.result === 'playing'
+  canMark(): boolean {
+    return false
   }
 
   mark(cardIndex: number): ArenaGame {

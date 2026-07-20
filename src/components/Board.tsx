@@ -212,7 +212,7 @@ export function Board(props: {
                   title={`${marked ? 'Unmark' : 'Mark'} ${name}`}
                   onClick={() => props.onCardMark(index)}
                 >
-                  {props.myTeam === 'red' ? '🟥' : '🔷'}
+                  {'\u00A0'}
                 </button>
               )}
               {showCaption && card.face.link && (

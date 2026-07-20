@@ -40,9 +40,7 @@ export class Room {
     const teams = Object.values(this.teamOf)
     const red = teams.filter((t) => t === 'red').length
     const blue = teams.filter((t) => t === 'blue').length
-    if (red + blue === 1) return red === 1 ? 'red' : 'blue'
-    if (red !== blue) return red < blue ? 'red' : 'blue'
-    return Math.random() < 0.5 ? 'red' : 'blue'
+    return red <= blue ? 'red' : 'blue'
   }
 
   setTeam(peerId: string, team: Team): Room {
