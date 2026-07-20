@@ -1,13 +1,6 @@
 import type { ArenaScoreEntry } from './messages'
 import styles from './Scoreboard.module.css'
 
-function formatTime(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000)
-  const minutes = Math.floor(totalSeconds / 60)
-  const seconds = totalSeconds % 60
-  return `${minutes}:${String(seconds).padStart(2, '0')}`
-}
-
 export function Scoreboard(props: {
   entries: ArenaScoreEntry[]
   selfId: string
@@ -37,14 +30,10 @@ export function Scoreboard(props: {
             data-self={isSelf || undefined}
             data-dead={entry.dead || undefined}
             data-winner={entry.id === props.winner || undefined}
-            title={`${entry.clues} clues, ${formatTime(entry.timeMs)}`}
+            title={`${remaining} left`}
           >
             <span className={styles.emoji}>{entry.emoji}</span>
             <span className={styles.count}>{remaining}</span>
-            <span className={styles.time}>
-              {entry.clues > 0 && `${entry.clues}x `}
-              {formatTime(entry.timeMs)}
-            </span>
           </span>
         )
       })}

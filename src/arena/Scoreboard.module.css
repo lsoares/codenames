@@ -48,13 +48,6 @@
   background: color-mix(in srgb, var(--blue) 14%, transparent);
 }
 
-.time {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--muted, #888);
-  font-variant-numeric: tabular-nums;
-}
-
 .switchRole {
   background: none;
   border: none;
