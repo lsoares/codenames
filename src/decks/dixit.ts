@@ -13,14 +13,13 @@ export const dixit: Deck = {
   fetch,
 }
 
-const FIRST_CARD = 1
-const LAST_CARD = 106
-
-const cardUrl = (number: number): string => `https://dixit.party/cards/dixit/${number}.jpg`
-
 async function fetch(total = 20): Promise<Face[]> {
-  const cards = Array.from({ length: LAST_CARD - FIRST_CARD + 1 }, (_, index) => FIRST_CARD + index)
+  const cards = Array.from({ length: 106 }, (_, index) => index + 1)
   return shuffle(cards)
     .slice(0, total)
-    .map((number) => ({ kind: 'image', url: cardUrl(number), tooltip: `Dixit #${number}` }))
+    .map((number) => ({
+      kind: 'image',
+      url: `https://dixit.party/cards/dixit/${number}.jpg`,
+      tooltip: `Dixit #${number}`,
+    }))
 }
