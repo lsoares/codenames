@@ -14,6 +14,7 @@ import { doodles } from './doodles'
 import { flags } from './flags'
 import { photos } from './photos'
 import { art } from './art'
+import { dixit } from './dixit'
 import { picbreeder } from './picbreeder'
 import { humanOrAi } from './humanOrAi'
 import { memes } from './memes'
@@ -44,6 +45,7 @@ export const decks: Deck[] = [
   picbreeder,
   humanOrAi,
   art,
+  dixit,
   memes,
   things,
   pictograms,
