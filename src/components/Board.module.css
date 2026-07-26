@@ -385,7 +385,7 @@ body[data-team='blue'] .cell {
   }
 
   .card {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: var(--card-aspect, 4 / 3);
   }
 }
 

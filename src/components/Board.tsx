@@ -44,6 +44,19 @@ export function Board(props: {
       setSmallImages((prev) => new Set(prev).add(img.getAttribute('src') ?? ''))
   }
 
+  const boardRef = useRef<HTMLDivElement>(null)
+  const [boardAspect, setBoardAspect] = useState<number | null>(null)
+  useEffect(() => {
+    const board = boardRef.current
+    if (!board) return
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect
+      if (width > 0 && height > 0) setBoardAspect(width / height)
+    })
+    observer.observe(board)
+    return () => observer.disconnect()
+  }, [])
+
   useEffect(() => () => cooldownTimers.current.forEach(clearTimeout), [])
 
   useEffect(() => {
@@ -95,11 +108,30 @@ export function Board(props: {
             })
         : cards.map((_, index) => index)
 
+  const cardAspect = cards.reduce<number | null>(
+    (found, card) => found ?? (card.face.kind === 'image' ? (card.face.aspect ?? null) : null),
+    null,
+  )
+  const cols =
+    cardAspect && boardAspect
+      ? Math.min(
+          cards.length,
+          Math.max(1, Math.round(Math.sqrt((cards.length * boardAspect) / cardAspect))),
+        )
+      : 5
+
   return (
     <>
       <div
+        ref={boardRef}
         className={styles.board}
-        style={{ '--cols': 5, '--rows': Math.ceil(cards.length / 5) } as CSSProperties}
+        style={
+          {
+            '--cols': cols,
+            '--rows': Math.ceil(cards.length / cols),
+            ...(cardAspect ? { '--card-aspect': cardAspect } : {}),
+          } as CSSProperties
+        }
         data-focus={props.focus || undefined}
         data-spotlight={spotlight || undefined}
         data-over={gameOver || undefined}

@@ -21,5 +21,6 @@ async function fetch(total = 20): Promise<Face[]> {
       kind: 'image',
       url: `https://dixit.party/cards/dixit/${number}.jpg`,
       tooltip: `Dixit #${number}`,
+      aspect: 2 / 3,
     }))
 }
