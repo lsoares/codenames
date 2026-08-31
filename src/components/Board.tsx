@@ -28,7 +28,6 @@ export function Board(props: {
   onCardClick: (index: number) => void
   onCardMark: (index: number) => void
   overlay?: (index: number) => ReactNode
-  bare?: boolean
   revealedToEnd?: boolean
   markBeforeGuess?: boolean
 }) {
@@ -161,8 +160,7 @@ export function Board(props: {
             card.face.kind === 'image' && !card.face.link && !smallImages.has(card.face.url)
               ? card.face.url
               : null
-          const showCaption =
-            !props.bare && !props.loading && !revealed && !(props.focus && isSpymaster)
+          const showCaption = !props.loading && !revealed && !(props.focus && isSpymaster)
           return (
             <div
               key={index}
@@ -235,7 +233,7 @@ export function Board(props: {
                   </span>
                 )}
               </button>
-              {!props.bare && canMark && (
+              {canMark && (
                 <button
                   type="button"
                   className={styles.overlayIcon}

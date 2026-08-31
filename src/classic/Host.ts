@@ -2,11 +2,10 @@ import { type DataConnection } from 'peerjs'
 import type { Face } from '../Face'
 import { Game, compositionFor, createGame, type BoardSize, type GameState } from './Game'
 import { findDeck, creditOf, type Deck } from '../decks'
-import { MolesHost } from './moles/MolesHost'
 import { Room } from './Room'
 import { iceServersReady, logConnection, newPeer } from '../peer'
 import { RoomCode } from '../RoomCode'
-import type { Action, Ping, Presence, Repick, RoomView, Session, TeamClaim, Whack } from './Session'
+import type { Action, Ping, Presence, Repick, RoomView, Session, TeamClaim } from './Session'
 
 export class Host implements Session {
   roomCode!: string
@@ -23,21 +22,6 @@ export class Host implements Session {
   private readonly listeners: Array<(view: RoomView) => void> = []
   private readonly lastSeen = new Map<DataConnection, number>()
   private heartbeat?: ReturnType<typeof setInterval>
-  private readonly moles = new MolesHost(
-    {
-      thinking: () => !this.game.state.winner && this.game.state.phase === 'clue',
-      playerCount: () => 1 + this.connections.length,
-      whackerIds: () =>
-        [this.peer.id, ...this.connections.map((connection) => connection.peer)].filter(
-          (id) => id !== this.room.seats[this.game.state.turn],
-        ),
-      hiddenCardIndices: () =>
-        this.game.state.cards
-          .map((card, index) => (card.revealed ? -1 : index))
-          .filter((index) => index >= 0),
-    },
-    () => this.broadcast(),
-  )
   private opened = false
   private reconnectDelay = 0
   private repicking: 'red' | 'blue' | null = null
@@ -98,14 +82,9 @@ export class Host implements Session {
   private applyAction(action: Action): void {
     this.game = apply(this.game, action)
     if (action.type === 'newGame') {
-      this.moles.reset()
       this.repicking = null
       if (action.rotate) this.room = this.room.rotateSpymasters()
     }
-  }
-
-  whack(moleId: number, reactionMs: number): void {
-    this.moles.whack(this.peer.id, moleId, reactionMs)
   }
 
   setSpymaster(team: 'red' | 'blue' | null): void {
@@ -132,7 +111,6 @@ export class Host implements Session {
 
   close(): void {
     if (this.heartbeat) clearInterval(this.heartbeat)
-    this.moles.reset()
     window.removeEventListener('pagehide', this.releaseOnUnload)
     this.peer.destroy()
   }
@@ -178,11 +156,6 @@ export class Host implements Session {
       connection.on('data', (data) => {
         this.lastSeen.set(connection, Date.now())
         if ((data as Ping).__ping) return
-        if ((data as Whack).__whack) {
-          const { moleId, reactionMs } = data as Whack
-          this.moles.whack(connection.peer, moleId, reactionMs)
-          return
-        }
         if ((data as Repick).__repick) {
           this.repicking = (data as Repick).team
           this.broadcast()
@@ -231,13 +204,11 @@ export class Host implements Session {
       state: this.game.state,
       seats: this.room.seats,
       players: ids.map((id) => ({ id, team: teams[id], emoji: emojis[id] })),
-      moles: this.moles.view(),
       repicking: this.repicking,
     }
   }
 
   private broadcast(): void {
-    this.moles.sync()
     const current = this.view()
     this.listeners.forEach((listener) => listener(current))
     this.connections.forEach((connection) => connection.open && connection.send(current))

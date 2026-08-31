@@ -1,6 +1,5 @@
 import type { Face } from '../Face'
 import type { BoardSize, GameState, Team } from './Game'
-import type { MoleSighting } from './moles/MoleGame'
 import type { Seats } from './Room'
 
 export type Action =
@@ -12,14 +11,8 @@ export type Action =
 
 export type Presence = { __presence: true; spymasterTeam: Team | null }
 export type TeamClaim = { __team: true; team: Team }
-export type Whack = { __whack: true; moleId: number; reactionMs: number }
 export type Repick = { __repick: true; team: Team | null }
 export type Ping = { __ping: true }
-
-export interface MolesView {
-  readonly moles: readonly MoleSighting[]
-  readonly scores: Readonly<Record<string, number>>
-}
 
 export interface Player {
   id: string
@@ -31,7 +24,6 @@ export interface RoomView {
   state: GameState
   seats: Seats
   players: Player[]
-  moles: MolesView | null
   repicking: Team | null
 }
 
@@ -74,7 +66,6 @@ export interface Session {
   selfId: string
   readonly selfEmoji: string
   dispatch: (action: Action) => void
-  whack: (moleId: number, reactionMs: number) => void
   setSpymaster: (team: Team | null) => void
   setTeam: (team: Team) => void
   setRepicking: (team: Team | null) => void

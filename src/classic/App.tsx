@@ -6,7 +6,7 @@ import { decks, findDeck } from '../decks'
 import { Guest, JoinError } from './Guest'
 import { Host } from './Host'
 import { RoomCode } from '../RoomCode'
-import { Roster, type Action, type MolesView, type Player, type Session } from './Session'
+import { Roster, type Action, type Player, type Session } from './Session'
 import { Takeover } from './Takeover'
 import { playSound } from '../sound'
 import { GameScreen, spymasterEmoji } from './GameScreen'
@@ -24,7 +24,6 @@ export function ClassicApp() {
     blue: null,
   })
   const [players, setPlayers] = useState<Player[]>([])
-  const [moles, setMoles] = useState<MolesView | null>(null)
   const [repickingTeam, setRepickingTeam] = useState<Team | null>(null)
   const [isHost, setIsHost] = useState(false)
   const [loadingFaces, setLoadingFaces] = useState(false)
@@ -68,7 +67,6 @@ export function ClassicApp() {
       setGame(next)
       setSeats(view.seats)
       setPlayers(view.players)
-      setMoles(view.moles ?? null)
       setRepickingTeam(view.repicking ?? null)
       if (session.selfEmoji && !identifiedRef.current) {
         identifiedRef.current = true
@@ -159,7 +157,6 @@ export function ClassicApp() {
     setRoomCode('')
     setSeats({ red: null, blue: null })
     setPlayers([])
-    setMoles(null)
     setRepickingTeam(null)
     setStatus('')
   }
@@ -332,8 +329,6 @@ export function ClassicApp() {
             sessionRef.current?.setRepicking(myTeam)
           }}
           repicking={repickingTeam}
-          moles={moles}
-          onWhack={(moleId, reactionMs) => sessionRef.current?.whack(moleId, reactionMs)}
           loadingFaces={loadingFaces}
           decks={decks}
         />

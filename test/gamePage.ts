@@ -192,16 +192,6 @@ export class GamePage {
     return this.page.getByText(/choosing a new deck/i)
   }
 
-  // The whack-a-mole scoreboard shows while a spymaster thinks; it's the marker
-  // that this player is in the mole break.
-  findMoleScores() {
-    return this.page.getByRole('status', { name: 'Whack-a-mole scores' })
-  }
-
-  async leaveMoleGame(): Promise<void> {
-    await this.page.keyboard.press('Escape')
-  }
-
   // Spymaster-only: the number of the first unrevealed card of a colour, so an
   // operative (who can't see colours) can be told which card to click.
   async getCardNumber(color: Color): Promise<number> {

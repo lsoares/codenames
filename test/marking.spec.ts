@@ -3,8 +3,7 @@ import { hostRoom, joinRoom } from './gamePage'
 
 // An operative's candidate mark is a note for their own team: it can be placed
 // off-turn (to plan ahead while the opponent plays), teammates see it, and the
-// opposing team never does. While a spymaster thinks the pins give way to the
-// whack-a-mole game, so the mark goes down once the opponent's clue is in play.
+// opposing team never does.
 test('a mark is shared within the team, hidden from the other, and works off-turn', async ({
   browser,
 }) => {

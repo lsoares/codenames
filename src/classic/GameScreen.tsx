@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Game, UNLIMITED_CLUE, type GuessOutcome, type Team } from './Game'
-import { Roster, type Action, type MolesView } from './Session'
-import { useMoles } from './moles/useMoles'
+import { Roster, type Action } from './Session'
 import type { Deck } from '../decks'
 import { getDefinitionUrl } from '../Face'
 import { Board } from '../components/Board'
@@ -29,8 +28,6 @@ export function GameScreen(props: {
   onNewGame: (deckTitle: string, rotateSpymaster?: boolean) => void
   onRepick: () => void
   repicking: Team | null
-  moles: MolesView | null
-  onWhack: (moleId: number, reactionMs: number) => void
   loadingFaces: boolean
   decks: Deck[]
 }) {
@@ -281,14 +278,6 @@ export function GameScreen(props: {
   const mineTurn = turn === props.myTeam
   const onBonus = clue !== null && guessesUsed >= clue.count
 
-  const moles = useMoles(
-    props.moles,
-    acting === 'spymaster' && activeSpymaster,
-    props.roster.players,
-    props.selfId,
-    props.onWhack,
-  )
-
   const winnerName = winner ? winner.charAt(0).toUpperCase() + winner.slice(1) : ''
   const winnerEmojis = winner
     ? props.roster
@@ -469,7 +458,6 @@ export function GameScreen(props: {
   const center = (
     <div className={styles.menu}>
       <div className={styles.menuRow}>
-        {moles.hud}
         {clueForm || repickBanner || (showStatus ? statusPill : null)}
       </div>
       {props.roster.stillGathering() && <RoomInvite />}
@@ -499,7 +487,7 @@ export function GameScreen(props: {
         </div>
       </header>
 
-      <div className={`${styles.boardArea} ${moles.cursorClass}`}>
+      <div className={styles.boardArea}>
         <Board
           game={props.game}
           loading={props.loadingFaces}
@@ -515,8 +503,6 @@ export function GameScreen(props: {
             props.onAction({ type: 'toggleMark', cardIndex: index, team: props.myTeam })
           }
           markBeforeGuess
-          overlay={moles.overlayFor}
-          bare={moles.armed}
         />
       </div>
 
