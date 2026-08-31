@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { Face } from '../Face'
 import type { Card, GuessOutcome } from '../Card'
 import type { Team } from '../Team'
@@ -27,8 +27,6 @@ export function Board(props: {
   onClearSelection: () => void
   onCardClick: (index: number) => void
   onCardMark: (index: number) => void
-  overlay?: (index: number) => ReactNode
-  revealedToEnd?: boolean
   markBeforeGuess?: boolean
 }) {
   const isSpymaster = props.spymasterTeam !== null
@@ -97,15 +95,7 @@ export function Board(props: {
             if (props.selected.has(a)) return pickOrder.indexOf(a) - pickOrder.indexOf(b)
             return 0
           })
-      : props.revealedToEnd
-        ? cards
-            .map((_, index) => index)
-            .sort((a, b) => {
-              const aRevealed = cards[a].revealed ? 1 : 0
-              const bRevealed = cards[b].revealed ? 1 : 0
-              return aRevealed - bRevealed
-            })
-        : cards.map((_, index) => index)
+      : cards.map((_, index) => index)
 
   const cardAspect = cards.reduce<number | null>(
     (found, card) => found ?? (card.face.kind === 'image' ? (card.face.aspect ?? null) : null),
@@ -274,7 +264,6 @@ export function Board(props: {
               {showCaption && !card.face.link && !zoomUrl && card.face.tooltip && (
                 <span className={styles.caption}>{card.face.tooltip}</span>
               )}
-              {props.overlay?.(index)}
             </div>
           )
         })}

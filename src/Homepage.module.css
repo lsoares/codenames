@@ -103,23 +103,6 @@
   gap: 12px 24px;
 }
 
-.practice {
-  padding: 8px 24px;
-  border-radius: 999px;
-  border: none;
-  background: var(--surface);
-  color: var(--ink);
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  align-self: center;
-}
-
-.practice:hover {
-  filter: brightness(1.05);
-}
-
 .actions {
   display: flex;
   align-items: center;

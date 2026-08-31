@@ -81,17 +81,13 @@ export class GamePage {
 
   // Host a room on a named deck (picked from the grid), then wait for its board.
   // Scoped to the deck grid so a deck named like a filter chip (e.g. "Words")
-  // isn't ambiguous with it. In solo mode the app may show the AiSetup screen
-  // instead of a board, so we wait for either outcome.
+  // isn't ambiguous with it.
   async createRoomOnDeck(label: string): Promise<void> {
     await this.page
       .getByRole('list', { name: 'Decks' })
       .getByRole('button', { name: label, exact: true })
       .click()
-    const boardCards = this.findBoardCards()
-    const apiKeyInput = this.page.getByRole('textbox', { name: 'API key' })
-    const soloStatus = this.page.getByRole('status')
-    await boardCards.or(apiKeyInput).or(soloStatus).first().waitFor()
+    await this.findBoardCards().first().waitFor()
   }
 
   async selectCategory(name: string): Promise<void> {
@@ -297,19 +293,6 @@ export class GamePage {
   // counting them reads how many players the room believes are present.
   async countPlayers(): Promise<number> {
     return this.page.getByRole('img', { name: /operative|spymaster/ }).count()
-  }
-
-  async clickArena(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Arena' }).click()
-  }
-
-  findPlayAgainButton() {
-    return this.page.getByRole('button', { name: 'Play again' })
-  }
-
-  async saveApiKey(): Promise<void> {
-    await this.page.getByRole('textbox', { name: 'API key' }).fill('test-groq-key')
-    await this.page.getByRole('button', { name: 'Save' }).click()
   }
 }
 

@@ -14,7 +14,6 @@ export function Homepage(props: {
   onBoardSizeChange: (size: BoardSize) => void
   onPick: (id: string) => void
   onJoin?: (code: string) => void
-  onArena?: () => void
   roomCode?: string
 }) {
   const [code, setCode] = useState('')
@@ -80,11 +79,6 @@ export function Homepage(props: {
         <DeckPicker decks={props.decks} category={categoryFilter} onPick={props.onPick} />
       </div>
       <div className={styles.actions}>
-        {props.onArena && (
-          <button type="button" className={styles.practice} onClick={props.onArena}>
-            🤖 Arena
-          </button>
-        )}
         <HowToPlay />
         <a
           className={styles.buyGame}

@@ -364,10 +364,6 @@ export function ClassicApp() {
               void createRoom(title, RoomCode.fromPath(window.location.pathname)?.toString())
             }
           }}
-          onArena={() => {
-            history.pushState({}, '', '/arena')
-            window.dispatchEvent(new PopStateEvent('popstate'))
-          }}
           onJoin={
             game || RoomCode.fromPath(window.location.pathname)
               ? undefined
