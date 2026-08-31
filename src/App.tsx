@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
-import styles from '../App.module.css'
+import styles from './App.module.css'
 import { boardSize, compositionFor, Game, type BoardSize, type GameState, type Team } from './Game'
-import { identify, track } from '../analytics'
-import { decks, findDeck } from '../decks'
+import { identify, track } from './analytics'
+import { decks, findDeck } from './decks'
 import { Guest, JoinError } from './Guest'
 import { Host } from './Host'
-import { RoomCode } from '../RoomCode'
+import { RoomCode } from './RoomCode'
 import { Roster, type Action, type Player, type Session } from './Session'
 import { Takeover } from './Takeover'
-import { playSound } from '../sound'
+import { playSound } from './sound'
 import { GameScreen, spymasterEmoji } from './GameScreen'
-import { Homepage } from '../Homepage'
+import { Homepage } from './Homepage'
 
-export function ClassicApp() {
+export function App() {
   const [game, setGame] = useState<Game | null>(null)
   const [repicking, setRepicking] = useState(false)
   const [roomCode, setRoomCode] = useState('')

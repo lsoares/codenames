@@ -1,10 +1,10 @@
 import { type DataConnection } from 'peerjs'
-import type { Face } from '../Face'
+import type { Face } from './Face'
 import { Game, compositionFor, createGame, type BoardSize, type GameState } from './Game'
-import { findDeck, creditOf, type Deck } from '../decks'
+import { findDeck, creditOf, type Deck } from './decks'
 import { Room } from './Room'
-import { iceServersReady, logConnection, newPeer } from '../peer'
-import { RoomCode } from '../RoomCode'
+import { iceServersReady, logConnection, newPeer } from './peer'
+import { RoomCode } from './RoomCode'
 import type { Action, Ping, Presence, Repick, RoomView, Session, TeamClaim } from './Session'
 
 export class Host implements Session {

@@ -1,4 +1,4 @@
-import type { Face } from '../Face'
+import type { Face } from './Face'
 import type { BoardSize, GameState, Team } from './Game'
 import type { Seats } from './Room'
 

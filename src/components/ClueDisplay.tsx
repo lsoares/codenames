@@ -1,5 +1,5 @@
 import { getDefinitionUrl } from '../Face'
-import { unlimitedClueHint } from '../classic/Game'
+import { unlimitedClueHint } from '../Game'
 import styles from './ClueDisplay.module.css'
 
 export function ClueDisplay(props: {

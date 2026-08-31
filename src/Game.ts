@@ -1,12 +1,12 @@
-import type { Face } from '../Face'
-import { shuffle } from '../shuffle'
-export type { Team } from '../Team'
-export type { Card, CardColor, GuessOutcome } from '../Card'
-export type { Credit } from '../Credit'
-export type { BoardSize } from '../BoardSize'
-import type { Team } from '../Team'
-import type { Card, CardColor, GuessOutcome } from '../Card'
-import type { Credit } from '../Credit'
+import type { Face } from './Face'
+import { shuffle } from './shuffle'
+export type { Team } from './Team'
+export type { Card, CardColor, GuessOutcome } from './Card'
+export type { Credit } from './Credit'
+export type { BoardSize } from './BoardSize'
+import type { Team } from './Team'
+import type { Card, CardColor, GuessOutcome } from './Card'
+import type { Credit } from './Credit'
 
 export type GamePhase = 'clue' | 'guess'
 
@@ -53,7 +53,7 @@ export interface Transition {
   win: { team: Team; byAssassin: boolean } | null
 }
 
-import type { BoardSize } from '../BoardSize'
+import type { BoardSize } from './BoardSize'
 
 const COMPOSITIONS: Record<BoardSize, Composition> = {
   '5x4': { startingAgents: 8, otherAgents: 7, neutrals: 4, assassins: 1 },

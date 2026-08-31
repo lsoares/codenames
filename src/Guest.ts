@@ -1,5 +1,5 @@
 import { type DataConnection } from 'peerjs'
-import { iceServersReady, logConnection, newPeer, resetTabPeerId, tabPeerId } from '../peer'
+import { iceServersReady, logConnection, newPeer, resetTabPeerId, tabPeerId } from './peer'
 import type { Action, Ping, Presence, Repick, RoomView, Session, TeamClaim } from './Session'
 
 export type JoinFailureReason = 'room-not-found' | 'broker-unreachable' | 'connection-blocked'

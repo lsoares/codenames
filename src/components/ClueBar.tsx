@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { UNLIMITED_CLUE, unlimitedClueHint } from '../classic/Game'
+import { UNLIMITED_CLUE, unlimitedClueHint } from '../Game'
 import type { Team } from '../Team'
 import styles from './ClueBar.module.css'
 
