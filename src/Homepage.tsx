@@ -86,7 +86,7 @@ export function Homepage(props: {
           target="_blank"
           rel="noreferrer"
         >
-          🎲 Buy the game
+          🛒 Buy the game
         </a>
         <a
           className={styles.coffee}
