@@ -430,20 +430,22 @@ export function GameScreen(props: {
       {winner && (
         <span className={styles.endLinks}>
           <a
-            className={styles.endLink}
-            href="https://store.czechgames.com/collections/codenames"
-            target="_blank"
-            rel="noreferrer"
-          >
-            🛒 Buy the game
-          </a>
-          <a
-            className={styles.endLink}
+            className={styles.coffee}
             href="https://www.buymeacoffee.com/lsoares"
             target="_blank"
             rel="noreferrer"
           >
-            ☕
+            ☕ Buy me a coffee
+          </a>
+          <a
+            className={styles.endLink}
+            href="https://store.czechgames.com/collections/codenames"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Buy the game"
+            title="Buy the game"
+          >
+            🛒
           </a>
         </span>
       )}

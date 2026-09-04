@@ -381,16 +381,44 @@ button.spymasterSlot[data-mine] {
   margin-top: 4px;
 }
 
-.endLink {
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 600;
+.endLink,
+.coffee {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.2em;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  /* Emoji glyphs are taller than a line-height:1 box, so they would sit low. */
+  line-height: 0;
   text-decoration: none;
 }
 
-.endLink:hover {
+.endLink {
+  width: 2.2em;
+  /* Emoji advance width carries spare room on the right, so a plain centre
+     leaves the glyph looking ~0.125em too far left. This offsets it back. */
+  padding-left: 0.25em;
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  background: var(--surface);
   color: var(--ink);
-  text-decoration: underline;
+}
+
+.endLink:hover {
+  background: color-mix(in srgb, var(--surface) 85%, var(--ink));
+}
+
+.coffee {
+  gap: 6px;
+  padding: 0 14px;
+  background: #ffdd00;
+  color: #1a1a1a;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.coffee:hover {
+  filter: brightness(1.05);
 }
 
 .endAction:hover {
