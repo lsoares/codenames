@@ -1,6 +1,7 @@
 import type { Face } from './Face'
 import type { BoardSize, GameState, Team } from './Game'
 import type { Seats } from './Room'
+import { teamName } from './Team'
 
 export type Action =
   | { type: 'clue'; word: string; count: number }
@@ -18,6 +19,7 @@ export interface Player {
   id: string
   team: Team
   emoji: string
+  name: string
 }
 
 export interface RoomView {
@@ -50,6 +52,11 @@ export class Roster {
 
   spymasterOf(team: Team): string | null {
     return this.seats[team]
+  }
+
+  spymasterNameOf(team: Team): string {
+    const spymaster = this.players.find((player) => player.id === this.seats[team])
+    return spymaster?.name || `${teamName(team)}'s spymaster`
   }
 
   seatOf(playerId: string): Team | null {

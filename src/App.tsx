@@ -9,10 +9,29 @@ import { RoomCode } from './RoomCode'
 import { Roster, type Action, type Player, type Session } from './Session'
 import { Takeover } from './Takeover'
 import { playSound } from './sound'
-import { GameScreen, spymasterEmoji } from './GameScreen'
+import { GameScreen } from './GameScreen'
+import { spymasterEmoji, teamName } from './Team'
 import { Homepage } from './Homepage'
+import type { Profile } from './Profile'
+import { ProfileForm, savedProfile } from './ProfileForm'
 
 export function App() {
+  const [profile, setProfile] = useState(savedProfile)
+  const [editing, setEditing] = useState(false)
+  if (!profile || editing)
+    return (
+      <ProfileForm
+        current={profile}
+        onSave={(chosen) => {
+          setProfile(chosen)
+          setEditing(false)
+        }}
+      />
+    )
+  return <Play profile={profile} onEditProfile={() => setEditing(true)} />
+}
+
+function Play(props: { profile: Profile; onEditProfile: () => void }) {
   const [game, setGame] = useState<Game | null>(null)
   const [repicking, setRepicking] = useState(false)
   const [roomCode, setRoomCode] = useState('')
@@ -86,7 +105,11 @@ export function App() {
       if (!game || isHostRef.current) return
       sessionRef.current?.close()
       try {
-        const { session, asHost } = await takeover.claim(roomCodeRef.current, game.state)
+        const { session, asHost } = await takeover.claim(
+          roomCodeRef.current,
+          game.state,
+          props.profile,
+        )
         wire(session, asHost)
         playSound('takeover')
         notify(asHost ? 'You took over as host' : "You're back in the room")
@@ -183,11 +206,11 @@ export function App() {
       const deck = findDeck(title)
       const total = boardSize(compositionFor(selectedBoardSize))
       const faces = await deck.fetch(total)
-      wire(await Host.start(deck, faces, start, selectedBoardSize, code), true)
+      wire(await Host.start(deck, faces, start, selectedBoardSize, props.profile, code), true)
       track('room created', { deck: deck.title })
     } catch (error) {
       if (code && (error as { type?: string })?.type === 'unavailable-id') {
-        const joined = await Guest.join(code)
+        const joined = await Guest.join(code, props.profile)
           .then((session) => (wire(session, false), true))
           .catch(() => false)
         if (joined) return
@@ -245,8 +268,9 @@ export function App() {
     if (prev === null) return
     const joined = players.find((player) => !prev.some((was) => was.id === player.id))
     const gone = prev.find((was) => !players.some((player) => player.id === was.id))
-    if (joined) notify(`joined ${teamName(joined.team)} 👋`, joined.team, joined.emoji)
-    else if (gone) notify('left', gone.team, gone.emoji)
+    if (joined)
+      notify(`${joined.name} joined ${teamName(joined.team)} 👋`, joined.team, joined.emoji)
+    else if (gone) notify(`${gone.name} left`, gone.team, gone.emoji)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [players, game])
 
@@ -259,7 +283,10 @@ export function App() {
     for (const team of ['red', 'blue'] as const) {
       if (seats[team] && seats[team] !== prev[team] && seats[team] !== selfIdRef.current) {
         playSound('spymaster')
-        notify(`New ${team} spymaster ${spymasterEmoji[team]}`, team)
+        notify(
+          `${roster.spymasterNameOf(team)} is the new ${team} spymaster ${spymasterEmoji[team]}`,
+          team,
+        )
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -277,7 +304,7 @@ export function App() {
 
     setStatus(`Joining ${code}…`)
     const saved = sessionStorage.getItem(hostStateKey(code))
-    Guest.join(code, { waitForHost: !saved })
+    Guest.join(code, props.profile, { waitForHost: !saved })
       .then((session) => {
         wire(session, false)
         track('room joined')
@@ -293,7 +320,7 @@ export function App() {
           return
         }
         setStatus('Rejoining the room…')
-        Host.resume(code, JSON.parse(saved) as GameState)
+        Host.resume(code, JSON.parse(saved) as GameState, props.profile)
           .then((session) => {
             wire(session, true)
             setStatus('')
@@ -375,6 +402,8 @@ export function App() {
                 }
           }
           roomCode={game ? roomCode : undefined}
+          profile={game ? undefined : props.profile}
+          onEditProfile={props.onEditProfile}
         />
       )}
     </>
@@ -382,8 +411,6 @@ export function App() {
 }
 
 const randomTeam = (): Team => (Math.random() < 0.5 ? 'red' : 'blue')
-
-const teamName = (team: Team): string => (team === 'red' ? 'Red' : 'Blue')
 
 const hostStateKey = (code: string): string => `codenames:host:${code}`
 

@@ -50,7 +50,7 @@ export class GamePage {
 
   // Auto-teams are gated by turn, so pin the host's starting team for a
   // deterministic single-player flow (the host is always auto-assigned red).
-  async open(startTeam?: 'red' | 'blue'): Promise<void> {
+  async open(startTeam?: 'red' | 'blue', profile: Profile = defaultProfile): Promise<void> {
     if (startTeam) {
       await this.page.addInitScript(
         (team) => localStorage.setItem('codenames:start-team', team),
@@ -58,12 +58,17 @@ export class GamePage {
       )
     }
     await this.page.goto('/')
+    await this.introduceAs(profile)
   }
 
   // Join a room. A pinned team makes the joiner land on that side deterministically
   // (auto-seated as its spymaster if the seat is open, else an operative), so a
   // multi-tab game can be set up without relying on the auto-balancer's coin toss.
-  async openRoom(code: string, startTeam?: 'red' | 'blue'): Promise<void> {
+  async openRoom(
+    code: string,
+    startTeam?: 'red' | 'blue',
+    profile: Profile = defaultProfile,
+  ): Promise<void> {
     if (startTeam) {
       await this.page.addInitScript(
         (team) => localStorage.setItem('codenames:start-team', team),
@@ -71,6 +76,31 @@ export class GamePage {
       )
     }
     await this.page.goto(`/${code}`)
+    await this.introduceAs(profile)
+  }
+
+  // First visit asks who's playing: a name and an emoji, remembered afterwards.
+  async introduceAs(profile: Profile): Promise<void> {
+    await this.typeName(profile.name)
+    await this.page.getByRole('radio', { name: profile.emoji, exact: true }).check()
+    await this.page.getByRole('button', { name: "Let's play" }).click()
+  }
+
+  // Real key presses, so the field's maxlength is honoured.
+  async typeName(name: string): Promise<void> {
+    await this.page.getByRole('textbox', { name: 'Your name' }).pressSequentially(name)
+  }
+
+  getNameInput() {
+    return this.page.getByRole('textbox', { name: 'Your name' })
+  }
+
+  // The players beside the board — red on the left, blue on the right.
+  getTeamPlayers(team: 'red' | 'blue') {
+    return this.page
+      .getByRole('list', { name: `${team} players` })
+      .getByRole('listitem')
+      .filter({ has: this.page.getByRole('img') })
   }
 
   // The homepage lists decks; picking one hosts a room. Pictures is casual
@@ -266,6 +296,11 @@ export class GamePage {
     await this.page.getByRole('button', { name: `Join ${team} team` }).click()
   }
 
+  // The header line saying whose move it is.
+  findStatus(text: string) {
+    return this.page.getByText(text)
+  }
+
   // The transient toast / sticky announcement shown in the header status pill.
   getByRoleStatus() {
     return this.page.getByRole('status')
@@ -297,3 +332,7 @@ export class GamePage {
 }
 
 type Color = 'red' | 'blue' | 'neutral' | 'assassin'
+
+type Profile = { name: string; emoji: string }
+
+const defaultProfile: Profile = { name: 'Agent', emoji: '🦊' }

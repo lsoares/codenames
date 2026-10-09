@@ -11,9 +11,8 @@ import { Confetti } from './components/Confetti'
 import { RoomInvite } from './components/RoomInvite'
 import { ThinkingBar } from './components/ThinkingBar'
 import { track } from './analytics'
+import { spymasterEmoji, teamName } from './Team'
 import styles from './GameScreen.module.css'
-
-export const spymasterEmoji: Record<Team, string> = { red: '🕵️‍♀️', blue: '🕵️‍♂️' }
 
 export function GameScreen(props: {
   game: Game
@@ -127,35 +126,8 @@ export function GameScreen(props: {
     if (taken) dealFreshBoard()
   }
 
-  const renderTeam = (team: Team) => {
-    const seatId = props.roster.spymasterOf(team)
-    const hasSpymaster = !!seatId
-    const isMySeat = props.mySeat === team
-    const selfFirst = team === 'blue'
-    const opPlayers = props.roster.operativesOf(team).sort((a, b) => {
-      if (a.id === props.selfId) return selfFirst ? -1 : 1
-      if (b.id === props.selfId) return selfFirst ? 1 : -1
-      return 0
-    })
-    const ops = opPlayers.length
-    const headcount = (hasSpymaster ? 1 : 0) + ops
-    const active = team === props.game.state.turn
-    const isMyTeam = team === props.myTeam
-    const spymasterActive = (active && acting === 'spymaster') || undefined
-    const editable = !props.game.inProgress()
-    const canTakeSeat = !isMySeat && editable
-    const spymasterFace = hasSpymaster ? (
-      <span role="img" aria-label={isMySeat ? `${team} spymaster (you)` : `${team} spymaster`}>
-        {spymasterEmoji[team]}
-      </span>
-    ) : (
-      <span aria-hidden="true" className={styles.spymasterDim}>
-        {spymasterEmoji[team]}
-      </span>
-    )
-    const spymasterLabel = hasSpymaster
-      ? `Replace the ${team} spymaster`
-      : `Become ${team} spymaster`
+  const renderCount = (team: Team) => {
+    const active = team === turn
     return (
       <span
         className={styles.team}
@@ -166,66 +138,95 @@ export function GameScreen(props: {
         <span className={styles.count} data-team={team} title={`${team} cards left to guess`}>
           {props.game.remaining(team)}
         </span>
-        <span
-          className={styles.players}
-          title={`${headcount} ${team} player${headcount === 1 ? '' : 's'}`}
-        >
-          {canTakeSeat ? (
+      </span>
+    )
+  }
+
+  const renderRoster = (team: Team) => {
+    const spymasterId = props.roster.spymasterOf(team)
+    const players = props.roster
+      .ofTeam(team)
+      .sort((a, b) => Number(b.id === spymasterId) - Number(a.id === spymasterId))
+    const active = !winner && team === turn
+    const editable = !props.game.inProgress()
+    const replaceLabel = `Replace the ${team} spymaster`
+    const becomeLabel = `Become ${team} spymaster`
+    const joinLabel = `Join ${team} team`
+    return (
+      <ul
+        className={styles.roster}
+        data-team={team}
+        data-turn={active || undefined}
+        aria-label={`${team} players`}
+      >
+        {!spymasterId && editable && (
+          <li className={styles.rosterSlot}>
             <button
               type="button"
-              className={styles.spymasterSlot}
-              data-team={team}
-              data-active={spymasterActive}
-              aria-label={spymasterLabel}
-              title={spymasterLabel}
+              className={styles.rosterAction}
+              aria-label={becomeLabel}
+              title={becomeLabel}
               onClick={() => requestSpymasterSeat(team)}
             >
-              {spymasterFace}
+              <span aria-hidden="true">{spymasterEmoji[team]}</span> Spymaster?
             </button>
-          ) : (
-            <span
-              className={styles.spymasterSlot}
-              data-team={team}
-              data-mine={isMySeat || undefined}
-              data-active={spymasterActive}
+          </li>
+        )}
+        {players.map((player) => {
+          const isSpymaster = player.id === spymasterId
+          const isMe = player.id === props.selfId
+          const role = isSpymaster ? 'spymaster' : 'operative'
+          const acts = active && acting === (isSpymaster ? 'spymaster' : 'operatives')
+          return (
+            <li
+              key={player.id}
+              className={styles.rosterPlayer}
+              data-mine={isMe || undefined}
+              data-active={acts || undefined}
             >
-              {spymasterFace}
-            </span>
-          )}
-          <span
-            className={styles.ops}
-            data-team={team}
-            data-active={(active && acting === 'operatives') || undefined}
-          >
-            {opPlayers.map((player) => (
-              <span
-                key={player.id}
-                role="img"
-                className={styles.op}
-                data-team={team}
-                data-mine={player.id === props.selfId || undefined}
-                aria-label={
-                  player.id === props.selfId ? `${team} operative (you)` : `${team} operative`
-                }
-              >
+              <span role="img" aria-label={`${team} ${role}${isMe ? ' (you)' : ''}`}>
                 {player.emoji}
               </span>
-            ))}
-          </span>
-          {!isMyTeam && editable && (
+              <span className={styles.rosterName} title={player.name}>
+                {player.name}
+              </span>
+              {isSpymaster &&
+                (editable && !isMe ? (
+                  <button
+                    type="button"
+                    className={styles.rosterRole}
+                    aria-label={replaceLabel}
+                    title={replaceLabel}
+                    onClick={() => requestSpymasterSeat(team)}
+                  >
+                    {spymasterEmoji[team]}
+                  </button>
+                ) : (
+                  <span
+                    className={styles.rosterRole}
+                    title={`${team} spymaster`}
+                    aria-hidden="true"
+                  >
+                    {spymasterEmoji[team]}
+                  </span>
+                ))}
+            </li>
+          )
+        })}
+        {team !== props.myTeam && editable && (
+          <li className={styles.rosterSlot}>
             <button
               type="button"
-              className={styles.join}
-              data-team={team}
-              aria-label={`Join ${team} team`}
-              title={`Join ${team} team`}
+              className={styles.rosterAction}
+              aria-label={joinLabel}
+              title={joinLabel}
               onClick={() => requestJoinTeam(team)}
             >
-              ＋
+              ＋ Join
             </button>
-          )}
-        </span>
-      </span>
+          </li>
+        )}
+      </ul>
     )
   }
 
@@ -279,13 +280,18 @@ export function GameScreen(props: {
     )
   }
 
-  const renderSide = (team: Team) => (winner ? renderClues(team) : renderTeam(team))
+  const renderSide = (team: Team) => (
+    <>
+      {winner ? renderClues(team) : renderCount(team)}
+      {renderRoster(team)}
+    </>
+  )
 
   const activeSpymaster = props.mySeat === turn
   const mineTurn = turn === props.myTeam
   const onBonus = clue !== null && guessesUsed >= clue.count
 
-  const winnerName = winner ? winner.charAt(0).toUpperCase() + winner.slice(1) : ''
+  const winnerName = winner ? teamName(winner) : ''
   const winnerEmojis = winner
     ? props.roster
         .ofTeam(winner)
@@ -298,11 +304,9 @@ export function GameScreen(props: {
       ? `🏆 ${winnerName} wins! ${winnerEmojis}`.trim()
       : `😢 ${winnerName} wins…`
     : acting === 'spymaster'
-      ? mineTurn
-        ? activeSpymaster
-          ? `Your turn (${turn})`
-          : `${spymasterEmoji[turn]}💭 Your spymaster is thinking…`
-        : `${spymasterEmoji[turn]}💭 ${turn.charAt(0).toUpperCase() + turn.slice(1)}'s spymaster is thinking…`
+      ? activeSpymaster
+        ? `Your turn (${turn})`
+        : `${spymasterEmoji[turn]}💭 ${props.roster.spymasterNameOf(turn)} is thinking…`
       : mineTurn
         ? props.mySeat
           ? `Your operatives' turn (${turn})`
@@ -370,9 +374,8 @@ export function GameScreen(props: {
   const repickBanner = props.repicking && (
     <div className={styles.statusPill} data-team={props.repicking}>
       <span className={styles.statusText}>
-        {spymasterEmoji[props.repicking]}{' '}
-        {props.repicking.charAt(0).toUpperCase() + props.repicking.slice(1)}
-        's spymaster is choosing a new deck…
+        {spymasterEmoji[props.repicking]} {props.roster.spymasterNameOf(props.repicking)} is
+        choosing a new deck…
       </span>
     </div>
   )

@@ -1,4 +1,5 @@
 import type { Team } from './Game'
+import type { Profile } from './Profile'
 
 export interface Seats {
   readonly red: string | null
@@ -9,7 +10,7 @@ export class Room {
   constructor(
     private readonly teamOf: Readonly<Record<string, Team>> = {},
     private readonly seatOf: Seats = { red: null, blue: null },
-    private readonly emojiOf: Readonly<Record<string, string>> = {},
+    private readonly profileOf: Readonly<Record<string, Profile>> = {},
   ) {}
 
   get teams(): Record<string, Team> {
@@ -20,20 +21,21 @@ export class Room {
     return { red: this.seatOf.red, blue: this.seatOf.blue }
   }
 
-  get emojis(): Record<string, string> {
-    return { ...this.emojiOf }
+  get profiles(): Record<string, Profile> {
+    return { ...this.profileOf }
   }
 
   assignTeam(peerId: string): Room {
     if (this.teamOf[peerId]) return this
-    return new Room({ ...this.teamOf, [peerId]: this.teamForArrival() }, this.seatOf, this.emojiOf)
+    return new Room(
+      { ...this.teamOf, [peerId]: this.teamForArrival() },
+      this.seatOf,
+      this.profileOf,
+    )
   }
 
-  assignEmoji(peerId: string): Room {
-    if (this.emojiOf[peerId]) return this
-    const used = new Set(Object.values(this.emojiOf))
-    const free = emojiPalette.find((emoji) => !used.has(emoji)) ?? '👤'
-    return new Room(this.teamOf, this.seatOf, { ...this.emojiOf, [peerId]: free })
+  introduce(peerId: string, profile: Profile): Room {
+    return new Room(this.teamOf, this.seatOf, { ...this.profileOf, [peerId]: profile })
   }
 
   private teamForArrival(): Team {
@@ -44,24 +46,24 @@ export class Room {
   }
 
   setTeam(peerId: string, team: Team): Room {
-    return new Room({ ...this.teamOf, [peerId]: team }, this.without(peerId), this.emojiOf)
+    return new Room({ ...this.teamOf, [peerId]: team }, this.without(peerId), this.profileOf)
   }
 
   claimSeat(peerId: string, team: Team | null): Room {
     const freed = this.without(peerId)
-    return new Room(this.teamOf, team ? { ...freed, [team]: peerId } : freed, this.emojiOf)
+    return new Room(this.teamOf, team ? { ...freed, [team]: peerId } : freed, this.profileOf)
   }
 
   autoSeat(peerId: string): Room {
     const team = this.teamOf[peerId]
     if (!team || this.seatOf[team]) return this
-    return new Room(this.teamOf, { ...this.seatOf, [team]: peerId }, this.emojiOf)
+    return new Room(this.teamOf, { ...this.seatOf, [team]: peerId }, this.profileOf)
   }
 
   drop(peerId: string): Room {
     const { [peerId]: _gone, ...rest } = this.teamOf
-    const { [peerId]: _emoji, ...emojiRest } = this.emojiOf
-    return new Room(rest, this.without(peerId), emojiRest)
+    const { [peerId]: _profile, ...profileRest } = this.profileOf
+    return new Room(rest, this.without(peerId), profileRest)
   }
 
   freeAbsentSeats(present: ReadonlySet<string>): Room {
@@ -73,7 +75,7 @@ export class Room {
         red: held(this.seatOf.red) ? null : this.seatOf.red,
         blue: held(this.seatOf.blue) ? null : this.seatOf.blue,
       },
-      this.emojiOf,
+      this.profileOf,
     )
   }
 
@@ -83,7 +85,7 @@ export class Room {
     const red = this.seatOf.red ?? firstPresent('red')
     const blue = this.seatOf.blue ?? firstPresent('blue')
     if (red === this.seatOf.red && blue === this.seatOf.blue) return this
-    return new Room(this.teamOf, { red, blue }, this.emojiOf)
+    return new Room(this.teamOf, { red, blue }, this.profileOf)
   }
 
   rotateSpymasters(): Room {
@@ -94,7 +96,7 @@ export class Room {
       if (members.length < 2) return holder
       return members[(members.indexOf(holder) + 1) % members.length]
     }
-    return new Room(this.teamOf, { red: rotated('red'), blue: rotated('blue') }, this.emojiOf)
+    return new Room(this.teamOf, { red: rotated('red'), blue: rotated('blue') }, this.profileOf)
   }
 
   private without(peerId: string): Seats {
@@ -104,56 +106,3 @@ export class Room {
     }
   }
 }
-
-const emojiPalette = [
-  '🦊',
-  '🐸',
-  '🦉',
-  '🐼',
-  '🐧',
-  '🦁',
-  '🐙',
-  '🦄',
-  '🐷',
-  '🐵',
-  '🦥',
-  '🦩',
-  '🐢',
-  '🦎',
-  '🐝',
-  '🦖',
-  '🐳',
-  '🦔',
-  '🐰',
-  '🦇',
-  '🐨',
-  '🐮',
-  '🐔',
-  '🦆',
-  '🐍',
-  '🐺',
-  '🦂',
-  '🦀',
-  '🐡',
-  '🦑',
-  '🐈',
-  '🐕',
-  '🦓',
-  '🦍',
-  '🦌',
-  '🐘',
-  '🦏',
-  '🦛',
-  '🐎',
-  '🐐',
-  '🦃',
-  '🦚',
-  '🦜',
-  '🐦',
-  '🦅',
-  '🦢',
-  '🐣',
-  '🦡',
-  '🦨',
-  '🦫',
-]

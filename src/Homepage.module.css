@@ -167,3 +167,10 @@
 .feedback:hover {
   filter: brightness(1.05);
 }
+
+.profile {
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}

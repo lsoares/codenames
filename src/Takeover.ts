@@ -1,6 +1,7 @@
 import type { GameState } from './Game'
 import { Guest } from './Guest'
 import { Host } from './Host'
+import type { Profile } from './Profile'
 import type { Session } from './Session'
 
 export class Takeover {
@@ -18,11 +19,15 @@ export class Takeover {
     return (rank < 0 ? survivors.length : rank) * 1500
   }
 
-  async claim(roomCode: string, state: GameState): Promise<{ session: Session; asHost: boolean }> {
+  async claim(
+    roomCode: string,
+    state: GameState,
+    profile: Profile,
+  ): Promise<{ session: Session; asHost: boolean }> {
     try {
-      return { session: await Host.resume(roomCode, state), asHost: true }
+      return { session: await Host.resume(roomCode, state, profile), asHost: true }
     } catch {
-      return { session: await Guest.join(roomCode), asHost: false }
+      return { session: await Guest.join(roomCode, profile), asHost: false }
     }
   }
 }

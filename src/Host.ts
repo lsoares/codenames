@@ -2,6 +2,7 @@ import { type DataConnection } from 'peerjs'
 import type { Face } from './Face'
 import { Game, compositionFor, createGame, type BoardSize, type GameState } from './Game'
 import { findDeck, creditOf, type Deck } from './decks'
+import { Profile } from './Profile'
 import { Room } from './Room'
 import { iceServersReady, logConnection, newPeer } from './peer'
 import { RoomCode } from './RoomCode'
@@ -12,7 +13,7 @@ export class Host implements Session {
   selfId!: string
 
   get selfEmoji(): string {
-    return this.room.emojis[this.selfId] ?? ''
+    return this.room.profiles[this.selfId]?.emoji ?? ''
   }
 
   private readonly peer: ReturnType<typeof newPeer>
@@ -33,6 +34,7 @@ export class Host implements Session {
   private constructor(
     private readonly code: string,
     initialState: GameState,
+    private readonly profile: Profile,
     private readonly mode: 'new' | 'resume',
     private readonly fixedCode: boolean,
   ) {
@@ -46,31 +48,34 @@ export class Host implements Session {
     faces: Face[],
     startingTeam: 'red' | 'blue',
     boardSize: BoardSize,
+    profile: Profile,
     code?: string,
   ): Promise<Host> {
     return Host.launch(
       code ?? RoomCode.random().toString(),
       createGame(faces, startingTeam, creditOf(deck), deck.title, compositionFor(boardSize)),
+      profile,
       'new',
       4,
       code != null,
     )
   }
 
-  static resume(roomCode: string, state: GameState): Promise<Host> {
-    return Host.launch(roomCode, state, 'resume', 15, true)
+  static resume(roomCode: string, state: GameState, profile: Profile): Promise<Host> {
+    return Host.launch(roomCode, state, profile, 'resume', 15, true)
   }
 
   private static async launch(
     code: string,
     initialState: GameState,
+    profile: Profile,
     mode: 'new' | 'resume',
     retries: number,
     fixedCode: boolean,
   ): Promise<Host> {
     await iceServersReady
     return new Promise((resolve, reject) =>
-      new Host(code, initialState, mode, fixedCode).run(retries, resolve, reject),
+      new Host(code, initialState, profile, mode, fixedCode).run(retries, resolve, reject),
     )
   }
 
@@ -128,7 +133,7 @@ export class Host implements Session {
       this.reconnectDelay = 0
       if (!this.opened) {
         this.opened = true
-        this.room = this.room.assignTeam(id).assignEmoji(id)
+        this.room = this.room.assignTeam(id).introduce(id, this.profile)
         if (this.mode === 'new') this.room = this.room.autoSeat(id)
       }
       resolve(this)
@@ -149,7 +154,7 @@ export class Host implements Session {
         this.lastSeen.set(connection, Date.now())
         this.room = this.room
           .assignTeam(connection.peer)
-          .assignEmoji(connection.peer)
+          .introduce(connection.peer, Profile.from(connection.metadata))
           .autoSeat(connection.peer)
         this.broadcast()
       })
@@ -184,10 +189,14 @@ export class Host implements Session {
         const nextCode = this.mode === 'new' ? RoomCode.random().toString() : this.code
         setTimeout(
           () =>
-            Host.launch(nextCode, this.game.state, this.mode, retries - 1, this.fixedCode).then(
-              resolve,
-              reject,
-            ),
+            Host.launch(
+              nextCode,
+              this.game.state,
+              this.profile,
+              this.mode,
+              retries - 1,
+              this.fixedCode,
+            ).then(resolve, reject),
           this.mode === 'resume' ? 800 : 0,
         )
       } else {
@@ -199,11 +208,16 @@ export class Host implements Session {
   private view(): RoomView {
     const ids = [this.peer.id, ...this.connections.map((connection) => connection.peer)]
     const teams = this.room.teams
-    const emojis = this.room.emojis
+    const profiles = this.room.profiles
     return {
       state: this.game.state,
       seats: this.room.seats,
-      players: ids.map((id) => ({ id, team: teams[id], emoji: emojis[id] })),
+      players: ids.map((id) => ({
+        id,
+        team: teams[id],
+        emoji: profiles[id]?.emoji ?? '👤',
+        name: profiles[id]?.name ?? '',
+      })),
       repicking: this.repicking,
     }
   }

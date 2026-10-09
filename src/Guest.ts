@@ -1,4 +1,5 @@
 import { type DataConnection } from 'peerjs'
+import type { Profile } from './Profile'
 import { iceServersReady, logConnection, newPeer, resetTabPeerId, tabPeerId } from './peer'
 import type { Action, Ping, Presence, Repick, RoomView, Session, TeamClaim } from './Session'
 
@@ -30,10 +31,13 @@ export class Guest implements Session {
     if (!event.persisted) this.peer?.destroy()
   }
 
-  private constructor(readonly roomCode: string) {}
+  private constructor(
+    readonly roomCode: string,
+    private readonly profile: Profile,
+  ) {}
 
-  static join(roomCode: string, { waitForHost = true } = {}): Promise<Guest> {
-    return new Guest(roomCode).open(waitForHost)
+  static join(roomCode: string, profile: Profile, { waitForHost = true } = {}): Promise<Guest> {
+    return new Guest(roomCode, profile).open(waitForHost)
   }
 
   dispatch(action: Action): void {
@@ -101,7 +105,10 @@ export class Guest implements Session {
       const dial = (peer: ReturnType<typeof newPeer>) => {
         if (settled || peer.destroyed) return
         if (phase !== 'room-not-found') phase = 'connection-blocked'
-        const connection = peer.connect(this.roomCode, { reliable: true })
+        const connection = peer.connect(this.roomCode, {
+          reliable: true,
+          metadata: { name: this.profile.name, emoji: this.profile.emoji },
+        })
         this.connection = connection
         connection.on('open', () => {
           logConnection(connection)

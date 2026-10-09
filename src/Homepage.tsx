@@ -7,6 +7,7 @@ import { CategoryPicker } from './CategoryPicker'
 import { HowToPlay } from './HowToPlay'
 import { RoomInvite } from './components/RoomInvite'
 import { track } from './analytics'
+import type { Profile } from './Profile'
 import styles from './Homepage.module.css'
 
 export function Homepage(props: {
@@ -16,6 +17,8 @@ export function Homepage(props: {
   onPick: (id: string) => void
   onJoin?: (code: string) => void
   roomCode?: string
+  profile?: Profile
+  onEditProfile: () => void
 }) {
   const [code, setCode] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<Deck['category'] | undefined>(
@@ -63,6 +66,17 @@ export function Homepage(props: {
             <RoomInvite />
           ) : null}
         </header>
+        {props.profile && (
+          <button
+            type="button"
+            className={`secondary ${styles.profile}`}
+            aria-label={`Playing as ${props.profile.name} — change`}
+            title="Change your name or emoji"
+            onClick={props.onEditProfile}
+          >
+            <span aria-hidden="true">{props.profile.emoji}</span> {props.profile.name} ✏️
+          </button>
+        )}
         <div className={styles.filters}>
           <CategoryPicker
             category={categoryFilter}
