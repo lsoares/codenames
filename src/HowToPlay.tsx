@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { track } from './analytics'
 import styles from './HowToPlay.module.css'
 
 export function HowToPlay() {
@@ -10,7 +11,10 @@ export function HowToPlay() {
         className={styles.info}
         aria-label="How to play"
         title="How to play"
-        onClick={() => dialog.current?.showModal()}
+        onClick={() => {
+          track('how to play opened')
+          dialog.current?.showModal()
+        }}
       >
         i
       </button>
@@ -190,6 +194,7 @@ export function HowToPlay() {
           href="https://filemanager.czechgames.com/storage/files/codenames-pictures-2016/rules/codenames-pictures-rules-en.pdf"
           target="_blank"
           rel="noreferrer"
+          onClick={() => track('full rules clicked')}
         >
           Full rules ↗
         </a>

@@ -6,6 +6,7 @@ import { DeckPicker } from './DeckPicker'
 import { CategoryPicker } from './CategoryPicker'
 import { HowToPlay } from './HowToPlay'
 import { RoomInvite } from './components/RoomInvite'
+import { track } from './analytics'
 import styles from './Homepage.module.css'
 
 export function Homepage(props: {
@@ -85,6 +86,7 @@ export function Homepage(props: {
           href="https://store.czechgames.com/collections/codenames"
           target="_blank"
           rel="noreferrer"
+          onClick={() => track('buy game clicked', { from: 'homepage' })}
         >
           🛒 Buy the game
         </a>
@@ -93,12 +95,14 @@ export function Homepage(props: {
           href="https://www.buymeacoffee.com/lsoares"
           target="_blank"
           rel="noreferrer"
+          onClick={() => track('coffee clicked', { from: 'homepage' })}
         >
           ☕
         </a>
         <a
           className={styles.feedback}
           href="mailto:lsoares@gmail.com?subject=Codenames%20Anything%20feedback"
+          onClick={() => track('feedback clicked')}
         >
           💬 Feedback
         </a>

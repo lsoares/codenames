@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { track } from '../analytics'
 import styles from './RoomInvite.module.css'
 
 export function RoomInvite() {
@@ -13,6 +14,7 @@ export function RoomInvite() {
       title="Copy invite link"
       onClick={() => {
         void navigator.clipboard?.writeText(url)
+        track('invite copied')
         setCopied(true)
         window.clearTimeout(timer.current)
         timer.current = window.setTimeout(() => setCopied(false), 1400)

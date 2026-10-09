@@ -10,6 +10,7 @@ import { ClueDisplay } from './components/ClueDisplay'
 import { Confetti } from './components/Confetti'
 import { RoomInvite } from './components/RoomInvite'
 import { ThinkingBar } from './components/ThinkingBar'
+import { track } from './analytics'
 import styles from './GameScreen.module.css'
 
 export const spymasterEmoji: Record<Team, string> = { red: '🕵️‍♀️', blue: '🕵️‍♂️' }
@@ -232,11 +233,17 @@ export function GameScreen(props: {
     props.game.idle() || window.confirm('The current game will be lost. Continue?')
 
   const dealNewCards = (rotateSpymaster: boolean) => {
-    if (currentDeckTitle && confirmDiscard()) props.onNewGame(currentDeckTitle, rotateSpymaster)
+    if (currentDeckTitle && confirmDiscard()) {
+      track('new game clicked', { afterWin: winner !== null })
+      props.onNewGame(currentDeckTitle, rotateSpymaster)
+    }
   }
 
   const changeDeck = () => {
-    if (confirmDiscard()) props.onRepick()
+    if (confirmDiscard()) {
+      track('change deck clicked', { afterWin: winner !== null })
+      props.onRepick()
+    }
   }
 
   const renderClues = (team: Team) => {
@@ -434,6 +441,7 @@ export function GameScreen(props: {
             href="https://www.buymeacoffee.com/lsoares"
             target="_blank"
             rel="noreferrer"
+            onClick={() => track('coffee clicked', { from: 'end screen' })}
           >
             ☕ Buy me a coffee
           </a>
@@ -444,6 +452,7 @@ export function GameScreen(props: {
             rel="noreferrer"
             aria-label="Buy the game"
             title="Buy the game"
+            onClick={() => track('buy game clicked', { from: 'end screen' })}
           >
             🛒
           </a>
