@@ -9,3 +9,4 @@ docs/
 generated-cards/_orig/
 .claude/
 .DS_Store
+.impact/
