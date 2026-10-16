@@ -5,8 +5,8 @@ const enabled =
   !['localhost', '127.0.0.1'].includes(location.hostname)
 
 if (enabled) {
-  posthog.init('phc_zec9QTGoVEc8SxHiZ9PfJTHNJfxcvZA6SpeEvfGWCjMB', {
-    api_host: 'https://us.i.posthog.com',
+  posthog.init('phc_rJvaD22rtzcewWk3KPrZoXNWXgNUV2pEprtHbezCQYzK', {
+    api_host: 'https://eu.i.posthog.com',
     person_profiles: 'always',
   })
 }
