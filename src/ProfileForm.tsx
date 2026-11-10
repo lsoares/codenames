@@ -39,6 +39,9 @@ export function ProfileForm(props: {
           aria-label="Your name"
           placeholder="Your name"
           maxLength={Profile.maxNameLength}
+          autoComplete="nickname"
+          data-1p-ignore
+          data-lpignore="true"
           autoFocus
           onChange={(event) => setName(event.target.value)}
         />
